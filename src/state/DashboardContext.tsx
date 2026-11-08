@@ -40,7 +40,7 @@ interface DashboardContextType {
   media: MediaPlayerData;
   /** Computed live position in seconds (advances locally every second between HA pushes) */
   livePosition: number;
-  mediaControl: (action: 'play' | 'pause' | 'toggle' | 'next' | 'prev' | 'volume', value?: number) => void;
+  mediaControl: (action: 'play' | 'pause' | 'toggle' | 'next' | 'prev' | 'volume' | 'seek', value?: number) => void;
   finance: FinanceItem[];
   currentPhoto: PhotoItem;
   photoProgress: number; // 0 to 100 for the 15-second timer bar
@@ -199,13 +199,24 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return () => clearInterval(timer);
   }, []);
 
+  // Local timestamp when media state was received/updated for accurate local interpolation
+  const [lastSync, setLastSync] = useState<{ position: number; localTime: number; state: string }>({
+    position: media.position,
+    localTime: Date.now(),
+    state: media.state,
+  });
+
   // Subscribe to Home Assistant service
   useEffect(() => {
     haService.connect();
     const unsub = haService.subscribe((_entities, _status) => {
       const parsed = haService.parseActiveMediaPlayer();
       setMedia(parsed);
-      // Sync livePosition to the fresh HA snapshot
+      setLastSync({
+        position: parsed.position,
+        localTime: Date.now(),
+        state: parsed.state,
+      });
       setLivePosition(parsed.position);
       setSystemHealth(haService.parseSystemHealth());
     });
@@ -215,48 +226,75 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
   }, []);
 
-  // Advance livePosition locally every second when playing (avoids waiting for HA push)
+  // Advance livePosition locally every 500ms when playing (avoids waiting for HA push)
   useEffect(() => {
-    if (media.state !== 'playing') return;
-    // Recalculate from positionUpdatedAt so we stay accurate even after a gap
-    const tick = () => {
-      const elapsed = (Date.now() - (media.positionUpdatedAt ?? Date.now())) / 1000;
-      const computed = Math.min(media.position + elapsed, media.duration || Infinity);
-      setLivePosition(computed);
+    if (lastSync.state !== 'playing') {
+      setLivePosition(lastSync.position);
+      return;
+    }
+    const updateTick = () => {
+      const elapsed = (Date.now() - lastSync.localTime) / 1000;
+      const nextPos = Math.min(lastSync.position + Math.max(0, elapsed), media.duration || 999999);
+      setLivePosition(nextPos);
     };
-    tick(); // immediate
-    const id = setInterval(tick, 1000);
+    updateTick();
+    const id = setInterval(updateTick, 500);
     return () => clearInterval(id);
-  }, [media.state, media.position, media.positionUpdatedAt, media.duration]);
+  }, [lastSync, media.duration]);
 
-  // Media player control — sends HA service call
-  const mediaControl = (action: 'play' | 'pause' | 'toggle' | 'next' | 'prev' | 'volume', value?: number) => {
+  // Media player control — supports both live Home Assistant & simulated mock mode
+  const mediaControl = (
+    action: 'play' | 'pause' | 'toggle' | 'next' | 'prev' | 'volume' | 'seek',
+    value?: number
+  ) => {
+    // If in mock mode, route directly to mock media controller
+    if (haService.getStatus() === 'mock') {
+      haService.controlMockMedia(action, value);
+      const updated = haService.parseActiveMediaPlayer();
+      setMedia(updated);
+      setLastSync({
+        position: updated.position,
+        localTime: Date.now(),
+        state: updated.state,
+      });
+      setLivePosition(updated.position);
+      return;
+    }
+
     const entityId = media.entityId;
-    if (!entityId) return;
-    switch (action) {
-      case 'play':
-        haService.callService('media_player', 'media_play', { entity_id: entityId });
-        break;
-      case 'pause':
-        haService.callService('media_player', 'media_pause', { entity_id: entityId });
-        break;
-      case 'toggle':
-        haService.callService('media_player', 'media_play_pause', { entity_id: entityId });
-        break;
-      case 'next':
-        haService.callService('media_player', 'media_next_track', { entity_id: entityId });
-        break;
-      case 'prev':
-        haService.callService('media_player', 'media_previous_track', { entity_id: entityId });
-        break;
-      case 'volume':
-        if (value !== undefined) {
-          haService.callService('media_player', 'volume_set', {
-            entity_id: entityId,
-            volume_level: value / 100,
-          });
-        }
-        break;
+    if (!entityId) {
+      console.warn('[HA] No media player entityId available to control');
+      return;
+    }
+
+    const target = { entity_id: entityId };
+
+    if (action === 'toggle') {
+      const nextState = media.state === 'playing' ? 'paused' : 'playing';
+      setMedia(m => ({ ...m, state: nextState }));
+      setLastSync(s => ({ ...s, state: nextState, localTime: Date.now() }));
+      haService.callService('media_player', 'media_play_pause', {}, target);
+    } else if (action === 'play') {
+      setMedia(m => ({ ...m, state: 'playing' }));
+      setLastSync(s => ({ ...s, state: 'playing', localTime: Date.now() }));
+      haService.callService('media_player', 'media_play', {}, target);
+    } else if (action === 'pause') {
+      setMedia(m => ({ ...m, state: 'paused' }));
+      setLastSync(s => ({ ...s, state: 'paused', localTime: Date.now() }));
+      haService.callService('media_player', 'media_pause', {}, target);
+    } else if (action === 'next') {
+      haService.callService('media_player', 'media_next_track', {}, target);
+    } else if (action === 'prev') {
+      haService.callService('media_player', 'media_previous_track', {}, target);
+    } else if (action === 'volume' && value !== undefined) {
+      const vol = Math.max(0, Math.min(100, Math.round(value)));
+      setMedia(m => ({ ...m, volume: vol }));
+      haService.callService('media_player', 'volume_set', { volume_level: vol / 100 }, target);
+    } else if (action === 'seek' && value !== undefined) {
+      const seekSec = Math.max(0, Math.min(media.duration || 9999, value));
+      setLivePosition(seekSec);
+      setLastSync({ position: seekSec, localTime: Date.now(), state: media.state });
+      haService.callService('media_player', 'media_seek', { seek_position: seekSec }, target);
     }
   };
 

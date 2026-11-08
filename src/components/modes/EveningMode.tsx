@@ -6,7 +6,6 @@ import {
   SkipBack,
   SkipForward,
   Volume2,
-  VolumeX,
   Radio,
   Moon,
   Sparkles,
@@ -17,22 +16,33 @@ import { ClockWidget } from '../common/ClockWidget';
 import { WeatherWidget } from '../common/WeatherWidget';
 
 export const EveningMode: React.FC = () => {
-  const { media, weather } = useDashboard();
-  const [isPlaying, setIsPlaying] = useState<boolean>(media.state === 'playing');
-  const [volume, setVolume] = useState<number>(media.volume || 65);
+  const { media, livePosition, mediaControl, weather } = useDashboard();
   const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     setImageError(false);
   }, [media.entityPicture]);
 
+  const isPlaying = media.state === 'playing';
+  const volume = media.volume ?? 68;
+
   const formatSeconds = (sec: number) => {
-    const mins = Math.floor(sec / 60);
-    const s = Math.floor(sec % 60);
-    return `${mins}:${String(s).padStart(2, '0')}`;
+    const s = Math.max(0, Math.floor(sec));
+    const mins = Math.floor(s / 60);
+    const remainder = s % 60;
+    return `${mins}:${String(remainder).padStart(2, '0')}`;
   };
 
-  const progressPercent = media.duration > 0 ? (media.position / media.duration) * 100 : 45;
+  const duration = media.duration || 1;
+  const progressPercent = Math.min(100, Math.max(0, (livePosition / duration) * 100));
+
+  const handleScrub = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!media.duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+    mediaControl('seek', ratio * media.duration);
+  };
 
   return (
     <div className="relative w-full h-full p-10 flex flex-col justify-between overflow-hidden bg-black select-none">
@@ -138,15 +148,23 @@ export const EveningMode: React.FC = () => {
 
             {/* Scrub / Progress Bar */}
             <div className="my-4">
-              <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden cursor-pointer">
+              <div
+                onClick={handleScrub}
+                title="Click to seek"
+                className="w-full h-3.5 bg-white/10 rounded-full overflow-hidden cursor-pointer relative flex items-center group py-0.5"
+              >
                 <div
-                  className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full shadow-[0_0_10px_rgba(139,92,246,0.6)]"
+                  className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full shadow-[0_0_10px_rgba(139,92,246,0.6)] transition-[width] duration-300 ease-linear"
                   style={{ width: `${progressPercent}%` }}
+                />
+                <div
+                  className="absolute w-3.5 h-3.5 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none -ml-1.5"
+                  style={{ left: `${progressPercent}%` }}
                 />
               </div>
               <div className="flex justify-between items-center text-xs font-mono-numbers text-gray-400 mt-1.5">
-                <span>{formatSeconds(media.position || 112)}</span>
-                <span>{formatSeconds(media.duration || 243)}</span>
+                <span className="text-white font-medium">{formatSeconds(livePosition)}</span>
+                <span>{formatSeconds(media.duration)}</span>
               </div>
             </div>
 
@@ -155,20 +173,22 @@ export const EveningMode: React.FC = () => {
               {/* Media Controls */}
               <div className="flex items-center space-x-4">
                 <button
-                  className="p-2.5 rounded-full glass-pill text-gray-300 hover:text-white transition-all hover:scale-105"
+                  onClick={() => mediaControl('prev')}
+                  className="p-2.5 rounded-full glass-pill text-gray-300 hover:text-white transition-all hover:scale-105 active:scale-95"
                   title="Previous Track"
                 >
                   <SkipBack size={20} />
                 </button>
                 <button
-                  onClick={() => setIsPlaying(!isPlaying)}
+                  onClick={() => mediaControl('toggle')}
                   className="p-4 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg shadow-purple-600/30 transition-all hover:scale-110 active:scale-95"
                   title={isPlaying ? 'Pause' : 'Play'}
                 >
                   {isPlaying ? <Pause size={24} /> : <Play size={24} className="ml-0.5" />}
                 </button>
                 <button
-                  className="p-2.5 rounded-full glass-pill text-gray-300 hover:text-white transition-all hover:scale-105"
+                  onClick={() => mediaControl('next')}
+                  className="p-2.5 rounded-full glass-pill text-gray-300 hover:text-white transition-all hover:scale-105 active:scale-95"
                   title="Next Track"
                 >
                   <SkipForward size={20} />
@@ -183,7 +203,7 @@ export const EveningMode: React.FC = () => {
                   min="0"
                   max="100"
                   value={volume}
-                  onChange={(e) => setVolume(Number(e.target.value))}
+                  onChange={(e) => mediaControl('volume', Number(e.target.value))}
                   className="w-24 h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-purple-500"
                 />
                 <span className="text-xs font-mono-numbers text-gray-400 w-8 text-right">{volume}%</span>

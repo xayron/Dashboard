@@ -1,6 +1,7 @@
 import {
   createConnection,
   subscribeEntities,
+  callService as wsCallService,
   type Connection,
   type HassEntities,
 } from 'home-assistant-js-websocket';
@@ -28,6 +29,36 @@ export const saveHAConfig = (config: HAConnectionConfig): void => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
 };
 
+const MOCK_PLAYLIST: Array<Omit<MediaPlayerData, 'position' | 'positionUpdatedAt' | 'state' | 'volume'>> = [
+  {
+    title: 'Midnight City (Remastered)',
+    artist: 'M83',
+    album: "Hurry Up, We're Dreaming",
+    entityPicture: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&w=600&q=80',
+    duration: 243,
+    accentColor: '#8b5cf6',
+    entityId: 'media_player.mock_living_room',
+  },
+  {
+    title: 'Blinding Lights',
+    artist: 'The Weeknd',
+    album: 'After Hours',
+    entityPicture: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80',
+    duration: 200,
+    accentColor: '#ef4444',
+    entityId: 'media_player.mock_living_room',
+  },
+  {
+    title: 'Resonance',
+    artist: 'HOME',
+    album: 'Odyssey',
+    entityPicture: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80',
+    duration: 212,
+    accentColor: '#06b6d4',
+    entityId: 'media_player.mock_living_room',
+  },
+];
+
 export class HomeAssistantService {
   private connection: Connection | null = null;
   private status: HAStatus = 'disconnected';
@@ -36,13 +67,18 @@ export class HomeAssistantService {
   private config: HAConnectionConfig;
   private mockInterval: number | null = null;
 
+  // Mock player state
+  private mockIndex = 0;
+  private mockPlaying = true;
+  private mockPosition = 112;
+  private mockVolume = 68;
+
   constructor() {
     this.config = getSavedHAConfig();
   }
 
   public subscribe(listener: (entities: HassEntities, status: HAStatus) => void): () => void {
     this.listeners.push(listener);
-    // Emit current state immediately
     listener(this.entities, this.status);
     return () => {
       this.listeners = this.listeners.filter(l => l !== listener);
@@ -57,7 +93,6 @@ export class HomeAssistantService {
 
     try {
       this.setStatus('connecting');
-      // Create authenticated WebSocket connection
       const auth = {
         data: {
           hassUrl: this.config.haUrl.replace(/\/$/, ''),
@@ -136,24 +171,19 @@ export class HomeAssistantService {
   // Resolve full, valid album art URL handling both absolute and relative HA proxies
   public resolveAlbumArt(attr?: Record<string, any>): string {
     if (!attr) return '';
-    // Check all common album art attribute keys
     const rawPic = attr.entity_picture || attr.entity_picture_local || attr.media_image_url || attr.album_art;
     if (!rawPic || typeof rawPic !== 'string') return '';
 
-    // 1. If it's already an absolute URL (e.g. Spotify CDN, Cast CDN, web stream)
     if (/^https?:\/\//i.test(rawPic)) {
       return rawPic;
     }
 
-    // 2. If it's a relative path on Home Assistant (e.g. /api/media_player_proxy/...)
     const haBase = (this.config.haUrl || '').trim().replace(/\/+$/, '');
     if (!haBase) return rawPic;
 
     const cleanPath = rawPic.startsWith('/') ? rawPic : `/${rawPic}`;
     let fullUrl = `${haBase}${cleanPath}`;
 
-    // 3. If Home Assistant proxy URL does not include a token and we have an accessToken,
-    // append authSig parameter so HA allows unauthenticated <img> tag loading
     if (!fullUrl.includes('token=') && this.config.accessToken) {
       const sep = fullUrl.includes('?') ? '&' : '?';
       fullUrl = `${fullUrl}${sep}authSig=${encodeURIComponent(this.config.accessToken)}`;
@@ -166,22 +196,50 @@ export class HomeAssistantService {
   public async callService(
     domain: string,
     service: string,
-    serviceData: Record<string, unknown> = {}
+    serviceData: Record<string, unknown> = {},
+    target?: { entity_id?: string | string[] }
   ): Promise<void> {
     if (!this.connection || this.status !== 'connected') {
-      console.warn(`[HA] Cannot call ${domain}.${service} — not connected`);
+      console.warn(`[HA] Cannot call ${domain}.${service} — not connected to real HA`);
       return;
     }
     try {
-      await this.connection.sendMessagePromise({
-        type: 'call_service',
-        domain,
-        service,
-        service_data: serviceData,
-      });
+      const mergedData = { ...serviceData };
+      if (target?.entity_id && !mergedData.entity_id) {
+        mergedData.entity_id = target.entity_id;
+      }
+      await wsCallService(this.connection, domain, service, mergedData, target);
     } catch (err) {
       console.error(`[HA] callService ${domain}.${service} failed`, err);
     }
+  }
+
+  // Controls simulated mock media
+  public controlMockMedia(
+    action: 'play' | 'pause' | 'toggle' | 'next' | 'prev' | 'volume' | 'seek',
+    value?: number
+  ): void {
+    if (action === 'toggle') {
+      this.mockPlaying = !this.mockPlaying;
+    } else if (action === 'play') {
+      this.mockPlaying = true;
+    } else if (action === 'pause') {
+      this.mockPlaying = false;
+    } else if (action === 'next') {
+      this.mockIndex = (this.mockIndex + 1) % MOCK_PLAYLIST.length;
+      this.mockPosition = 0;
+      this.mockPlaying = true;
+    } else if (action === 'prev') {
+      this.mockIndex = (this.mockIndex - 1 + MOCK_PLAYLIST.length) % MOCK_PLAYLIST.length;
+      this.mockPosition = 0;
+      this.mockPlaying = true;
+    } else if (action === 'volume' && value !== undefined) {
+      this.mockVolume = Math.max(0, Math.min(100, Math.round(value)));
+    } else if (action === 'seek' && value !== undefined) {
+      const cur = MOCK_PLAYLIST[this.mockIndex];
+      this.mockPosition = Math.max(0, Math.min(cur.duration, Math.round(value)));
+    }
+    this.notify();
   }
 
   // Returns list of all detected media_player entities
@@ -204,27 +262,21 @@ export class HomeAssistantService {
         .filter(key => key.startsWith('media_player.'))
         .map(key => ({ ...this.entities[key], entity_id: key }));
 
-      // 1. Check if user configured a preferred media player
       let active: any = null;
       if (this.config.preferredMediaPlayer) {
         active = mediaPlayers.find(p => p.entity_id === this.config.preferredMediaPlayer);
       }
 
-      // 2. If not specified or preferred is not active, pick highest priority:
       if (!active) {
-        // Priority 1: Playing player with album art or title
         active = mediaPlayers.find(p => p.state === 'playing' && (p.attributes?.entity_picture || p.attributes?.media_title));
       }
       if (!active) {
-        // Priority 2: Any player that is 'playing'
         active = mediaPlayers.find(p => p.state === 'playing');
       }
       if (!active) {
-        // Priority 3: Paused player with album art or title
         active = mediaPlayers.find(p => p.state === 'paused' && (p.attributes?.entity_picture || p.attributes?.media_title));
       }
       if (!active) {
-        // Priority 4: Any player that has album art or title
         active = mediaPlayers.find(p => p.attributes?.entity_picture || p.attributes?.media_title);
       }
       if (!active && mediaPlayers.length > 0) {
@@ -235,9 +287,13 @@ export class HomeAssistantService {
         const attr = active.attributes;
         const albumArtUrl = this.resolveAlbumArt(attr);
 
-        // HA reports media_position_updated_at as an ISO string; convert to epoch ms
-        const updatedAtRaw = attr.media_position_updated_at as string | undefined;
-        const positionUpdatedAt = updatedAtRaw ? new Date(updatedAtRaw).getTime() : Date.now();
+        let positionUpdatedAt = Date.now();
+        if (attr.media_position_updated_at) {
+          const parsed = new Date(attr.media_position_updated_at).getTime();
+          if (!isNaN(parsed)) {
+            positionUpdatedAt = parsed;
+          }
+        }
 
         return {
           state: (active.state === 'playing' ? 'playing' : active.state === 'paused' ? 'paused' : 'idle'),
@@ -246,7 +302,7 @@ export class HomeAssistantService {
           album: attr.media_album_name || '',
           entityPicture: albumArtUrl,
           duration: attr.media_duration || 0,
-          position: attr.media_position || 0,
+          position: attr.media_position ?? 0,
           positionUpdatedAt,
           volume: Math.round((attr.volume_level ?? 0.5) * 100),
           accentColor: '#8b5cf6',
@@ -255,18 +311,20 @@ export class HomeAssistantService {
       }
     }
 
-    // Default simulated now-playing state (ambient synthwave / lofi for evening vibe)
+    // Mock Mode fallback
+    const currentMock = MOCK_PLAYLIST[this.mockIndex] || MOCK_PLAYLIST[0];
     return {
-      state: 'playing',
-      title: 'Midnight City (Remastered)',
-      artist: 'M83',
-      album: 'Hurry Up, We\'re Dreaming',
-      entityPicture: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&w=600&q=80',
-      duration: 243,
+      state: this.mockPlaying ? 'playing' : 'paused',
+      title: currentMock.title,
+      artist: currentMock.artist,
+      album: currentMock.album,
+      entityPicture: currentMock.entityPicture,
+      duration: currentMock.duration,
       position: this.mockPosition,
-      positionUpdatedAt: this.mockPositionUpdatedAt,
-      volume: 68,
-      accentColor: '#8b5cf6',
+      positionUpdatedAt: Date.now(),
+      volume: this.mockVolume,
+      accentColor: currentMock.accentColor,
+      entityId: currentMock.entityId || 'media_player.mock_living_room',
     };
   }
 
@@ -295,18 +353,15 @@ export class HomeAssistantService {
     };
   }
 
-  private mockPosition = 112;
-  private mockPositionUpdatedAt = Date.now();
-
   private startMockMode(): void {
     this.setStatus('mock');
-    this.mockPosition = 112;
-    this.mockPositionUpdatedAt = Date.now();
-    // Advance mock position every second so the progress bar moves
+    if (this.mockInterval) clearInterval(this.mockInterval);
     this.mockInterval = window.setInterval(() => {
-      this.mockPosition = (this.mockPosition + 1) % 243;
-      this.mockPositionUpdatedAt = Date.now();
-      this.notify();
+      if (this.mockPlaying) {
+        const cur = MOCK_PLAYLIST[this.mockIndex] || MOCK_PLAYLIST[0];
+        this.mockPosition = (this.mockPosition + 1) % (cur.duration || 240);
+        this.notify();
+      }
     }, 1000);
   }
 }

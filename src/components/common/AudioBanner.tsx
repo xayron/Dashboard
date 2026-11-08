@@ -136,9 +136,17 @@ export const AudioBanner: React.FC<AudioBannerProps> = ({ className = '', onClic
       {duration > 0 && (
         <div className="mt-2.5 flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
           <span className="text-[10px] text-gray-500 w-7 text-right tabular-nums">{fmt(livePosition)}</span>
-          <div className="flex-1 relative h-1 bg-white/10 rounded-full overflow-hidden">
+          <div
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+              mediaControl('seek', ratio * duration);
+            }}
+            title="Click to seek"
+            className="flex-1 relative h-2 bg-white/10 rounded-full overflow-hidden cursor-pointer"
+          >
             <div
-              className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-indigo-400 to-purple-400 transition-[width] duration-1000 ease-linear"
+              className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-indigo-400 to-purple-400 transition-[width] duration-300 ease-linear"
               style={{ width: `${progressPct}%` }}
             />
           </div>

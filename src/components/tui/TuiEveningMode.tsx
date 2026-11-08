@@ -1,27 +1,28 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { TuiBox } from './TuiBox';
-import { Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
 
 export const TuiEveningMode: React.FC = () => {
-  const { media, weather, now } = useDashboard();
-  const [isPlaying, setIsPlaying] = useState(media.state === 'playing');
-  const [volume, setVolume] = useState(media.volume || 65);
+  const { media, livePosition, mediaControl, weather } = useDashboard();
+
+  const isPlaying = media.state === 'playing';
+  const volume = media.volume ?? 68;
 
   const formatSeconds = (sec: number) => {
-    const mins = Math.floor(sec / 60);
-    const s = Math.floor(sec % 60);
-    return `${mins}:${String(s).padStart(2, '0')}`;
+    const s = Math.max(0, Math.floor(sec));
+    const mins = Math.floor(s / 60);
+    const remainder = s % 60;
+    return `${mins}:${String(remainder).padStart(2, '0')}`;
   };
 
-  const progressPercent = media.duration > 0 ? (media.position / media.duration) * 100 : 45;
+  const duration = media.duration || 1;
+  const progressPercent = Math.min(100, Math.max(0, (livePosition / duration) * 100));
   const totalBlocks = 36;
   const filledBlocks = Math.round((progressPercent / 100) * totalBlocks);
-  const progressBarAscii = `[${'█'.repeat(filledBlocks)}${'░'.repeat(totalBlocks - filledBlocks)}]`;
+  const progressBarAscii = `[${'█'.repeat(filledBlocks)}${'░'.repeat(Math.max(0, totalBlocks - filledBlocks))}]`;
 
   const volBlocks = 12;
   const filledVol = Math.round((volume / 100) * volBlocks);
-  const volBarAscii = `[${'█'.repeat(filledVol)}${'░'.repeat(volBlocks - filledVol)}]`;
+  const volBarAscii = `[${'█'.repeat(filledVol)}${'░'.repeat(Math.max(0, volBlocks - filledVol))}]`;
 
   return (
     <div className="w-full h-full p-8 flex flex-col justify-between overflow-hidden bg-black font-mono text-gray-200 select-none">
@@ -108,9 +109,9 @@ export const TuiEveningMode: React.FC = () => {
             {/* Progress Bar */}
             <div>
               <div className="text-xs text-emerald-300 font-mono tracking-wider flex items-center justify-between">
-                <span>{formatSeconds(media.position || 112)}</span>
-                <span className="text-emerald-400 font-bold">{progressBarAscii}</span>
-                <span>{formatSeconds(media.duration || 243)}</span>
+                <span>{formatSeconds(livePosition)}</span>
+                <span className="text-emerald-400 font-bold tracking-normal">{progressBarAscii}</span>
+                <span>{formatSeconds(media.duration)}</span>
               </div>
             </div>
 
@@ -118,22 +119,40 @@ export const TuiEveningMode: React.FC = () => {
             <div className="flex items-center justify-between pt-2 border-t border-emerald-500/30 text-xs">
               <div className="flex items-center space-x-3">
                 <button
-                  onClick={() => setIsPlaying(!isPlaying)}
-                  className="px-3 py-1 bg-emerald-950 text-emerald-300 border border-emerald-500/50 hover:bg-emerald-900 font-bold"
+                  onClick={() => mediaControl('prev')}
+                  className="px-2 py-1 bg-white/5 border border-white/20 text-gray-300 hover:text-white active:bg-emerald-950 transition-colors"
+                >
+                  [&lt;&lt; PREV]
+                </button>
+                <button
+                  onClick={() => mediaControl('toggle')}
+                  className="px-3 py-1 bg-emerald-950 text-emerald-300 border border-emerald-500/50 hover:bg-emerald-900 active:scale-95 font-bold transition-all"
                 >
                   [{isPlaying ? 'PAUSE' : 'PLAY'}]
                 </button>
-                <button className="px-2 py-1 bg-white/5 border border-white/20 text-gray-300 hover:text-white">
-                  [&lt;&lt; PREV]
-                </button>
-                <button className="px-2 py-1 bg-white/5 border border-white/20 text-gray-300 hover:text-white">
+                <button
+                  onClick={() => mediaControl('next')}
+                  className="px-2 py-1 bg-white/5 border border-white/20 text-gray-300 hover:text-white active:bg-emerald-950 transition-colors"
+                >
                   [NEXT &gt;&gt;]
                 </button>
               </div>
 
               <div className="flex items-center space-x-2 text-gray-300">
                 <span className="text-gray-400">VOL:</span>
+                <button
+                  onClick={() => mediaControl('volume', Math.max(0, volume - 10))}
+                  className="px-1 text-xs hover:text-white"
+                >
+                  [-]
+                </button>
                 <span className="text-emerald-400 font-bold">{volBarAscii} {volume}%</span>
+                <button
+                  onClick={() => mediaControl('volume', Math.min(100, volume + 10))}
+                  className="px-1 text-xs hover:text-white"
+                >
+                  [+]
+                </button>
               </div>
             </div>
           </div>
