@@ -1,10 +1,11 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
 import { HudBox } from './HudBox';
-import { Target, CheckCircle2, CircleDashed, Terminal, Compass } from 'lucide-react';
+import { Target, CheckCircle2, CircleDashed, Terminal, Compass, Gauge } from 'lucide-react';
+import { AudioBanner } from '../common/AudioBanner';
 
 export const HudMorningMode: React.FC = () => {
-  const { now, weather, aqi, events, tasks, toggleTask } = useDashboard();
+  const { now, weather, aqi, events, tasks, toggleTask, f1, finance, media } = useDashboard();
 
   const hours = String(now.getHours()).padStart(2, '0');
   const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -19,38 +20,58 @@ export const HudMorningMode: React.FC = () => {
 
   return (
     <div className="w-full h-full p-6 flex flex-col justify-between overflow-hidden bg-[#030712] font-mono text-cyan-100 select-none">
+      {/* Top Banner: Tactical Briefing & Audio Banner */}
+      <div className="flex items-center justify-between mb-4 pb-3 border-b border-cyan-500/30">
+        <div className="flex items-center space-x-3">
+          <div className="p-2 bg-cyan-950 border border-cyan-500/50 text-cyan-400">
+            <Compass size={18} className="animate-spin-slow" />
+          </div>
+          <div>
+            <div className="flex items-center space-x-2">
+              <h1 className="text-lg font-black text-white tracking-widest">TACTICAL_MORNING_BRIEF</h1>
+              <span className="px-2 py-0.5 text-[9px] bg-cyan-950 border border-cyan-400 text-cyan-300">
+                STATUS://OPTIMAL
+              </span>
+            </div>
+            <p className="text-[11px] text-gray-400 mt-0.5">
+              SOLAR_CYCLE: DAWN {weather.sunrise} // PEAK_THERMAL {weather.highTemp}°C
+            </p>
+          </div>
+        </div>
+
+        {media.state === 'playing' && <AudioBanner compact={true} />}
+      </div>
+
+      {/* 3-Column 1080p Grid */}
       <div className="grid grid-cols-12 gap-5 flex-1 min-h-0">
-        {/* Left Column: Tactical Chrono & Sensor Grid (Cols 1-4) */}
+        {/* Left Column: Chrono & Atmospheric Sensors (Cols 1-4) */}
         <div className="col-span-4 flex flex-col space-y-4">
           <HudBox title="CHRONO_TELEMETRY" code="SYNC//GPS" glowColor="cyan">
-            <div className="flex flex-col items-center justify-center py-3">
+            <div className="flex flex-col items-center justify-center py-2">
               <div className="text-6xl font-black text-white tracking-widest flex items-baseline">
                 <span className="text-cyan-300 drop-shadow-[0_0_15px_rgba(0,240,255,0.4)]">
                   {hours}:{minutes}
                 </span>
                 <span className="text-2xl text-amber-400 ml-2 animate-pulse">:{seconds}</span>
               </div>
-              <div className="text-xs text-cyan-400 font-bold mt-2 tracking-widest border-t border-cyan-500/20 pt-2 w-full text-center">
+              <div className="text-xs text-cyan-400 font-bold mt-2 tracking-widest border-t border-cyan-500/20 pt-1.5 w-full text-center">
                 DATE: {dateFormatted}
-              </div>
-              <div className="text-[10px] text-gray-400 mt-1">
-                SOLAR: UP {weather.sunrise} // DOWN {weather.sunset}
               </div>
             </div>
           </HudBox>
 
           <HudBox title="ATMOSPHERIC_SENSORS" code="LOC://SURFACE" glowColor="cyan" className="flex-1">
-            <div className="space-y-2.5 pt-1 text-xs">
+            <div className="space-y-2 pt-1 text-xs">
               <div className="flex justify-between items-center p-2 bg-cyan-950/20 border border-cyan-500/20">
                 <span className="text-gray-400">TEMPERATURE:</span>
-                <span className="text-cyan-300 font-bold text-sm">{weather.temperature}°C (FEEL: {weather.apparentTemperature}°C)</span>
+                <span className="text-cyan-300 font-bold">{weather.temperature}°C (FEEL: {weather.apparentTemperature}°C)</span>
               </div>
               <div className="flex justify-between items-center p-2 bg-cyan-950/20 border border-cyan-500/20">
                 <span className="text-gray-400">ATMOSPHERE:</span>
                 <span className="text-white font-bold uppercase">{weather.condition}</span>
               </div>
               <div className="flex justify-between items-center p-2 bg-cyan-950/20 border border-cyan-500/20">
-                <span className="text-gray-400">AIR_QUALITY_INDEX:</span>
+                <span className="text-gray-400">AIR_QUALITY:</span>
                 <span className="text-emerald-400 font-bold">AQI {aqi.usAqi} [{aqi.label.toUpperCase()}]</span>
               </div>
               <div className="flex justify-between items-center p-2 bg-cyan-950/20 border border-cyan-500/20">
@@ -61,24 +82,54 @@ export const HudMorningMode: React.FC = () => {
           </HudBox>
         </div>
 
-        {/* Center Column: Mission Timetable (Cols 5-8) */}
-        <div className="col-span-4 flex flex-col">
-          <HudBox title="MISSION_SCHEDULE" code={`${events.length}_OPERATIONS`} glowColor="amber" className="h-full">
-            <div className="space-y-3 overflow-y-auto max-h-[58vh] pr-1">
-              {events.map((evt) => (
+        {/* Center Column: Mission Timetable & Directives (Cols 5-8) */}
+        <div className="col-span-4 flex flex-col space-y-4">
+          <HudBox title="MISSION_SCHEDULE" code={`${events.length}_OPERATIONS`} glowColor="amber" className="flex-1">
+            <div className="space-y-2 overflow-y-auto max-h-[30vh] pr-1">
+              {events.slice(0, 4).map((evt) => (
                 <div
                   key={evt.id}
-                  className="p-3 bg-[#061122]/80 border-l-2 border-amber-400 border-t border-r border-b border-cyan-500/20"
+                  className="p-2.5 bg-[#061122]/80 border-l-2 border-amber-400 border-t border-r border-b border-cyan-500/20"
                 >
-                  <div className="flex items-center justify-between text-[11px] text-amber-400">
+                  <div className="flex items-center justify-between text-[10px] text-amber-400">
                     <span>⏱ {evt.startTime} - {evt.endTime}</span>
-                    <span className="text-[10px] text-cyan-400 uppercase tracking-widest">
+                    <span className="text-[9px] text-cyan-400 uppercase tracking-widest">
                       [{evt.category}]
                     </span>
                   </div>
-                  <h4 className="text-sm font-bold text-white mt-1 leading-snug">{evt.title}</h4>
+                  <h4 className="text-xs font-bold text-white mt-0.5 truncate">{evt.title}</h4>
                   {evt.location && (
-                    <p className="text-[11px] text-gray-400 mt-1">SECTOR: {evt.location}</p>
+                    <p className="text-[10px] text-gray-400 mt-0.5 truncate">LOC: {evt.location}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </HudBox>
+
+          <HudBox title="TACTICAL_DIRECTIVES" code="QUEUE" glowColor="emerald" className="flex-1">
+            <div className="space-y-1.5 overflow-y-auto max-h-[28vh] pr-1">
+              {tasks.map((task) => (
+                <div
+                  key={task.id}
+                  onClick={() => toggleTask(task.id)}
+                  className={`p-2 border cursor-pointer flex items-center justify-between transition-all ${
+                    task.completed
+                      ? 'bg-black/60 border-gray-800 text-gray-600 line-through'
+                      : 'bg-emerald-950/20 border-emerald-500/40 text-emerald-100 hover:border-emerald-400'
+                  }`}
+                >
+                  <div className="flex items-center space-x-2 min-w-0">
+                    {task.completed ? (
+                      <CheckCircle2 size={14} className="text-gray-600 shrink-0" />
+                    ) : (
+                      <CircleDashed size={14} className="text-emerald-400 shrink-0 animate-spin-slow" />
+                    )}
+                    <span className="text-xs truncate">{task.title}</span>
+                  </div>
+                  {task.dueTime && (
+                    <span className="text-[9px] text-cyan-400 font-mono shrink-0 ml-1">
+                      [{task.dueTime}]
+                    </span>
                   )}
                 </div>
               ))}
@@ -86,35 +137,51 @@ export const HudMorningMode: React.FC = () => {
           </HudBox>
         </div>
 
-        {/* Right Column: Tactical Action Directives (Cols 9-12) */}
-        <div className="col-span-4 flex flex-col">
-          <HudBox title="TACTICAL_DIRECTIVES" code="QUEUE" glowColor="emerald" className="h-full">
-            <div className="space-y-2.5 overflow-y-auto max-h-[58vh] pr-1">
-              {tasks.map((task) => (
-                <div
-                  key={task.id}
-                  onClick={() => toggleTask(task.id)}
-                  className={`p-2.5 border cursor-pointer flex items-center justify-between transition-all ${
-                    task.completed
-                      ? 'bg-black/60 border-gray-800 text-gray-600 line-through'
-                      : 'bg-emerald-950/20 border-emerald-500/40 text-emerald-100 hover:border-emerald-400'
-                  }`}
-                >
-                  <div className="flex items-center space-x-2.5 min-w-0">
-                    {task.completed ? (
-                      <CheckCircle2 size={15} className="text-gray-600 shrink-0" />
-                    ) : (
-                      <CircleDashed size={15} className="text-emerald-400 shrink-0 animate-spin-slow" />
-                    )}
-                    <span className="text-xs truncate">{task.title}</span>
+        {/* Right Column: Financial Feeds & F1 Telemetry (Cols 9-12) */}
+        <div className="col-span-4 flex flex-col space-y-4">
+          <HudBox title="MARKET_TELEMETRY" code="LIVE_FEED" glowColor="cyan" className="flex-1">
+            <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
+              {finance.map((item) => {
+                const isUp = item.change >= 0;
+                return (
+                  <div
+                    key={item.id}
+                    className="p-2 bg-[#050e20] border border-cyan-500/25 flex flex-col justify-between"
+                  >
+                    <div className="flex items-center justify-between text-[10px]">
+                      <span className="text-gray-400 font-bold truncate">{item.symbol}</span>
+                      <span className={`font-bold ${isUp ? 'text-emerald-400' : 'text-red-400'}`}>
+                        {isUp ? '▲' : '▼'}{Math.abs(item.changePercent).toFixed(1)}%
+                      </span>
+                    </div>
+                    <div className="text-sm font-black text-white mt-1">{item.price}</div>
                   </div>
-                  {task.dueTime && (
-                    <span className="text-[10px] text-cyan-400 font-mono shrink-0 ml-2">
-                      [{task.dueTime}]
-                    </span>
-                  )}
+                );
+              })}
+            </div>
+          </HudBox>
+
+          <HudBox
+            title="F1_TACTICAL_RADAR"
+            code={`ROUND_${f1.activeRound}`}
+            glowColor="amber"
+          >
+            <div className="space-y-2 pt-1 text-xs">
+              <div>
+                <h4 className="text-sm font-bold text-amber-400 truncate">{f1.raceName}</h4>
+                <p className="text-[11px] text-gray-400 truncate">{f1.circuitName}</p>
+              </div>
+
+              <div className="p-2 bg-[#050e20] border border-cyan-500/30 flex items-center justify-between">
+                <div>
+                  <span className="text-[9px] text-gray-400 block uppercase">TARGET_SESSION</span>
+                  <span className="text-xs font-bold text-white">{f1.nextSession.name}</span>
                 </div>
-              ))}
+                <div className="text-right">
+                  <span className="text-[9px] text-gray-400 block uppercase">COUNTDOWN</span>
+                  <span className="text-sm font-black text-red-400">{f1.nextSession.countdownFormatted}</span>
+                </div>
+              </div>
             </div>
           </HudBox>
         </div>
