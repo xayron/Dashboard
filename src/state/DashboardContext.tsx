@@ -21,6 +21,48 @@ import { getCalendarEvents, getTodoTasks } from '../services/calendarService';
 
 import { THEMES, type ThemeId } from '../types/theme';
 
+export interface UIStyleInfo {
+  id: UIStyle;
+  name: string;
+  tagline: string;
+  description: string;
+}
+
+export const UI_STYLES: UIStyleInfo[] = [
+  {
+    id: 'modern',
+    name: 'Modern Glass',
+    tagline: 'Glassmorphism & Depth',
+    description: 'Translucent frosted glass panels with dynamic ambient glow and smooth blurs.',
+  },
+  {
+    id: 'tui',
+    name: 'Retro Terminal',
+    tagline: 'Phosphor Green Monospace',
+    description: 'NCurses ASCII command center with block graphs and pure terminal aesthetics.',
+  },
+  {
+    id: 'brutalist',
+    name: 'Neo-Brutalist',
+    tagline: 'High-Impact Industrial',
+    description: 'Solid contrast borders, offset hard drop-shadows, and vivid pop stickers.',
+  },
+  {
+    id: 'minimal',
+    name: 'Swiss Minimal',
+    tagline: 'Architectural Typographic',
+    description: 'Ultra-thin hairline dividers, oversized clean numerals, and zero visual clutter.',
+  },
+  {
+    id: 'hud',
+    name: 'Cyber HUD',
+    tagline: 'Tactical Cockpit Avionics',
+    description: 'Sci-fi telemetry cockpit with targeting reticles, corner brackets, and cyan meters.',
+  },
+];
+
+const UI_STYLE_ORDER: UIStyle[] = ['modern', 'tui', 'brutalist', 'minimal', 'hud'];
+
 interface DashboardContextType {
   uiStyle: UIStyle;
   setUiStyle: (style: UIStyle) => void;
@@ -62,7 +104,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [uiStyle, setUiStyleState] = useState<UIStyle>(() => {
     try {
       const saved = localStorage.getItem('dashboard_ui_style') as UIStyle;
-      if (saved === 'modern' || saved === 'tui') return saved;
+      if (UI_STYLE_ORDER.includes(saved)) return saved;
     } catch (e) {}
     return 'modern';
   });
@@ -75,7 +117,8 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const toggleUiStyle = () => {
-    setUiStyle(uiStyle === 'modern' ? 'tui' : 'modern');
+    const nextIdx = (UI_STYLE_ORDER.indexOf(uiStyle) + 1) % UI_STYLE_ORDER.length;
+    setUiStyle(UI_STYLE_ORDER[nextIdx]);
   };
 
   const [theme, setThemeState] = useState<ThemeId>(() => {

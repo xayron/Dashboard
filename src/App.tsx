@@ -1,15 +1,15 @@
 import React from 'react';
 import { DashboardProvider, useDashboard } from './state/DashboardContext';
+
+// 1. Modern Glass Components
 import { StatusHeader } from './components/common/StatusHeader';
 import { AmbientMode } from './components/modes/AmbientMode';
 import { MorningMode } from './components/modes/MorningMode';
 import { EveningMode } from './components/modes/EveningMode';
 import { RaceWeekendMode } from './components/modes/RaceWeekendMode';
 import { FinanceTicker } from './components/common/FinanceTicker';
-import { KioskControls } from './components/kiosk/KioskControls';
-import { SettingsModal } from './components/settings/SettingsModal';
 
-// TUI Variants
+// 2. Retro TUI Components
 import { TuiHeader } from './components/tui/TuiHeader';
 import { TuiMorningMode } from './components/tui/TuiMorningMode';
 import { TuiEveningMode } from './components/tui/TuiEveningMode';
@@ -17,48 +17,170 @@ import { TuiRaceWeekendMode } from './components/tui/TuiRaceWeekendMode';
 import { TuiAmbientMode } from './components/tui/TuiAmbientMode';
 import { TuiFinanceTicker } from './components/tui/TuiFinanceTicker';
 
+// 3. Neo-Brutalist Components
+import { BrutalistHeader } from './components/brutalist/BrutalistHeader';
+import { BrutalistMorningMode } from './components/brutalist/BrutalistMorningMode';
+import { BrutalistEveningMode } from './components/brutalist/BrutalistEveningMode';
+import { BrutalistRaceWeekendMode } from './components/brutalist/BrutalistRaceWeekendMode';
+import { BrutalistAmbientMode } from './components/brutalist/BrutalistAmbientMode';
+import { BrutalistFinanceTicker } from './components/brutalist/BrutalistFinanceTicker';
+
+// 4. Swiss Minimal Components
+import { MinimalHeader } from './components/minimal/MinimalHeader';
+import { MinimalMorningMode } from './components/minimal/MinimalMorningMode';
+import { MinimalEveningMode } from './components/minimal/MinimalEveningMode';
+import { MinimalRaceWeekendMode } from './components/minimal/MinimalRaceWeekendMode';
+import { MinimalAmbientMode } from './components/minimal/MinimalAmbientMode';
+import { MinimalFinanceTicker } from './components/minimal/MinimalFinanceTicker';
+
+// 5. Cyber HUD Components
+import { HudHeader } from './components/hud/HudHeader';
+import { HudMorningMode } from './components/hud/HudMorningMode';
+import { HudEveningMode } from './components/hud/HudEveningMode';
+import { HudRaceWeekendMode } from './components/hud/HudRaceWeekendMode';
+import { HudAmbientMode } from './components/hud/HudAmbientMode';
+import { HudFinanceTicker } from './components/hud/HudFinanceTicker';
+
+// Global Kiosk Controls & Settings
+import { KioskControls } from './components/kiosk/KioskControls';
+import { SettingsModal } from './components/settings/SettingsModal';
+
 const DashboardContent: React.FC = () => {
   const { activeMode, uiStyle } = useDashboard();
 
-  const isTui = uiStyle === 'tui';
-
   const renderActiveMode = () => {
-    if (isTui) {
-      switch (activeMode) {
-        case 'race':
-          return <TuiRaceWeekendMode />;
-        case 'evening':
-          return <TuiEveningMode />;
-        case 'morning':
-          return <TuiMorningMode />;
-        case 'ambient':
-        default:
-          return <TuiAmbientMode />;
-      }
-    }
+    switch (uiStyle) {
+      case 'tui':
+        switch (activeMode) {
+          case 'race':
+            return <TuiRaceWeekendMode />;
+          case 'evening':
+            return <TuiEveningMode />;
+          case 'morning':
+            return <TuiMorningMode />;
+          case 'ambient':
+          default:
+            return <TuiAmbientMode />;
+        }
 
-    switch (activeMode) {
-      case 'race':
-        return <RaceWeekendMode />;
-      case 'evening':
-        return <EveningMode />;
-      case 'morning':
-        return <MorningMode />;
-      case 'ambient':
+      case 'brutalist':
+        switch (activeMode) {
+          case 'race':
+            return <BrutalistRaceWeekendMode />;
+          case 'evening':
+            return <BrutalistEveningMode />;
+          case 'morning':
+            return <BrutalistMorningMode />;
+          case 'ambient':
+          default:
+            return <BrutalistAmbientMode />;
+        }
+
+      case 'minimal':
+        switch (activeMode) {
+          case 'race':
+            return <MinimalRaceWeekendMode />;
+          case 'evening':
+            return <MinimalEveningMode />;
+          case 'morning':
+            return <MinimalMorningMode />;
+          case 'ambient':
+          default:
+            return <MinimalAmbientMode />;
+        }
+
+      case 'hud':
+        switch (activeMode) {
+          case 'race':
+            return <HudRaceWeekendMode />;
+          case 'evening':
+            return <HudEveningMode />;
+          case 'morning':
+            return <HudMorningMode />;
+          case 'ambient':
+          default:
+            return <HudAmbientMode />;
+        }
+
+      case 'modern':
       default:
-        return <AmbientMode />;
+        switch (activeMode) {
+          case 'race':
+            return <RaceWeekendMode />;
+          case 'evening':
+            return <EveningMode />;
+          case 'morning':
+            return <MorningMode />;
+          case 'ambient':
+          default:
+            return <AmbientMode />;
+        }
     }
+  };
+
+  const renderHeader = () => {
+    switch (uiStyle) {
+      case 'tui':
+        return <TuiHeader />;
+      case 'brutalist':
+        return <BrutalistHeader />;
+      case 'minimal':
+        return <MinimalHeader />;
+      case 'hud':
+        return <HudHeader />;
+      case 'modern':
+      default:
+        return <StatusHeader />;
+    }
+  };
+
+  const renderFinanceTicker = () => {
+    if (activeMode === 'ambient' || activeMode === 'evening') return null;
+
+    switch (uiStyle) {
+      case 'tui':
+        return <TuiFinanceTicker />;
+      case 'brutalist':
+        return <BrutalistFinanceTicker />;
+      case 'minimal':
+        return <MinimalFinanceTicker />;
+      case 'hud':
+        return <HudFinanceTicker />;
+      case 'modern':
+      default:
+        return <FinanceTicker mode="ticker" />;
+    }
+  };
+
+  // Background styling per design style
+  const getBackgroundStyle = () => {
+    switch (uiStyle) {
+      case 'tui':
+        return { backgroundColor: '#000000' };
+      case 'brutalist':
+        return { backgroundColor: '#111111' };
+      case 'minimal':
+        return { backgroundColor: '#09090b' };
+      case 'hud':
+        return { backgroundColor: '#030712' };
+      case 'modern':
+      default:
+        return { backgroundColor: 'var(--color-bg-base, #030712)' };
+    }
+  };
+
+  const getFontClass = () => {
+    if (uiStyle === 'tui' || uiStyle === 'hud') return 'font-mono';
+    return 'font-sans';
   };
 
   return (
     <div
-      style={{ backgroundColor: isTui ? '#000000' : 'var(--color-bg-base, #030712)' }}
-      className={`relative w-screen h-screen overflow-hidden text-white flex flex-col select-none transition-colors duration-700 ${
-        isTui ? 'font-mono' : 'font-sans'
-      }`}
+      style={getBackgroundStyle()}
+      className={`relative w-screen h-screen overflow-hidden text-white flex flex-col select-none transition-colors duration-500 ${getFontClass()}`}
     >
       {/* Background ambient radial highlight (only in modern mode) */}
-      {!isTui && (
+      {uiStyle === 'modern' && (
         <div
           className="absolute inset-0 pointer-events-none z-0 transition-all duration-700"
           style={{ backgroundImage: 'var(--bg-radial)' }}
@@ -66,17 +188,15 @@ const DashboardContent: React.FC = () => {
       )}
 
       {/* Top Status Header */}
-      {isTui ? <TuiHeader /> : <StatusHeader />}
+      {renderHeader()}
 
       {/* Main Mode View Container */}
-      <main className="relative flex-1 w-full min-h-0 overflow-hidden transition-all duration-700 ease-in-out">
+      <main className="relative flex-1 w-full min-h-0 overflow-hidden transition-all duration-500 ease-in-out">
         {renderActiveMode()}
       </main>
 
       {/* Persistent Bottom Financial Strip in Morning and Race Weekend */}
-      {activeMode !== 'ambient' && activeMode !== 'evening' && (
-        isTui ? <TuiFinanceTicker /> : <FinanceTicker mode="ticker" />
-      )}
+      {renderFinanceTicker()}
 
       {/* Floating Kiosk Quick Switcher Controls */}
       <KioskControls />

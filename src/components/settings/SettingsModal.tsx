@@ -11,14 +11,14 @@ import {
   FolderOpen,
   Palette,
 } from 'lucide-react';
-import { useDashboard } from '../../state/DashboardContext';
+import { useDashboard, UI_STYLES } from '../../state/DashboardContext';
 import { haService, getSavedHAConfig, saveHAConfig } from '../../services/homeAssistant';
 import { getSavedCoords, saveCoords, type WeatherCoords } from '../../services/weatherService';
 import { photoService } from '../../services/photoService';
 import { THEMES, type ThemeId } from '../../types/theme';
 
 export const SettingsModal: React.FC = () => {
-  const { isSettingsOpen, setIsSettingsOpen, theme, setTheme } = useDashboard();
+  const { isSettingsOpen, setIsSettingsOpen, theme, setTheme, uiStyle, setUiStyle } = useDashboard();
 
   const [haConfig, setHaConfig] = useState(getSavedHAConfig());
   const [coords, setCoords] = useState<WeatherCoords>(getSavedCoords());
@@ -158,17 +158,67 @@ export const SettingsModal: React.FC = () => {
 
         {/* Tab Content */}
         <div className="p-6 overflow-y-auto max-h-[60vh] space-y-5">
-          {/* THEMES TAB */}
+          {/* THEMES & STYLES TAB */}
           {activeTab === 'themes' && (
-            <div className="space-y-4">
+            <div className="space-y-6">
+              {/* SECTION 1: UI DESIGN STYLES */}
               <div>
-                <h3 className="text-sm font-bold text-white mb-1">Color Themes & Ambient Lighting</h3>
-                <p className="text-xs text-gray-400">
-                  Select a color aesthetic. Changes apply immediately to all widgets and ambient backgrounds without changing your layout.
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="text-sm font-bold text-white">Visual Design Styles</h3>
+                  <span className="text-[11px] text-gray-400 font-mono">Press &apos;T&apos; to quick cycle</span>
+                </div>
+                <p className="text-xs text-gray-400 mb-3">
+                  Switch the overarching visual interface paradigm. Each design style features its own custom typography, borders, headers, and mode layouts.
                 </p>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {UI_STYLES.map((style) => {
+                    const isSelected = uiStyle === style.id;
+                    return (
+                      <div
+                        key={style.id}
+                        onClick={() => setUiStyle(style.id)}
+                        className={`p-3.5 rounded-2xl cursor-pointer transition-all border flex flex-col justify-between ${
+                          isSelected
+                            ? 'bg-blue-600/15 border-blue-500 shadow-lg ring-1 ring-blue-500/50'
+                            : 'bg-white/5 border-white/10 hover:border-white/20'
+                        }`}
+                      >
+                        <div>
+                          <div className="flex items-center justify-between mb-1">
+                            <h4 className="text-sm font-bold text-white">{style.name}</h4>
+                            {isSelected && (
+                              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-500 text-white">
+                                ACTIVE
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] font-semibold text-blue-400">{style.tagline}</p>
+                          <p className="text-[11px] text-gray-400 mt-1 leading-snug line-clamp-2">
+                            {style.description}
+                          </p>
+                        </div>
+
+                        <div className="mt-3 pt-2 border-t border-white/10 text-[10px] text-gray-400 font-mono flex items-center justify-between">
+                          <span>STYLE ID: {style.id.toUpperCase()}</span>
+                          {isSelected && <Check size={12} className="text-blue-400" />}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3.5">
+              {/* SECTION 2: COLOR PALETTES */}
+              <div className="pt-4 border-t border-white/10">
+                <div className="mb-3">
+                  <h3 className="text-sm font-bold text-white mb-1">Color Palette (Modern Glass Mode)</h3>
+                  <p className="text-xs text-gray-400">
+                    Custom lighting & accent hues applied across modern translucent glass panels.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3.5">
                 {(Object.keys(THEMES) as ThemeId[]).map((tId) => {
                   const t = THEMES[tId];
                   const isSelected = theme === tId;
@@ -226,7 +276,8 @@ export const SettingsModal: React.FC = () => {
                 })}
               </div>
             </div>
-          )}
+          </div>
+        )}
 
           {activeTab === 'ha' && (
             <div className="space-y-4">

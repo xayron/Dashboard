@@ -12,6 +12,10 @@ import {
   X,
   Palette,
   Terminal,
+  Crosshair,
+  Sparkles,
+  Square,
+  Minus,
 } from 'lucide-react';
 import { useDashboard } from '../../state/DashboardContext';
 import type { DashboardMode } from '../../types/dashboard';
@@ -130,19 +134,32 @@ export const KioskControls: React.FC = () => {
           </button>
         </div>
 
-        {/* UI Style Toggle (TUI / Modern) */}
+        {/* UI Design Style Switcher Pill */}
         <div className="pl-2 border-l border-white/10 flex items-center space-x-1">
           <button
             onClick={toggleUiStyle}
-            title="Toggle TUI / Modern Mode (Press 'T')"
-            className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold border flex items-center space-x-1.5 transition-all ${
+            title="Cycle Design Style: Modern Glass → Retro TUI → Neo-Brutalist → Swiss Minimal → Cyber HUD (Press 'T')"
+            className={`px-2.5 py-1.5 rounded-xl text-xs font-bold border flex items-center space-x-1.5 transition-all hover:scale-105 ${
               uiStyle === 'tui'
-                ? 'bg-emerald-950/60 text-emerald-300 border-emerald-500/50'
-                : 'glass-pill text-gray-300 hover:text-white border-white/10'
+                ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/60 font-mono'
+                : uiStyle === 'brutalist'
+                ? 'bg-yellow-400 text-black border-black shadow-[2px_2px_0px_#fff] font-black'
+                : uiStyle === 'minimal'
+                ? 'bg-neutral-800 text-white border-white/30 font-light'
+                : uiStyle === 'hud'
+                ? 'bg-cyan-950/80 text-cyan-300 border-cyan-400/60 font-mono shadow-[0_0_10px_rgba(0,240,255,0.3)]'
+                : 'glass-pill text-gray-200 hover:text-white border-white/15'
             }`}
           >
-            <Terminal size={13} className={uiStyle === 'tui' ? 'text-emerald-400' : 'text-gray-400'} />
-            <span>{uiStyle === 'tui' ? 'TUI' : 'GUI'}</span>
+            {uiStyle === 'tui' && <Terminal size={13} className="text-emerald-400" />}
+            {uiStyle === 'brutalist' && <Square size={12} className="text-black fill-black" />}
+            {uiStyle === 'minimal' && <Minus size={13} className="text-neutral-300" />}
+            {uiStyle === 'hud' && <Crosshair size={13} className="text-cyan-400" />}
+            {uiStyle === 'modern' && <Sparkles size={13} className="text-indigo-400" />}
+
+            <span className="capitalize">
+              {uiStyle === 'modern' ? 'Glass' : uiStyle === 'tui' ? 'TUI' : uiStyle === 'brutalist' ? 'Brutal' : uiStyle === 'minimal' ? 'Minimal' : 'HUD'}
+            </span>
           </button>
         </div>
 
