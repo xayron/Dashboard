@@ -1,5 +1,5 @@
-import React from 'react';
-import { Music, Play, Pause, Volume2, SkipForward } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Music, Play, Pause } from 'lucide-react';
 import { useDashboard } from '../../state/DashboardContext';
 
 interface AudioBannerProps {
@@ -9,6 +9,11 @@ interface AudioBannerProps {
 
 export const AudioBanner: React.FC<AudioBannerProps> = ({ className = '', onClick }) => {
   const { media } = useDashboard();
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    setImageError(false);
+  }, [media.entityPicture]);
 
   if (media.state === 'off' || media.state === 'idle') return null;
 
@@ -20,9 +25,14 @@ export const AudioBanner: React.FC<AudioBannerProps> = ({ className = '', onClic
       className={`glass-panel rounded-2xl p-3 flex items-center space-x-3.5 shadow-2xl border border-white/15 max-w-sm cursor-pointer hover:border-white/30 transition-all ${className}`}
     >
       {/* Album Art with pulse */}
-      <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 shadow-md bg-gray-900">
-        {media.entityPicture ? (
-          <img src={media.entityPicture} alt={media.title} className="w-full h-full object-cover" />
+      <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 shadow-md bg-gray-900 flex items-center justify-center">
+        {media.entityPicture && !imageError ? (
+          <img
+            src={media.entityPicture}
+            alt={media.title}
+            onError={() => setImageError(true)}
+            className="w-full h-full object-cover"
+          />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-indigo-950/80 text-indigo-400">
             <Music size={20} />

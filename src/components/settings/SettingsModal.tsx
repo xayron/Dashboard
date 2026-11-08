@@ -191,6 +191,29 @@ export const SettingsModal: React.FC = () => {
                 </p>
               </div>
 
+              {!haConfig.useMock && (
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">
+                    Target Media Player Entity
+                  </label>
+                  <select
+                    value={haConfig.preferredMediaPlayer || ''}
+                    onChange={(e) => setHaConfig({ ...haConfig, preferredMediaPlayer: e.target.value || undefined })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white text-sm focus:outline-none focus:border-blue-500"
+                  >
+                    <option value="">Auto-Detect Active Player (Playing &gt; Paused)</option>
+                    {haService.getAvailableMediaPlayers().map(p => (
+                      <option key={p.entity_id} value={p.entity_id}>
+                        {p.friendly_name} ({p.entity_id}) • {p.state}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-[11px] text-gray-400 mt-1">
+                    Select a specific speaker or let the dashboard automatically track whichever speaker starts playing.
+                  </p>
+                </div>
+              )}
+
               <button
                 onClick={handleSaveHA}
                 className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm flex items-center justify-center space-x-2 transition-all"

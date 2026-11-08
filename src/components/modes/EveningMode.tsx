@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Music,
   Play,
@@ -20,6 +20,11 @@ export const EveningMode: React.FC = () => {
   const { media, weather } = useDashboard();
   const [isPlaying, setIsPlaying] = useState<boolean>(media.state === 'playing');
   const [volume, setVolume] = useState<number>(media.volume || 65);
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    setImageError(false);
+  }, [media.entityPicture]);
 
   const formatSeconds = (sec: number) => {
     const mins = Math.floor(sec / 60);
@@ -33,11 +38,13 @@ export const EveningMode: React.FC = () => {
     <div className="relative w-full h-full p-10 flex flex-col justify-between overflow-hidden bg-black select-none">
       {/* 1. DYNAMIC VIBRANT BACKGROUND ALBUM ART EXTRACTION */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        {media.entityPicture && (
+        {media.entityPicture && !imageError ? (
           <div
             className="w-full h-full bg-cover bg-center transform scale-125 filter blur-[90px] opacity-35 brightness-75 contrast-125 transition-all duration-1000"
             style={{ backgroundImage: `url(${media.entityPicture})` }}
           />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-indigo-950/40 via-purple-950/30 to-black filter blur-[80px]" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/70 to-black/80" />
       </div>
@@ -71,12 +78,21 @@ export const EveningMode: React.FC = () => {
       <div className="relative z-10 flex-1 my-6 flex items-center justify-center">
         <div className="w-full max-w-4xl glass-panel p-8 rounded-3xl border border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.8)] backdrop-blur-2xl flex items-center space-x-10">
           {/* Large Vinyl / Album Cover with shadow */}
-          <div className="relative w-72 h-72 rounded-3xl overflow-hidden shrink-0 shadow-2xl border border-white/20 group">
-            <img
-              src={media.entityPicture || 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&w=600&q=80'}
-              alt={media.title}
-              className={`w-full h-full object-cover transition-transform duration-700 ${isPlaying ? 'scale-105' : 'scale-100'}`}
-            />
+          <div className="relative w-72 h-72 rounded-3xl overflow-hidden shrink-0 shadow-2xl border border-white/20 group bg-gray-900 flex items-center justify-center">
+            {media.entityPicture && !imageError ? (
+              <img
+                src={media.entityPicture}
+                alt={media.title}
+                onError={() => setImageError(true)}
+                className={`w-full h-full object-cover transition-transform duration-700 ${isPlaying ? 'scale-105' : 'scale-100'}`}
+              />
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-indigo-950 to-purple-950 text-indigo-300 p-6 text-center">
+                <Music size={56} className="mb-2 opacity-60" />
+                <span className="text-xs font-semibold text-gray-300">{media.title || 'Now Playing'}</span>
+                <span className="text-[10px] text-gray-400 mt-1">{media.artist}</span>
+              </div>
+            )}
             {/* Soft inner glow */}
             <div className="absolute inset-0 ring-1 ring-inset ring-white/20 rounded-3xl pointer-events-none" />
           </div>
@@ -88,7 +104,7 @@ export const EveningMode: React.FC = () => {
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs uppercase tracking-widest text-indigo-400 font-bold flex items-center">
                   <Radio size={14} className="mr-1.5 animate-pulse text-indigo-400" />
-                  Living Room Cast Speaker
+                  {media.entityId ? media.entityId.replace('media_player.', '') : 'Living Room Cast Speaker'}
                 </span>
 
                 {/* Animated sound spectrum equalizer bars */}

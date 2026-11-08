@@ -133,29 +133,97 @@ export class HomeAssistantService {
     this.listeners.forEach(listener => listener(this.entities, this.status));
   }
 
+  // Resolve full, valid album art URL handling both absolute and relative HA proxies
+  public resolveAlbumArt(attr?: Record<string, any>): string {
+    if (!attr) return '';
+    // Check all common album art attribute keys
+    const rawPic = attr.entity_picture || attr.entity_picture_local || attr.media_image_url || attr.album_art;
+    if (!rawPic || typeof rawPic !== 'string') return '';
+
+    // 1. If it's already an absolute URL (e.g. Spotify CDN, Cast CDN, web stream)
+    if (/^https?:\/\//i.test(rawPic)) {
+      return rawPic;
+    }
+
+    // 2. If it's a relative path on Home Assistant (e.g. /api/media_player_proxy/...)
+    const haBase = (this.config.haUrl || '').trim().replace(/\/+$/, '');
+    if (!haBase) return rawPic;
+
+    const cleanPath = rawPic.startsWith('/') ? rawPic : `/${rawPic}`;
+    let fullUrl = `${haBase}${cleanPath}`;
+
+    // 3. If Home Assistant proxy URL does not include a token and we have an accessToken,
+    // append authSig parameter so HA allows unauthenticated <img> tag loading
+    if (!fullUrl.includes('token=') && this.config.accessToken) {
+      const sep = fullUrl.includes('?') ? '&' : '?';
+      fullUrl = `${fullUrl}${sep}authSig=${encodeURIComponent(this.config.accessToken)}`;
+    }
+
+    return fullUrl;
+  }
+
+  // Returns list of all detected media_player entities
+  public getAvailableMediaPlayers(): Array<{ entity_id: string; friendly_name: string; state: string }> {
+    if (!this.entities) return [];
+    return Object.keys(this.entities)
+      .filter(key => key.startsWith('media_player.'))
+      .map(key => ({
+        entity_id: key,
+        friendly_name: this.entities[key]?.attributes?.friendly_name || key,
+        state: this.entities[key]?.state || 'unknown',
+      }));
+  }
+
   // Parses active media player entity or provides mock playback
   public parseActiveMediaPlayer(): MediaPlayerData {
     // Search for media_player entities in real HA state if connected
     if (this.status === 'connected' && this.entities) {
       const mediaPlayers = Object.keys(this.entities)
         .filter(key => key.startsWith('media_player.'))
-        .map(key => this.entities[key]);
+        .map(key => ({ ...this.entities[key], entity_id: key }));
 
-      const playing = mediaPlayers.find(p => p.state === 'playing');
-      const active = playing || mediaPlayers[0];
+      // 1. Check if user configured a preferred media player
+      let active: any = null;
+      if (this.config.preferredMediaPlayer) {
+        active = mediaPlayers.find(p => p.entity_id === this.config.preferredMediaPlayer);
+      }
+
+      // 2. If not specified or preferred is not active, pick highest priority:
+      if (!active) {
+        // Priority 1: Playing player with album art or title
+        active = mediaPlayers.find(p => p.state === 'playing' && (p.attributes?.entity_picture || p.attributes?.media_title));
+      }
+      if (!active) {
+        // Priority 2: Any player that is 'playing'
+        active = mediaPlayers.find(p => p.state === 'playing');
+      }
+      if (!active) {
+        // Priority 3: Paused player with album art or title
+        active = mediaPlayers.find(p => p.state === 'paused' && (p.attributes?.entity_picture || p.attributes?.media_title));
+      }
+      if (!active) {
+        // Priority 4: Any player that has album art or title
+        active = mediaPlayers.find(p => p.attributes?.entity_picture || p.attributes?.media_title);
+      }
+      if (!active && mediaPlayers.length > 0) {
+        active = mediaPlayers[0];
+      }
 
       if (active && active.attributes) {
         const attr = active.attributes;
+        const albumArtUrl = this.resolveAlbumArt(attr);
+
         return {
           state: (active.state === 'playing' ? 'playing' : active.state === 'paused' ? 'paused' : 'idle'),
-          title: attr.media_title || 'No Media Playing',
-          artist: attr.media_artist || attr.app_name || 'Cast Stream',
+          title: attr.media_title || (active.state === 'playing' ? 'Unknown Track' : 'No Media Playing'),
+          artist: attr.media_artist || attr.app_name || attr.friendly_name || 'Cast Stream',
           album: attr.media_album_name || '',
-          entityPicture: attr.entity_picture ? `${this.config.haUrl}${attr.entity_picture}` : '',
+          entityPicture: albumArtUrl,
           duration: attr.media_duration || 0,
           position: attr.media_position || 0,
           volume: Math.round((attr.volume_level ?? 0.5) * 100),
-          accentColor: '#3b82f6',
+          accentColor: '#8b5cf6',
+          entityId: active.entity_id,
         };
       }
     }

@@ -4,6 +4,7 @@ export interface HAConnectionConfig {
   haUrl: string;
   accessToken: string;
   useMock: boolean;
+  preferredMediaPlayer?: string;
 }
 
 export type HAStatus = 'connected' | 'connecting' | 'disconnected' | 'mock';
@@ -18,6 +19,7 @@ export interface MediaPlayerData {
   position: number; // in seconds
   volume: number; // 0 - 100
   accentColor?: string;
+  entityId?: string;
 }
 
 export interface WeatherData {
