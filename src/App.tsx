@@ -241,7 +241,7 @@ const DashboardContent: React.FC = () => {
       case 'eink':
         return { backgroundColor: '#f5f2eb' };
       case 'retrowave':
-        return { backgroundColor: '#0c0317' };
+        return { backgroundColor: '#150424' };
       case 'neumorphic':
         return { backgroundColor: '#1a1d24' };
       case 'modern':
@@ -251,7 +251,7 @@ const DashboardContent: React.FC = () => {
   };
 
   const getFontClass = () => {
-    if (uiStyle === 'tui' || uiStyle === 'hud' || uiStyle === 'retrowave') return 'font-mono';
+    if (uiStyle === 'tui' || uiStyle === 'hud') return 'font-mono';
     if (uiStyle === 'eink') return 'font-serif';
     return 'font-sans';
   };
