@@ -27,7 +27,16 @@ const DashboardContent: React.FC = () => {
   };
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-gray-950 text-white flex flex-col font-sans select-none">
+    <div
+      style={{ backgroundColor: 'var(--color-bg-base, #030712)' }}
+      className="relative w-screen h-screen overflow-hidden text-white flex flex-col font-sans select-none transition-colors duration-700"
+    >
+      {/* Background ambient radial highlight matching current theme */}
+      <div
+        className="absolute inset-0 pointer-events-none z-0 transition-all duration-700"
+        style={{ backgroundImage: 'var(--bg-radial)' }}
+      />
+
       {/* Top Status Header */}
       <StatusHeader />
 

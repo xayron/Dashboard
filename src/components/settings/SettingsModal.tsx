@@ -9,18 +9,20 @@ import {
   Image as ImageIcon,
   RotateCcw,
   FolderOpen,
+  Palette,
 } from 'lucide-react';
 import { useDashboard } from '../../state/DashboardContext';
 import { haService, getSavedHAConfig, saveHAConfig } from '../../services/homeAssistant';
 import { getSavedCoords, saveCoords, type WeatherCoords } from '../../services/weatherService';
-import { photoService, DEFAULT_PHOTOS } from '../../services/photoService';
+import { photoService } from '../../services/photoService';
+import { THEMES, type ThemeId } from '../../types/theme';
 
 export const SettingsModal: React.FC = () => {
-  const { isSettingsOpen, setIsSettingsOpen } = useDashboard();
+  const { isSettingsOpen, setIsSettingsOpen, theme, setTheme } = useDashboard();
 
   const [haConfig, setHaConfig] = useState(getSavedHAConfig());
   const [coords, setCoords] = useState<WeatherCoords>(getSavedCoords());
-  const [activeTab, setActiveTab] = useState<'ha' | 'weather' | 'photos' | 'display'>('ha');
+  const [activeTab, setActiveTab] = useState<'ha' | 'weather' | 'photos' | 'themes' | 'display'>('themes');
   const [isSaved, setIsSaved] = useState(false);
   const [photoSource, setPhotoSource] = useState(photoService.getSource());
   const [customPhotoUrl, setCustomPhotoUrl] = useState('');
@@ -83,7 +85,7 @@ export const SettingsModal: React.FC = () => {
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
           <div className="flex items-center space-x-2.5">
             <h2 className="text-xl font-bold font-display text-white">Dashboard Settings</h2>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 font-mono">
+            <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 font-mono">
               15.6" Kiosk Config
             </span>
           </div>
@@ -96,10 +98,21 @@ export const SettingsModal: React.FC = () => {
         </div>
 
         {/* Tabs Bar */}
-        <div className="flex border-b border-white/10 px-6 pt-2 bg-white/5 space-x-2">
+        <div className="flex border-b border-white/10 px-6 pt-2 bg-white/5 space-x-2 overflow-x-auto">
+          <button
+            onClick={() => setActiveTab('themes')}
+            className={`px-3.5 py-2 text-xs font-bold rounded-t-xl transition-all flex items-center space-x-1.5 shrink-0 ${
+              activeTab === 'themes'
+                ? 'bg-slate-900 text-white border-t border-x border-white/15'
+                : 'text-gray-400 hover:text-gray-200'
+            }`}
+          >
+            <Palette size={14} />
+            <span>Themes & Palette</span>
+          </button>
           <button
             onClick={() => setActiveTab('ha')}
-            className={`px-4 py-2 text-xs font-bold rounded-t-xl transition-all flex items-center space-x-2 ${
+            className={`px-3.5 py-2 text-xs font-bold rounded-t-xl transition-all flex items-center space-x-1.5 shrink-0 ${
               activeTab === 'ha'
                 ? 'bg-slate-900 text-white border-t border-x border-white/15'
                 : 'text-gray-400 hover:text-gray-200'
@@ -110,7 +123,7 @@ export const SettingsModal: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('weather')}
-            className={`px-4 py-2 text-xs font-bold rounded-t-xl transition-all flex items-center space-x-2 ${
+            className={`px-3.5 py-2 text-xs font-bold rounded-t-xl transition-all flex items-center space-x-1.5 shrink-0 ${
               activeTab === 'weather'
                 ? 'bg-slate-900 text-white border-t border-x border-white/15'
                 : 'text-gray-400 hover:text-gray-200'
@@ -121,7 +134,7 @@ export const SettingsModal: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('photos')}
-            className={`px-4 py-2 text-xs font-bold rounded-t-xl transition-all flex items-center space-x-2 ${
+            className={`px-3.5 py-2 text-xs font-bold rounded-t-xl transition-all flex items-center space-x-1.5 shrink-0 ${
               activeTab === 'photos'
                 ? 'bg-slate-900 text-white border-t border-x border-white/15'
                 : 'text-gray-400 hover:text-gray-200'
@@ -132,7 +145,7 @@ export const SettingsModal: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('display')}
-            className={`px-4 py-2 text-xs font-bold rounded-t-xl transition-all flex items-center space-x-2 ${
+            className={`px-3.5 py-2 text-xs font-bold rounded-t-xl transition-all flex items-center space-x-1.5 shrink-0 ${
               activeTab === 'display'
                 ? 'bg-slate-900 text-white border-t border-x border-white/15'
                 : 'text-gray-400 hover:text-gray-200'
@@ -145,6 +158,76 @@ export const SettingsModal: React.FC = () => {
 
         {/* Tab Content */}
         <div className="p-6 overflow-y-auto max-h-[60vh] space-y-5">
+          {/* THEMES TAB */}
+          {activeTab === 'themes' && (
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-bold text-white mb-1">Color Themes & Ambient Lighting</h3>
+                <p className="text-xs text-gray-400">
+                  Select a color aesthetic. Changes apply immediately to all widgets and ambient backgrounds without changing your layout.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3.5">
+                {(Object.keys(THEMES) as ThemeId[]).map((tId) => {
+                  const t = THEMES[tId];
+                  const isSelected = theme === tId;
+                  return (
+                    <div
+                      key={tId}
+                      onClick={() => setTheme(tId)}
+                      className={`p-3.5 rounded-2xl cursor-pointer transition-all border flex flex-col justify-between ${
+                        isSelected
+                          ? 'border-white/50 shadow-xl ring-2'
+                          : 'border-white/10 hover:border-white/25 bg-white/5'
+                      }`}
+                      style={{
+                        backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.08)' : undefined,
+                        borderColor: isSelected ? t.colors.accent : undefined,
+                      }}
+                    >
+                      <div>
+                        {/* Top: Name & Swatches */}
+                        <div className="flex items-center justify-between mb-1.5">
+                          <h4 className="text-sm font-bold text-white">{t.name}</h4>
+                          {/* 3-color palette preview */}
+                          <div className="flex space-x-1 items-center">
+                            {t.colors.swatches.map((c, i) => (
+                              <div
+                                key={i}
+                                className="w-3.5 h-3.5 rounded-full border border-black/40 shadow-sm"
+                                style={{ backgroundColor: c }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+
+                        <p className="text-[11px] font-semibold" style={{ color: t.colors.accent }}>
+                          {t.tagline}
+                        </p>
+                        <p className="text-[11px] text-gray-400 mt-1 leading-snug">
+                          {t.description}
+                        </p>
+                      </div>
+
+                      {/* Active indicator */}
+                      <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-xs">
+                        <span className="text-[10px] text-gray-400 uppercase font-mono">
+                          {tId}
+                        </span>
+                        {isSelected && (
+                          <span className="flex items-center text-[11px] font-bold" style={{ color: t.colors.accent }}>
+                            <Check size={13} className="mr-1" /> Active
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {activeTab === 'ha' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5">

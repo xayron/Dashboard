@@ -18,7 +18,11 @@ import { getFinanceData } from '../services/financeService';
 import { photoService } from '../services/photoService';
 import { getCalendarEvents, getTodoTasks } from '../services/calendarService';
 
+import { THEMES, type ThemeId } from '../types/theme';
+
 interface DashboardContextType {
+  theme: ThemeId;
+  setTheme: (theme: ThemeId) => void;
   activeMode: DashboardMode;
   autoCalculatedMode: DashboardMode;
   manualOverrideMode: DashboardMode | null;
@@ -48,6 +52,27 @@ interface DashboardContextType {
 const DashboardContext = createContext<DashboardContextType | null>(null);
 
 export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [theme, setThemeState] = useState<ThemeId>(() => {
+    try {
+      const saved = localStorage.getItem('dashboard_theme') as ThemeId;
+      if (saved && THEMES[saved]) return saved;
+    } catch (e) {}
+    return 'obsidian';
+  });
+
+  const setTheme = (t: ThemeId) => {
+    setThemeState(t);
+    try {
+      localStorage.setItem('dashboard_theme', t);
+    } catch (e) {}
+  };
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    const themeDef = THEMES[theme] || THEMES.obsidian;
+    document.body.style.backgroundColor = themeDef.colors.bg;
+  }, [theme]);
+
   const [now, setNow] = useState<Date>(new Date());
   const [manualOverrideMode, setManualOverrideMode] = useState<DashboardMode | null>(null);
   const [isRaceWeekendSimulated, setIsRaceWeekendSimulated] = useState<boolean>(false);
@@ -272,6 +297,8 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   return (
     <DashboardContext.Provider
       value={{
+        theme,
+        setTheme,
         activeMode,
         autoCalculatedMode,
         manualOverrideMode,

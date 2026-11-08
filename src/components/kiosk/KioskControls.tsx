@@ -6,17 +6,20 @@ import {
   Sun,
   Camera,
   RotateCcw,
-  Volume2,
   ChevronRight,
   ChevronLeft,
   Settings,
   X,
+  Palette,
 } from 'lucide-react';
 import { useDashboard } from '../../state/DashboardContext';
 import type { DashboardMode } from '../../types/dashboard';
+import { THEMES, type ThemeId } from '../../types/theme';
 
 export const KioskControls: React.FC = () => {
   const {
+    theme,
+    setTheme,
     activeMode,
     autoCalculatedMode,
     manualOverrideMode,
@@ -51,12 +54,21 @@ export const KioskControls: React.FC = () => {
     { id: 'ambient', label: 'Ambient', icon: <Camera size={14} className="text-emerald-400" /> },
   ];
 
+  const themeList: ThemeId[] = ['obsidian', 'cyberpunk', 'amber', 'nordic', 'emerald', 'monochrome'];
+  const cycleTheme = () => {
+    const curIdx = themeList.indexOf(theme);
+    const nextIdx = (curIdx + 1) % themeList.length;
+    setTheme(themeList[nextIdx]);
+  };
+
+  const currentThemeDef = THEMES[theme] || THEMES.obsidian;
+
   return (
     <div className="fixed bottom-4 inset-x-0 mx-auto max-w-fit z-50 select-none animate-in fade-in slide-in-from-bottom-3 duration-300">
       <div className="glass-panel px-4 py-2.5 rounded-2xl shadow-[0_15px_35px_rgba(0,0,0,0.6)] border border-white/15 flex items-center space-x-3">
         {/* Mode Label */}
         <div className="flex items-center space-x-1.5 text-xs font-bold text-gray-400 uppercase tracking-wider pr-2 border-r border-white/10">
-          <Layers size={14} className="text-blue-400" />
+          <Layers size={14} style={{ color: currentThemeDef.colors.accent }} />
           <span>Mode:</span>
         </div>
 
@@ -67,9 +79,13 @@ export const KioskControls: React.FC = () => {
             onClick={() => setManualOverrideMode(null)}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 ${
               manualOverrideMode === null
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 ring-1 ring-blue-400'
+                ? 'text-white shadow-lg ring-1'
                 : 'text-gray-400 hover:text-white hover:bg-white/5'
             }`}
+            style={{
+              backgroundColor: manualOverrideMode === null ? currentThemeDef.colors.accent : undefined,
+              borderColor: manualOverrideMode === null ? currentThemeDef.colors.accent : undefined,
+            }}
           >
             <RotateCcw size={12} />
             <span>Auto ({autoCalculatedMode})</span>
@@ -95,6 +111,22 @@ export const KioskControls: React.FC = () => {
           })}
         </div>
 
+        {/* Theme Quick Switcher Pill */}
+        <div className="pl-2 border-l border-white/10 flex items-center space-x-1">
+          <button
+            onClick={cycleTheme}
+            title={`Current Theme: ${currentThemeDef.name}. Click to cycle next theme.`}
+            className="px-2.5 py-1.5 rounded-xl glass-pill text-xs font-semibold text-gray-200 hover:text-white flex items-center space-x-1.5 transition-all hover:scale-105"
+          >
+            <Palette size={13} style={{ color: currentThemeDef.colors.accent }} />
+            <span className="hidden md:inline">{currentThemeDef.name}</span>
+            <div
+              className="w-2.5 h-2.5 rounded-full border border-white/30"
+              style={{ backgroundColor: currentThemeDef.colors.accent }}
+            />
+          </button>
+        </div>
+
         {/* Race Weekend Simulation Switch */}
         <div className="pl-2 border-l border-white/10 flex items-center space-x-2">
           <button
@@ -107,7 +139,7 @@ export const KioskControls: React.FC = () => {
             title="Simulate F1 Race Weekend (Thurs-Sun)"
           >
             <Flame size={12} className={isRaceWeekendSimulated ? 'text-red-400' : 'text-gray-400'} />
-            <span>F1 Sim: {isRaceWeekendSimulated ? 'ON' : 'OFF'}</span>
+            <span>F1: {isRaceWeekendSimulated ? 'ON' : 'OFF'}</span>
           </button>
         </div>
 

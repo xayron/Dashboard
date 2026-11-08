@@ -2,30 +2,105 @@
 
 @layer base {
   * {
-    border-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--color-border-subtle, rgba(255, 255, 255, 0.1));
   }
 }
 
-/* Glassmorphism utility classes */
+/* Theme Palettes */
+:root, [data-theme="obsidian"] {
+  --color-bg-base: #030712;
+  --color-panel-bg: rgba(15, 23, 42, 0.72);
+  --color-panel-border: rgba(255, 255, 255, 0.08);
+  --color-pill-bg: rgba(255, 255, 255, 0.08);
+  --color-border-subtle: rgba(255, 255, 255, 0.1);
+  --color-accent: #3b82f6;
+  --color-accent-soft: rgba(59, 130, 246, 0.2);
+  --color-glow: rgba(59, 130, 246, 0.25);
+  --bg-radial: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 60%);
+}
+
+[data-theme="cyberpunk"] {
+  --color-bg-base: #090314;
+  --color-panel-bg: rgba(28, 10, 48, 0.72);
+  --color-panel-border: rgba(236, 72, 153, 0.22);
+  --color-pill-bg: rgba(236, 72, 153, 0.12);
+  --color-border-subtle: rgba(236, 72, 153, 0.18);
+  --color-accent: #ec4899;
+  --color-accent-soft: rgba(236, 72, 153, 0.25);
+  --color-glow: rgba(236, 72, 153, 0.35);
+  --bg-radial: radial-gradient(circle at 50% 0%, rgba(236, 72, 153, 0.12) 0%, rgba(6, 182, 212, 0.06) 50%, transparent 75%);
+}
+
+[data-theme="amber"] {
+  --color-bg-base: #0a0805;
+  --color-panel-bg: rgba(30, 24, 16, 0.76);
+  --color-panel-border: rgba(245, 158, 11, 0.18);
+  --color-pill-bg: rgba(245, 158, 11, 0.1);
+  --color-border-subtle: rgba(245, 158, 11, 0.16);
+  --color-accent: #f59e0b;
+  --color-accent-soft: rgba(245, 158, 11, 0.2);
+  --color-glow: rgba(245, 158, 11, 0.25);
+  --bg-radial: radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.1) 0%, transparent 65%);
+}
+
+[data-theme="nordic"] {
+  --color-bg-base: #060e17;
+  --color-panel-bg: rgba(12, 29, 48, 0.72);
+  --color-panel-border: rgba(56, 189, 248, 0.18);
+  --color-pill-bg: rgba(56, 189, 248, 0.1);
+  --color-border-subtle: rgba(56, 189, 248, 0.16);
+  --color-accent: #38bdf8;
+  --color-accent-soft: rgba(56, 189, 248, 0.2);
+  --color-glow: rgba(56, 189, 248, 0.25);
+  --bg-radial: radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.1) 0%, rgba(20, 184, 166, 0.05) 50%, transparent 70%);
+}
+
+[data-theme="emerald"] {
+  --color-bg-base: #02120a;
+  --color-panel-bg: rgba(6, 36, 22, 0.72);
+  --color-panel-border: rgba(16, 185, 129, 0.18);
+  --color-pill-bg: rgba(16, 185, 129, 0.1);
+  --color-border-subtle: rgba(16, 185, 129, 0.16);
+  --color-accent: #10b981;
+  --color-accent-soft: rgba(16, 185, 129, 0.2);
+  --color-glow: rgba(16, 185, 129, 0.25);
+  --bg-radial: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.1) 0%, transparent 65%);
+}
+
+[data-theme="monochrome"] {
+  --color-bg-base: #000000;
+  --color-panel-bg: rgba(18, 18, 18, 0.88);
+  --color-panel-border: rgba(255, 255, 255, 0.16);
+  --color-pill-bg: rgba(255, 255, 255, 0.12);
+  --color-border-subtle: rgba(255, 255, 255, 0.15);
+  --color-accent: #f3f4f6;
+  --color-accent-soft: rgba(255, 255, 255, 0.15);
+  --color-glow: rgba(255, 255, 255, 0.15);
+  --bg-radial: none;
+}
+
+/* Glassmorphism utility classes powered by current theme variables */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.72);
+  background: var(--color-panel-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--color-panel-border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
 
 .glass-panel-subtle {
-  background: rgba(15, 23, 42, 0.45);
+  background: var(--color-panel-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-panel-border);
+  opacity: 0.85;
 }
 
 .glass-pill {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--color-pill-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--color-panel-border);
 }
 
 /* Custom smooth transitions for mode changes */
