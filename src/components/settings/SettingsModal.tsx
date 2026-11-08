@@ -108,7 +108,7 @@ export const SettingsModal: React.FC = () => {
             }`}
           >
             <Palette size={14} />
-            <span>Themes & Palette</span>
+            <span>Styles & Themes</span>
           </button>
           <button
             onClick={() => setActiveTab('ha')}
