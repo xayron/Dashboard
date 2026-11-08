@@ -6,21 +6,24 @@ import {
   Moon,
   Save,
   Check,
-  RefreshCw,
-  Image,
-  ExternalLink,
+  Image as ImageIcon,
+  RotateCcw,
+  FolderOpen,
 } from 'lucide-react';
 import { useDashboard } from '../../state/DashboardContext';
 import { haService, getSavedHAConfig, saveHAConfig } from '../../services/homeAssistant';
 import { getSavedCoords, saveCoords, type WeatherCoords } from '../../services/weatherService';
+import { photoService, DEFAULT_PHOTOS } from '../../services/photoService';
 
 export const SettingsModal: React.FC = () => {
   const { isSettingsOpen, setIsSettingsOpen } = useDashboard();
 
   const [haConfig, setHaConfig] = useState(getSavedHAConfig());
   const [coords, setCoords] = useState<WeatherCoords>(getSavedCoords());
-  const [activeTab, setActiveTab] = useState<'ha' | 'weather' | 'display' | 'photos'>('ha');
+  const [activeTab, setActiveTab] = useState<'ha' | 'weather' | 'photos' | 'display'>('ha');
   const [isSaved, setIsSaved] = useState(false);
+  const [photoSource, setPhotoSource] = useState(photoService.getSource());
+  const [customPhotoUrl, setCustomPhotoUrl] = useState('');
 
   if (!isSettingsOpen) return null;
 
@@ -35,7 +38,33 @@ export const SettingsModal: React.FC = () => {
     saveCoords(coords);
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 2000);
-    window.location.reload(); // Reload to fetch new coordinates
+    window.location.reload();
+  };
+
+  const handleAddPhoto = () => {
+    if (!customPhotoUrl.trim()) return;
+    const current = [...photoService.getPhotos()];
+    current.unshift({
+      id: `custom-${Date.now()}`,
+      url: customPhotoUrl.trim(),
+      title: 'Custom Photo',
+      location: 'Personal Gallery',
+      aspectRatio: 1.6,
+      orientation: 'landscape',
+      credit: 'User Added',
+    });
+    photoService.saveCustomPhotos(current);
+    setCustomPhotoUrl('');
+    setPhotoSource('custom');
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 2000);
+  };
+
+  const handleResetPhotos = () => {
+    photoService.resetToShowcase();
+    setPhotoSource('showcase');
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 2000);
   };
 
   const CITY_PRESETS = [
@@ -89,6 +118,17 @@ export const SettingsModal: React.FC = () => {
           >
             <Cloud size={14} />
             <span>Weather & AQI</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('photos')}
+            className={`px-4 py-2 text-xs font-bold rounded-t-xl transition-all flex items-center space-x-2 ${
+              activeTab === 'photos'
+                ? 'bg-slate-900 text-white border-t border-x border-white/15'
+                : 'text-gray-400 hover:text-gray-200'
+            }`}
+          >
+            <ImageIcon size={14} />
+            <span>Photos & Storage</span>
           </button>
           <button
             onClick={() => setActiveTab('display')}
@@ -218,6 +258,62 @@ export const SettingsModal: React.FC = () => {
                 {isSaved ? <Check size={16} /> : <Save size={16} />}
                 <span>{isSaved ? 'Saved!' : 'Save & Refresh Weather'}</span>
               </button>
+            </div>
+          )}
+
+          {activeTab === 'photos' && (
+            <div className="space-y-4">
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                <div className="flex items-center space-x-2 text-white font-bold text-sm mb-1">
+                  <FolderOpen size={16} className="text-blue-400" />
+                  <span>Local Directory Storage</span>
+                </div>
+                <p className="text-xs text-gray-300 leading-relaxed">
+                  You can drop any photos (<code className="text-blue-300">.jpg</code>, <code className="text-blue-300">.png</code>, <code className="text-blue-300">.webp</code>) into the local folder:
+                </p>
+                <div className="mt-2 p-2.5 rounded-xl bg-black/60 font-mono text-xs text-emerald-400 select-all border border-white/10">
+                  Dashboard/public/photos/
+                </div>
+                <p className="text-[11px] text-gray-400 mt-2">
+                  The dashboard automatically scans this directory via the built-in <code className="text-gray-300">/api/photos</code> endpoint, calculates aspect ratios, and serves them.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">
+                  Add Custom Photo URL
+                </label>
+                <div className="flex space-x-2">
+                  <input
+                    type="url"
+                    value={customPhotoUrl}
+                    onChange={(e) => setCustomPhotoUrl(e.target.value)}
+                    placeholder="https://example.com/photo.jpg"
+                    className="flex-1 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm"
+                  />
+                  <button
+                    onClick={handleAddPhoto}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl"
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                <div className="text-xs text-gray-400">
+                  Current Source:{' '}
+                  <span className="font-bold text-white capitalize">{photoSource}</span> (
+                  {photoService.getPhotos().length} photos)
+                </div>
+                <button
+                  onClick={handleResetPhotos}
+                  className="px-3 py-1.5 rounded-xl glass-pill text-xs font-semibold text-gray-300 hover:text-white flex items-center space-x-1.5"
+                >
+                  <RotateCcw size={13} />
+                  <span>Reset to Showcase</span>
+                </button>
+              </div>
             </div>
           )}
 

@@ -181,10 +181,18 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setTasks(tsks);
     };
 
+    const loadPhotos = async () => {
+      const photos = await photoService.initPhotos();
+      if (photos.length > 0) {
+        setCurrentPhoto(photoService.getCurrentPhoto());
+      }
+    };
+
     loadWeather();
     loadF1();
     loadFinance();
     loadCalendarAndTasks();
+    loadPhotos();
 
     const weatherTimer = setInterval(loadWeather, 15 * 60 * 1000);
     const f1Timer = setInterval(loadF1, 10 * 60 * 1000);

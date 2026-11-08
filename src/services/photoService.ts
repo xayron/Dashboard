@@ -11,7 +11,7 @@ export const classifyAspectRatio = (width: number, height: number): { ratio: num
   }
 };
 
-// Curated default showcase images covering landscape, squarish, and portrait
+// Curated showcase demonstration images covering landscape, squarish, and portrait
 export const DEFAULT_PHOTOS: PhotoItem[] = [
   {
     id: 'photo-1',
@@ -20,7 +20,7 @@ export const DEFAULT_PHOTOS: PhotoItem[] = [
     location: 'California, USA',
     aspectRatio: 1.77,
     orientation: 'landscape',
-    credit: 'Bailey Zindel',
+    credit: 'Bailey Zindel (Unsplash)',
   },
   {
     id: 'photo-2',
@@ -29,17 +29,17 @@ export const DEFAULT_PHOTOS: PhotoItem[] = [
     location: 'Swiss Alps',
     aspectRatio: 1.78,
     orientation: 'landscape',
-    credit: 'Benjamin Voros',
+    credit: 'Benjamin Voros (Unsplash)',
   },
   {
     id: 'photo-3',
-    // Portrait photo (aspect ratio ~ 0.67) - Tests the dual blur wings & UI Widget Shift!
+    // Portrait photo (aspect ratio ~ 0.67) - triggers dual-blur wings & UI Widget Shift!
     url: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=85',
     title: 'Autumn in Kyoto Pagoda',
     location: 'Kyoto, Japan',
     aspectRatio: 0.67,
     orientation: 'portrait',
-    credit: 'Su San Lee',
+    credit: 'Su San Lee (Unsplash)',
   },
   {
     id: 'photo-4',
@@ -48,7 +48,7 @@ export const DEFAULT_PHOTOS: PhotoItem[] = [
     location: 'Pacific Northwest',
     aspectRatio: 1.65,
     orientation: 'landscape',
-    credit: 'Luca Bravo',
+    credit: 'Luca Bravo (Unsplash)',
   },
   {
     id: 'photo-5',
@@ -58,7 +58,7 @@ export const DEFAULT_PHOTOS: PhotoItem[] = [
     location: 'Arashiyama, Japan',
     aspectRatio: 1.33,
     orientation: 'standard',
-    credit: 'Manuel Cosentino',
+    credit: 'Manuel Cosentino (Unsplash)',
   },
   {
     id: 'photo-6',
@@ -68,7 +68,7 @@ export const DEFAULT_PHOTOS: PhotoItem[] = [
     location: 'South Tyrol, Italy',
     aspectRatio: 0.66,
     orientation: 'portrait',
-    credit: 'Kalen Emsley',
+    credit: 'Kalen Emsley (Unsplash)',
   },
 ];
 
@@ -76,29 +76,71 @@ export class PhotoService {
   private photos: PhotoItem[] = DEFAULT_PHOTOS;
   private currentIndex: number = 0;
   private preloadedImages: Map<string, HTMLImageElement> = new Map();
+  private source: 'local' | 'custom' | 'showcase' = 'showcase';
 
   constructor() {
-    this.loadCustomPhotos();
-    this.preloadUpcoming(1);
+    this.initPhotos();
   }
 
-  private loadCustomPhotos(): void {
+  public async initPhotos(): Promise<PhotoItem[]> {
+    // 1. Check if user configured custom photos in localStorage
     try {
       const stored = localStorage.getItem('dashboard_custom_photos');
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
           this.photos = parsed;
+          this.source = 'custom';
+          this.preloadUpcoming(0);
+          return this.photos;
         }
       }
     } catch (e) {
       console.error('Error loading custom photos', e);
     }
+
+    // 2. Check local photo directory via /api/photos
+    try {
+      const res = await fetch('/api/photos');
+      if (res.ok) {
+        const localList: PhotoItem[] = await res.json();
+        if (Array.isArray(localList) && localList.length > 0) {
+          this.photos = localList;
+          this.source = 'local';
+          this.preloadUpcoming(0);
+          return this.photos;
+        }
+      }
+    } catch (e) {
+      // /api/photos unavailable or empty
+    }
+
+    // 3. Fallback to curated showcase photos
+    this.photos = DEFAULT_PHOTOS;
+    this.source = 'showcase';
+    this.preloadUpcoming(0);
+    this.preloadUpcoming(1);
+    return this.photos;
   }
 
-  public savePhotos(photos: PhotoItem[]): void {
+  public getSource(): 'local' | 'custom' | 'showcase' {
+    return this.source;
+  }
+
+  public saveCustomPhotos(photos: PhotoItem[]): void {
     this.photos = photos;
+    this.source = 'custom';
     localStorage.setItem('dashboard_custom_photos', JSON.stringify(photos));
+    this.currentIndex = 0;
+    this.preloadUpcoming(0);
+  }
+
+  public resetToShowcase(): void {
+    localStorage.removeItem('dashboard_custom_photos');
+    this.photos = DEFAULT_PHOTOS;
+    this.source = 'showcase';
+    this.currentIndex = 0;
+    this.preloadUpcoming(0);
   }
 
   public getPhotos(): PhotoItem[] {
@@ -116,7 +158,6 @@ export class PhotoService {
 
   public advance(): PhotoItem {
     this.currentIndex = (this.currentIndex + 1) % this.photos.length;
-    // Preload next image (10s in advance as per specs)
     this.preloadUpcoming((this.currentIndex + 1) % this.photos.length);
     return this.getCurrentPhoto();
   }
@@ -134,7 +175,6 @@ export class PhotoService {
     const img = new Image();
     img.src = nextPhoto.url;
     img.onload = () => {
-      // Re-verify actual dimensions if not already set
       if (img.naturalWidth && img.naturalHeight) {
         const { ratio, orientation } = classifyAspectRatio(img.naturalWidth, img.naturalHeight);
         nextPhoto.aspectRatio = ratio;
