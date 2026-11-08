@@ -9,6 +9,7 @@ import type {
   PhotoItem,
   SystemHealth,
   TodoTask,
+  UIStyle,
   WeatherData,
 } from '../types/dashboard';
 import { haService } from '../services/homeAssistant';
@@ -21,6 +22,9 @@ import { getCalendarEvents, getTodoTasks } from '../services/calendarService';
 import { THEMES, type ThemeId } from '../types/theme';
 
 interface DashboardContextType {
+  uiStyle: UIStyle;
+  setUiStyle: (style: UIStyle) => void;
+  toggleUiStyle: () => void;
   theme: ThemeId;
   setTheme: (theme: ThemeId) => void;
   activeMode: DashboardMode;
@@ -52,6 +56,25 @@ interface DashboardContextType {
 const DashboardContext = createContext<DashboardContextType | null>(null);
 
 export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [uiStyle, setUiStyleState] = useState<UIStyle>(() => {
+    try {
+      const saved = localStorage.getItem('dashboard_ui_style') as UIStyle;
+      if (saved === 'modern' || saved === 'tui') return saved;
+    } catch (e) {}
+    return 'modern';
+  });
+
+  const setUiStyle = (s: UIStyle) => {
+    setUiStyleState(s);
+    try {
+      localStorage.setItem('dashboard_ui_style', s);
+    } catch (e) {}
+  };
+
+  const toggleUiStyle = () => {
+    setUiStyle(uiStyle === 'modern' ? 'tui' : 'modern');
+  };
+
   const [theme, setThemeState] = useState<ThemeId>(() => {
     try {
       const saved = localStorage.getItem('dashboard_theme') as ThemeId;
@@ -136,6 +159,8 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setIsKioskBarVisible(prev => !prev);
       } else if (e.key === 's' || e.key === 'S') {
         setIsSettingsOpen(prev => !prev);
+      } else if (e.key === 't' || e.key === 'T') {
+        toggleUiStyle();
       }
     };
     window.addEventListener('keydown', handleKey);
@@ -297,6 +322,9 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   return (
     <DashboardContext.Provider
       value={{
+        uiStyle,
+        setUiStyle,
+        toggleUiStyle,
         theme,
         setTheme,
         activeMode,

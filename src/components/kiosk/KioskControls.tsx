@@ -11,6 +11,7 @@ import {
   Settings,
   X,
   Palette,
+  Terminal,
 } from 'lucide-react';
 import { useDashboard } from '../../state/DashboardContext';
 import type { DashboardMode } from '../../types/dashboard';
@@ -18,6 +19,8 @@ import { THEMES, type ThemeId } from '../../types/theme';
 
 export const KioskControls: React.FC = () => {
   const {
+    uiStyle,
+    toggleUiStyle,
     theme,
     setTheme,
     activeMode,
@@ -124,6 +127,22 @@ export const KioskControls: React.FC = () => {
               className="w-2.5 h-2.5 rounded-full border border-white/30"
               style={{ backgroundColor: currentThemeDef.colors.accent }}
             />
+          </button>
+        </div>
+
+        {/* UI Style Toggle (TUI / Modern) */}
+        <div className="pl-2 border-l border-white/10 flex items-center space-x-1">
+          <button
+            onClick={toggleUiStyle}
+            title="Toggle TUI / Modern Mode (Press 'T')"
+            className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold border flex items-center space-x-1.5 transition-all ${
+              uiStyle === 'tui'
+                ? 'bg-emerald-950/60 text-emerald-300 border-emerald-500/50'
+                : 'glass-pill text-gray-300 hover:text-white border-white/10'
+            }`}
+          >
+            <Terminal size={13} className={uiStyle === 'tui' ? 'text-emerald-400' : 'text-gray-400'} />
+            <span>{uiStyle === 'tui' ? 'TUI' : 'GUI'}</span>
           </button>
         </div>
 

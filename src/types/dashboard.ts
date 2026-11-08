@@ -1,4 +1,5 @@
 export type DashboardMode = 'race' | 'evening' | 'morning' | 'ambient';
+export type UIStyle = 'modern' | 'tui';
 
 export interface HAConnectionConfig {
   haUrl: string;
