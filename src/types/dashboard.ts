@@ -17,7 +17,8 @@ export interface MediaPlayerData {
   album: string;
   entityPicture: string;
   duration: number; // in seconds
-  position: number; // in seconds
+  position: number; // in seconds — snapshot from HA at positionUpdatedAt
+  positionUpdatedAt: number; // Date.now() when HA last reported position
   volume: number; // 0 - 100
   accentColor?: string;
   entityId?: string;

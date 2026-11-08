@@ -38,6 +38,9 @@ interface DashboardContextType {
   aqi: AQIData;
   f1: F1Data;
   media: MediaPlayerData;
+  /** Computed live position in seconds (advances locally every second between HA pushes) */
+  livePosition: number;
+  mediaControl: (action: 'play' | 'pause' | 'toggle' | 'next' | 'prev' | 'volume', value?: number) => void;
   finance: FinanceItem[];
   currentPhoto: PhotoItem;
   photoProgress: number; // 0 to 100 for the 15-second timer bar
@@ -124,6 +127,8 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     standings: [],
   }));
   const [media, setMedia] = useState<MediaPlayerData>(() => haService.parseActiveMediaPlayer());
+  // livePosition ticks forward locally every second between HA WebSocket pushes
+  const [livePosition, setLivePosition] = useState<number>(0);
   const [finance, setFinance] = useState<FinanceItem[]>([]);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [tasks, setTasks] = useState<TodoTask[]>([]);
@@ -198,7 +203,10 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   useEffect(() => {
     haService.connect();
     const unsub = haService.subscribe((_entities, _status) => {
-      setMedia(haService.parseActiveMediaPlayer());
+      const parsed = haService.parseActiveMediaPlayer();
+      setMedia(parsed);
+      // Sync livePosition to the fresh HA snapshot
+      setLivePosition(parsed.position);
       setSystemHealth(haService.parseSystemHealth());
     });
     return () => {
@@ -206,6 +214,51 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       haService.disconnect();
     };
   }, []);
+
+  // Advance livePosition locally every second when playing (avoids waiting for HA push)
+  useEffect(() => {
+    if (media.state !== 'playing') return;
+    // Recalculate from positionUpdatedAt so we stay accurate even after a gap
+    const tick = () => {
+      const elapsed = (Date.now() - (media.positionUpdatedAt ?? Date.now())) / 1000;
+      const computed = Math.min(media.position + elapsed, media.duration || Infinity);
+      setLivePosition(computed);
+    };
+    tick(); // immediate
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [media.state, media.position, media.positionUpdatedAt, media.duration]);
+
+  // Media player control — sends HA service call
+  const mediaControl = (action: 'play' | 'pause' | 'toggle' | 'next' | 'prev' | 'volume', value?: number) => {
+    const entityId = media.entityId;
+    if (!entityId) return;
+    switch (action) {
+      case 'play':
+        haService.callService('media_player', 'media_play', { entity_id: entityId });
+        break;
+      case 'pause':
+        haService.callService('media_player', 'media_pause', { entity_id: entityId });
+        break;
+      case 'toggle':
+        haService.callService('media_player', 'media_play_pause', { entity_id: entityId });
+        break;
+      case 'next':
+        haService.callService('media_player', 'media_next_track', { entity_id: entityId });
+        break;
+      case 'prev':
+        haService.callService('media_player', 'media_previous_track', { entity_id: entityId });
+        break;
+      case 'volume':
+        if (value !== undefined) {
+          haService.callService('media_player', 'volume_set', {
+            entity_id: entityId,
+            volume_level: value / 100,
+          });
+        }
+        break;
+    }
+  };
 
   // Periodic data refresh
   useEffect(() => {
@@ -338,6 +391,8 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         aqi,
         f1,
         media,
+        livePosition,
+        mediaControl,
         finance,
         currentPhoto,
         photoProgress,

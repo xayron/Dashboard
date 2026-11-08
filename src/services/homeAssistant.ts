@@ -162,6 +162,28 @@ export class HomeAssistantService {
     return fullUrl;
   }
 
+  // Send a service call to Home Assistant (e.g. media_player.media_play)
+  public async callService(
+    domain: string,
+    service: string,
+    serviceData: Record<string, unknown> = {}
+  ): Promise<void> {
+    if (!this.connection || this.status !== 'connected') {
+      console.warn(`[HA] Cannot call ${domain}.${service} — not connected`);
+      return;
+    }
+    try {
+      await this.connection.sendMessagePromise({
+        type: 'call_service',
+        domain,
+        service,
+        service_data: serviceData,
+      });
+    } catch (err) {
+      console.error(`[HA] callService ${domain}.${service} failed`, err);
+    }
+  }
+
   // Returns list of all detected media_player entities
   public getAvailableMediaPlayers(): Array<{ entity_id: string; friendly_name: string; state: string }> {
     if (!this.entities) return [];
@@ -213,6 +235,10 @@ export class HomeAssistantService {
         const attr = active.attributes;
         const albumArtUrl = this.resolveAlbumArt(attr);
 
+        // HA reports media_position_updated_at as an ISO string; convert to epoch ms
+        const updatedAtRaw = attr.media_position_updated_at as string | undefined;
+        const positionUpdatedAt = updatedAtRaw ? new Date(updatedAtRaw).getTime() : Date.now();
+
         return {
           state: (active.state === 'playing' ? 'playing' : active.state === 'paused' ? 'paused' : 'idle'),
           title: attr.media_title || (active.state === 'playing' ? 'Unknown Track' : 'No Media Playing'),
@@ -221,6 +247,7 @@ export class HomeAssistantService {
           entityPicture: albumArtUrl,
           duration: attr.media_duration || 0,
           position: attr.media_position || 0,
+          positionUpdatedAt,
           volume: Math.round((attr.volume_level ?? 0.5) * 100),
           accentColor: '#8b5cf6',
           entityId: active.entity_id,
@@ -236,7 +263,8 @@ export class HomeAssistantService {
       album: 'Hurry Up, We\'re Dreaming',
       entityPicture: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&w=600&q=80',
       duration: 243,
-      position: 112,
+      position: this.mockPosition,
+      positionUpdatedAt: this.mockPositionUpdatedAt,
       volume: 68,
       accentColor: '#8b5cf6',
     };
@@ -267,12 +295,17 @@ export class HomeAssistantService {
     };
   }
 
+  private mockPosition = 112;
+  private mockPositionUpdatedAt = Date.now();
+
   private startMockMode(): void {
     this.setStatus('mock');
-    // Periodically update mock attributes slightly for lifelike behavior
-    let progress = 112;
+    this.mockPosition = 112;
+    this.mockPositionUpdatedAt = Date.now();
+    // Advance mock position every second so the progress bar moves
     this.mockInterval = window.setInterval(() => {
-      progress = (progress + 1) % 243;
+      this.mockPosition = (this.mockPosition + 1) % 243;
+      this.mockPositionUpdatedAt = Date.now();
       this.notify();
     }, 1000);
   }
