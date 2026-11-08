@@ -76,16 +76,49 @@ const FALLBACK_STANDINGS: F1DriverStanding[] = [
   { position: 8, driver: 'Sergio Perez', driverCode: 'PER', team: 'Red Bull', points: 151, number: 11, teamColor: '#3671C6' },
 ];
 
-export const getF1Data = async (forceRaceWeekendSim: boolean = false): Promise<F1Data> => {
+const fetchLiveStandings = async (): Promise<F1DriverStanding[]> => {
   try {
-    const res = await fetch('https://api.jolpica.com/ergast/f1/current/next.json');
+    const res = await fetch('https://api.jolpica.com/ergast/f1/current/driverStandings.json');
     if (res.ok) {
       const data = await res.json();
-      const race = data.MRData.RaceTable.Races[0];
-      if (race) {
-        return parseJolpicaRace(race, forceRaceWeekendSim);
+      const list = data.MRData?.StandingsTable?.StandingsLists?.[0]?.DriverStandings;
+      if (Array.isArray(list) && list.length > 0) {
+        return list.slice(0, 10).map((item: any) => {
+          const teamName = item.Constructors?.[0]?.name || 'Unknown';
+          return {
+            position: Number(item.position),
+            driver: `${item.Driver.givenName} ${item.Driver.familyName}`,
+            driverCode: item.Driver.code || item.Driver.familyName.slice(0, 3).toUpperCase(),
+            team: teamName,
+            points: Number(item.points),
+            number: Number(item.Driver.permanentNumber || item.position),
+            teamColor: TEAM_COLORS[teamName] || '#888888',
+          };
+        });
       }
     }
+  } catch (e) {
+    // fallback
+  }
+  return FALLBACK_STANDINGS;
+};
+
+export const getF1Data = async (forceRaceWeekendSim: boolean = false): Promise<F1Data> => {
+  try {
+    const [raceRes, standings] = await Promise.all([
+      fetch('https://api.jolpica.com/ergast/f1/current/next.json'),
+      fetchLiveStandings(),
+    ]);
+
+    if (raceRes.ok) {
+      const data = await raceRes.json();
+      const race = data.MRData.RaceTable.Races[0];
+      if (race) {
+        return parseJolpicaRace(race, forceRaceWeekendSim, standings);
+      }
+    }
+    const fallback = getFallbackF1Data(forceRaceWeekendSim);
+    return { ...fallback, standings };
   } catch (err) {
     console.warn('Jolpica F1 API failed or offline. Using rich schedule fallback.', err);
   }
@@ -93,7 +126,7 @@ export const getF1Data = async (forceRaceWeekendSim: boolean = false): Promise<F
   return getFallbackF1Data(forceRaceWeekendSim);
 };
 
-const parseJolpicaRace = (race: any, forceRaceWeekendSim: boolean): F1Data => {
+const parseJolpicaRace = (race: any, forceRaceWeekendSim: boolean, liveStandings: F1DriverStanding[] = FALLBACK_STANDINGS): F1Data => {
   const fp1Info = formatToIST(race.FirstPractice?.date, race.FirstPractice?.time);
   const fp2Info = race.SecondPractice ? formatToIST(race.SecondPractice.date, race.SecondPractice.time) : undefined;
   const fp3Info = race.ThirdPractice ? formatToIST(race.ThirdPractice.date, race.ThirdPractice.time) : undefined;
@@ -196,7 +229,7 @@ const parseJolpicaRace = (race: any, forceRaceWeekendSim: boolean): F1Data => {
       diffMs,
       countdownFormatted,
     },
-    standings: FALLBACK_STANDINGS,
+    standings: liveStandings,
   };
 };
 

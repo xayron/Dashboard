@@ -15,10 +15,12 @@ export const getSavedHAConfig = (): HAConnectionConfig => {
   } catch (e) {
     console.error('Error loading HA config from storage', e);
   }
+  const envUrl = (import.meta as any).env?.VITE_HA_URL;
+  const envToken = (import.meta as any).env?.VITE_HA_TOKEN;
   return {
-    haUrl: (import.meta as any).env?.VITE_HA_URL || 'http://homeassistant.local:8123',
-    accessToken: (import.meta as any).env?.VITE_HA_TOKEN || '',
-    useMock: true,
+    haUrl: envUrl || 'http://homeassistant.local:8123',
+    accessToken: envToken || '',
+    useMock: !(envUrl && envToken),
   };
 };
 
@@ -112,6 +114,14 @@ export class HomeAssistantService {
 
   public getConfig(): HAConnectionConfig {
     return this.config;
+  }
+
+  public getEntities(): HassEntities {
+    return this.entities;
+  }
+
+  public getStatus(): HAStatus {
+    return this.status;
   }
 
   private setStatus(status: HAStatus): void {

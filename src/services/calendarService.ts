@@ -1,7 +1,37 @@
 import type { CalendarEvent, TodoTask } from '../types/dashboard';
+import { haService } from './homeAssistant';
 
 export const getCalendarEvents = async (): Promise<CalendarEvent[]> => {
-  // Can subscribe to HA calendar.* or return curated schedule
+  // If connected to Home Assistant, search for calendar.* entities first
+  if (haService.getStatus() === 'connected') {
+    const entities = haService.getEntities();
+    const calendarKeys = Object.keys(entities).filter(k => k.startsWith('calendar.'));
+
+    const haEvents: CalendarEvent[] = [];
+    calendarKeys.forEach((key, idx) => {
+      const entity = entities[key];
+      if (entity?.attributes?.message) {
+        const attr = entity.attributes;
+        const start = attr.start_time ? new Date(attr.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : 'Today';
+        const end = attr.end_time ? new Date(attr.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
+        haEvents.push({
+          id: `ha-cal-${idx}`,
+          title: attr.message,
+          startTime: start,
+          endTime: end,
+          isAllDay: !!attr.all_day,
+          location: attr.location || attr.friendly_name,
+          category: 'work',
+        });
+      }
+    });
+
+    if (haEvents.length > 0) {
+      return haEvents;
+    }
+  }
+
+  // Baseline schedule for offline/demo mode
   const now = new Date();
   const formatTime = (hours: number, minutes: number = 0) => {
     const d = new Date(now);
@@ -57,6 +87,24 @@ export const getCalendarEvents = async (): Promise<CalendarEvent[]> => {
 };
 
 export const getTodoTasks = async (): Promise<TodoTask[]> => {
+  // If connected to Home Assistant, search for todo.* entities
+  if (haService.getStatus() === 'connected') {
+    const entities = haService.getEntities();
+    const todoKeys = Object.keys(entities).filter(k => k.startsWith('todo.'));
+    if (todoKeys.length > 0) {
+      const haTasks: TodoTask[] = todoKeys.map((key, idx) => {
+        const entity = entities[key];
+        return {
+          id: `ha-todo-${idx}`,
+          title: entity.attributes.friendly_name || key.replace('todo.', ''),
+          completed: entity.state === '0', // count of remaining tasks
+          priority: 'medium',
+        };
+      });
+      return haTasks;
+    }
+  }
+
   return [
     {
       id: 'task-1',

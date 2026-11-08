@@ -11,9 +11,19 @@ export default defineConfig({
   server: {
     port: 3000,
     host: '0.0.0.0', // accessible on local network for kiosk display
+    proxy: {
+      '/api/finance': {
+        target: 'https://query1.finance.yahoo.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/finance/, ''),
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
+        },
+      },
+    },
   },
   preview: {
     port: 3000,
     host: '0.0.0.0',
-  }
+  },
 });
