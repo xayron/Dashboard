@@ -59,9 +59,27 @@ export const UI_STYLES: UIStyleInfo[] = [
     tagline: 'Tactical Cockpit Avionics',
     description: 'Sci-fi telemetry cockpit with targeting reticles, corner brackets, and cyan meters.',
   },
+  {
+    id: 'eink',
+    name: 'Paper & Ink',
+    tagline: 'Warm E-Paper Editorial',
+    description: 'Serif newspaper typography, warm matte paper, and crisp ink borders.',
+  },
+  {
+    id: 'retrowave',
+    name: '80s Synthwave',
+    tagline: 'Outrun Neon Glow',
+    description: 'Deep midnight indigo, hot laser magenta, electric cyan, and sunset gradients.',
+  },
+  {
+    id: 'neumorphic',
+    name: 'Soft Neumorphic',
+    tagline: 'Embossed Tactile Titanium',
+    description: 'Soft sculpted matte surfaces with dual inner/outer shadows and physical buttons.',
+  },
 ];
 
-const UI_STYLE_ORDER: UIStyle[] = ['modern', 'tui', 'brutalist', 'minimal', 'hud'];
+const UI_STYLE_ORDER: UIStyle[] = ['modern', 'tui', 'brutalist', 'minimal', 'hud', 'eink', 'retrowave', 'neumorphic'];
 
 interface DashboardContextType {
   uiStyle: UIStyle;

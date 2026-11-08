@@ -41,6 +41,30 @@ import { HudRaceWeekendMode } from './components/hud/HudRaceWeekendMode';
 import { HudAmbientMode } from './components/hud/HudAmbientMode';
 import { HudFinanceTicker } from './components/hud/HudFinanceTicker';
 
+// 6. Paper & Ink (E-Ink) Components
+import { EinkHeader } from './components/eink/EinkHeader';
+import { EinkMorningMode } from './components/eink/EinkMorningMode';
+import { EinkEveningMode } from './components/eink/EinkEveningMode';
+import { EinkRaceWeekendMode } from './components/eink/EinkRaceWeekendMode';
+import { EinkAmbientMode } from './components/eink/EinkAmbientMode';
+import { EinkFinanceTicker } from './components/eink/EinkFinanceTicker';
+
+// 7. 80s Synthwave Components
+import { RetrowaveHeader } from './components/retrowave/RetrowaveHeader';
+import { RetrowaveMorningMode } from './components/retrowave/RetrowaveMorningMode';
+import { RetrowaveEveningMode } from './components/retrowave/RetrowaveEveningMode';
+import { RetrowaveRaceWeekendMode } from './components/retrowave/RetrowaveRaceWeekendMode';
+import { RetrowaveAmbientMode } from './components/retrowave/RetrowaveAmbientMode';
+import { RetrowaveFinanceTicker } from './components/retrowave/RetrowaveFinanceTicker';
+
+// 8. Soft Neumorphic Components
+import { NeumorphicHeader } from './components/neumorphic/NeumorphicHeader';
+import { NeumorphicMorningMode } from './components/neumorphic/NeumorphicMorningMode';
+import { NeumorphicEveningMode } from './components/neumorphic/NeumorphicEveningMode';
+import { NeumorphicRaceWeekendMode } from './components/neumorphic/NeumorphicRaceWeekendMode';
+import { NeumorphicAmbientMode } from './components/neumorphic/NeumorphicAmbientMode';
+import { NeumorphicFinanceTicker } from './components/neumorphic/NeumorphicFinanceTicker';
+
 // Global Kiosk Controls & Settings
 import { KioskControls } from './components/kiosk/KioskControls';
 import { SettingsModal } from './components/settings/SettingsModal';
@@ -102,6 +126,45 @@ const DashboardContent: React.FC = () => {
             return <HudAmbientMode />;
         }
 
+      case 'eink':
+        switch (activeMode) {
+          case 'race':
+            return <EinkRaceWeekendMode />;
+          case 'evening':
+            return <EinkEveningMode />;
+          case 'morning':
+            return <EinkMorningMode />;
+          case 'ambient':
+          default:
+            return <EinkAmbientMode />;
+        }
+
+      case 'retrowave':
+        switch (activeMode) {
+          case 'race':
+            return <RetrowaveRaceWeekendMode />;
+          case 'evening':
+            return <RetrowaveEveningMode />;
+          case 'morning':
+            return <RetrowaveMorningMode />;
+          case 'ambient':
+          default:
+            return <RetrowaveAmbientMode />;
+        }
+
+      case 'neumorphic':
+        switch (activeMode) {
+          case 'race':
+            return <NeumorphicRaceWeekendMode />;
+          case 'evening':
+            return <NeumorphicEveningMode />;
+          case 'morning':
+            return <NeumorphicMorningMode />;
+          case 'ambient':
+          default:
+            return <NeumorphicAmbientMode />;
+        }
+
       case 'modern':
       default:
         switch (activeMode) {
@@ -128,6 +191,12 @@ const DashboardContent: React.FC = () => {
         return <MinimalHeader />;
       case 'hud':
         return <HudHeader />;
+      case 'eink':
+        return <EinkHeader />;
+      case 'retrowave':
+        return <RetrowaveHeader />;
+      case 'neumorphic':
+        return <NeumorphicHeader />;
       case 'modern':
       default:
         return <StatusHeader />;
@@ -146,6 +215,12 @@ const DashboardContent: React.FC = () => {
         return <MinimalFinanceTicker />;
       case 'hud':
         return <HudFinanceTicker />;
+      case 'eink':
+        return <EinkFinanceTicker />;
+      case 'retrowave':
+        return <RetrowaveFinanceTicker />;
+      case 'neumorphic':
+        return <NeumorphicFinanceTicker />;
       case 'modern':
       default:
         return <FinanceTicker mode="ticker" />;
@@ -163,6 +238,12 @@ const DashboardContent: React.FC = () => {
         return { backgroundColor: '#09090b' };
       case 'hud':
         return { backgroundColor: '#030712' };
+      case 'eink':
+        return { backgroundColor: '#f5f2eb' };
+      case 'retrowave':
+        return { backgroundColor: '#0c0317' };
+      case 'neumorphic':
+        return { backgroundColor: '#1a1d24' };
       case 'modern':
       default:
         return { backgroundColor: 'var(--color-bg-base, #030712)' };
@@ -170,7 +251,8 @@ const DashboardContent: React.FC = () => {
   };
 
   const getFontClass = () => {
-    if (uiStyle === 'tui' || uiStyle === 'hud') return 'font-mono';
+    if (uiStyle === 'tui' || uiStyle === 'hud' || uiStyle === 'retrowave') return 'font-mono';
+    if (uiStyle === 'eink') return 'font-serif';
     return 'font-sans';
   };
 

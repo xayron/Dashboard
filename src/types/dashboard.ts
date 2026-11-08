@@ -1,5 +1,5 @@
 export type DashboardMode = 'race' | 'evening' | 'morning' | 'ambient';
-export type UIStyle = 'modern' | 'tui' | 'brutalist' | 'minimal' | 'hud';
+export type UIStyle = 'modern' | 'tui' | 'brutalist' | 'minimal' | 'hud' | 'eink' | 'retrowave' | 'neumorphic';
 
 export interface HAConnectionConfig {
   haUrl: string;
