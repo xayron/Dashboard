@@ -110,6 +110,20 @@ export const F1_AVAILABLE_WIDGETS: F1WidgetDef[] = [
 
 export const WIDGETS_WITH_LARGE: F1WidgetId[] = ['schedule', 'standings', 'news'];
 
+// Widgets whose natural content is a vertical list or timetable.
+// When set to 'normal' (medium), these widgets are shaped as 2 smalls stacked on top of each other (col-span-3 row-span-2).
+// Horizontal widgets (countdown, podium, titleBattle, circuitTelemetry, pitstop, qualifying) are 2 smalls side by side (col-span-6 row-span-1).
+export const VERTICAL_MEDIUM_WIDGETS: F1WidgetId[] = [
+  'standings',
+  'schedule',
+  'news',
+  'upcomingRaces',
+];
+
+export const isVerticalMediumWidget = (id?: F1WidgetId, size: F1WidgetSize = 'normal') => {
+  return size === 'normal' && id !== undefined && VERTICAL_MEDIUM_WIDGETS.includes(id);
+};
+
 interface F1WidgetsColumnProps {
   uiStyle?: UIStyle;
   isLight?: boolean;
@@ -158,19 +172,23 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
   // Unified grid unit: 140px row height, 12-col grid, gap-3 (12px)
   // S: col-span-3 row-span-1 → 140px tall, quarter-width (3 cols)
-  // M: col-span-6 row-span-1 → 140px tall, half-width   (6 cols) = 2×S side by side
-  // L: col-span-6 row-span-2 → 292px tall (2×140+12px), half-width = 2×M stacked
-  const getCardClass = (size: F1WidgetSize = 'normal') => {
+  // Horizontal M (countdown, podium, titleBattle, circuitTelemetry, pitstop, qualifying):
+  //    col-span-6 row-span-1 → 140px tall, half-width (6 cols) = 2×S side by side
+  // Vertical M (standings, schedule, news, upcomingRaces):
+  //    col-span-3 row-span-2 → 292px tall, quarter-width (3 cols) = 2×S stacked vertically
+  // L: col-span-6 row-span-2 → 292px tall (2×140+12px), half-width = 2×M stacked (or 4×S)
+  const getCardClass = (size: F1WidgetSize = 'normal', widgetId?: F1WidgetId) => {
+    const isTall = size === 'large' || isVerticalMediumWidget(widgetId, size);
     // Static Tailwind-safe height tokens:
-    //   S / M: h-[140px]  (1 row track)
-    //   L:     h-[292px]  (2 row tracks + 12px gap between them)
-    const h = size === 'large'
+    //   1 row track:  h-[140px]
+    //   2 row tracks: h-[292px]
+    const h = isTall
       ? 'h-[292px] min-h-[292px] max-h-[292px]'
       : 'h-[140px] min-h-[140px] max-h-[140px]';
     const pad =
       size === 'compact'
         ? `p-2.5 ${h} overflow-hidden flex flex-col justify-between`
-        : size === 'large'
+        : isTall
         ? `p-3.5 ${h} overflow-hidden flex flex-col justify-between`
         : `p-3 ${h} overflow-hidden flex flex-col justify-between`;
 
@@ -493,7 +511,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
     // Default Glass / Minimal / Neumorphic / Eink / Retrowave / Obsidian / Civic
     return (
-      <div key="countdown" className={`border shadow-md relative overflow-hidden ${getCardClass(size)}`}>
+      <div key="countdown" className={`border shadow-md relative overflow-hidden ${getCardClass(size, 'countdown')}`}>
         <div className="flex items-center justify-between pb-1.5 border-b border-red-500/10">
           <div className={`flex items-center space-x-1.5 text-[10px] uppercase font-extrabold tracking-widest ${
             isLight ? 'text-red-600' : 'text-red-400'
@@ -710,7 +728,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
     }
 
     return (
-      <div key="podium" className={`border ${getCardClass(size)}`}>
+      <div key="podium" className={`border ${getCardClass(size, 'podium')}`}>
         <div className="flex items-center justify-between mb-1">
           <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
             <Award size={12} className="text-amber-500 shrink-0" />
@@ -890,7 +908,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
     }
 
     return (
-      <div key="titleBattle" className={`border ${getCardClass(size)}`}>
+      <div key="titleBattle" className={`border ${getCardClass(size, 'titleBattle')}`}>
         <div className="flex items-center justify-between mb-1">
           <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
             <Trophy size={12} className="text-emerald-500 shrink-0" />
@@ -1008,7 +1026,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
     }
 
     return (
-      <div key="qualifying" className={`border ${getCardClass(size)}`}>
+      <div key="qualifying" className={`border ${getCardClass(size, 'qualifying')}`}>
         <div className="flex items-center justify-between mb-1">
           <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
             <Zap size={12} className="text-amber-500 shrink-0" />
@@ -1124,7 +1142,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
     }
 
     return (
-      <div key="pitstop" className={`border ${getCardClass(size)}`}>
+      <div key="pitstop" className={`border ${getCardClass(size, 'pitstop')}`}>
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center space-x-1.5 opacity-80 truncate">
             <Wrench size={12} className="text-amber-400 shrink-0" />
@@ -1207,7 +1225,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
     const races = f1.upcomingRaces;
     if (!races || races.length === 0) return null;
     const isCompact = size === 'compact';
-    const displayRaces = isCompact ? races.slice(0, 1) : races;
+    const displayRaces = isCompact ? races.slice(0, 1) : races.slice(0, 4);
 
     if (uiStyle === 'tui') {
       return (
@@ -1216,7 +1234,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           title={isCompact ? 'NEXT_GP' : 'SEASON_CALENDAR_UPCOMING'}
           badge="CALENDAR"
           badgeColor="text-cyan-400"
-          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+          className="h-full flex flex-col justify-between"
         >
           <div className="space-y-1 text-xs py-0.5 flex flex-col justify-between h-full font-mono">
             {displayRaces.map((r) => (
@@ -1231,7 +1249,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
     }
 
     return (
-      <div key="upcomingRaces" className={`border ${getCardClass(size)}`}>
+      <div key="upcomingRaces" className={`border ${getCardClass(size, 'upcomingRaces')}`}>
         <div className="flex items-center justify-between mb-1">
           <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
             <Flag size={12} className="text-cyan-400 shrink-0" />
@@ -1254,14 +1272,14 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
             </div>
           </div>
         ) : (
-          <div className="space-y-1 text-xs">
+          <div className="space-y-1.5 text-xs overflow-y-auto pr-0.5 flex-1">
             {displayRaces.map((r) => (
               <div key={r.round} className={`p-1.5 rounded-xl border flex items-center justify-between ${getInnerClass()}`}>
-                <div>
-                  <span className="font-bold text-[11px]">R{r.round} • {r.raceName}</span>
-                  <p className="text-[9px] opacity-75">{r.istDate}</p>
+                <div className="truncate mr-1">
+                  <span className="font-bold text-[11px] block truncate">R{r.round} • {r.raceName}</span>
+                  <p className="text-[9px] opacity-75 truncate">{r.istDate}</p>
                 </div>
-                <span className="text-xs font-mono font-bold text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded border border-cyan-500/20">
+                <span className="text-xs font-mono font-bold text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded border border-cyan-500/20 shrink-0">
                   in {r.countdown}
                 </span>
               </div>
@@ -1310,7 +1328,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
     }
 
     return (
-      <div key="circuitTelemetry" className={`border ${getCardClass(size)}`}>
+      <div key="circuitTelemetry" className={`border ${getCardClass(size, 'circuitTelemetry')}`}>
         <div className="flex items-center justify-between mb-1">
           <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
             <Gauge size={12} className="text-cyan-400 shrink-0" />
@@ -1382,7 +1400,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           title={isCompact ? 'F1_WIRE' : isLarge ? 'F1_BREAKING_NEWS_&_WIRE' : 'F1_PADDOCK_WIRE'}
           badge="LIVE"
           badgeColor="text-amber-400"
-          className={isCompact ? 'h-full flex flex-col justify-between' : isLarge ? 'h-full flex flex-col justify-between min-h-[460px]' : ''}
+          className="h-full flex flex-col justify-between"
         >
           {isLarge ? (
             <div className="space-y-2 text-xs py-0.5 font-mono flex-1 flex flex-col justify-between">
@@ -1467,7 +1485,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           title={isCompact ? 'F1 WIRE' : isLarge ? 'F1 BREAKING NEWS & PADDOCK WIRE' : 'F1 PADDOCK NEWS'}
           badge={isCompact ? 'WIRE' : 'BREAKING'}
           badgeColor="bg-red-600 text-white"
-          className={isCompact ? 'h-full flex flex-col justify-between' : isLarge ? 'h-full flex flex-col justify-between min-h-[460px]' : ''}
+          className="h-full flex flex-col justify-between"
         >
           {isLarge ? (
             <div className="space-y-2 py-0.5 flex-1 flex flex-col justify-between">
@@ -1559,7 +1577,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           title={isCompact ? 'PADDOCK_FEED' : isLarge ? 'F1_PADDOCK_FEED_&_HEADLINES' : 'F1_PADDOCK_NEWS_FEED'}
           code="LIVE_WIRE"
           glowColor="cyan"
-          className={isCompact ? 'h-full flex flex-col justify-between' : isLarge ? 'h-full flex flex-col justify-between min-h-[460px]' : ''}
+          className="h-full flex flex-col justify-between"
         >
           {isLarge ? (
             <div className="space-y-2 py-0.5 font-mono flex-1 flex flex-col justify-between">
@@ -1639,7 +1657,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
     // Modern Glass / Default Theme (supports Minimal, Retrowave, Neumorphic, Obsidian, Civic)
     return (
-      <div key="news" className={`border ${getCardClass(size)}`}>
+      <div key="news" className={`border ${getCardClass(size, 'news')}`}>
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
             <Newspaper size={12} className="text-red-500 shrink-0" />
@@ -1738,7 +1756,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
             </div>
           </div>
         ) : (
-          <div className="space-y-1.5 text-xs">
+          <div className="space-y-1.5 text-xs overflow-y-auto pr-0.5 flex-1">
             {displayNews.map((item: any, idx: number) => (
               <a
                 key={item.id || idx}
@@ -1795,7 +1813,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           title={isCompact ? 'SCHEDULE' : isLarge ? 'WEEKEND_TIMETABLE_DEEP' : 'WEEKEND_SCHEDULE_IST'}
           badge="IST SYNC"
           badgeColor="text-red-400"
-          className={isCompact ? 'h-full flex flex-col justify-between' : isLarge ? 'h-full flex flex-col justify-between min-h-[460px]' : ''}
+          className="h-full flex flex-col justify-between"
         >
           {isLarge ? (
             <div className="space-y-2 text-xs py-0.5 font-mono flex-1 flex flex-col justify-between">
@@ -1851,7 +1869,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           title={isCompact ? 'SCHEDULE' : isLarge ? 'WEEKEND TIMETABLE & TELEMETRY' : 'WEEKEND SCHEDULE (IST)'}
           badge={isCompact ? 'IST' : 'OFFICIAL TIMETABLE'}
           badgeColor="bg-red-600 text-white"
-          className={isCompact ? 'h-full flex flex-col justify-between' : isLarge ? 'h-full flex flex-col justify-between min-h-[460px]' : ''}
+          className="h-full flex flex-col justify-between"
         >
           {isLarge ? (
             <div className="space-y-2 py-0.5 flex-1 flex flex-col justify-between">
@@ -1912,7 +1930,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           title={isCompact ? 'SCHEDULE' : isLarge ? 'FULL_SESSION_TIMETABLE' : 'SESSION_TIMETABLE_IST'}
           code="IST_SYNC"
           glowColor="cyan"
-          className={isCompact ? 'h-full flex flex-col justify-between' : isLarge ? 'h-full flex flex-col justify-between min-h-[460px]' : ''}
+          className="h-full flex flex-col justify-between"
         >
           {isLarge ? (
             <div className="space-y-2 py-0.5 font-mono text-[10px] flex-1 flex flex-col justify-between">
@@ -1959,7 +1977,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
     }
 
     return (
-      <div key="schedule" className={`border ${getCardClass(size)}`}>
+      <div key="schedule" className={`border ${getCardClass(size, 'schedule')}`}>
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
             <Calendar size={12} className="text-red-500 shrink-0" />
@@ -2047,7 +2065,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
             </div>
           </div>
         ) : (
-          <div className="space-y-1.5 text-xs max-h-56 overflow-y-auto pr-1">
+          <div className="space-y-1.5 text-xs overflow-y-auto pr-0.5 flex-1">
             {displaySessions.map((s) => {
               const isNext = f1.nextSession?.name === s.data?.name;
               return (
@@ -2098,7 +2116,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           title={isCompact ? 'STANDINGS' : isLarge ? 'FULL_CHAMPIONSHIP_STANDINGS' : standingsTab === 'drivers' ? 'WDC_STANDINGS' : 'WCC_STANDINGS'}
           badge={standingsTab === 'drivers' ? 'WDC' : 'WCC'}
           badgeColor="text-amber-400"
-          className={isCompact ? 'h-full flex flex-col justify-between' : isLarge ? 'h-full flex flex-col justify-between min-h-[460px]' : ''}
+          className="h-full flex flex-col justify-between"
         >
           <div className="space-y-1 text-xs py-0.5 flex flex-col justify-between h-full font-mono flex-1">
             <div className="flex items-center justify-between pb-1 border-b border-amber-400/20 text-[10px]">
@@ -2147,7 +2165,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           title={isCompact ? 'STANDINGS' : isLarge ? 'CHAMPIONSHIP STANDINGS (DEEP)' : standingsTab === 'drivers' ? 'DRIVER STANDINGS' : 'TEAM STANDINGS'}
           badge={standingsTab === 'drivers' ? 'WDC' : 'WCC'}
           badgeColor="bg-amber-400 text-black"
-          className={isCompact ? 'h-full flex flex-col justify-between' : isLarge ? 'h-full flex flex-col justify-between min-h-[460px]' : ''}
+          className="h-full flex flex-col justify-between"
         >
           <div className="space-y-1.5 py-0.5 flex flex-col justify-between h-full flex-1">
             <div className="flex items-center justify-between pb-1 border-b-2 border-black text-[10px]">
@@ -2210,7 +2228,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           title={isCompact ? 'STANDINGS' : isLarge ? 'FULL_CHAMPIONSHIP_STANDINGS' : standingsTab === 'drivers' ? 'PILOT_RANKS' : 'CONSTRUCTOR_RANKS'}
           code={standingsTab === 'drivers' ? 'WDC' : 'WCC'}
           glowColor="amber"
-          className={isCompact ? 'h-full flex flex-col justify-between' : isLarge ? 'h-full flex flex-col justify-between min-h-[460px]' : ''}
+          className="h-full flex flex-col justify-between"
         >
           <div className="space-y-1 py-0.5 flex flex-col justify-between h-full font-mono text-[10px] flex-1">
             <div className="flex items-center justify-between pb-1 border-b border-amber-500/20">
@@ -2257,7 +2275,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
     }
 
     return (
-      <div key="standings" className={`border ${getCardClass(size)}`}>
+      <div key="standings" className={`border ${getCardClass(size, 'standings')}`}>
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center space-x-2 truncate">
             <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
@@ -2442,9 +2460,10 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
       {/* Render Active Widgets in a 12-Column Responsive Grid with HTML5 Drag-and-Drop:
           Grid unit = 140px row height, gap-3 (12px)
-          - S (compact): col-span-3 row-span-1  →  140px tall, quarter-row width
-          - M (normal):  col-span-6 row-span-1  →  140px tall, half-row width  = 2×S side by side
-          - L (large):   col-span-6 row-span-2  →  292px tall, half-row width  = 2×M stacked vertically
+          - S (compact):       col-span-3 row-span-1  →  140px tall, quarter-row width (1 unit)
+          - Horizontal M:      col-span-6 row-span-1  →  140px tall, half-row width    = 2×S side by side (2 units)
+          - Vertical M (list): col-span-3 row-span-2  →  292px tall, quarter-row width = 2×S stacked vertically (2 units)
+          - L (large):         col-span-6 row-span-2  →  292px tall, half-row width    = 2×M stacked / 4×S (4 units)
           grid-flow-dense fills any gaps automatically
       */}
       <div
@@ -2473,6 +2492,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           const size = f1WidgetSizes[w.id] || 'normal';
           const isCompact = size === 'compact';
           const isLarge = size === 'large';
+          const isVerticalMedium = !isCompact && !isLarge && VERTICAL_MEDIUM_WIDGETS.includes(w.id);
           return (
             <div
               key={w.id}
@@ -2517,6 +2537,8 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                   ? 'col-span-6 row-span-2'
                   : isCompact
                   ? 'col-span-3 row-span-1'
+                  : isVerticalMedium
+                  ? 'col-span-3 row-span-2'
                   : 'col-span-6 row-span-1'
               } ${
                 gridDraggedId === w.id
