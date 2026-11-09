@@ -23,7 +23,7 @@ export const TuiMorningMode: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-full p-6 flex flex-col justify-between overflow-hidden bg-black font-mono text-gray-200 select-none">
+    <div className="w-full h-full p-6 flex flex-col justify-between overflow-hidden bg-transparent font-mono text-gray-200 select-none">
       {/* 3-Column 1080p Grid */}
       <div className="grid grid-cols-12 gap-5 flex-1 min-h-0">
         {/* Left Column: Clock & Terminal Weather (Cols 1-4) */}
@@ -33,9 +33,17 @@ export const TuiMorningMode: React.FC = () => {
             <div className="flex flex-col items-center justify-center py-4">
               <div className="text-6xl font-extrabold text-white tracking-wider flex items-baseline">
                 <span>{hours}:{minutes}</span>
-                <span className="text-2xl text-emerald-400 ml-2 animate-pulse">{seconds}</span>
+                <span
+                  className="text-2xl ml-2 animate-pulse font-mono-numbers"
+                  style={{ color: 'var(--color-accent)' }}
+                >
+                  {seconds}
+                </span>
               </div>
-              <div className="mt-2 text-sm text-emerald-300/80 font-bold tracking-widest border-t border-emerald-500/30 pt-2 w-full text-center">
+              <div
+                className="mt-2 text-sm font-bold tracking-widest border-t pt-2 w-full text-center"
+                style={{ color: 'var(--color-accent)', borderColor: 'var(--theme-accent-soft)' }}
+              >
                 {dateFormatted}
               </div>
               <div className="text-[11px] text-gray-400 mt-1">
@@ -54,7 +62,9 @@ export const TuiMorningMode: React.FC = () => {
 
               <div className="flex items-center justify-between">
                 <span className="text-gray-400">SKY_CONDITION:</span>
-                <span className="text-emerald-300 font-bold uppercase">{weather.condition}</span>
+                <span className="font-bold uppercase" style={{ color: 'var(--color-accent)' }}>
+                  {weather.condition}
+                </span>
               </div>
 
               <div className="flex items-center justify-between">
@@ -91,8 +101,15 @@ export const TuiMorningMode: React.FC = () => {
           <TuiBox title="TASKWARRIOR_AGENDA" badge={`${events.length} ENTRIES`} className="flex-1">
             <div className="space-y-2 overflow-y-auto max-h-[35vh] pr-1 text-xs">
               {events.map((evt, idx) => (
-                <div key={evt.id} className="p-2 border border-emerald-500/20 bg-emerald-950/20 hover:border-emerald-500/50">
-                  <div className="flex items-center justify-between text-emerald-400 font-bold">
+                <div
+                  key={evt.id}
+                  className="p-2 border transition-colors"
+                  style={{
+                    borderColor: 'var(--theme-accent-soft)',
+                    backgroundColor: 'var(--theme-accent-soft)',
+                  }}
+                >
+                  <div className="flex items-center justify-between font-bold" style={{ color: 'var(--color-accent)' }}>
                     <span>[{evt.startTime} - {evt.endTime}]</span>
                     <span className="text-[10px] text-gray-400 uppercase">#{idx + 1}</span>
                   </div>
@@ -113,10 +130,17 @@ export const TuiMorningMode: React.FC = () => {
                   key={task.id}
                   onClick={() => toggleTask(task.id)}
                   className={`p-1.5 cursor-pointer border transition-colors flex items-center space-x-2 ${
-                    task.completed ? 'border-gray-800 text-gray-500 bg-black' : 'border-emerald-500/30 text-white bg-emerald-950/10 hover:border-emerald-400'
+                    task.completed ? 'border-gray-800 text-gray-500 bg-black/40' : 'text-white'
                   }`}
+                  style={task.completed ? undefined : {
+                    borderColor: 'var(--theme-accent-soft)',
+                    backgroundColor: 'rgba(0,0,0,0.3)',
+                  }}
                 >
-                  <span className={`font-bold ${task.completed ? 'text-gray-600' : 'text-emerald-400'}`}>
+                  <span
+                    className="font-bold"
+                    style={{ color: task.completed ? '#6b7280' : 'var(--color-accent)' }}
+                  >
                     {task.completed ? '[X]' : '[ ]'}
                   </span>
                   <span className={`flex-1 truncate ${task.completed ? 'line-through' : ''}`}>

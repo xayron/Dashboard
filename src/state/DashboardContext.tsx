@@ -183,20 +183,6 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       document.body.style.backgroundColor = '#f5f2eb';
     } else if (uiStyle === 'civic') {
       document.body.style.backgroundColor = '#f1f5f9';
-    } else if (uiStyle === 'tui') {
-      document.body.style.backgroundColor = '#000000';
-    } else if (uiStyle === 'brutalist') {
-      document.body.style.backgroundColor = '#111111';
-    } else if (uiStyle === 'minimal') {
-      document.body.style.backgroundColor = '#09090b';
-    } else if (uiStyle === 'hud') {
-      document.body.style.backgroundColor = '#030712';
-    } else if (uiStyle === 'retrowave') {
-      document.body.style.backgroundColor = '#150424';
-    } else if (uiStyle === 'neumorphic') {
-      document.body.style.backgroundColor = '#1a1d24';
-    } else if (uiStyle === 'obsidian') {
-      document.body.style.backgroundColor = '#050507';
     } else {
       document.body.style.backgroundColor = currentThemeDef.colors.bg;
     }

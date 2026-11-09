@@ -280,24 +280,17 @@ const DashboardContent: React.FC = () => {
   // Background styling per design style
   const getBackgroundStyle = () => {
     switch (uiStyle) {
-      case 'tui':
-        return { backgroundColor: '#000000' };
-      case 'brutalist':
-        return { backgroundColor: '#111111' };
-      case 'minimal':
-        return { backgroundColor: '#09090b' };
-      case 'hud':
-        return { backgroundColor: '#030712' };
       case 'eink':
         return { backgroundColor: '#f5f2eb' };
-      case 'retrowave':
-        return { backgroundColor: '#150424' };
-      case 'neumorphic':
-        return { backgroundColor: '#1a1d24' };
-      case 'obsidian':
-        return { backgroundColor: '#050507' };
       case 'civic':
         return { backgroundColor: '#f1f5f9' };
+      case 'tui':
+      case 'brutalist':
+      case 'minimal':
+      case 'hud':
+      case 'retrowave':
+      case 'neumorphic':
+      case 'obsidian':
       case 'modern':
       default:
         return { backgroundColor: 'var(--color-bg-base, #030712)' };
@@ -317,10 +310,10 @@ const DashboardContent: React.FC = () => {
       style={getBackgroundStyle()}
       className={`relative w-screen h-screen overflow-hidden text-white flex flex-col select-none transition-colors duration-500 ${getFontClass()}`}
     >
-      {/* Background ambient radial highlight (only in modern mode) */}
-      {uiStyle === 'modern' && (
+      {/* Background ambient radial highlight across dark modes */}
+      {uiStyle !== 'eink' && uiStyle !== 'civic' && (
         <div
-          className="absolute inset-0 pointer-events-none z-0 transition-all duration-700"
+          className="absolute inset-0 pointer-events-none z-0 transition-all duration-700 opacity-90"
           style={{ backgroundImage: 'var(--bg-radial)' }}
         />
       )}

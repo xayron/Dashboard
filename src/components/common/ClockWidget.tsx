@@ -34,11 +34,21 @@ export const ClockWidget: React.FC<ClockWidgetProps> = ({
         <div className="flex items-baseline font-mono-numbers tracking-tight font-extrabold text-white drop-shadow-lg">
           <span className="text-8xl md:text-9xl leading-none font-display">{hours}:{minutes}</span>
           {showSeconds && (
-            <span className="ml-3 text-3xl md:text-4xl text-gray-400 font-mono-numbers font-medium w-16">
+            <span
+              className="ml-3 text-3xl md:text-4xl font-mono-numbers font-medium w-16"
+              style={{ color: 'var(--color-accent)' }}
+            >
               {seconds}
             </span>
           )}
-          <span className="ml-2 text-xs uppercase tracking-widest text-indigo-400 font-semibold px-2 py-0.5 rounded-full bg-indigo-950/80 border border-indigo-500/30">
+          <span
+            className="ml-2 text-xs uppercase tracking-widest font-semibold px-2 py-0.5 rounded-full border"
+            style={{
+              color: 'var(--color-accent)',
+              backgroundColor: 'var(--theme-accent-soft)',
+              borderColor: 'var(--color-border-subtle)',
+            }}
+          >
             IST
           </span>
         </div>
@@ -55,7 +65,11 @@ export const ClockWidget: React.FC<ClockWidgetProps> = ({
     return (
       <div className={`flex items-center space-x-2 font-mono-numbers ${className}`}>
         <span className="text-2xl font-bold text-white">{hours}:{minutes}</span>
-        {showSeconds && <span className="text-sm text-gray-400">{seconds}</span>}
+        {showSeconds && (
+          <span className="text-sm font-semibold" style={{ color: 'var(--color-accent)' }}>
+            {seconds}
+          </span>
+        )}
       </div>
     );
   }
@@ -66,11 +80,18 @@ export const ClockWidget: React.FC<ClockWidgetProps> = ({
       <div className="flex items-baseline font-mono-numbers tracking-tight font-bold text-white drop-shadow-md">
         <span className="text-6xl md:text-7xl leading-none font-display">{hours}:{minutes}</span>
         {showSeconds && (
-          <span className="ml-2 text-2xl text-gray-400 font-mono-numbers">
+          <span className="ml-2 text-2xl font-mono-numbers font-medium" style={{ color: 'var(--color-accent)' }}>
             {seconds}
           </span>
         )}
-        <span className="ml-2 text-xs uppercase tracking-wider text-blue-400 font-semibold px-1.5 py-0.5 rounded bg-blue-950/60 border border-blue-500/20">
+        <span
+          className="ml-2 text-xs uppercase tracking-wider font-semibold px-1.5 py-0.5 rounded border"
+          style={{
+            color: 'var(--color-accent)',
+            backgroundColor: 'var(--theme-accent-soft)',
+            borderColor: 'var(--color-border-subtle)',
+          }}
+        >
           IST
         </span>
       </div>

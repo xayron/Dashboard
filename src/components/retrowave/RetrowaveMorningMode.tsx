@@ -17,7 +17,7 @@ export const RetrowaveMorningMode: React.FC = () => {
   }).toUpperCase();
 
   return (
-    <div className="relative w-full h-full p-6 flex flex-col justify-between overflow-hidden bg-gradient-to-b from-[#150424] via-[#23073b] to-[#36094d] text-pink-100 select-none">
+    <div className="relative w-full h-full p-6 flex flex-col justify-between overflow-hidden bg-transparent text-pink-100 select-none">
       {/* 80s Perspective Grid Floor at bottom */}
       <div
         className="absolute inset-x-0 bottom-0 h-64 pointer-events-none opacity-25 z-0"
@@ -30,9 +30,15 @@ export const RetrowaveMorningMode: React.FC = () => {
       />
 
       {/* Top Banner & Audio */}
-      <div className="relative z-10 flex items-center justify-between mb-4 pb-3 border-b border-pink-500/50">
+      <div
+        className="relative z-10 flex items-center justify-between mb-4 pb-3 border-b"
+        style={{ borderColor: 'var(--theme-accent-soft)' }}
+      >
         <div className="flex items-center space-x-3">
-          <div className="p-2 rounded-xl bg-gradient-to-tr from-pink-600 to-amber-500 text-white shadow-[0_0_15px_#ff007f]">
+          <div
+            className="p-2 rounded-xl bg-gradient-to-tr from-pink-600 to-amber-500 text-white"
+            style={{ boxShadow: '0 0 16px var(--color-accent)' }}
+          >
             <Sunrise size={22} />
           </div>
           <div>
@@ -40,7 +46,7 @@ export const RetrowaveMorningMode: React.FC = () => {
               MIAMI SUNRISE // 1984
             </h1>
             <p className="text-xs font-bold text-amber-300 flex items-center mt-0.5 tracking-wide">
-              <Sparkles size={12} className="mr-1 text-pink-400" />
+              <Sparkles size={12} className="mr-1" style={{ color: 'var(--color-accent)' }} />
               Dawn broke at {weather.sunrise} • Peak highway heat {weather.highTemp}°C
             </p>
           </div>
@@ -53,7 +59,13 @@ export const RetrowaveMorningMode: React.FC = () => {
       <div className="relative z-10 grid grid-cols-12 gap-5 flex-1 min-h-0">
         {/* Left Column: Neon Sunset Clock & Weather (Cols 1-4) */}
         <div className="col-span-4 flex flex-col space-y-4">
-          <div className="p-5 rounded-2xl border-2 border-pink-500/80 bg-[#1d0633]/90 shadow-[0_0_25px_rgba(255,0,127,0.3)] flex flex-col items-center">
+          <div
+            className="p-5 rounded-2xl border-2 bg-[#1d0633]/90 flex flex-col items-center"
+            style={{
+              borderColor: 'var(--color-accent)',
+              boxShadow: '0 0 25px var(--theme-accent-soft)',
+            }}
+          >
             <span className="text-[10px] text-amber-300 font-black italic uppercase tracking-widest mb-1">
               PACIFIC TIMEWAY // IST
             </span>
@@ -61,17 +73,28 @@ export const RetrowaveMorningMode: React.FC = () => {
               <span className="text-transparent bg-clip-text bg-gradient-to-b from-white via-amber-200 to-pink-500 drop-shadow-[0_0_15px_rgba(255,0,127,0.6)]">
                 {hours}:{minutes}
               </span>
-              <span className="text-2xl text-amber-400 ml-2 animate-pulse font-mono">:{seconds}</span>
+              <span className="text-2xl ml-2 animate-pulse font-mono" style={{ color: 'var(--color-accent)' }}>
+                :{seconds}
+              </span>
             </div>
-            <div className="text-xs font-black italic text-pink-300 mt-2 border-t border-pink-500/40 pt-2 w-full text-center tracking-widest">
+            <div
+              className="text-xs font-black italic mt-2 border-t pt-2 w-full text-center tracking-widest"
+              style={{ color: 'var(--color-accent)', borderColor: 'var(--theme-accent-soft)' }}
+            >
               {dateFormatted}
             </div>
           </div>
 
-          <div className="p-4 rounded-2xl border-2 border-pink-500/60 bg-[#1d0633]/90 shadow-[0_0_20px_rgba(255,0,127,0.2)] flex-1 flex flex-col justify-between text-xs">
-            <div className="flex items-center justify-between border-b border-pink-500/40 pb-2">
+          <div
+            className="p-4 rounded-2xl border-2 bg-[#1d0633]/90 flex-1 flex flex-col justify-between text-xs"
+            style={{
+              borderColor: 'var(--color-accent)',
+              boxShadow: '0 0 20px var(--theme-accent-soft)',
+            }}
+          >
+            <div className="flex items-center justify-between border-b pb-2" style={{ borderColor: 'var(--theme-accent-soft)' }}>
               <span className="text-[10px] text-amber-300 font-black uppercase tracking-wider">Atmosphere // Miami</span>
-              <span className="text-pink-400 font-black text-sm">{weather.temperature}°C</span>
+              <span className="font-black text-sm" style={{ color: 'var(--color-accent)' }}>{weather.temperature}°C</span>
             </div>
             <div className="space-y-2 pt-2 font-bold text-xs">
               <div className="flex justify-between border-b border-white/10 pb-1">

@@ -44,7 +44,10 @@ export const AudioBanner: React.FC<AudioBannerProps> = ({ className = '', onClic
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-indigo-950/80 text-indigo-400">
+            <div
+              className="w-full h-full flex items-center justify-center bg-black/60"
+              style={{ color: 'var(--color-accent)' }}
+            >
               <Music size={16} />
             </div>
           )}
@@ -55,7 +58,8 @@ export const AudioBanner: React.FC<AudioBannerProps> = ({ className = '', onClic
         </div>
         <button
           onClick={(e) => { e.stopPropagation(); mediaControl('toggle'); }}
-          className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
+          className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-all"
+          style={isPlaying ? { color: 'var(--color-accent)', backgroundColor: 'var(--theme-accent-soft)' } : { color: '#ffffff' }}
           title={isPlaying ? 'Pause' : 'Play'}
         >
           {isPlaying ? <Pause size={13} /> : <Play size={13} />}
@@ -81,12 +85,18 @@ export const AudioBanner: React.FC<AudioBannerProps> = ({ className = '', onClic
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-indigo-950/80 text-indigo-400">
+            <div
+              className="w-full h-full flex items-center justify-center bg-black/60"
+              style={{ color: 'var(--color-accent)' }}
+            >
               <Music size={20} />
             </div>
           )}
           {isPlaying && (
-            <div className="absolute inset-0 bg-blue-500/20 ring-1 ring-inset ring-white/20 rounded-xl pointer-events-none" />
+            <div
+              className="absolute inset-0 ring-1 ring-inset rounded-xl pointer-events-none"
+              style={{ backgroundColor: 'var(--theme-accent-soft)', borderColor: 'var(--color-accent)' }}
+            />
           )}
         </div>
 
@@ -94,9 +104,18 @@ export const AudioBanner: React.FC<AudioBannerProps> = ({ className = '', onClic
         <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-1.5">
             <div className="flex space-x-0.5 items-end h-3 w-3 shrink-0">
-              <span className={`w-0.5 bg-green-400 rounded-full ${isPlaying ? 'animate-pulse h-3' : 'h-1'}`} />
-              <span className={`w-0.5 bg-green-400 rounded-full ${isPlaying ? 'animate-bounce h-2' : 'h-2'}`} />
-              <span className={`w-0.5 bg-green-400 rounded-full ${isPlaying ? 'animate-pulse h-3' : 'h-1.5'}`} />
+              <span
+                className={`w-0.5 rounded-full ${isPlaying ? 'animate-pulse h-3' : 'h-1'}`}
+                style={{ backgroundColor: 'var(--color-accent)' }}
+              />
+              <span
+                className={`w-0.5 rounded-full ${isPlaying ? 'animate-bounce h-2' : 'h-2'}`}
+                style={{ backgroundColor: 'var(--color-accent)' }}
+              />
+              <span
+                className={`w-0.5 rounded-full ${isPlaying ? 'animate-pulse h-3' : 'h-1.5'}`}
+                style={{ backgroundColor: 'var(--color-accent)' }}
+              />
             </div>
             <p className="text-xs font-semibold text-white truncate">{media.title}</p>
           </div>
@@ -117,7 +136,8 @@ export const AudioBanner: React.FC<AudioBannerProps> = ({ className = '', onClic
           </button>
           <button
             onClick={() => mediaControl('toggle')}
-            className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
+            className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-all"
+            style={isPlaying ? { color: 'var(--color-accent)', backgroundColor: 'var(--theme-accent-soft)' } : { color: '#ffffff' }}
             title={isPlaying ? 'Pause' : 'Play'}
           >
             {isPlaying ? <Pause size={14} /> : <Play size={14} />}
@@ -146,8 +166,8 @@ export const AudioBanner: React.FC<AudioBannerProps> = ({ className = '', onClic
             className="flex-1 relative h-2 bg-white/10 rounded-full overflow-hidden cursor-pointer"
           >
             <div
-              className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-indigo-400 to-purple-400 transition-[width] duration-300 ease-linear"
-              style={{ width: `${progressPct}%` }}
+              className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-300 ease-linear"
+              style={{ width: `${progressPct}%`, backgroundColor: 'var(--color-accent)' }}
             />
           </div>
           <span className="text-[10px] text-gray-500 w-7 tabular-nums">{fmt(duration)}</span>

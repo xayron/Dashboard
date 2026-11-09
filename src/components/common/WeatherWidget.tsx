@@ -97,9 +97,15 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({
   }
 
   return (
-    <div className={`glass-panel rounded-3xl p-6 shadow-xl relative overflow-hidden ${className}`}>
+    <div
+      className={`glass-panel rounded-3xl p-6 shadow-xl relative overflow-hidden border ${className}`}
+      style={{ borderColor: 'var(--color-panel-border)' }}
+    >
       {/* Background ambient gradient */}
-      <div className="absolute -top-12 -right-12 w-36 h-36 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div
+        className="absolute -top-12 -right-12 w-36 h-36 rounded-full blur-3xl pointer-events-none"
+        style={{ backgroundColor: 'var(--color-accent)', opacity: 0.16 }}
+      />
 
       {/* Top row: Current temp and condition */}
       <div className="flex items-start justify-between">

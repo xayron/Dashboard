@@ -21,13 +21,16 @@ export const EinkMorningMode: React.FC = () => {
       {/* Top Masthead & Audio Banner */}
       <div className="flex items-center justify-between pb-3 mb-4 border-b-2 border-stone-800">
         <div className="flex items-center space-x-3">
-          <div className="p-2 border border-stone-800 bg-[#ede8df]">
-            <Feather size={20} className="text-stone-800" />
+          <div
+            className="p-2 border-2 bg-[#ede8df]"
+            style={{ borderColor: 'var(--color-accent)', color: 'var(--color-accent)' }}
+          >
+            <Feather size={20} />
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight uppercase">Morning Dispatch &amp; Almanac</h1>
             <p className="text-xs text-stone-600 italic">
-              Dawn broke at {weather.sunrise} • Estimated high of {weather.highTemp}°C today
+              Dawn broke at {weather.sunrise} • Estimated high of <span style={{ color: 'var(--color-accent)', fontWeight: 700 }}>{weather.highTemp}°C</span> today
             </p>
           </div>
         </div>
@@ -40,7 +43,10 @@ export const EinkMorningMode: React.FC = () => {
         {/* Left Column: Clock & Almanac (Cols 1-4) */}
         <div className="col-span-4 flex flex-col justify-between border-r-2 border-stone-300 pr-6">
           <div className="p-4 border-2 border-stone-800 bg-[#ede8df] shadow-[2px_2px_0px_#1c1917]">
-            <div className="text-xs uppercase font-bold tracking-widest text-stone-600 border-b border-stone-400 pb-1 mb-2">
+            <div
+              className="text-xs uppercase font-bold tracking-widest border-b border-stone-400 pb-1 mb-2"
+              style={{ color: 'var(--color-accent)' }}
+            >
               Current Timepiece // IST
             </div>
             <div className="text-6xl font-bold tracking-tight text-center py-1">
@@ -58,7 +64,7 @@ export const EinkMorningMode: React.FC = () => {
             <div className="space-y-2 text-xs">
               <div className="flex justify-between border-b border-stone-300 pb-1">
                 <span>Observed Temp:</span>
-                <strong>{weather.temperature}°C ({weather.condition})</strong>
+                <strong style={{ color: 'var(--color-accent)' }}>{weather.temperature}°C ({weather.condition})</strong>
               </div>
               <div className="flex justify-between border-b border-stone-300 pb-1">
                 <span>Apparent Feel:</span>
@@ -88,12 +94,14 @@ export const EinkMorningMode: React.FC = () => {
               <h3 className="text-xs uppercase font-bold tracking-widest text-stone-900">
                 Today&apos;s Engagements
               </h3>
-              <span className="text-[11px] italic text-stone-600">{events.length} listed</span>
+              <span className="text-[11px] font-bold" style={{ color: 'var(--color-accent)' }}>
+                {events.length} listed
+              </span>
             </div>
             <div className="space-y-2.5 overflow-y-auto pr-1 flex-1">
               {events.slice(0, 3).map((evt) => (
                 <div key={evt.id} className="p-2 border border-stone-400 bg-[#ede8df]">
-                  <span className="text-[10px] font-mono uppercase font-bold text-stone-600 block">
+                  <span className="text-[10px] font-mono uppercase font-bold block" style={{ color: 'var(--color-accent)' }}>
                     {evt.startTime} - {evt.endTime}
                   </span>
                   <h4 className="text-xs font-bold mt-0.5 truncate">{evt.title}</h4>
@@ -111,7 +119,7 @@ export const EinkMorningMode: React.FC = () => {
               <h3 className="text-xs uppercase font-bold tracking-widest text-stone-900">
                 Docket of Duties
               </h3>
-              <span className="text-[11px] italic text-stone-600">
+              <span className="text-[11px] font-bold" style={{ color: 'var(--color-accent)' }}>
                 {tasks.filter(t => t.completed).length}/{tasks.length} resolved
               </span>
             </div>
@@ -123,7 +131,7 @@ export const EinkMorningMode: React.FC = () => {
                   className="flex items-start space-x-2 cursor-pointer group text-xs"
                 >
                   {task.completed ? (
-                    <CheckSquare size={14} className="mt-0.5 text-stone-800 shrink-0" />
+                    <CheckSquare size={14} className="mt-0.5 shrink-0" style={{ color: 'var(--color-accent)' }} />
                   ) : (
                     <Square size={14} className="mt-0.5 text-stone-500 shrink-0" />
                   )}

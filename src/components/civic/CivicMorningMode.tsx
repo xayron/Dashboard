@@ -18,7 +18,7 @@ export const CivicMorningMode: React.FC = () => {
   });
 
   return (
-    <div className="w-full h-full p-6 flex flex-col justify-between overflow-hidden bg-[#f1f5f9] text-[#0f172a] select-none font-sans">
+    <div className="w-full h-full p-6 flex flex-col justify-between overflow-hidden bg-transparent text-[#0f172a] select-none font-sans">
       {/* Top Banner: Morning Briefing & Audio Banner */}
       <div className="flex items-center justify-between mb-4 pb-3 border-b-2 border-slate-300">
         <div className="flex items-center space-x-3">
@@ -33,7 +33,14 @@ export const CivicMorningMode: React.FC = () => {
               <h1 className="text-xl font-extrabold tracking-tight text-slate-900">
                 MORNING OVERVIEW
               </h1>
-              <span className="px-2 py-0.5 text-[10px] font-mono bg-emerald-100 border border-emerald-300 text-emerald-800 font-bold rounded">
+              <span
+                className="px-2 py-0.5 text-[10px] font-mono font-bold rounded border"
+                style={{
+                  backgroundColor: 'var(--theme-accent-soft)',
+                  color: 'var(--color-accent)',
+                  borderColor: 'var(--color-accent)',
+                }}
+              >
                 DAILY REPORT
               </span>
             </div>
@@ -57,7 +64,14 @@ export const CivicMorningMode: React.FC = () => {
                 <Clock size={14} style={{ color: 'var(--color-accent, #f97316)' }} />
                 <span>CURRENT TIME</span>
               </span>
-              <span className="text-[10px] text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded font-bold border border-emerald-300">
+              <span
+                className="text-[10px] px-2 py-0.5 rounded font-bold border"
+                style={{
+                  backgroundColor: 'var(--theme-accent-soft)',
+                  color: 'var(--color-accent)',
+                  borderColor: 'var(--color-accent)',
+                }}
+              >
                 LIVE
               </span>
             </div>

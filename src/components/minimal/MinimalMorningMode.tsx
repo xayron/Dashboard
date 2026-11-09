@@ -8,6 +8,7 @@ export const MinimalMorningMode: React.FC = () => {
 
   const hours = String(now.getHours()).padStart(2, '0');
   const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
 
   const dateFormatted = now.toLocaleDateString('en-US', {
     weekday: 'long',
@@ -16,11 +17,14 @@ export const MinimalMorningMode: React.FC = () => {
   });
 
   return (
-    <div className="w-full h-full p-8 flex flex-col justify-between overflow-hidden bg-[#09090b] text-neutral-100 select-none font-sans">
+    <div className="w-full h-full p-8 flex flex-col justify-between overflow-hidden bg-transparent text-neutral-100 select-none font-sans">
       {/* Top Greeting & Now Playing Audio Banner */}
       <div className="flex items-center justify-between pb-4 mb-4 border-b border-white/10">
         <div>
-          <h1 className="text-xl font-light text-white tracking-wide">Morning Briefing</h1>
+          <div className="flex items-center space-x-2">
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--color-accent)' }} />
+            <h1 className="text-xl font-light text-white tracking-wide">Morning Briefing</h1>
+          </div>
           <p className="text-xs font-light text-neutral-500 mt-0.5">
             Sunrise was at {weather.sunrise} • Today&apos;s expected high {weather.highTemp}°C
           </p>
@@ -34,17 +38,22 @@ export const MinimalMorningMode: React.FC = () => {
         {/* Left Column: Clock & Weather (Cols 1-4) */}
         <div className="col-span-4 flex flex-col justify-between border-r border-white/10 pr-8">
           <div>
-            <div className="text-7xl font-extralight tracking-tighter text-white">
-              {hours}:{minutes}
+            <div className="text-7xl font-extralight tracking-tighter text-white flex items-baseline">
+              <span>{hours}:{minutes}</span>
+              <span className="text-2xl ml-2 font-mono font-light" style={{ color: 'var(--color-accent)' }}>
+                :{seconds}
+              </span>
             </div>
-            <p className="text-xs font-light text-neutral-400 mt-2 tracking-wide">
+            <p className="text-xs font-light mt-2 tracking-wide" style={{ color: 'var(--color-accent)' }}>
               {dateFormatted}
             </p>
           </div>
 
           <div className="space-y-3 pt-6 border-t border-white/10">
             <div className="flex items-baseline justify-between">
-              <span className="text-3xl font-light text-white">{weather.temperature}°C</span>
+              <span className="text-3xl font-light text-white">
+                {weather.temperature}°<span style={{ color: 'var(--color-accent)' }}>C</span>
+              </span>
               <span className="text-xs font-light text-neutral-400">{weather.condition}</span>
             </div>
 
@@ -82,7 +91,7 @@ export const MinimalMorningMode: React.FC = () => {
             <div className="space-y-3 overflow-y-auto pr-1 flex-1">
               {events.slice(0, 3).map((evt) => (
                 <div key={evt.id} className="group">
-                  <span className="text-[11px] font-mono text-neutral-500 block">
+                  <span className="text-[11px] font-mono block font-medium" style={{ color: 'var(--color-accent)' }}>
                     {evt.startTime} — {evt.endTime}
                   </span>
                   <h4 className="text-xs font-light text-neutral-200 mt-0.5 leading-snug truncate">
@@ -102,7 +111,7 @@ export const MinimalMorningMode: React.FC = () => {
               <h3 className="text-xs uppercase tracking-widest text-neutral-400 font-medium">
                 Priorities
               </h3>
-              <span className="text-[10px] font-mono text-neutral-500">
+              <span className="text-[10px] font-mono font-medium" style={{ color: 'var(--color-accent)' }}>
                 {tasks.filter(t => t.completed).length}/{tasks.length} Done
               </span>
             </div>
@@ -115,8 +124,11 @@ export const MinimalMorningMode: React.FC = () => {
                 >
                   <div className="mt-0.5 shrink-0">
                     {task.completed ? (
-                      <div className="w-3.5 h-3.5 rounded-full bg-white text-black flex items-center justify-center">
-                        <Check size={10} />
+                      <div
+                        className="w-3.5 h-3.5 rounded-full flex items-center justify-center text-black"
+                        style={{ backgroundColor: 'var(--color-accent)' }}
+                      >
+                        <Check size={10} strokeWidth={3} />
                       </div>
                     ) : (
                       <div className="w-3.5 h-3.5 rounded-full border border-neutral-600 group-hover:border-white transition-colors" />

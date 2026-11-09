@@ -19,7 +19,7 @@ export const BrutalistMorningMode: React.FC = () => {
   }).toUpperCase();
 
   return (
-    <div className="w-full h-full p-6 flex flex-col justify-between overflow-hidden bg-[#111111] text-white select-none">
+    <div className="w-full h-full p-6 flex flex-col justify-between overflow-hidden bg-transparent text-white select-none">
       {/* Top Bar: Morning Header & Audio Banner */}
       <div className="flex items-center justify-between mb-4 pb-3 border-b-2 border-white/40">
         <div className="flex items-center space-x-3">
@@ -79,7 +79,7 @@ export const BrutalistMorningMode: React.FC = () => {
             <div className="space-y-2 pt-1 text-xs font-bold">
               <div className="flex justify-between items-center p-2 bg-neutral-900 border border-white/20">
                 <span className="text-neutral-400 uppercase">CONDITION:</span>
-                <span className="text-yellow-300 uppercase">{weather.condition}</span>
+                <span className="uppercase" style={{ color: 'var(--color-accent)' }}>{weather.condition}</span>
               </div>
               <div className="flex justify-between items-center p-2 bg-neutral-900 border border-white/20">
                 <span className="text-neutral-400 uppercase">FEELS LIKE:</span>
@@ -87,7 +87,7 @@ export const BrutalistMorningMode: React.FC = () => {
               </div>
               <div className="flex justify-between items-center p-2 bg-neutral-900 border border-white/20">
                 <span className="text-neutral-400 uppercase">AIR QUALITY:</span>
-                <span className="text-cyan-400 font-black">AQI {aqi.usAqi} • {aqi.label.toUpperCase()}</span>
+                <span className="font-black" style={{ color: 'var(--color-accent)' }}>AQI {aqi.usAqi} • {aqi.label.toUpperCase()}</span>
               </div>
               <div className="flex justify-between items-center p-2 bg-neutral-900 border border-white/20">
                 <span className="text-neutral-400 uppercase">SUNRISE / SET:</span>
@@ -112,7 +112,7 @@ export const BrutalistMorningMode: React.FC = () => {
                   key={evt.id}
                   className="p-2.5 bg-neutral-900 border-2 border-white/80 shadow-[2px_2px_0px_#fff]"
                 >
-                  <div className="flex items-center justify-between text-[10px] font-black text-yellow-400 uppercase">
+                  <div className="flex items-center justify-between text-[10px] font-black uppercase" style={{ color: 'var(--color-accent)' }}>
                     <span>{evt.startTime} — {evt.endTime}</span>
                     <span className="px-1.5 py-0.2 bg-white text-black font-bold text-[9px] uppercase">
                       {evt.category}
@@ -147,9 +147,9 @@ export const BrutalistMorningMode: React.FC = () => {
                 >
                   <div className="flex items-center space-x-2 min-w-0">
                     {task.completed ? (
-                      <CheckSquare size={14} className="text-lime-400 shrink-0" />
+                      <CheckSquare size={14} className="shrink-0" style={{ color: 'var(--color-accent)' }} />
                     ) : (
-                      <Square size={14} className="text-yellow-400 shrink-0" />
+                      <Square size={14} className="shrink-0" style={{ color: 'var(--color-accent)' }} />
                     )}
                     <span className="text-xs font-bold truncate">{task.title}</span>
                   </div>

@@ -19,17 +19,34 @@ export const HudMorningMode: React.FC = () => {
   }).toUpperCase();
 
   return (
-    <div className="w-full h-full p-6 flex flex-col justify-between overflow-hidden bg-[#030712] font-mono text-cyan-100 select-none">
+    <div className="w-full h-full p-6 flex flex-col justify-between overflow-hidden bg-transparent font-mono text-cyan-100 select-none">
       {/* Top Banner: Tactical Briefing & Audio Banner */}
-      <div className="flex items-center justify-between mb-4 pb-3 border-b border-cyan-500/30">
+      <div
+        className="flex items-center justify-between mb-4 pb-3 border-b"
+        style={{ borderColor: 'var(--theme-accent-soft)' }}
+      >
         <div className="flex items-center space-x-3">
-          <div className="p-2 bg-cyan-950 border border-cyan-500/50 text-cyan-400">
+          <div
+            className="p-2 border"
+            style={{
+              backgroundColor: 'var(--theme-accent-soft)',
+              borderColor: 'var(--color-accent)',
+              color: 'var(--color-accent)',
+            }}
+          >
             <Compass size={18} className="animate-spin-slow" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
               <h1 className="text-lg font-black text-white tracking-widest">TACTICAL_MORNING_BRIEF</h1>
-              <span className="px-2 py-0.5 text-[9px] bg-cyan-950 border border-cyan-400 text-cyan-300">
+              <span
+                className="px-2 py-0.5 text-[9px] border"
+                style={{
+                  backgroundColor: 'var(--theme-accent-soft)',
+                  borderColor: 'var(--color-accent)',
+                  color: 'var(--color-accent)',
+                }}
+              >
                 STATUS://OPTIMAL
               </span>
             </div>
@@ -49,12 +66,22 @@ export const HudMorningMode: React.FC = () => {
           <HudBox title="CHRONO_TELEMETRY" code="SYNC//GPS" glowColor="cyan">
             <div className="flex flex-col items-center justify-center py-2">
               <div className="text-6xl font-black text-white tracking-widest flex items-baseline">
-                <span className="text-cyan-300 drop-shadow-[0_0_15px_rgba(0,240,255,0.4)]">
+                <span
+                  style={{
+                    color: 'var(--color-accent)',
+                    textShadow: '0 0 16px var(--color-glow)',
+                  }}
+                >
                   {hours}:{minutes}
                 </span>
-                <span className="text-2xl text-amber-400 ml-2 animate-pulse">:{seconds}</span>
+                <span className="text-2xl ml-2 animate-pulse" style={{ color: 'var(--color-accent)' }}>
+                  :{seconds}
+                </span>
               </div>
-              <div className="text-xs text-cyan-400 font-bold mt-2 tracking-widest border-t border-cyan-500/20 pt-1.5 w-full text-center">
+              <div
+                className="text-xs font-bold mt-2 tracking-widest border-t pt-1.5 w-full text-center"
+                style={{ color: 'var(--color-accent)', borderColor: 'var(--theme-accent-soft)' }}
+              >
                 DATE: {dateFormatted}
               </div>
             </div>
@@ -62,21 +89,39 @@ export const HudMorningMode: React.FC = () => {
 
           <HudBox title="ATMOSPHERIC_SENSORS" code="LOC://SURFACE" glowColor="cyan" className="flex-1">
             <div className="space-y-2 pt-1 text-xs">
-              <div className="flex justify-between items-center p-2 bg-cyan-950/20 border border-cyan-500/20">
+              <div
+                className="flex justify-between items-center p-2 border"
+                style={{ backgroundColor: 'var(--theme-accent-soft)', borderColor: 'var(--theme-accent-soft)' }}
+              >
                 <span className="text-gray-400">TEMPERATURE:</span>
-                <span className="text-cyan-300 font-bold">{weather.temperature}°C (FEEL: {weather.apparentTemperature}°C)</span>
+                <span className="font-bold" style={{ color: 'var(--color-accent)' }}>
+                  {weather.temperature}°C (FEEL: {weather.apparentTemperature}°C)
+                </span>
               </div>
-              <div className="flex justify-between items-center p-2 bg-cyan-950/20 border border-cyan-500/20">
+              <div
+                className="flex justify-between items-center p-2 border"
+                style={{ backgroundColor: 'rgba(0,0,0,0.3)', borderColor: 'var(--theme-accent-soft)' }}
+              >
                 <span className="text-gray-400">ATMOSPHERE:</span>
                 <span className="text-white font-bold uppercase">{weather.condition}</span>
               </div>
-              <div className="flex justify-between items-center p-2 bg-cyan-950/20 border border-cyan-500/20">
+              <div
+                className="flex justify-between items-center p-2 border"
+                style={{ backgroundColor: 'rgba(0,0,0,0.3)', borderColor: 'var(--theme-accent-soft)' }}
+              >
                 <span className="text-gray-400">AIR_QUALITY:</span>
-                <span className="text-emerald-400 font-bold">AQI {aqi.usAqi} [{aqi.label.toUpperCase()}]</span>
+                <span className="font-bold" style={{ color: 'var(--color-accent)' }}>
+                  AQI {aqi.usAqi} [{aqi.label.toUpperCase()}]
+                </span>
               </div>
-              <div className="flex justify-between items-center p-2 bg-cyan-950/20 border border-cyan-500/20">
+              <div
+                className="flex justify-between items-center p-2 border"
+                style={{ backgroundColor: 'rgba(0,0,0,0.3)', borderColor: 'var(--theme-accent-soft)' }}
+              >
                 <span className="text-gray-400">HUMIDITY // WIND:</span>
-                <span className="text-cyan-300 font-bold">{weather.humidity}% // {weather.windSpeed} KM/H</span>
+                <span className="font-bold text-white">
+                  {weather.humidity}% // {weather.windSpeed} KM/H
+                </span>
               </div>
             </div>
           </HudBox>
@@ -89,11 +134,17 @@ export const HudMorningMode: React.FC = () => {
               {events.slice(0, 4).map((evt) => (
                 <div
                   key={evt.id}
-                  className="p-2.5 bg-[#061122]/80 border-l-2 border-amber-400 border-t border-r border-b border-cyan-500/20"
+                  className="p-2.5 bg-[#061122]/80 border-l-2 border-t border-r border-b"
+                  style={{
+                    borderLeftColor: 'var(--color-accent)',
+                    borderTopColor: 'var(--theme-accent-soft)',
+                    borderRightColor: 'var(--theme-accent-soft)',
+                    borderBottomColor: 'var(--theme-accent-soft)',
+                  }}
                 >
-                  <div className="flex items-center justify-between text-[10px] text-amber-400">
+                  <div className="flex items-center justify-between text-[10px]" style={{ color: 'var(--color-accent)' }}>
                     <span>⏱ {evt.startTime} - {evt.endTime}</span>
-                    <span className="text-[9px] text-cyan-400 uppercase tracking-widest">
+                    <span className="text-[9px] uppercase tracking-widest opacity-80">
                       [{evt.category}]
                     </span>
                   </div>
@@ -115,8 +166,12 @@ export const HudMorningMode: React.FC = () => {
                   className={`p-2 border cursor-pointer flex items-center justify-between transition-all ${
                     task.completed
                       ? 'bg-black/60 border-gray-800 text-gray-600 line-through'
-                      : 'bg-emerald-950/20 border-emerald-500/40 text-emerald-100 hover:border-emerald-400'
+                      : 'text-white'
                   }`}
+                  style={task.completed ? undefined : {
+                    borderColor: 'var(--theme-accent-soft)',
+                    backgroundColor: 'var(--theme-accent-soft)',
+                  }}
                 >
                   <div className="flex items-center space-x-2 min-w-0">
                     {task.completed ? (

@@ -18,7 +18,7 @@ export const ObsidianMorningMode: React.FC = () => {
   }).toUpperCase();
 
   return (
-    <div className="w-full h-full p-6 flex flex-col justify-between overflow-hidden bg-[#050507] text-[#eef0f3] select-none font-sans relative">
+    <div className="w-full h-full p-6 flex flex-col justify-between overflow-hidden bg-transparent text-[#eef0f3] select-none font-sans relative">
       {/* Obsidian Crystal Glow Effect */}
       <div
         className="absolute top-0 inset-x-0 h-64 pointer-events-none opacity-25 z-0"

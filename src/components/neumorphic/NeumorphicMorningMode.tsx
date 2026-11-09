@@ -17,17 +17,20 @@ export const NeumorphicMorningMode: React.FC = () => {
   });
 
   return (
-    <div className="w-full h-full p-8 flex flex-col justify-between overflow-hidden bg-[#1a1d24] text-neutral-200 select-none">
+    <div className="w-full h-full p-8 flex flex-col justify-between overflow-hidden bg-transparent text-neutral-200 select-none">
       {/* Top Banner: Greeting & Audio */}
       <div className="flex items-center justify-between pb-4 mb-4">
         <div className="flex items-center space-x-3.5">
-          <div className="p-3 rounded-2xl bg-[#1a1d24] shadow-[4px_4px_8px_#101217,-4px_-4px_8px_#242831] text-amber-400">
+          <div
+            className="p-3 rounded-2xl bg-[#1a1d24] shadow-[4px_4px_8px_#101217,-4px_-4px_8px_#242831]"
+            style={{ color: 'var(--color-accent)' }}
+          >
             <Coffee size={22} />
           </div>
           <div>
             <h1 className="text-xl font-bold text-white tracking-tight">Morning Overview</h1>
             <p className="text-xs text-neutral-400 mt-0.5 flex items-center">
-              <Sunrise size={12} className="mr-1.5 text-amber-400" />
+              <Sunrise size={12} className="mr-1.5" style={{ color: 'var(--color-accent)' }} />
               Sunrise at {weather.sunrise} • Today&apos;s high {weather.highTemp}°C
             </p>
           </div>
@@ -46,7 +49,9 @@ export const NeumorphicMorningMode: React.FC = () => {
             </span>
             <div className="text-6xl font-light text-white tracking-tight flex items-baseline">
               <span>{hours}:{minutes}</span>
-              <span className="text-2xl text-blue-400 ml-2 font-mono">:{seconds}</span>
+              <span className="text-2xl ml-2 font-mono" style={{ color: 'var(--color-accent)' }}>
+                :{seconds}
+              </span>
             </div>
             <div className="text-xs text-neutral-400 mt-2 font-medium">
               {dateFormatted}
@@ -56,7 +61,7 @@ export const NeumorphicMorningMode: React.FC = () => {
           <div className="p-5 rounded-3xl bg-[#1a1d24] shadow-[6px_6px_14px_#101217,-6px_-6px_14px_#242831] flex-1 flex flex-col justify-between text-xs">
             <div className="flex items-center justify-between border-b border-neutral-700/50 pb-2">
               <span className="text-neutral-400 font-bold uppercase text-[10px] tracking-wider">Atmospheric Data</span>
-              <span className="text-blue-400 font-bold">{weather.temperature}°C</span>
+              <span className="font-bold" style={{ color: 'var(--color-accent)' }}>{weather.temperature}°C</span>
             </div>
             <div className="space-y-2 pt-2">
               <div className="flex justify-between">
@@ -69,7 +74,9 @@ export const NeumorphicMorningMode: React.FC = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-neutral-400">Air Quality:</span>
-                <span className="text-emerald-400 font-medium">AQI {aqi.usAqi} ({aqi.label})</span>
+                <span className="font-medium" style={{ color: 'var(--color-accent)' }}>
+                  AQI {aqi.usAqi} ({aqi.label})
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-neutral-400">Relative Humidity:</span>
@@ -96,7 +103,7 @@ export const NeumorphicMorningMode: React.FC = () => {
                   key={evt.id}
                   className="p-3 rounded-2xl bg-[#1a1d24] shadow-[inset_2px_2px_5px_#101217,inset_-2px_-2px_5px_#242831]"
                 >
-                  <span className="text-[10px] font-mono text-blue-400 font-bold block">
+                  <span className="text-[10px] font-mono font-bold block" style={{ color: 'var(--color-accent)' }}>
                     {evt.startTime} - {evt.endTime}
                   </span>
                   <h4 className="text-xs font-bold text-white mt-0.5 truncate">{evt.title}</h4>
@@ -111,7 +118,7 @@ export const NeumorphicMorningMode: React.FC = () => {
           <div className="p-5 rounded-3xl bg-[#1a1d24] shadow-[6px_6px_14px_#101217,-6px_-6px_14px_#242831] flex-1 flex flex-col min-h-0">
             <div className="flex items-center justify-between border-b border-neutral-700/50 pb-2 mb-2">
               <span className="text-neutral-400 font-bold uppercase text-[10px] tracking-wider">Tasks &amp; Action</span>
-              <span className="text-emerald-400 text-xs font-mono">
+              <span className="text-xs font-mono font-bold" style={{ color: 'var(--color-accent)' }}>
                 {tasks.filter(t => t.completed).length}/{tasks.length} Done
               </span>
             </div>
@@ -123,7 +130,7 @@ export const NeumorphicMorningMode: React.FC = () => {
                   className="p-2.5 rounded-xl bg-[#1a1d24] shadow-[3px_3px_6px_#101217,-3px_-3px_6px_#242831] hover:shadow-[inset_2px_2px_4px_#101217,inset_-2px_-2px_4px_#242831] cursor-pointer flex items-center space-x-2.5 transition-all"
                 >
                   {task.completed ? (
-                    <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
+                    <CheckCircle2 size={16} className="shrink-0" style={{ color: 'var(--color-accent)' }} />
                   ) : (
                     <Circle size={16} className="text-neutral-500 shrink-0" />
                   )}

@@ -84,9 +84,14 @@ export const StatusHeader: React.FC = () => {
         <button
           onClick={toggleKioskBar}
           title="Toggle Kiosk Controls (Press 'M')"
-          className={`p-2 rounded-xl transition-all ${
-            isKioskBarVisible ? 'bg-blue-600/40 text-blue-200 border border-blue-500/40' : 'glass-pill text-gray-300 hover:text-white'
+          className={`p-2 rounded-xl transition-all border ${
+            isKioskBarVisible ? '' : 'glass-pill text-gray-300 hover:text-white border-transparent'
           }`}
+          style={isKioskBarVisible ? {
+            backgroundColor: 'var(--theme-accent-soft)',
+            borderColor: 'var(--color-accent)',
+            color: 'var(--color-accent)',
+          } : undefined}
         >
           <Layers size={16} />
         </button>

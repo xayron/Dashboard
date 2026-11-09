@@ -75,7 +75,7 @@ export const FinanceTicker: React.FC<FinanceTickerProps> = ({ mode = 'ticker', c
   return (
     <div className={`w-full overflow-hidden bg-gray-950/80 backdrop-blur-md border-t border-white/10 py-1.5 px-4 flex items-center ${className}`}>
       <div className="flex items-center space-x-2 mr-4 shrink-0 pr-3 border-r border-white/10 text-xs font-bold text-gray-400 uppercase tracking-widest">
-        <DollarSign size={14} className="text-emerald-400" />
+        <DollarSign size={14} style={{ color: 'var(--color-accent)' }} />
         <span>Markets</span>
       </div>
 
