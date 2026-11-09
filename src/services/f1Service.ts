@@ -588,13 +588,33 @@ const parseJolpicaRace = (
     { name: 'Grand Prix Race', d: raceInfo.dateObj, fmt: raceInfo.formatted },
   ].filter(Boolean) as Array<{ name: string; d: Date; fmt: string }>;
 
-  const next = allSessions.find(s => s.d.getTime() > now.getTime()) || allSessions[allSessions.length - 1];
-  const diffMs = Math.max(0, next.d.getTime() - now.getTime());
+  const futureSession = allSessions.find(s => s.d.getTime() > now.getTime());
+  let targetName = 'Qualifying';
+  let targetFmt = 'Saturday • 09:30 IST';
+  let targetDate = new Date(now.getTime() + 14 * 3600 * 1000 + 32 * 60 * 1000 + 45 * 1000);
 
+  if (futureSession) {
+    targetName = futureSession.name;
+    targetFmt = futureSession.fmt;
+    targetDate = futureSession.d;
+  } else {
+    // If all sessions of current round completed, check upcoming calendar
+    const nextUpcoming = upcomingRaces.find(r => new Date(r.dateStr).getTime() > now.getTime());
+    if (nextUpcoming) {
+      targetName = `${nextUpcoming.raceName} (Grand Prix)`;
+      targetFmt = `${nextUpcoming.istDate} • 19:30 IST`;
+      targetDate = new Date(`${nextUpcoming.dateStr}T14:00:00Z`);
+    }
+  }
+
+  const diffMs = Math.max(0, targetDate.getTime() - now.getTime());
   const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-  const countdownFormatted = `${days > 0 ? `${days}d ` : ''}${hours}h ${mins}m`;
+  const secs = Math.floor((diffMs % (1000 * 60)) / 1000);
+  const countdownFormatted = diffMs <= 0
+    ? '00h 00m 00s'
+    : `${days > 0 ? `${days}d ` : ''}${hours.toString().padStart(2, '0')}h ${mins.toString().padStart(2, '0')}m ${secs.toString().padStart(2, '0')}s`;
 
   const isWeekend = forceRaceWeekendSim || isDateInRaceWeekend(race.date, now);
   const circuitId = race.Circuit?.circuitId || 'vegas';
@@ -612,10 +632,15 @@ const parseJolpicaRace = (
     circuitMapUrl: 'https://media.formula1.com/image/upload/content/dam/fom-website/2018-redesign-assets/Circuit%20maps%2016x9/USA_Circuit.png',
     sessions,
     nextSession: {
-      name: next.name,
-      istTimeFormatted: next.fmt,
+      name: targetName,
+      istTimeFormatted: targetFmt,
+      targetDate: targetDate.toISOString(),
       diffMs,
       countdownFormatted,
+      days,
+      hours,
+      mins,
+      secs,
     },
     standings: liveStandings,
     constructorStandings,
@@ -630,6 +655,14 @@ const parseJolpicaRace = (
 };
 
 export const getFallbackF1Data = (forceRaceWeekendSim: boolean = false): F1Data => {
+  const fallbackTarget = new Date(Date.now() + 14 * 3600 * 1000 + 32 * 60 * 1000 + 45 * 1000);
+  const diffMs = Math.max(0, fallbackTarget.getTime() - Date.now());
+  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  const secs = Math.floor((diffMs % (1000 * 60)) / 1000);
+  const countdownFormatted = `${days > 0 ? `${days}d ` : ''}${hours.toString().padStart(2, '0')}h ${mins.toString().padStart(2, '0')}m ${secs.toString().padStart(2, '0')}s`;
+
   return {
     isRaceWeekend: forceRaceWeekendSim,
     activeRound: 21,
@@ -675,8 +708,13 @@ export const getFallbackF1Data = (forceRaceWeekendSim: boolean = false): F1Data 
     nextSession: {
       name: 'Qualifying',
       istTimeFormatted: 'Saturday • 09:30 IST',
-      diffMs: 52400000,
-      countdownFormatted: '14h 32m',
+      targetDate: fallbackTarget.toISOString(),
+      diffMs,
+      countdownFormatted,
+      days,
+      hours,
+      mins,
+      secs,
     },
     standings: FALLBACK_STANDINGS,
     constructorStandings: FALLBACK_CONSTRUCTORS,

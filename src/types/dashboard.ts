@@ -201,6 +201,11 @@ export interface F1Data {
     istTimeFormatted: string;
     diffMs: number;
     countdownFormatted: string;
+    targetDate?: string;
+    days?: number;
+    hours?: number;
+    mins?: number;
+    secs?: number;
   };
   standings: F1DriverStanding[];
   constructorStandings?: F1ConstructorStanding[];

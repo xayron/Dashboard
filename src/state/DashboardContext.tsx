@@ -342,7 +342,42 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const initialData = getFallbackWeatherAndAQI();
   const [weather, setWeather] = useState<WeatherData>(initialData.weather);
   const [aqi, setAqi] = useState<AQIData>(initialData.aqi);
-  const [f1, setF1] = useState<F1Data>(() => getFallbackF1Data());
+  const [rawF1, setRawF1] = useState<F1Data>(() => getFallbackF1Data());
+  const setF1 = (data: F1Data) => setRawF1(data);
+
+  // Live real-time derived F1 countdown (ticks every second via `now`)
+  const f1 = useMemo<F1Data>(() => {
+    if (!rawF1) return rawF1;
+    const targetDateStr = rawF1.nextSession?.targetDate;
+    let diffMs = 0;
+    if (targetDateStr) {
+      diffMs = Math.max(0, new Date(targetDateStr).getTime() - now.getTime());
+    } else {
+      diffMs = Math.max(0, rawF1.nextSession?.diffMs || 0);
+    }
+
+    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    const secs = Math.floor((diffMs % (1000 * 60)) / 1000);
+
+    const countdownFormatted = diffMs <= 0
+      ? '00h 00m 00s'
+      : `${days > 0 ? `${days}d ` : ''}${hours.toString().padStart(2, '0')}h ${mins.toString().padStart(2, '0')}m ${secs.toString().padStart(2, '0')}s`;
+
+    return {
+      ...rawF1,
+      nextSession: {
+        ...rawF1.nextSession,
+        diffMs,
+        countdownFormatted,
+        days,
+        hours,
+        mins,
+        secs,
+      },
+    };
+  }, [rawF1, now]);
   const [media, setMedia] = useState<MediaPlayerData>(() => haService.parseActiveMediaPlayer());
   // livePosition ticks forward locally every second between HA WebSocket pushes
   const [livePosition, setLivePosition] = useState<number>(0);

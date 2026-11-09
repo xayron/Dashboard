@@ -409,19 +409,37 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
               {f1.nextSession.istTimeFormatted}
             </p>
           </div>
-          <div className={`px-2.5 py-1 rounded-xl border flex items-center space-x-1.5 font-mono ${getInnerClass()}`}>
-            <div className="text-center">
-              <span className={`${isCompact ? 'text-base' : 'text-lg'} font-extrabold block leading-tight`}>
-                {f1.nextSession.countdownFormatted.split(' ')[0] || '00'}
+          <div className={`px-2 py-1 rounded-xl border flex items-center space-x-1 font-mono ${getInnerClass()}`}>
+            {(f1.nextSession.days ?? 0) > 0 && (
+              <>
+                <div className="text-center min-w-[24px]">
+                  <span className={`${isCompact ? 'text-xs' : 'text-sm'} font-extrabold block leading-tight tabular-nums`}>
+                    {String(f1.nextSession.days).padStart(2, '0')}
+                  </span>
+                  <span className="text-[7px] uppercase tracking-wider block opacity-70">Days</span>
+                </div>
+                <span className="text-xs text-red-500 font-bold">:</span>
+              </>
+            )}
+            <div className="text-center min-w-[24px]">
+              <span className={`${isCompact ? 'text-xs' : 'text-sm'} font-extrabold block leading-tight tabular-nums`}>
+                {String(f1.nextSession.hours ?? 0).padStart(2, '0')}
               </span>
-              <span className="text-[7px] uppercase tracking-wider block opacity-70">Days/Hrs</span>
+              <span className="text-[7px] uppercase tracking-wider block opacity-70">Hrs</span>
             </div>
-            <span className="text-sm text-red-500 font-bold">:</span>
-            <div className="text-center">
-              <span className={`${isCompact ? 'text-base' : 'text-lg'} font-extrabold text-red-500 block leading-tight`}>
-                {f1.nextSession.countdownFormatted.split(' ')[1] || '00m'}
+            <span className="text-xs text-red-500 font-bold">:</span>
+            <div className="text-center min-w-[24px]">
+              <span className={`${isCompact ? 'text-xs' : 'text-sm'} font-extrabold block leading-tight tabular-nums`}>
+                {String(f1.nextSession.mins ?? 0).padStart(2, '0')}
               </span>
-              <span className="text-[7px] uppercase tracking-wider block opacity-70">Mins</span>
+              <span className="text-[7px] uppercase tracking-wider block opacity-70">Min</span>
+            </div>
+            <span className="text-xs text-red-500 font-bold">:</span>
+            <div className="text-center min-w-[24px]">
+              <span className={`${isCompact ? 'text-xs' : 'text-sm'} font-extrabold text-red-500 block leading-tight tabular-nums animate-pulse`}>
+                {String(f1.nextSession.secs ?? 0).padStart(2, '0')}
+              </span>
+              <span className="text-[7px] uppercase tracking-wider block opacity-70">Sec</span>
             </div>
           </div>
         </div>
