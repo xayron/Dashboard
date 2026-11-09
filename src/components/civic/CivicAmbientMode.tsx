@@ -79,7 +79,7 @@ export const CivicAmbientMode: React.FC = () => {
             </span>
             <span className="font-bold">PHOTO #{Math.floor(photoProgress * 10) + 1}</span>
           </div>
-          <h2 className={`text-base font-extrabold truncate ${
+          <h2 className={`text-base font-mono font-extrabold truncate ${
             isLight ? 'text-slate-900' : 'text-white'
           }`}>{currentPhoto.title}</h2>
           {currentPhoto.location && (

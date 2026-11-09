@@ -102,7 +102,7 @@ export const CivicEveningMode: React.FC = () => {
               </span>
             </div>
 
-            <h1 className={`text-3xl font-extrabold tracking-tight line-clamp-1 ${isLight ? 'text-slate-900' : 'text-white'}`}>
+            <h1 className={`text-3xl font-mono font-extrabold tracking-tight line-clamp-1 ${isLight ? 'text-slate-900' : 'text-white'}`}>
               {media.title}
             </h1>
             <p className="text-lg font-bold mt-1 truncate" style={{ color: 'var(--color-accent, #f97316)' }}>

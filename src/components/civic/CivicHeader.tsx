@@ -31,7 +31,7 @@ export const CivicHeader: React.FC = () => {
             >
               PUBLIC GAZETTE
             </span>
-            <span className={`font-bold tracking-tight text-sm ${isLight ? 'text-slate-900' : 'text-slate-200'}`}>
+            <span className={`font-mono font-bold tracking-tight text-sm ${isLight ? 'text-slate-900' : 'text-slate-200'}`}>
               DAILY REPORT
             </span>
           </div>

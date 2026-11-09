@@ -48,7 +48,7 @@ export const CivicMorningMode: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h1 className={`text-xl font-extrabold tracking-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>
+              <h1 className={`text-xl font-mono font-extrabold tracking-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>
                 MORNING OVERVIEW
               </h1>
               <span

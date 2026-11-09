@@ -35,17 +35,17 @@ export const ClockWidget: React.FC<ClockWidgetProps> = ({
         <div className={`flex items-baseline font-mono-numbers tracking-tight font-extrabold drop-shadow-sm ${
           isLight ? 'text-slate-900' : 'text-white'
         }`}>
-          <span className="text-8xl md:text-9xl leading-none font-display">{hours}:{minutes}</span>
+          <span className="text-7xl xl:text-8xl leading-none font-display">{hours}:{minutes}</span>
           {showSeconds && (
             <span
-              className="ml-3 text-3xl md:text-4xl font-mono-numbers font-medium w-16"
+              className="ml-2.5 text-2xl xl:text-3xl font-mono-numbers font-medium w-14"
               style={{ color: 'var(--color-accent)' }}
             >
               {seconds}
             </span>
           )}
           <span
-            className="ml-2 text-xs uppercase tracking-widest font-semibold px-2 py-0.5 rounded-full border"
+            className="ml-2 text-[10px] xl:text-xs uppercase tracking-widest font-semibold px-2 py-0.5 rounded-full border"
             style={{
               color: 'var(--color-accent)',
               backgroundColor: 'var(--theme-accent-soft)',
@@ -56,7 +56,7 @@ export const ClockWidget: React.FC<ClockWidgetProps> = ({
           </span>
         </div>
         {showDate && (
-          <div className={`mt-2 text-xl md:text-2xl font-medium tracking-wide ${
+          <div className={`mt-1.5 text-lg xl:text-xl font-medium tracking-wide ${
             isLight ? 'text-slate-600' : 'text-gray-200'
           }`}>
             {dateFormatted}

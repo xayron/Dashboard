@@ -70,7 +70,7 @@ export const SettingsModal: React.FC = () => {
   const isCivic = uiStyle === 'civic';
 
   // Font family
-  const fontClass = isTui || isHud ? 'font-mono' : isEink || isCivic ? 'font-serif' : 'font-sans';
+  const fontClass = isTui || isHud ? 'font-mono' : isEink ? 'font-serif' : 'font-sans';
 
   // Typography hierarchy tokens tailored to active uiStyle
   const typo = {
@@ -79,7 +79,7 @@ export const SettingsModal: React.FC = () => {
       : isEink
       ? 'font-serif font-bold tracking-normal italic'
       : isCivic
-      ? 'font-serif font-bold tracking-tight'
+      ? 'font-mono font-bold tracking-tight'
       : isBrutalist
       ? 'font-sans font-black uppercase tracking-wider'
       : isRetrowave
@@ -95,7 +95,7 @@ export const SettingsModal: React.FC = () => {
       : isEink
       ? 'font-serif font-bold'
       : isCivic
-      ? 'font-serif font-bold'
+      ? 'font-mono font-bold'
       : isBrutalist
       ? 'font-sans font-black uppercase tracking-wide'
       : isRetrowave
@@ -127,7 +127,7 @@ export const SettingsModal: React.FC = () => {
       : isEink
       ? 'font-serif text-xs font-bold'
       : isCivic
-      ? 'font-serif text-xs font-bold'
+      ? 'font-mono text-xs font-bold'
       : isBrutalist
       ? 'font-sans text-xs font-black uppercase'
       : 'font-sans text-xs font-bold',

@@ -573,8 +573,12 @@
 
 [data-style="civic"] h1,
 [data-style="civic"] h2,
+[data-style="civic"] h3,
+[data-style="civic"] h4,
+[data-style="civic"] h5,
+[data-style="civic"] h6,
 [data-style="civic"] .font-display {
-  font-family: 'Newsreader', Charter, Georgia, serif !important;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
 }
 
 [data-style="tui"] {

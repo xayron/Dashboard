@@ -61,7 +61,7 @@ export const NewsModal: React.FC = () => {
   const isRetrowave = uiStyle === 'retrowave';
   const isCivic = uiStyle === 'civic';
 
-  const fontClass = isTui || isHud ? 'font-mono' : isEink || isCivic ? 'font-serif' : 'font-sans';
+  const fontClass = isTui || isHud ? 'font-mono' : isEink ? 'font-serif' : 'font-sans';
 
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/75 backdrop-blur-md select-none animate-in fade-in duration-200 ${fontClass}`}>

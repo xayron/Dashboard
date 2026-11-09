@@ -6,9 +6,10 @@ import type { FinanceItem } from '../../types/dashboard';
 interface FinanceTickerProps {
   mode?: 'ticker' | 'grid';
   className?: string;
+  maxItems?: number;
 }
 
-export const FinanceTicker: React.FC<FinanceTickerProps> = ({ mode = 'ticker', className = '' }) => {
+export const FinanceTicker: React.FC<FinanceTickerProps> = ({ mode = 'ticker', className = '', maxItems }) => {
   const { finance, colorMode } = useDashboard();
   const isLight = colorMode === 'light';
 
@@ -77,7 +78,7 @@ export const FinanceTicker: React.FC<FinanceTickerProps> = ({ mode = 'ticker', c
     return (
       <div
         key={item.id}
-        className={`p-3.5 rounded-2xl border flex flex-col justify-between transition-all ${
+        className={`p-2.5 xl:p-3 rounded-2xl border flex flex-col justify-between transition-all ${
           isLight
             ? 'bg-black/[0.02] border-black/[0.08] hover:bg-black/[0.04]'
             : 'bg-white/5 border-white/10 hover:bg-white/[0.08]'
@@ -94,16 +95,16 @@ export const FinanceTicker: React.FC<FinanceTickerProps> = ({ mode = 'ticker', c
             {item.name}
           </span>
           <div
-            className={`inline-flex items-center justify-center text-xs font-semibold font-mono-numbers px-2 py-0.5 rounded-full shrink-0 leading-none ${
+            className={`inline-flex items-center justify-center text-[11px] font-semibold font-mono-numbers px-2 py-0.5 rounded-full shrink-0 leading-none ${
               isPositive
                 ? 'text-emerald-500 bg-emerald-500/15'
                 : 'text-rose-500 bg-rose-500/15'
             }`}
           >
             {isPositive ? (
-              <TrendingUp size={12} className="mr-1 shrink-0" />
+              <TrendingUp size={11} className="mr-0.5 shrink-0" />
             ) : (
-              <TrendingDown size={12} className="mr-1 shrink-0" />
+              <TrendingDown size={11} className="mr-0.5 shrink-0" />
             )}
             <span>
               {isPositive ? '+' : ''}
@@ -113,9 +114,9 @@ export const FinanceTicker: React.FC<FinanceTickerProps> = ({ mode = 'ticker', c
         </div>
 
         {/* Bottom Row: Price on Left, Sparkline on Right */}
-        <div className="flex items-baseline justify-between mt-2.5 pt-1.5 border-t border-current/10">
+        <div className="flex items-baseline justify-between mt-2 pt-1 border-t border-current/10">
           <div className="flex items-baseline space-x-1">
-            <span className={`text-base font-bold font-mono-numbers ${isLight ? 'text-slate-900' : 'text-white'}`}>
+            <span className={`text-sm xl:text-base font-bold font-mono-numbers ${isLight ? 'text-slate-900' : 'text-white'}`}>
               {item.price}
             </span>
             {item.unit && (
@@ -133,9 +134,10 @@ export const FinanceTicker: React.FC<FinanceTickerProps> = ({ mode = 'ticker', c
   };
 
   if (mode === 'grid') {
+    const displayFinance = maxItems ? finance.slice(0, maxItems) : finance;
     return (
-      <div className={`grid grid-cols-2 gap-3 ${className}`}>
-        {finance.map(item => renderGridCard(item))}
+      <div className={`grid grid-cols-2 gap-2.5 ${className}`}>
+        {displayFinance.map(item => renderGridCard(item))}
       </div>
     );
   }

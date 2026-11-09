@@ -5,32 +5,12 @@ import { AudioBanner } from '../common/AudioBanner';
 import { F1WidgetsColumn } from '../f1/F1WidgetsColumn';
 
 export const CivicRaceWeekendMode: React.FC = () => {
-  const { now, f1, media, weather, colorMode, f1WidgetSizes, setF1WidgetSize } = useDashboard();
+  const { now, f1, media, weather, colorMode } = useDashboard();
   const isLight = colorMode === 'light';
-  const [standingsTab, setStandingsTab] = useState<'drivers' | 'constructors'>('drivers');
-
-  const scheduleSize = f1WidgetSizes?.schedule || 'normal';
-  const isScheduleCompact = scheduleSize === 'compact';
-  const standingsSize = f1WidgetSizes?.standings || 'normal';
-  const isStandingsCompact = standingsSize === 'compact';
-
-  const sessionsList = [
-    { key: 'fp1', label: 'Practice 1', data: f1.sessions.fp1 },
-    { key: 'fp2', label: 'Practice 2', data: f1.sessions.fp2 },
-    { key: 'fp3', label: 'Practice 3', data: f1.sessions.fp3 },
-    { key: 'sprintQualifying', label: 'Sprint Shootout', data: f1.sessions.sprintQualifying },
-    { key: 'sprint', label: 'Sprint Race', data: f1.sessions.sprint },
-    { key: 'qualifying', label: 'Qualifying', data: f1.sessions.qualifying },
-    { key: 'race', label: 'Grand Prix (Race)', data: f1.sessions.race },
-  ].filter(s => s.data !== undefined);
 
   const cardClass = isLight
     ? 'bg-white border border-slate-300 rounded-xl shadow-sm text-slate-900'
     : 'bg-slate-900/90 border border-slate-700 rounded-xl shadow-md text-slate-100';
-
-  const innerClass = isLight
-    ? 'bg-slate-50 border border-slate-200 rounded-lg text-slate-900'
-    : 'bg-slate-800/80 border border-slate-700/80 rounded-lg text-slate-100';
 
   const mutedClass = isLight ? 'text-slate-500' : 'text-slate-400';
   const borderDivider = isLight ? 'border-slate-100' : 'border-slate-800';
@@ -53,7 +33,7 @@ export const CivicRaceWeekendMode: React.FC = () => {
               RACE WEEKEND
             </span>
           </div>
-          <h1 className={`text-2xl font-black tracking-tight mt-1 ${isLight ? 'text-slate-900' : 'text-white'}`}>{f1.raceName}</h1>
+          <h1 className={`text-2xl font-mono font-black tracking-tight mt-1 ${isLight ? 'text-slate-900' : 'text-white'}`}>{f1.raceName}</h1>
           <p className={`text-xs font-mono mt-0.5 ${mutedClass}`}>{f1.circuitName} — {f1.location}</p>
         </div>
 
@@ -79,168 +59,9 @@ export const CivicRaceWeekendMode: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. MAIN 3-COLUMN GRID */}
-      <div className="grid grid-cols-12 gap-6 flex-1 min-h-0">
-        {/* Left Column (5 cols): Dynamic Configurable F1 Widgets with Auto-Fitting */}
-        <F1WidgetsColumn f1={f1} uiStyle="civic" isLight={isLight} className="col-span-5" />
-
-        {/* Center Column (4 cols): Weekend Timetable */}
-        <div className={`col-span-4 flex flex-col ${cardClass} ${isScheduleCompact ? 'p-3.5' : 'p-5'}`}>
-          <div className={`flex items-center justify-between border-b pb-2 mb-3 text-xs font-mono ${borderDivider} ${mutedClass}`}>
-            <span className={`font-bold flex items-center space-x-1.5 ${isLight ? 'text-slate-800' : 'text-slate-200'}`}>
-              <Calendar size={14} style={{ color: 'var(--color-accent, #f97316)' }} />
-              <span>WEEKEND TIMETABLE</span>
-            </span>
-            <div className="flex items-center space-x-2">
-              <div className="flex items-center space-x-0.5 bg-black/10 dark:bg-white/10 p-0.5 rounded">
-                {(['compact', 'normal'] as const).map((sz) => (
-                  <button
-                    key={sz}
-                    type="button"
-                    title={`Set Schedule size: ${sz}`}
-                    onClick={() => setF1WidgetSize('schedule', sz)}
-                    className={`px-1.5 py-0.2 text-[9px] font-mono uppercase font-bold rounded transition-colors cursor-pointer ${
-                      scheduleSize === sz
-                        ? 'bg-orange-600 text-white font-extrabold shadow-xs'
-                        : 'hover:bg-black/20 dark:hover:bg-white/20 text-current'
-                    }`}
-                  >
-                    {sz === 'compact' ? 'S' : 'M'}
-                  </button>
-                ))}
-              </div>
-              <span>IST</span>
-            </div>
-          </div>
-
-          <div className={`${isScheduleCompact ? 'space-y-1' : 'space-y-2'} overflow-y-auto font-mono flex-1 max-h-[56vh] pr-1`}>
-            {sessionsList.map((s) => {
-              const isNext = f1.nextSession.name.toLowerCase().includes(s.label.toLowerCase());
-              return (
-                <div
-                  key={s.key}
-                  className={`${isScheduleCompact ? 'p-1.5' : 'p-2.5'} ${innerClass} flex items-center justify-between ${
-                    isNext ? 'border-l-4 border-orange-500' : ''
-                  }`}
-                >
-                  <div>
-                    <span className={`text-xs font-bold block ${isLight ? 'text-slate-900' : 'text-white'}`}>{s.label}</span>
-                    <span className={`text-[11px] ${mutedClass}`}>{s.data?.istTime}</span>
-                  </div>
-                  <span className={`text-[10px] uppercase font-mono px-2 py-0.5 rounded font-bold border ${
-                    s.data?.status.toLowerCase() === 'completed'
-                      ? isLight ? 'bg-slate-100 text-slate-500 border-slate-300' : 'bg-slate-800 text-slate-400 border-slate-700'
-                      : 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                  }`}>
-                    {s.data?.status}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Right Column (3 cols): World Drivers Championship with Switcher */}
-        <div className={`col-span-3 flex flex-col ${cardClass} ${isStandingsCompact ? 'p-3.5' : 'p-5'}`}>
-          <div className={`flex items-center justify-between border-b pb-2 mb-3 text-xs font-mono ${borderDivider}`}>
-            <div className="flex space-x-1 text-[10px] font-bold">
-              <button
-                onClick={() => setStandingsTab('drivers')}
-                className={`px-2 py-0.5 rounded ${
-                  standingsTab === 'drivers' ? 'bg-orange-600 text-white' : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                Drivers
-              </button>
-              <button
-                onClick={() => setStandingsTab('constructors')}
-                className={`px-2 py-0.5 rounded ${
-                  standingsTab === 'constructors' ? 'bg-orange-600 text-white' : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                Teams
-              </button>
-            </div>
-            <div className="flex items-center space-x-1.5">
-              <div className="flex items-center space-x-0.5 bg-black/10 dark:bg-white/10 p-0.5 rounded">
-                {(['compact', 'normal'] as const).map((sz) => (
-                  <button
-                    key={sz}
-                    type="button"
-                    title={`Set Standings size: ${sz}`}
-                    onClick={() => setF1WidgetSize('standings', sz)}
-                    className={`px-1.5 py-0.2 text-[9px] font-mono uppercase font-bold rounded transition-colors cursor-pointer ${
-                      standingsSize === sz
-                        ? 'bg-orange-600 text-white font-extrabold shadow-xs'
-                        : 'hover:bg-black/20 dark:hover:bg-white/20 text-current'
-                    }`}
-                  >
-                    {sz === 'compact' ? 'S' : 'M'}
-                  </button>
-                ))}
-              </div>
-              <span className={`text-[9px] font-mono ${mutedClass}`}>PTS</span>
-            </div>
-          </div>
-
-          <div className={`${isStandingsCompact ? 'space-y-1' : 'space-y-1.5'} overflow-y-auto max-h-[56vh] font-mono flex-1 pr-1`}>
-            {standingsTab === 'drivers' ? (
-              f1.standings.map((driver) => (
-                <div
-                  key={driver.driverCode}
-                  className={`${isStandingsCompact ? 'p-1' : 'p-2'} ${innerClass} flex items-center justify-between text-xs`}
-                >
-                  <div className="flex items-center space-x-2 truncate">
-                    <span className={`w-4 font-bold ${mutedClass}`}>
-                      #{driver.position}
-                    </span>
-                    <span
-                      className="w-1.5 h-3.5 rounded-sm shrink-0"
-                      style={{ backgroundColor: driver.teamColor || '#888' }}
-                    />
-                    <div className="truncate">
-                      <span className={`font-bold uppercase block truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                        {isStandingsCompact ? driver.driverCode : driver.driver}
-                      </span>
-                      {!isStandingsCompact && (
-                        <span className={`text-[9px] block truncate ${mutedClass}`}>({driver.team})</span>
-                      )}
-                    </div>
-                  </div>
-                  <span className="font-bold shrink-0 ml-1" style={{ color: 'var(--color-accent, #f97316)' }}>
-                    {driver.points}
-                  </span>
-                </div>
-              ))
-            ) : (
-              (f1.constructorStandings || []).map((team) => (
-                <div
-                  key={team.team}
-                  className={`${isStandingsCompact ? 'p-1' : 'p-2'} ${innerClass} flex items-center justify-between text-xs`}
-                >
-                  <div className="flex items-center space-x-2 truncate">
-                    <span className={`w-4 font-bold ${mutedClass}`}>
-                      #{team.position}
-                    </span>
-                    <span
-                      className="w-1.5 h-3.5 rounded-sm shrink-0"
-                      style={{ backgroundColor: team.teamColor || '#888' }}
-                    />
-                    <div className="truncate">
-                      <span className={`font-bold uppercase block truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{team.team}</span>
-                      <span className={`text-[9px] block truncate ${mutedClass}`}>
-                        {team.wins > 0 ? `${team.wins} wins` : '0 wins'}
-                      </span>
-                    </div>
-                  </div>
-                  <span className="font-bold shrink-0 ml-1" style={{ color: 'var(--color-accent, #f97316)' }}>
-                    {team.points}
-                  </span>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+      {/* 2. MAIN CUSTOMIZABLE F1 WIDGETS GRID */}
+      <div className="flex-1 my-2.5 min-h-0 flex flex-col">
+        <F1WidgetsColumn f1={f1} uiStyle="civic" isLight={isLight} className="h-full flex-1" />
       </div>
 
       {/* 3. BOTTOM BAR */}

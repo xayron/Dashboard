@@ -22,9 +22,9 @@ export const MorningMode: React.FC = () => {
   const isLight = colorMode === 'light';
 
   return (
-    <div className="w-full h-full p-8 flex flex-col justify-between overflow-hidden bg-transparent select-none">
+    <div className="w-full h-full p-5 xl:p-6 flex flex-col justify-between overflow-hidden bg-transparent select-none">
       {/* Top Bar: Morning Greeting & Key Timings */}
-      <div className={`flex items-center justify-between mb-6 pb-4 border-b ${isLight ? 'border-black/[0.08]' : 'border-white/10'}`}>
+      <div className={`flex items-center justify-between mb-4 pb-3 border-b shrink-0 ${isLight ? 'border-black/[0.08]' : 'border-white/10'}`}>
         <div className="flex items-center space-x-3">
           <div
             className="p-2.5 rounded-2xl border"
@@ -34,10 +34,10 @@ export const MorningMode: React.FC = () => {
               color: 'var(--color-accent)',
             }}
           >
-            <Coffee size={24} />
+            <Coffee size={22} />
           </div>
           <div>
-            <h1 className={`text-2xl font-bold font-display tracking-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>Morning Briefing</h1>
+            <h1 className={`text-xl xl:text-2xl font-bold font-display tracking-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>Morning Briefing</h1>
             <p className={`text-xs flex items-center mt-0.5 ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
               <Sunrise size={13} className="mr-1.5" style={{ color: 'var(--color-accent)' }} />
               Sunrise at {weather.sunrise} • Have a productive day ahead
@@ -49,29 +49,29 @@ export const MorningMode: React.FC = () => {
       </div>
 
       {/* Main 3-Column 1080p Grid */}
-      <div className="grid grid-cols-12 gap-6 flex-1 min-h-0">
+      <div className="grid grid-cols-12 gap-4 xl:gap-5 flex-1 min-h-0">
         {/* Left Column: Clock & Detailed Weather (Cols 1-4) */}
-        <div className="col-span-4 flex flex-col space-y-5">
+        <div className="col-span-4 flex flex-col space-y-4 min-h-0">
           <div
-            className="glass-panel p-6 rounded-3xl shadow-xl border"
+            className="glass-panel p-4 xl:p-5 rounded-3xl shadow-xl border shrink-0"
             style={{ borderColor: 'var(--color-panel-border)' }}
           >
             <ClockWidget size="large" showSeconds={true} showDate={true} />
           </div>
 
-          <div className="flex-1">
+          <div className="flex-1 min-h-0">
             <WeatherWidget layout="detailed" className="h-full" />
           </div>
         </div>
 
         {/* Center Column: Calendar & Today's Tasks (Cols 5-8) */}
-        <div className="col-span-4 flex flex-col space-y-5">
+        <div className="col-span-4 flex flex-col space-y-4 min-h-0">
           {/* Calendar Agenda */}
           <div
-            className="glass-panel p-5 rounded-3xl border flex-1 flex flex-col min-h-0"
+            className="glass-panel p-4 xl:p-5 rounded-3xl border flex-1 flex flex-col min-h-0"
             style={{ borderColor: 'var(--color-panel-border)' }}
           >
-            <div className={`flex items-center justify-between mb-3 pb-2 border-b ${isLight ? 'border-black/[0.08]' : 'border-white/10'}`}>
+            <div className={`flex items-center justify-between mb-2.5 pb-2 border-b shrink-0 ${isLight ? 'border-black/[0.08]' : 'border-white/10'}`}>
               <div className={`flex items-center space-x-2 text-sm font-bold uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>
                 <Calendar size={16} style={{ color: 'var(--color-accent)' }} />
                 <span>Today's Schedule</span>
@@ -79,11 +79,11 @@ export const MorningMode: React.FC = () => {
               <span className={`text-xs font-mono-numbers ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>{events.length} Events</span>
             </div>
 
-            <div className="space-y-2.5 overflow-y-auto pr-1 flex-1">
+            <div className="space-y-2 overflow-y-auto pr-1 flex-1 min-h-0">
               {events.slice(0, 4).map(event => (
                 <div
                   key={event.id}
-                  className={`p-3 rounded-2xl border transition-all flex items-start space-x-3 ${
+                  className={`p-2.5 xl:p-3 rounded-2xl border transition-all flex items-start space-x-3 ${
                     isLight ? 'bg-black/[0.03] border-black/[0.06] hover:border-black/[0.12]' : 'bg-white/5 border-white/5 hover:border-white/15'
                   }`}
                 >
@@ -112,10 +112,10 @@ export const MorningMode: React.FC = () => {
 
           {/* Today's Tasks / Reminders */}
           <div
-            className="glass-panel p-5 rounded-3xl border flex-1 flex flex-col min-h-0"
+            className="glass-panel p-4 xl:p-5 rounded-3xl border flex-1 flex flex-col min-h-0"
             style={{ borderColor: 'var(--color-panel-border)' }}
           >
-            <div className={`flex items-center justify-between mb-3 pb-2 border-b ${isLight ? 'border-black/[0.08]' : 'border-white/10'}`}>
+            <div className={`flex items-center justify-between mb-2.5 pb-2 border-b shrink-0 ${isLight ? 'border-black/[0.08]' : 'border-white/10'}`}>
               <div className={`flex items-center space-x-2 text-sm font-bold uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>
                 <CheckCircle2 size={16} style={{ color: 'var(--color-accent)' }} />
                 <span>Priorities & Tasks</span>
@@ -125,7 +125,7 @@ export const MorningMode: React.FC = () => {
               </span>
             </div>
 
-            <div className="space-y-2 overflow-y-auto pr-1 flex-1">
+            <div className="space-y-1.5 overflow-y-auto pr-1 flex-1 min-h-0">
               {tasks.map(task => (
                 <div
                   key={task.id}
@@ -160,10 +160,13 @@ export const MorningMode: React.FC = () => {
         </div>
 
         {/* Right Column: Financial Markets & F1 Radar (Cols 9-12) */}
-        <div className="col-span-4 flex flex-col space-y-5">
+        <div className="col-span-4 flex flex-col space-y-4 min-h-0">
           {/* Markets Overview */}
-          <div className="glass-panel p-5 rounded-3xl border flex-1 flex flex-col" style={{ borderColor: 'var(--color-panel-border)' }}>
-            <div className={`flex items-center justify-between mb-3 pb-2 border-b ${isLight ? 'border-black/[0.08]' : 'border-white/10'}`}>
+          <div
+            className="glass-panel p-4 xl:p-5 rounded-3xl border flex-1 flex flex-col justify-between min-h-0"
+            style={{ borderColor: 'var(--color-panel-border)' }}
+          >
+            <div className={`flex items-center justify-between mb-2.5 pb-2 border-b shrink-0 ${isLight ? 'border-black/[0.08]' : 'border-white/10'}`}>
               <div className={`flex items-center space-x-2 text-sm font-bold uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>
                 <TrendingUp size={16} className="text-emerald-500" />
                 <span>Markets at Open</span>
@@ -171,13 +174,13 @@ export const MorningMode: React.FC = () => {
               <span className={`text-xs font-mono-numbers ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>Realtime</span>
             </div>
 
-            <div className="flex-1">
-              <FinanceTicker mode="grid" />
+            <div className="flex-1 min-h-0 overflow-y-auto flex flex-col justify-center">
+              <FinanceTicker mode="grid" maxItems={4} />
             </div>
           </div>
 
           {/* Top News Headlines Widget */}
-          <NewsWidget />
+          <NewsWidget maxItems={2} className="flex-1 min-h-0" />
         </div>
       </div>
     </div>

@@ -105,6 +105,8 @@ export type SettingsLayout = 'drawer' | 'modal';
 
 export const DEFAULT_F1_WIDGETS: F1WidgetId[] = [
   'countdown',
+  'schedule',
+  'standings',
   'news',
   'podium',
   'titleBattle',
@@ -323,7 +325,20 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const saved = localStorage.getItem('dashboard_f1_active_widgets');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          let list = [...parsed] as F1WidgetId[];
+          // Migration: if user previously saved without schedule/standings (when they were static columns),
+          // ensure schedule & standings are added so they don't disappear.
+          if (!list.includes('schedule') && !list.includes('standings')) {
+            const countdownIdx = list.indexOf('countdown');
+            if (countdownIdx !== -1) {
+              list.splice(countdownIdx + 1, 0, 'schedule', 'standings');
+            } else {
+              list = ['countdown', 'schedule', 'standings', ...list];
+            }
+          }
+          return list;
+        }
       }
     } catch (e) {}
     return DEFAULT_F1_WIDGETS;

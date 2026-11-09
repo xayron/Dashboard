@@ -140,6 +140,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
+  const [standingsTab, setStandingsTab] = useState<'drivers' | 'constructors'>('drivers');
 
   // Map f1ActiveWidgets in exact user-defined order
   const visibleWidgets = React.useMemo(() => {
@@ -1545,7 +1546,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
     return (
       <div key="schedule" className={`border ${getCardClass(size)}`}>
-        <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center justify-between mb-1.5">
           <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
             <Calendar size={12} className="text-red-500 shrink-0" />
             <span className="truncate">{isCompact ? 'Schedule' : 'WEEKEND SCHEDULE (IST)'}</span>
@@ -1566,7 +1567,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
             ))}
           </div>
         ) : (
-          <div className="space-y-1.5 text-xs">
+          <div className="space-y-1.5 text-xs max-h-56 overflow-y-auto pr-1">
             {displaySessions.map((s) => {
               const isNext = f1.nextSession?.name === s.data?.name;
               return (
@@ -1606,24 +1607,51 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
   // 10. STANDINGS WIDGET
   const renderStandingsWidget = (size: F1WidgetSize) => {
     const isCompact = size === 'compact';
-    const drivers = (f1.standings || []).slice(0, isCompact ? 3 : 6);
+    const drivers = (f1.standings || []).slice(0, isCompact ? 4 : 10);
+    const constructors = (f1.constructorStandings || []).slice(0, isCompact ? 4 : 10);
 
     if (uiStyle === 'tui') {
       return (
         <TuiBox
           key="standings"
-          title={isCompact ? 'STANDINGS' : 'WORLD_DRIVERS_CHAMPIONSHIP'}
-          badge="WDC"
+          title={isCompact ? 'STANDINGS' : standingsTab === 'drivers' ? 'WDC_STANDINGS' : 'WCC_STANDINGS'}
+          badge={standingsTab === 'drivers' ? 'WDC' : 'WCC'}
           badgeColor="text-amber-400"
           className={isCompact ? 'h-full flex flex-col justify-between' : ''}
         >
           <div className="space-y-1 text-xs py-0.5 flex flex-col justify-between h-full font-mono">
-            {drivers.map((d: any) => (
-              <div key={d.driverCode} className="flex items-center justify-between">
-                <span>P{d.position} {d.driverCode}</span>
-                <span className="text-amber-400 font-bold">{d.points}P</span>
+            <div className="flex items-center justify-between pb-1 border-b border-amber-400/20 text-[10px]">
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => setStandingsTab('drivers')}
+                  className={`hover:underline cursor-pointer ${standingsTab === 'drivers' ? 'text-amber-400 font-bold' : 'text-gray-500'}`}
+                >
+                  [DRIVERS]
+                </button>
+                <button
+                  onClick={() => setStandingsTab('constructors')}
+                  className={`hover:underline cursor-pointer ${standingsTab === 'constructors' ? 'text-amber-400 font-bold' : 'text-gray-500'}`}
+                >
+                  [TEAMS]
+                </button>
               </div>
-            ))}
+              <span className="text-gray-400">PTS</span>
+            </div>
+            {standingsTab === 'drivers' ? (
+              drivers.map((d: any) => (
+                <div key={d.driverCode} className="flex items-center justify-between">
+                  <span>P{d.position} {d.driverCode}</span>
+                  <span className="text-amber-400 font-bold">{d.points}P</span>
+                </div>
+              ))
+            ) : (
+              constructors.map((c: any) => (
+                <div key={c.team} className="flex items-center justify-between">
+                  <span className="truncate">P{c.position} {c.team}</span>
+                  <span className="text-amber-400 font-bold">{c.points}P</span>
+                </div>
+              ))
+            )}
           </div>
         </TuiBox>
       );
@@ -1633,23 +1661,58 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       return (
         <BrutalistBox
           key="standings"
-          title={isCompact ? 'STANDINGS' : 'CHAMPIONSHIP STANDINGS'}
-          badge="TOP"
+          title={isCompact ? 'STANDINGS' : standingsTab === 'drivers' ? 'DRIVER STANDINGS' : 'TEAM STANDINGS'}
+          badge={standingsTab === 'drivers' ? 'WDC' : 'WCC'}
           badgeColor="bg-amber-400 text-black"
           className={isCompact ? 'h-full flex flex-col justify-between' : ''}
         >
           <div className="space-y-1.5 py-0.5 flex flex-col justify-between h-full">
-            {drivers.map((d: any) => (
-              <div
-                key={d.driverCode}
-                className={`p-1.5 border-2 border-black flex items-center justify-between text-[11px] font-black ${
-                  isLight ? 'bg-neutral-100' : 'bg-neutral-900 text-white'
-                }`}
-              >
-                <span>P{d.position} • {d.driver}</span>
-                <span className="font-mono text-amber-500">{d.points} PTS</span>
+            <div className="flex items-center justify-between pb-1 border-b-2 border-black text-[10px]">
+              <div className="flex space-x-1">
+                <button
+                  onClick={() => setStandingsTab('drivers')}
+                  className={`px-1.5 py-0.5 border border-black font-bold uppercase cursor-pointer ${
+                    standingsTab === 'drivers' ? 'bg-amber-400 text-black' : 'bg-transparent text-gray-600'
+                  }`}
+                >
+                  Drivers
+                </button>
+                <button
+                  onClick={() => setStandingsTab('constructors')}
+                  className={`px-1.5 py-0.5 border border-black font-bold uppercase cursor-pointer ${
+                    standingsTab === 'constructors' ? 'bg-amber-400 text-black' : 'bg-transparent text-gray-600'
+                  }`}
+                >
+                  Teams
+                </button>
               </div>
-            ))}
+              <span className="font-mono font-bold">PTS</span>
+            </div>
+            {standingsTab === 'drivers' ? (
+              drivers.map((d: any) => (
+                <div
+                  key={d.driverCode}
+                  className={`p-1.5 border-2 border-black flex items-center justify-between text-[11px] font-black ${
+                    isLight ? 'bg-neutral-100' : 'bg-neutral-900 text-white'
+                  }`}
+                >
+                  <span>P{d.position} • {isCompact ? d.driverCode : d.driver}</span>
+                  <span className="font-mono text-amber-500">{d.points} PTS</span>
+                </div>
+              ))
+            ) : (
+              constructors.map((c: any) => (
+                <div
+                  key={c.team}
+                  className={`p-1.5 border-2 border-black flex items-center justify-between text-[11px] font-black ${
+                    isLight ? 'bg-neutral-100' : 'bg-neutral-900 text-white'
+                  }`}
+                >
+                  <span className="truncate">P{c.position} • {c.team}</span>
+                  <span className="font-mono text-amber-500">{c.points} PTS</span>
+                </div>
+              ))
+            )}
           </div>
         </BrutalistBox>
       );
@@ -1659,18 +1722,48 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       return (
         <HudBox
           key="standings"
-          title={isCompact ? 'PILOT_RANKS' : 'PILOT_CHAMPIONSHIP_RANKS'}
-          code="WDC"
+          title={isCompact ? 'STANDINGS' : standingsTab === 'drivers' ? 'PILOT_RANKS' : 'CONSTRUCTOR_RANKS'}
+          code={standingsTab === 'drivers' ? 'WDC' : 'WCC'}
           glowColor="amber"
           className={isCompact ? 'h-full flex flex-col justify-between' : ''}
         >
           <div className="space-y-1 py-0.5 flex flex-col justify-between h-full font-mono text-[10px]">
-            {drivers.map((d: any) => (
-              <div key={d.driverCode} className="p-1 rounded border border-amber-500/20 flex items-center justify-between">
-                <span className="text-slate-200 truncate">P{d.position} {d.driverCode}</span>
-                <span className="text-amber-400 font-bold">{d.points}P</span>
+            <div className="flex items-center justify-between pb-1 border-b border-amber-500/20">
+              <div className="flex space-x-1">
+                <button
+                  onClick={() => setStandingsTab('drivers')}
+                  className={`px-1 py-0.2 rounded border cursor-pointer ${
+                    standingsTab === 'drivers' ? 'border-amber-400 text-amber-400 bg-amber-500/20' : 'border-transparent text-gray-500'
+                  }`}
+                >
+                  DRV
+                </button>
+                <button
+                  onClick={() => setStandingsTab('constructors')}
+                  className={`px-1 py-0.2 rounded border cursor-pointer ${
+                    standingsTab === 'constructors' ? 'border-amber-400 text-amber-400 bg-amber-500/20' : 'border-transparent text-gray-500'
+                  }`}
+                >
+                  CON
+                </button>
               </div>
-            ))}
+              <span className="text-amber-400">PTS</span>
+            </div>
+            {standingsTab === 'drivers' ? (
+              drivers.map((d: any) => (
+                <div key={d.driverCode} className="p-1 rounded border border-amber-500/20 flex items-center justify-between">
+                  <span className="text-slate-200 truncate">P{d.position} {d.driverCode}</span>
+                  <span className="text-amber-400 font-bold">{d.points}P</span>
+                </div>
+              ))
+            ) : (
+              constructors.map((c: any) => (
+                <div key={c.team} className="p-1 rounded border border-amber-500/20 flex items-center justify-between">
+                  <span className="text-slate-200 truncate">P{c.position} {c.team}</span>
+                  <span className="text-amber-400 font-bold">{c.points}P</span>
+                </div>
+              ))
+            )}
           </div>
         </HudBox>
       );
@@ -1678,45 +1771,104 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
     return (
       <div key="standings" className={`border ${getCardClass(size)}`}>
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
-            <Trophy size={12} className="text-amber-500 shrink-0" />
-            <span className="truncate">{isCompact ? 'Standings' : 'DRIVER STANDINGS (WDC)'}</span>
-          </span>
+        <div className="flex items-center justify-between mb-1.5">
+          <div className="flex items-center space-x-2 truncate">
+            <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
+              <Trophy size={12} className="text-amber-500 shrink-0" />
+              <span className="truncate">{isCompact ? 'Standings' : standingsTab === 'drivers' ? 'DRIVER STANDINGS' : 'CONSTRUCTOR STANDINGS'}</span>
+            </span>
+            {/* Drivers / Teams Tab Switcher */}
+            <div className="flex items-center space-x-0.5 p-0.5 rounded-lg border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-[9px]">
+              <button
+                type="button"
+                onClick={() => setStandingsTab('drivers')}
+                className={`px-1.5 py-0.2 rounded font-bold transition-all cursor-pointer ${
+                  standingsTab === 'drivers'
+                    ? 'bg-amber-500 text-black shadow-xs font-extrabold'
+                    : 'text-gray-400 hover:text-current'
+                }`}
+              >
+                Drivers
+              </button>
+              <button
+                type="button"
+                onClick={() => setStandingsTab('constructors')}
+                className={`px-1.5 py-0.2 rounded font-bold transition-all cursor-pointer ${
+                  standingsTab === 'constructors'
+                    ? 'bg-amber-500 text-black shadow-xs font-extrabold'
+                    : 'text-gray-400 hover:text-current'
+                }`}
+              >
+                Teams
+              </button>
+            </div>
+          </div>
+
           <div className="flex items-center space-x-1 shrink-0">
             {renderSizeToggle('standings')}
-            {!isCompact && <span className="text-[9px] font-mono opacity-70">TOP {drivers.length}</span>}
+            {!isCompact && <span className="text-[9px] font-mono opacity-70">PTS</span>}
           </div>
         </div>
 
         {isCompact ? (
           <div className="space-y-1 py-1 flex-1 flex flex-col justify-between">
-            {drivers.map((d: any) => (
-              <div key={d.driverCode} className={`p-1 rounded-lg border flex items-center justify-between text-[10px] ${getInnerClass()}`}>
-                <div className="flex items-center space-x-1.5 truncate">
-                  <span className="font-mono font-bold opacity-60 w-3 text-center">{d.position}</span>
-                  <div className="w-1.5 h-3 rounded-full shrink-0" style={{ backgroundColor: d.teamColor }} />
-                  <span className="font-bold truncate">{d.driverCode}</span>
+            {standingsTab === 'drivers' ? (
+              drivers.map((d: any) => (
+                <div key={d.driverCode} className={`p-1 rounded-lg border flex items-center justify-between text-[10px] ${getInnerClass()}`}>
+                  <div className="flex items-center space-x-1.5 truncate">
+                    <span className="font-mono font-bold opacity-60 w-3 text-center">{d.position}</span>
+                    <div className="w-1.5 h-3 rounded-full shrink-0" style={{ backgroundColor: d.teamColor }} />
+                    <span className="font-bold truncate">{d.driverCode}</span>
+                  </div>
+                  <span className="font-mono font-extrabold text-amber-500 shrink-0 ml-1">{d.points}</span>
                 </div>
-                <span className="font-mono font-extrabold text-amber-500 shrink-0 ml-1">{d.points}</span>
-              </div>
-            ))}
+              ))
+            ) : (
+              constructors.map((c: any) => (
+                <div key={c.team} className={`p-1 rounded-lg border flex items-center justify-between text-[10px] ${getInnerClass()}`}>
+                  <div className="flex items-center space-x-1.5 truncate">
+                    <span className="font-mono font-bold opacity-60 w-3 text-center">{c.position}</span>
+                    <div className="w-1.5 h-3 rounded-full shrink-0" style={{ backgroundColor: c.teamColor }} />
+                    <span className="font-bold truncate">{c.team}</span>
+                  </div>
+                  <span className="font-mono font-extrabold text-amber-500 shrink-0 ml-1">{c.points}</span>
+                </div>
+              ))
+            )}
           </div>
         ) : (
-          <div className="space-y-1 text-xs">
-            {drivers.map((d: any) => (
-              <div key={d.driverCode} className={`p-1.5 rounded-xl border flex items-center justify-between ${getInnerClass()}`}>
-                <div className="flex items-center space-x-2 truncate">
-                  <span className="font-mono font-bold opacity-60 w-3 text-center text-xs">{d.position}</span>
-                  <div className="w-1.5 h-4 rounded-full shrink-0" style={{ backgroundColor: d.teamColor }} />
-                  <div className="truncate">
-                    <span className="font-bold text-[11px] block truncate">{d.driver}</span>
-                    <span className="text-[9px] opacity-70 truncate block">{d.team}</span>
+          <div className="space-y-1 text-xs max-h-56 overflow-y-auto pr-1">
+            {standingsTab === 'drivers' ? (
+              drivers.map((d: any) => (
+                <div key={d.driverCode} className={`p-1.5 rounded-xl border flex items-center justify-between ${getInnerClass()}`}>
+                  <div className="flex items-center space-x-2 truncate">
+                    <span className="font-mono font-bold opacity-60 w-3 text-center text-xs">{d.position}</span>
+                    <div className="w-1.5 h-4 rounded-full shrink-0" style={{ backgroundColor: d.teamColor }} />
+                    <div className="truncate">
+                      <span className="font-bold text-[11px] block truncate">{d.driver}</span>
+                      <span className="text-[9px] opacity-70 truncate block">{d.team}</span>
+                    </div>
                   </div>
+                  <span className="font-mono font-extrabold text-xs text-amber-500 shrink-0">{d.points} PTS</span>
                 </div>
-                <span className="font-mono font-extrabold text-xs text-amber-500 shrink-0">{d.points} PTS</span>
-              </div>
-            ))}
+              ))
+            ) : (
+              constructors.map((c: any) => (
+                <div key={c.team} className={`p-1.5 rounded-xl border flex items-center justify-between ${getInnerClass()}`}>
+                  <div className="flex items-center space-x-2.5 truncate">
+                    <span className="font-mono font-bold opacity-60 w-3 text-center text-xs">{c.position}</span>
+                    <div className="w-1.5 h-4 rounded-full shrink-0" style={{ backgroundColor: c.teamColor }} />
+                    <div className="truncate">
+                      <span className="font-bold text-[11px] block truncate">{c.team}</span>
+                      <span className="text-[9px] opacity-70 truncate block">
+                        {c.wins > 0 ? `${c.wins} Win${c.wins > 1 ? 's' : ''}` : '0 Wins'}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="font-mono font-extrabold text-xs text-amber-500 shrink-0">{c.points} PTS</span>
+                </div>
+              ))
+            )}
           </div>
         )}
       </div>
@@ -1792,15 +1944,22 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
         </div>
       </div>
 
-      {/* Render Active Widgets in a 2-Column Responsive Grid (Compact widgets share a row as squarish cards, Normal widgets take full width) */}
-      <div className="grid grid-cols-2 gap-2.5 overflow-y-auto pr-0.5 flex-1 min-h-0 auto-rows-max items-stretch content-start">
+      {/* Render Active Widgets in a 12-Column Responsive Grid:
+          - Normal (M): col-span-12 md:col-span-6 lg:col-span-4 (3 cards per row on 1080p display)
+          - Compact (S): col-span-6 md:col-span-4 lg:col-span-2 (6 cards per row, or 2 compact match 1 normal card width)
+      */}
+      <div className="grid grid-cols-12 gap-3.5 overflow-y-auto pr-1 flex-1 min-h-0 auto-rows-max items-stretch content-start">
         {visibleWidgets.map((w) => {
           const size = f1WidgetSizes[w.id] || 'normal';
           const isCompact = size === 'compact';
           return (
             <div
               key={w.id}
-              className={`${isCompact ? 'col-span-1 h-full' : 'col-span-2'}`}
+              className={`${
+                isCompact
+                  ? 'col-span-6 md:col-span-4 lg:col-span-2 h-full'
+                  : 'col-span-12 md:col-span-6 lg:col-span-4'
+              }`}
             >
               {renderWidgetInTheme(w.id)}
             </div>
@@ -2001,22 +2160,22 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           <div className="pt-2.5 border-t border-white/15 flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <button
-                onClick={() => setF1ActiveWidgets(['countdown', 'podium'])}
+                onClick={() => setF1ActiveWidgets(['countdown', 'schedule', 'standings'])}
                 className="px-2 py-1 rounded-lg text-[10px] border border-white/10 bg-white/5 hover:bg-white/10 text-gray-300 cursor-pointer"
               >
-                Compact (2)
+                Classic (3)
               </button>
               <button
-                onClick={() => setF1ActiveWidgets(['countdown', 'podium', 'titleBattle', 'pitstop', 'qualifying'])}
+                onClick={() => setF1ActiveWidgets(['countdown', 'schedule', 'standings', 'news', 'podium', 'titleBattle'])}
                 className="px-2 py-1 rounded-lg text-[10px] border border-white/10 bg-white/5 hover:bg-white/10 text-gray-300 cursor-pointer"
               >
-                Default (5)
+                Paddock (6)
               </button>
               <button
                 onClick={() => setF1ActiveWidgets(F1_AVAILABLE_WIDGETS.map((w) => w.id))}
                 className="px-2 py-1 rounded-lg text-[10px] border border-white/10 bg-white/5 hover:bg-white/10 text-gray-300 cursor-pointer"
               >
-                All (7)
+                All ({F1_AVAILABLE_WIDGETS.length})
               </button>
             </div>
             <button
