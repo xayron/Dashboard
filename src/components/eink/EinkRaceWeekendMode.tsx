@@ -4,7 +4,7 @@ import { Calendar, CloudSun, Award } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
 
 export const EinkRaceWeekendMode: React.FC = () => {
-  const { f1, media, weather, colorMode } = useDashboard();
+  const { now, f1, media, weather, colorMode } = useDashboard();
   const isLight = colorMode === 'light';
   const [standingsTab, setStandingsTab] = useState<'drivers' | 'constructors'>('drivers');
 
@@ -41,9 +41,11 @@ export const EinkRaceWeekendMode: React.FC = () => {
         </div>
 
         <div className={`text-right border-l pl-4 ${isLight ? 'border-stone-400' : 'border-stone-600'}`}>
-          <span className={`text-[10px] font-mono uppercase block ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>Upcoming Trial</span>
-          <span className="text-sm font-bold" style={{ color: 'var(--color-accent)' }}>{f1.nextSession.name}</span>
-          <span className={`text-xs font-mono block font-bold ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>{f1.nextSession.countdownFormatted}</span>
+          <span className={`text-[10px] font-mono uppercase block ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>Gazette Time • IST</span>
+          <span className="text-base font-bold font-mono" style={{ color: 'var(--color-accent)' }}>
+            {now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+          </span>
+          <span className={`text-xs font-mono block ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>UTC+5:30</span>
         </div>
       </div>
 
@@ -53,40 +55,44 @@ export const EinkRaceWeekendMode: React.FC = () => {
         <div className={`col-span-5 flex flex-col justify-between border-r-2 pr-6 ${
           isLight ? 'border-stone-300' : 'border-stone-700'
         }`}>
-          {/* Hero Countdown Card */}
-          <div className="flex flex-col justify-between flex-1 pb-2.5">
-            <div>
-              <div className="flex items-center justify-between border-b pb-1">
-                <span className={`text-[10px] font-mono uppercase tracking-widest ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>
-                  Target Session
-                </span>
-                <span className={`text-[10px] font-mono uppercase px-1.5 py-0.5 border ${
-                  isLight ? 'border-stone-800 bg-stone-200' : 'border-stone-500 bg-stone-800'
-                }`}>
-                  Live in IST
-                </span>
-              </div>
-              <h2 className="text-xl font-bold tracking-tight mt-1">{f1.nextSession.name}</h2>
-              <p className={`text-xs font-mono mt-0.5 flex items-center ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>
-                <Calendar size={12} className="mr-1.5" />
-                {f1.nextSession.istTimeFormatted}
-              </p>
+          {/* Hero Countdown Card (Compact) */}
+          <div className="pb-2.5 border-b mb-2.5" style={{ borderColor: isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)' }}>
+            <div className="flex items-center justify-between border-b pb-1">
+              <span className={`text-[10px] font-mono uppercase tracking-widest ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>
+                Target Session
+              </span>
+              <span className={`text-[10px] font-mono uppercase px-1.5 py-0.5 border ${
+                isLight ? 'border-stone-800 bg-stone-200' : 'border-stone-500 bg-stone-800'
+              }`}>
+                Live in IST
+              </span>
             </div>
 
-            {/* Big Countdown Digits */}
-            <div className={`my-2 p-3 border-2 text-center ${
-              isLight ? 'border-stone-800 bg-[#ede8df]' : 'border-stone-600 bg-[#292524]'
-            }`}>
-              <div className={`text-[9px] uppercase font-mono tracking-widest ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>
-                Time Remaining To Green Flag
+            {/* Horizontal Split */}
+            <div className="flex items-center justify-between py-1.5">
+              <div>
+                <h2 className="text-lg font-bold tracking-tight">{f1.nextSession.name}</h2>
+                <p className={`text-xs font-mono mt-0.5 flex items-center ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>
+                  <Calendar size={12} className="mr-1.5" />
+                  {f1.nextSession.istTimeFormatted}
+                </p>
               </div>
-              <div className="text-2xl font-bold font-mono mt-0.5" style={{ color: 'var(--color-accent)' }}>
-                {f1.nextSession.countdownFormatted}
+
+              {/* Compact Countdown Digits */}
+              <div className={`px-3 py-1.5 border-2 text-center ${
+                isLight ? 'border-stone-800 bg-[#ede8df]' : 'border-stone-600 bg-[#292524]'
+              }`}>
+                <div className={`text-[8px] uppercase font-mono tracking-wider ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>
+                  Time Remaining
+                </div>
+                <div className="text-base font-bold font-mono" style={{ color: 'var(--color-accent)' }}>
+                  {f1.nextSession.countdownFormatted}
+                </div>
               </div>
             </div>
 
             {/* Circuit Specifications */}
-            <div className="grid grid-cols-4 gap-1.5 text-xs">
+            <div className="grid grid-cols-4 gap-1.5 text-xs pt-1">
               <div className={`p-1.5 border text-center ${isLight ? 'border-stone-400 bg-[#ede8df]' : 'border-stone-600 bg-[#292524]'}`}>
                 <span className={`block text-[8px] font-mono uppercase ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>Laps</span>
                 <span className="font-mono font-bold text-xs">50</span>

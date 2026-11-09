@@ -46,41 +46,43 @@ export const TuiRaceWeekendMode: React.FC = () => {
             title="NEXT_SESSION_COUNTDOWN"
             badge="LIVE IN IST"
             badgeColor="text-red-500"
-            className="flex-1 border-red-500/50"
+            className="border-red-500/50"
           >
-            <div className="flex flex-col justify-between h-full py-1">
-              <div>
-                <div className={`text-xs ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>TARGET_EVENT:</div>
-                <div className={`text-xl font-black mt-0.5 ${isLight ? 'text-slate-900' : 'text-white'}`}>{f1.nextSession.name.toUpperCase()}</div>
-                <div className="text-xs text-red-500 mt-0.5 font-bold">&gt;&gt; {f1.nextSession.istTimeFormatted}</div>
-              </div>
-
-              {/* Huge T-Minus Terminal Box */}
-              <div className={`my-2 p-3 border-2 border-red-500/60 text-center ${isLight ? 'bg-red-50' : 'bg-red-950/20'}`}>
-                <div className={`text-[10px] uppercase tracking-widest font-bold ${isLight ? 'text-slate-600' : 'text-gray-400'}`}>
-                  COUNTDOWN TO SESSION GREEN LIGHT
+            <div className="py-1">
+              <div className="flex items-center justify-between pb-2 border-b border-red-500/30">
+                <div>
+                  <div className={`text-[10px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>TARGET_EVENT:</div>
+                  <div className={`text-lg font-black mt-0.5 ${isLight ? 'text-slate-900' : 'text-white'}`}>{f1.nextSession.name.toUpperCase()}</div>
+                  <div className="text-xs text-red-500 mt-0.5 font-bold">&gt;&gt; {f1.nextSession.istTimeFormatted}</div>
                 </div>
-                <div className="text-3xl font-black text-red-500 mt-0.5 tracking-wider animate-pulse">
-                  T-{f1.nextSession.countdownFormatted}
+
+                {/* Compact T-Minus Terminal Box */}
+                <div className={`px-3 py-1.5 border border-red-500/60 text-center ${isLight ? 'bg-red-50' : 'bg-red-950/20'}`}>
+                  <div className={`text-[8px] uppercase tracking-wider font-bold ${isLight ? 'text-slate-600' : 'text-gray-400'}`}>
+                    T-MINUS
+                  </div>
+                  <div className="text-base font-black text-red-500 tracking-wider animate-pulse">
+                    T-{f1.nextSession.countdownFormatted}
+                  </div>
                 </div>
               </div>
 
               {/* Circuit Stats Table */}
-              <div className={`grid grid-cols-4 gap-1.5 text-[10px] pt-1.5 border-t ${isLight ? 'border-slate-200' : 'border-gray-800'}`}>
+              <div className="grid grid-cols-4 gap-1.5 text-[10px] pt-2">
                 <div className={`p-1 border text-center ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-white/5 border-white/10'}`}>
-                  <div className={`text-[9px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>LAPS</div>
+                  <div className={`text-[8px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>LAPS</div>
                   <div className={`font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>50 LAPS</div>
                 </div>
                 <div className={`p-1 border text-center ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-white/5 border-white/10'}`}>
-                  <div className={`text-[9px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>CIRCUIT</div>
+                  <div className={`text-[8px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>CIRCUIT</div>
                   <div className={`font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>6.201 KM</div>
                 </div>
                 <div className={`p-1 border text-center ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-white/5 border-white/10'}`}>
-                  <div className={`text-[9px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>DRS</div>
+                  <div className={`text-[8px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>DRS</div>
                   <div className="text-red-500 font-bold">2 ZONES</div>
                 </div>
                 <div className={`p-1 border text-center ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-white/5 border-white/10'}`}>
-                  <div className={`text-[9px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>RECORD</div>
+                  <div className={`text-[8px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>RECORD</div>
                   <div className="text-amber-500 font-bold">{f1.circuitLapRecord?.lapTime || '1:35.490'}</div>
                 </div>
               </div>

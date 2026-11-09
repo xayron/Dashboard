@@ -87,59 +87,62 @@ export const RaceWeekendMode: React.FC = () => {
       <div className="relative z-10 grid grid-cols-12 gap-5 flex-1 my-3.5 min-h-0">
         {/* Left Column (5 cols): Next Session Hero, Circuit Telemetry & Previous Podium */}
         <div className="col-span-5 flex flex-col space-y-3.5">
-          {/* Hero Countdown Card */}
-          <div className={`glass-panel p-5 rounded-3xl border shadow-xl relative overflow-hidden flex flex-col justify-between flex-1 ${
+          {/* Hero Countdown Card (Compact) */}
+          <div className={`glass-panel p-4 rounded-3xl border shadow-xl relative overflow-hidden ${
             isLight
               ? 'border-red-200 bg-gradient-to-br from-red-50/90 via-white/80 to-slate-50/90 text-slate-900'
               : 'border-red-500/30 bg-gradient-to-br from-red-950/40 via-black/60 to-zinc-950/80 text-white'
           }`}>
-            <div className="flex items-center justify-between">
-              <div className={`flex items-center space-x-2 text-xs uppercase font-extrabold tracking-widest ${
+            <div className="flex items-center justify-between pb-2 border-b border-red-500/10">
+              <div className={`flex items-center space-x-2 text-[11px] uppercase font-extrabold tracking-widest ${
                 isLight ? 'text-red-600' : 'text-red-400'
               }`}>
-                <Timer size={16} />
+                <Timer size={14} />
                 <span>Next Session Countdown</span>
               </div>
-              <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold uppercase bg-red-600 text-white shadow-sm">
+              <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-red-600 text-white shadow-sm">
                 LIVE IN IST
               </span>
             </div>
 
-            <div className="my-2.5">
-              <h2 className={`text-xl font-bold font-display ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                {f1.nextSession.name}
-              </h2>
-              <p className={`text-xs font-mono-numbers mt-0.5 flex items-center ${isLight ? 'text-slate-600' : 'text-gray-300'}`}>
-                <Calendar size={13} className="mr-1.5 text-red-500" />
-                {f1.nextSession.istTimeFormatted}
-              </p>
+            {/* Horizontal Split: Session Details Left, Countdown Digits Right */}
+            <div className="flex items-center justify-between py-2.5">
+              <div>
+                <h2 className={`text-lg font-bold font-display ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                  {f1.nextSession.name}
+                </h2>
+                <p className={`text-xs font-mono-numbers mt-0.5 flex items-center ${isLight ? 'text-slate-600' : 'text-gray-300'}`}>
+                  <Calendar size={12} className="mr-1.5 text-red-500" />
+                  {f1.nextSession.istTimeFormatted}
+                </p>
+              </div>
 
-              {/* Countdown Digits */}
-              <div className={`mt-3 p-3 rounded-2xl border flex items-center justify-around font-mono-numbers ${
-                isLight ? 'bg-white/80 border-slate-200 shadow-inner' : 'bg-black/60 border-white/10'
+              {/* Compact Countdown Pill */}
+              <div className={`px-3 py-1.5 rounded-2xl border flex items-center space-x-2 font-mono-numbers ${
+                isLight ? 'bg-white/90 border-slate-200 shadow-sm' : 'bg-black/60 border-white/10'
               }`}>
-                <div className="flex flex-col items-center">
-                  <span className={`text-3xl font-extrabold ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                <div className="text-center">
+                  <span className={`text-xl font-extrabold block leading-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>
                     {f1.nextSession.countdownFormatted.split(' ')[0] || '00'}
                   </span>
-                  <span className={`text-[9px] uppercase tracking-widest font-semibold mt-0.5 ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
-                    Days / Hrs
+                  <span className={`text-[8px] uppercase tracking-wider font-semibold block ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
+                    Days/Hrs
                   </span>
                 </div>
-                <span className="text-xl text-red-500 font-bold">:</span>
-                <div className="flex flex-col items-center">
-                  <span className="text-3xl font-extrabold text-red-500">
+                <span className="text-base text-red-500 font-bold">:</span>
+                <div className="text-center">
+                  <span className="text-xl font-extrabold text-red-500 block leading-tight">
                     {f1.nextSession.countdownFormatted.split(' ')[1] || '00m'}
                   </span>
-                  <span className={`text-[9px] uppercase tracking-widest font-semibold mt-0.5 ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
-                    Minutes
+                  <span className={`text-[8px] uppercase tracking-wider font-semibold block ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
+                    Mins
                   </span>
                 </div>
               </div>
             </div>
 
             {/* Track Specs & Lap Record */}
-            <div className={`grid grid-cols-4 gap-2 pt-2.5 border-t text-xs ${
+            <div className={`grid grid-cols-4 gap-2 pt-2 border-t text-xs ${
               isLight ? 'border-slate-200' : 'border-white/10'
             }`}>
               <div className={`p-1.5 rounded-xl text-center ${isLight ? 'bg-slate-100 border border-slate-200' : 'bg-white/5'}`}>
@@ -216,7 +219,7 @@ export const RaceWeekendMode: React.FC = () => {
           )}
 
           {/* Weather Snapshot for Circuit */}
-          <div className="h-28">
+          <div className="flex-1 min-h-[120px]">
             <WeatherWidget layout="compact" className="h-full" />
           </div>
         </div>

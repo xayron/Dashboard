@@ -4,7 +4,7 @@ import { Gauge, Calendar, CloudSun, Award } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
 
 export const NeumorphicRaceWeekendMode: React.FC = () => {
-  const { f1, media, weather, colorMode } = useDashboard();
+  const { now, f1, media, weather, colorMode } = useDashboard();
   const isLight = colorMode === 'light';
   const [standingsTab, setStandingsTab] = useState<'drivers' | 'constructors'>('drivers');
 
@@ -50,9 +50,11 @@ export const NeumorphicRaceWeekendMode: React.FC = () => {
         </div>
 
         <div className={`text-right px-4 py-2 rounded-2xl ${insetClass}`}>
-          <span className={`text-[10px] uppercase block ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>Next Session</span>
-          <span className={`text-sm font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>{f1.nextSession.name}</span>
-          <span className="text-xs font-mono font-bold text-red-500 block">{f1.nextSession.countdownFormatted}</span>
+          <span className={`text-[10px] uppercase block font-medium ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>Official Time (IST)</span>
+          <span className={`text-sm font-bold font-mono tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>
+            {now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+          </span>
+          <span className="text-xs font-mono font-bold text-red-500 block">UTC+5:30</span>
         </div>
       </div>
 
@@ -60,60 +62,64 @@ export const NeumorphicRaceWeekendMode: React.FC = () => {
       <div className="grid grid-cols-12 gap-6 flex-1 min-h-0">
         {/* Left Column (5 cols): Hero Countdown, Circuit Telemetry & Previous GP */}
         <div className="col-span-5 flex flex-col space-y-3">
-          {/* Hero Countdown Card */}
-          <div className={`p-5 rounded-3xl ${cardClass} flex-1 flex flex-col justify-between`}>
-            <div>
-              <div className="flex items-center justify-between border-b pb-1.5" style={{ borderColor: isLight ? '#cbd5e1' : '#2a2f3b' }}>
-                <span className={`text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>
-                  Target Session
-                </span>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-lg ${insetClass} text-red-500 uppercase`}>
-                  Live in IST
-                </span>
-              </div>
-              <h2 className={`text-xl font-bold tracking-tight mt-1.5 ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                {f1.nextSession.name}
-              </h2>
-              <p className={`text-xs font-mono mt-0.5 flex items-center ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>
-                <Calendar size={12} className="mr-1.5 text-red-500" />
-                {f1.nextSession.istTimeFormatted}
-              </p>
+          {/* Hero Countdown Card (Compact) */}
+          <div className={`p-4 rounded-3xl ${cardClass}`}>
+            <div className="flex items-center justify-between border-b pb-1.5" style={{ borderColor: isLight ? '#cbd5e1' : '#2a2f3b' }}>
+              <span className={`text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>
+                Target Session
+              </span>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-lg ${insetClass} text-red-500 uppercase`}>
+                Live in IST
+              </span>
             </div>
 
-            {/* Inset Countdown Display */}
-            <div className={`my-2 p-3 rounded-2xl ${insetClass} flex items-center justify-around font-mono`}>
-              <div className="text-center">
-                <span className={`text-2xl font-bold block ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                  {f1.nextSession.countdownFormatted.split(' ')[0] || '00'}
-                </span>
-                <span className={`text-[9px] uppercase tracking-widest ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>Days / Hrs</span>
+            {/* Horizontal Split */}
+            <div className="flex items-center justify-between py-2">
+              <div>
+                <h2 className={`text-lg font-bold tracking-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                  {f1.nextSession.name}
+                </h2>
+                <p className={`text-xs font-mono mt-0.5 flex items-center ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>
+                  <Calendar size={12} className="mr-1.5 text-red-500" />
+                  {f1.nextSession.istTimeFormatted}
+                </p>
               </div>
-              <span className="text-lg text-red-500 font-bold">:</span>
-              <div className="text-center">
-                <span className="text-2xl font-bold text-red-500 block">
-                  {f1.nextSession.countdownFormatted.split(' ')[1] || '00m'}
-                </span>
-                <span className={`text-[9px] uppercase tracking-widest ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>Minutes</span>
+
+              {/* Inset Countdown Display (Compact) */}
+              <div className={`px-3 py-1.5 rounded-2xl ${insetClass} flex items-center space-x-2 font-mono`}>
+                <div className="text-center">
+                  <span className={`text-lg font-bold block leading-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                    {f1.nextSession.countdownFormatted.split(' ')[0] || '00'}
+                  </span>
+                  <span className={`text-[8px] uppercase tracking-wider block ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>Days/Hrs</span>
+                </div>
+                <span className="text-sm text-red-500 font-bold">:</span>
+                <div className="text-center">
+                  <span className="text-lg font-bold text-red-500 block leading-tight">
+                    {f1.nextSession.countdownFormatted.split(' ')[1] || '00m'}
+                  </span>
+                  <span className={`text-[8px] uppercase tracking-wider block ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>Mins</span>
+                </div>
               </div>
             </div>
 
             {/* Circuit Telemetry */}
-            <div className="grid grid-cols-4 gap-1.5 text-xs">
-              <div className={`p-2 rounded-2xl ${insetClass} text-center`}>
+            <div className="grid grid-cols-4 gap-1.5 text-xs pt-1">
+              <div className={`p-1.5 rounded-xl ${insetClass} text-center`}>
                 <span className={`block text-[8px] uppercase font-bold ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>Laps</span>
-                <span className="font-mono font-bold text-[11px]">50</span>
+                <span className="font-mono font-bold text-xs">50</span>
               </div>
-              <div className={`p-2 rounded-2xl ${insetClass} text-center`}>
+              <div className={`p-1.5 rounded-xl ${insetClass} text-center`}>
                 <span className={`block text-[8px] uppercase font-bold ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>Length</span>
-                <span className="font-mono font-bold text-[11px]">6.2 KM</span>
+                <span className="font-mono font-bold text-xs">6.2 KM</span>
               </div>
-              <div className={`p-2 rounded-2xl ${insetClass} text-center`}>
+              <div className={`p-1.5 rounded-xl ${insetClass} text-center`}>
                 <span className={`block text-[8px] uppercase font-bold ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>DRS</span>
-                <span className="font-mono font-bold text-[11px] text-red-500">2 ZONES</span>
+                <span className="font-mono font-bold text-xs text-red-500">2 ZONES</span>
               </div>
-              <div className={`p-2 rounded-2xl ${insetClass} text-center`}>
+              <div className={`p-1.5 rounded-xl ${insetClass} text-center`}>
                 <span className={`block text-[8px] uppercase font-bold ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>Record</span>
-                <span className="font-mono font-bold text-[11px] text-amber-500">{f1.circuitLapRecord?.lapTime || '1:35.4'}</span>
+                <span className="font-mono font-bold text-xs text-amber-500">{f1.circuitLapRecord?.lapTime || '1:35.4'}</span>
               </div>
             </div>
           </div>

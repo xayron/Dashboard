@@ -4,7 +4,7 @@ import { Gauge, Calendar, CloudSun, Award } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
 
 export const RetrowaveRaceWeekendMode: React.FC = () => {
-  const { f1, media, weather, colorMode } = useDashboard();
+  const { now, f1, media, weather, colorMode } = useDashboard();
   const isLight = colorMode === 'light';
   const [standingsTab, setStandingsTab] = useState<'drivers' | 'constructors'>('drivers');
 
@@ -70,9 +70,11 @@ export const RetrowaveRaceWeekendMode: React.FC = () => {
         <div className={`text-right px-4 py-2 rounded-xl border ${
           isLight ? 'bg-white/80 border-pink-300' : 'bg-pink-950/70 border-pink-500/50'
         }`}>
-          <span className={`text-[10px] uppercase font-bold block ${isLight ? 'text-pink-800' : 'text-amber-300'}`}>TARGET CHECKPOINT</span>
-          <span className="text-sm font-black" style={{ color: 'var(--color-accent)' }}>{f1.nextSession.name}</span>
-          <span className="text-xs font-black font-mono text-rose-500 block">{f1.nextSession.countdownFormatted}</span>
+          <span className={`text-[10px] uppercase font-bold block ${isLight ? 'text-pink-800' : 'text-amber-300'}`}>GRID TIME // IST</span>
+          <span className="text-sm font-black font-mono tracking-wider" style={{ color: 'var(--color-accent)' }}>
+            {now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+          </span>
+          <span className="text-xs font-black font-mono text-rose-500 block">UTC+5:30 // TRACKSIDE</span>
         </div>
       </div>
 
@@ -80,49 +82,53 @@ export const RetrowaveRaceWeekendMode: React.FC = () => {
       <div className="relative z-10 grid grid-cols-12 gap-5 flex-1 min-h-0">
         {/* Left Column (5 cols): Hero Countdown, Circuit Telemetry & Prev Checkpoint */}
         <div className="col-span-5 flex flex-col space-y-3">
-          {/* Hero Countdown Card */}
+          {/* Hero Countdown Card (Compact) */}
           <div
-            className={`p-4 rounded-2xl border-2 flex-1 flex flex-col justify-between ${
+            className={`p-3.5 rounded-2xl border-2 ${
               isLight
                 ? 'bg-pink-50/90 border-pink-400 shadow-[0_0_20px_rgba(236,72,153,0.15)]'
                 : 'bg-[#1e0736]/90 border-pink-500 shadow-[0_0_25px_rgba(255,0,127,0.25)]'
             }`}
             style={{ borderColor: 'var(--color-accent)' }}
           >
-            <div>
-              <div className="flex items-center justify-between border-b pb-1.5">
-                <span className={`text-[10px] font-black uppercase tracking-wider ${isLight ? 'text-pink-800' : 'text-amber-300'}`}>
-                  NEXT CHECKPOINT COUNTDOWN
-                </span>
-                <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded border ${
-                  isLight ? 'bg-pink-200 text-pink-900 border-pink-400' : 'bg-pink-950 text-rose-300 border-pink-500'
-                }`}>
-                  LIVE IN IST
-                </span>
-              </div>
-              <h2 className={`text-xl font-black italic tracking-wide mt-1.5 ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                {f1.nextSession.name}
-              </h2>
-              <p className={`text-xs font-mono font-bold mt-0.5 flex items-center ${isLight ? 'text-slate-600' : 'text-pink-300'}`}>
-                <Calendar size={12} className="mr-1.5 text-rose-500" />
-                {f1.nextSession.istTimeFormatted}
-              </p>
+            <div className="flex items-center justify-between border-b pb-1.5" style={{ borderColor: isLight ? 'rgba(236,72,153,0.3)' : 'rgba(255,0,127,0.3)' }}>
+              <span className={`text-[10px] font-black uppercase tracking-wider ${isLight ? 'text-pink-800' : 'text-amber-300'}`}>
+                NEXT CHECKPOINT COUNTDOWN
+              </span>
+              <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded border ${
+                isLight ? 'bg-pink-200 text-pink-900 border-pink-400' : 'bg-pink-950 text-rose-300 border-pink-500'
+              }`}>
+                LIVE IN IST
+              </span>
             </div>
 
-            {/* Big Neon Countdown */}
-            <div className={`my-2 p-3 rounded-xl border-2 text-center ${
-              isLight ? 'bg-white/80 border-pink-300 shadow-sm' : 'bg-black/60 border-pink-500/50'
-            }`}>
-              <div className={`text-[9px] uppercase font-black tracking-widest ${isLight ? 'text-pink-700' : 'text-amber-300'}`}>
-                TIME TO GREEN LIGHT
+            {/* Horizontal Split */}
+            <div className="flex items-center justify-between py-2">
+              <div>
+                <h2 className={`text-lg font-black italic tracking-wide ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                  {f1.nextSession.name}
+                </h2>
+                <p className={`text-xs font-mono font-bold mt-0.5 flex items-center ${isLight ? 'text-slate-600' : 'text-pink-300'}`}>
+                  <Calendar size={12} className="mr-1.5 text-rose-500" />
+                  {f1.nextSession.istTimeFormatted}
+                </p>
               </div>
-              <div className="text-2xl font-black font-mono mt-0.5 text-rose-500 tracking-wider animate-pulse drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]">
-                {f1.nextSession.countdownFormatted}
+
+              {/* Compact Neon Countdown */}
+              <div className={`px-3 py-1.5 rounded-xl border-2 text-center ${
+                isLight ? 'bg-white/80 border-pink-300 shadow-sm' : 'bg-black/60 border-pink-500/50'
+              }`}>
+                <div className={`text-[8px] uppercase font-black tracking-wider ${isLight ? 'text-pink-700' : 'text-amber-300'}`}>
+                  TIME REMAINING
+                </div>
+                <div className="text-base font-black font-mono text-rose-500 tracking-wider animate-pulse drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]">
+                  {f1.nextSession.countdownFormatted}
+                </div>
               </div>
             </div>
 
             {/* Quick Circuit Specs */}
-            <div className="grid grid-cols-4 gap-1.5 text-xs">
+            <div className="grid grid-cols-4 gap-1.5 text-xs pt-1">
               <div className={`p-1.5 rounded-xl border text-center ${isLight ? 'bg-white/70 border-pink-200' : 'bg-black/40 border-pink-500/30'}`}>
                 <span className={`block text-[8px] uppercase font-bold ${isLight ? 'text-pink-800' : 'text-amber-300'}`}>Laps</span>
                 <span className="font-mono font-black text-xs">50</span>

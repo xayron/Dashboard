@@ -58,6 +58,83 @@ export const SettingsModal: React.FC = () => {
   // Font family
   const fontClass = isTui || isHud ? 'font-mono' : isEink || isCivic ? 'font-serif' : 'font-sans';
 
+  // Typography hierarchy tokens tailored to active uiStyle
+  const typo = {
+    modalTitle: isTui || isHud
+      ? 'font-mono font-bold tracking-tight'
+      : isEink
+      ? 'font-serif font-bold tracking-normal italic'
+      : isCivic
+      ? 'font-serif font-bold tracking-tight'
+      : isBrutalist
+      ? 'font-sans font-black uppercase tracking-wider'
+      : isRetrowave
+      ? 'font-display font-black italic uppercase tracking-wider'
+      : isMinimal
+      ? 'font-sans font-medium tracking-tight'
+      : isNeumorphic || isObsidian
+      ? 'font-sans font-bold tracking-tight'
+      : 'font-display font-bold tracking-tight',
+
+    sectionTitle: isTui || isHud
+      ? 'font-mono font-bold'
+      : isEink
+      ? 'font-serif font-bold'
+      : isCivic
+      ? 'font-serif font-bold'
+      : isBrutalist
+      ? 'font-sans font-black uppercase tracking-wide'
+      : isRetrowave
+      ? 'font-display font-bold italic uppercase'
+      : 'font-sans font-bold',
+
+    subtitle: isTui || isHud
+      ? 'font-mono text-xs opacity-75'
+      : isEink
+      ? 'font-serif text-xs italic opacity-85'
+      : isCivic
+      ? 'font-sans text-xs opacity-80'
+      : isBrutalist
+      ? 'font-sans text-xs font-bold uppercase opacity-85'
+      : 'font-sans text-xs opacity-75',
+
+    label: isTui || isHud
+      ? 'font-mono text-xs font-bold uppercase tracking-wider'
+      : isEink
+      ? 'font-serif text-xs font-bold uppercase tracking-wider'
+      : isCivic
+      ? 'font-sans text-xs font-bold uppercase tracking-wider'
+      : isBrutalist
+      ? 'font-sans text-xs font-black uppercase tracking-wider'
+      : 'font-sans text-xs font-bold uppercase tracking-wider',
+
+    cardTitle: isTui || isHud
+      ? 'font-mono text-xs font-bold'
+      : isEink
+      ? 'font-serif text-xs font-bold'
+      : isCivic
+      ? 'font-serif text-xs font-bold'
+      : isBrutalist
+      ? 'font-sans text-xs font-black uppercase'
+      : 'font-sans text-xs font-bold',
+
+    cardDesc: isTui || isHud
+      ? 'font-mono text-[10px]'
+      : isEink
+      ? 'font-serif text-[10px]'
+      : 'font-sans text-[10px]',
+
+    meta: isTui || isHud
+      ? 'font-mono text-[9px] uppercase'
+      : isEink
+      ? 'font-serif text-[9px] italic'
+      : isCivic
+      ? 'font-mono text-[9px] font-bold'
+      : isBrutalist
+      ? 'font-sans text-[9px] font-black uppercase tracking-wider'
+      : 'font-mono text-[9px]',
+  };
+
   // Corner radius tokens
   const isSharp = isTui || isBrutalist || isHud || isEink;
   const radiusLg = isSharp ? 'rounded-none' : isCivic ? 'rounded-xl' : 'rounded-2xl';
@@ -552,20 +629,20 @@ export const SettingsModal: React.FC = () => {
       return 'rounded-none border border-[var(--color-accent,#10b981)] bg-[var(--color-accent,#10b981)]/15 text-[var(--color-accent,#10b981)] font-mono text-[10px] px-2 py-0.5';
     }
     if (isBrutalist) {
-      return `rounded-none border-2 font-black text-[10px] uppercase px-2 py-0.5 ${
+      return `rounded-none border-2 font-black font-sans text-[10px] uppercase tracking-wider px-2 py-0.5 ${
         isLight ? 'border-black bg-neutral-100 text-black shadow-[1px_1px_0px_#000]' : 'border-white bg-neutral-900 text-white shadow-[1px_1px_0px_#fff]'
       }`;
     }
     if (isHud) {
-      return 'rounded-none border border-[var(--color-accent,#06b6d4)]/60 bg-[var(--color-accent,#06b6d4)]/10 text-[var(--color-accent,#06b6d4)] font-mono text-[10px] px-2 py-0.5';
+      return 'rounded-none border border-[var(--color-accent,#06b6d4)]/60 bg-[var(--color-accent,#06b6d4)]/10 text-[var(--color-accent,#06b6d4)] font-mono text-[10px] px-2 py-0.5 tracking-wider';
     }
     if (isEink) {
-      return `rounded-none border text-[10px] font-serif px-2 py-0.5 ${
+      return `rounded-none border text-[10px] font-serif font-semibold italic px-2 py-0.5 ${
         isLight ? 'border-stone-800 bg-stone-200 text-stone-900' : 'border-stone-500 bg-stone-800 text-stone-100'
       }`;
     }
     if (isCivic) {
-      return `rounded text-[10px] font-bold border px-2 py-0.5 ${
+      return `rounded text-[10px] font-bold font-mono border px-2 py-0.5 ${
         isLight ? 'border-slate-300 bg-slate-100 text-orange-600' : 'border-slate-700 bg-slate-800 text-orange-400'
       }`;
     }
@@ -573,12 +650,12 @@ export const SettingsModal: React.FC = () => {
       return 'rounded-full border border-pink-500/40 bg-pink-500/15 text-pink-300 font-mono text-[10px] px-2.5 py-0.5';
     }
     if (isNeumorphic) {
-      return `rounded-full text-[10px] font-mono px-2.5 py-0.5 ${
+      return `rounded-full text-[10px] font-sans font-semibold px-2.5 py-0.5 ${
         isLight ? 'bg-slate-200 text-slate-700' : 'bg-slate-800 text-slate-300'
       }`;
     }
     if (isMinimal) {
-      return `rounded-full text-[10px] font-mono px-2 py-0.5 ${
+      return `rounded-full text-[10px] font-sans px-2 py-0.5 ${
         isLight ? 'bg-slate-100 text-slate-600' : 'bg-white/5 text-slate-300'
       }`;
     }
@@ -661,7 +738,7 @@ export const SettingsModal: React.FC = () => {
         >
           <div className="flex items-center space-x-2.5">
             <Sliders size={18} className={isTui ? 'text-[var(--color-accent,#10b981)]' : isHud ? 'text-[var(--color-accent,#06b6d4)]' : isLight ? 'text-blue-600' : 'text-blue-400'} />
-            <h2 className="text-base sm:text-lg font-bold font-display tracking-tight">
+            <h2 className={`text-base sm:text-lg ${typo.modalTitle}`}>
               {getHeaderTitle()}
             </h2>
             <span className={getBadgeClass()}>
@@ -878,13 +955,11 @@ export const SettingsModal: React.FC = () => {
                       <div className="min-w-0">
                         <div className="flex items-center space-x-2">
                           <h3
-                            className={`text-sm font-bold truncate ${
+                            className={`text-sm truncate ${typo.sectionTitle} ${
                               isTui
-                                ? 'text-[var(--color-accent,#10b981)] font-mono'
-                                : isBrutalist
-                                ? 'uppercase tracking-wide font-black'
+                                ? 'text-[var(--color-accent,#10b981)]'
                                 : isHud
-                                ? 'text-[#e0f2fe] font-mono'
+                                ? 'text-[#e0f2fe]'
                                 : isLight
                                 ? 'text-slate-900'
                                 : 'text-white'
@@ -893,7 +968,7 @@ export const SettingsModal: React.FC = () => {
                             {isTui ? `[+] ${sec.title}` : sec.title}
                           </h3>
                         </div>
-                        <p className={`text-xs truncate mt-0.5 ${isTui ? 'opacity-70 font-mono' : isLight ? 'text-slate-500' : 'text-gray-400'}`}>
+                        <p className={`truncate mt-0.5 ${typo.subtitle}`}>
                           {sec.subtitle}
                         </p>
                       </div>
@@ -958,14 +1033,14 @@ export const SettingsModal: React.FC = () => {
                             {/* Visual Design Styles */}
                             <div>
                               <div className="flex items-center justify-between mb-1">
-                                <h4 className="text-xs font-bold uppercase tracking-wider">
+                                <h4 className={`text-xs uppercase tracking-wider ${typo.label}`}>
                                   {isTui ? '--- [UI_PARADIGMS: 10] ---' : 'Visual Design Styles (10 Paradigms)'}
                                 </h4>
-                                <span className={`text-[11px] font-mono opacity-70`}>
+                                <span className={`text-[11px] opacity-70 ${isEink ? 'font-serif italic' : isBrutalist ? 'font-sans font-bold' : 'font-mono'}`}>
                                   Press &apos;T&apos; to cycle
                                 </span>
                               </div>
-                              <p className="text-xs mb-3 opacity-80">
+                              <p className={`mb-3 ${typo.subtitle}`}>
                                 Switch the overarching visual interface paradigm. Each design style features custom typography, borders, headers, and mode layouts.
                               </p>
 
@@ -1004,7 +1079,7 @@ export const SettingsModal: React.FC = () => {
                                     >
                                       <div>
                                         <div className="flex items-center justify-between mb-1">
-                                          <h5 className="text-xs font-bold">
+                                          <h5 className={`text-xs ${typo.cardTitle}`}>
                                             {style.name}
                                           </h5>
                                           {isSelected && (
@@ -1013,16 +1088,16 @@ export const SettingsModal: React.FC = () => {
                                             </span>
                                           )}
                                         </div>
-                                        <p className="text-[10px] font-semibold opacity-90">
+                                        <p className={`text-[10px] font-semibold opacity-90 ${typo.cardDesc}`}>
                                           {style.tagline}
                                         </p>
-                                        <p className="text-[10px] mt-1 leading-snug line-clamp-2 opacity-75">
+                                        <p className={`text-[10px] mt-1 leading-snug line-clamp-2 opacity-75 ${typo.cardDesc}`}>
                                           {style.description}
                                         </p>
                                       </div>
 
                                       <div
-                                        className="mt-2.5 pt-1.5 border-t border-current/15 text-[9px] font-mono flex items-center justify-between opacity-80"
+                                        className={`mt-2.5 pt-1.5 border-t border-current/15 flex items-center justify-between opacity-80 ${typo.meta}`}
                                       >
                                         <span>STYLE: {style.id.toUpperCase()}</span>
                                         {isSelected && <Check size={11} />}
@@ -1051,7 +1126,7 @@ export const SettingsModal: React.FC = () => {
                                 }`}
                               >
                                 <div>
-                                  <h4 className="text-xs font-bold uppercase tracking-wider flex items-center space-x-2">
+                                  <h4 className={`text-xs uppercase tracking-wider flex items-center space-x-2 ${typo.label}`}>
                                     {colorMode === 'dark' ? (
                                       <Moon size={15} />
                                     ) : (
@@ -1059,7 +1134,7 @@ export const SettingsModal: React.FC = () => {
                                     )}
                                     <span>Interface Mode (Light / Dark)</span>
                                   </h4>
-                                  <p className="text-xs mt-0.5 opacity-75">
+                                  <p className={`mt-0.5 ${typo.subtitle}`}>
                                     Toggle Light or Dark mode. Integrates chosen theme colors across all 10 styles.
                                   </p>
                                 </div>
@@ -1114,10 +1189,10 @@ export const SettingsModal: React.FC = () => {
                             {/* Color Palettes */}
                             <div className="pt-4 border-t border-current/15">
                               <div className="mb-3">
-                                <h4 className="text-xs font-bold uppercase tracking-wider mb-1">
+                                <h4 className={`text-xs uppercase tracking-wider mb-1 ${typo.label}`}>
                                   {isTui ? '--- [PALETTES: HEX_THEMES] ---' : 'Color Palette & Accent Hue'}
                                 </h4>
-                                <p className="text-xs opacity-75">
+                                <p className={typo.subtitle}>
                                   Signature accent hues, glows, and indicators applied dynamically across the active style.
                                 </p>
                               </div>
@@ -1161,7 +1236,7 @@ export const SettingsModal: React.FC = () => {
                                     >
                                       <div>
                                         <div className="flex items-center justify-between mb-1">
-                                          <h5 className="text-xs font-bold">
+                                          <h5 className={`text-xs ${typo.cardTitle}`}>
                                             {t.name}
                                           </h5>
                                           <div className="flex space-x-1 items-center">
@@ -1175,18 +1250,18 @@ export const SettingsModal: React.FC = () => {
                                           </div>
                                         </div>
 
-                                        <p className="text-[10px] font-semibold" style={{ color: activePalette.accent }}>
+                                        <p className={`text-[10px] font-semibold ${typo.cardDesc}`} style={{ color: activePalette.accent }}>
                                           {t.tagline}
                                         </p>
-                                        <p className="text-[10px] mt-1 leading-snug opacity-75">
+                                        <p className={`text-[10px] mt-1 leading-snug opacity-75 ${typo.cardDesc}`}>
                                           {t.description}
                                         </p>
                                       </div>
 
                                       <div
-                                        className="mt-2.5 pt-1.5 border-t border-current/15 flex items-center justify-between text-xs opacity-80"
+                                        className={`mt-2.5 pt-1.5 border-t border-current/15 flex items-center justify-between text-xs opacity-80 ${typo.meta}`}
                                       >
-                                        <span className="text-[9px] uppercase font-mono">
+                                        <span className={typo.meta}>
                                           {tId}
                                         </span>
                                         {isSelected && (
@@ -1220,10 +1295,10 @@ export const SettingsModal: React.FC = () => {
                               }`}
                             >
                               <div>
-                                <h4 className="text-sm font-semibold">
+                                <h4 className={`text-sm ${typo.cardTitle}`}>
                                   {isTui ? '[SIMULATED_MOCK_MODE]' : 'Simulated Mock Mode'}
                                 </h4>
-                                <p className="text-xs opacity-75">
+                                <p className={typo.subtitle}>
                                   Use realistic live mock data when HA server is offline
                                 </p>
                               </div>
@@ -1236,7 +1311,7 @@ export const SettingsModal: React.FC = () => {
                             </div>
 
                             <div>
-                              <label className="block text-xs font-bold uppercase tracking-wider mb-1.5 opacity-80">
+                              <label className={`block mb-1.5 opacity-80 ${typo.label}`}>
                                 {isTui ? 'HA_BASE_URL:' : 'Home Assistant Base URL'}
                               </label>
                               <input
@@ -1250,7 +1325,7 @@ export const SettingsModal: React.FC = () => {
                             </div>
 
                             <div>
-                              <label className="block text-xs font-bold uppercase tracking-wider mb-1.5 opacity-80">
+                              <label className={`block mb-1.5 opacity-80 ${typo.label}`}>
                                 {isTui ? 'ACCESS_TOKEN:' : 'Long-Lived Access Token'}
                               </label>
                               <input
@@ -1261,14 +1336,14 @@ export const SettingsModal: React.FC = () => {
                                 placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                                 className={`w-full px-4 py-2.5 text-sm transition-all disabled:opacity-50 ${getInputClass()}`}
                               />
-                              <p className="text-[11px] mt-1 opacity-70">
+                              <p className={`mt-1 opacity-70 ${typo.subtitle}`}>
                                 Generated in your HA User Profile → Long-Lived Access Tokens.
                               </p>
                             </div>
 
                             {!haConfig.useMock && (
                               <div>
-                                <label className="block text-xs font-bold uppercase tracking-wider mb-1.5 opacity-80">
+                                <label className={`block mb-1.5 opacity-80 ${typo.label}`}>
                                   {isTui ? 'TARGET_MEDIA_PLAYER:' : 'Target Media Player Entity'}
                                 </label>
                                 <select
@@ -1283,7 +1358,7 @@ export const SettingsModal: React.FC = () => {
                                     </option>
                                   ))}
                                 </select>
-                                <p className="text-[11px] mt-1 opacity-70">
+                                <p className={`mt-1 opacity-70 ${typo.subtitle}`}>
                                   Select a specific speaker or let the dashboard automatically track whichever speaker starts playing.
                                 </p>
                               </div>
@@ -1303,7 +1378,7 @@ export const SettingsModal: React.FC = () => {
                         {sec.id === 'weather' && (
                           <div className="space-y-4">
                             <div>
-                              <label className="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80">
+                              <label className={`block mb-2 opacity-80 ${typo.label}`}>
                                 {isTui ? 'CITY_PRESETS:' : 'City Preset'}
                               </label>
                               <div className="grid grid-cols-3 gap-2">
@@ -1344,7 +1419,7 @@ export const SettingsModal: React.FC = () => {
 
                             <div className="grid grid-cols-2 gap-3">
                               <div>
-                                <label className="block text-xs font-bold uppercase tracking-wider mb-1 opacity-80">
+                                <label className={`block mb-1 opacity-80 ${typo.label}`}>
                                   Latitude
                                 </label>
                                 <input
@@ -1356,7 +1431,7 @@ export const SettingsModal: React.FC = () => {
                                 />
                               </div>
                               <div>
-                                <label className="block text-xs font-bold uppercase tracking-wider mb-1 opacity-80">
+                                <label className={`block mb-1 opacity-80 ${typo.label}`}>
                                   Longitude
                                 </label>
                                 <input
@@ -1395,15 +1470,15 @@ export const SettingsModal: React.FC = () => {
                                   : 'bg-white/5 border-white/10'
                               }`}
                             >
-                              <div className="flex items-center space-x-2 font-bold text-sm mb-1">
+                              <div className={`flex items-center space-x-2 text-sm mb-1 ${typo.cardTitle}`}>
                                 <FolderOpen size={16} />
                                 <span>Local Directory Storage</span>
                               </div>
-                              <p className="text-xs leading-relaxed opacity-80">
+                              <p className={`leading-relaxed opacity-80 ${typo.subtitle}`}>
                                 You can drop any photos (<code className="font-bold underline">.jpg</code>, <code className="font-bold underline">.png</code>, <code className="font-bold underline">.webp</code>) into the local folder:
                               </p>
                               <div
-                                className={`mt-2 p-2.5 font-mono text-xs select-all border ${radiusSm} ${
+                                className={`mt-2 p-2.5 text-xs select-all border ${radiusSm} ${isEink ? 'font-serif' : 'font-mono'} ${
                                   isTui
                                     ? 'border-[var(--color-accent,#10b981)] bg-black text-[var(--color-accent,#10b981)]'
                                     : isBrutalist
@@ -1415,13 +1490,13 @@ export const SettingsModal: React.FC = () => {
                               >
                                 Dashboard/public/photos/
                               </div>
-                              <p className="text-[11px] mt-2 opacity-70">
+                              <p className={`mt-2 opacity-70 ${typo.subtitle}`}>
                                 The dashboard automatically scans this directory via the built-in <code>/api/photos</code> endpoint, preserves authentic aspect ratios without stretching, and displays them.
                               </p>
                             </div>
 
                             <div>
-                              <label className="block text-xs font-bold uppercase tracking-wider mb-1.5 opacity-80">
+                              <label className={`block mb-1.5 opacity-80 ${typo.label}`}>
                                 Add Custom Photo URL
                               </label>
                               <div className="flex space-x-2">
@@ -1442,7 +1517,7 @@ export const SettingsModal: React.FC = () => {
                             </div>
 
                             <div className="flex items-center justify-between pt-2 border-t border-current/15">
-                              <div className="text-xs opacity-80">
+                              <div className={`opacity-80 ${typo.subtitle}`}>
                                 Current Source:{' '}
                                 <span className="font-bold capitalize">
                                   {photoSource}
@@ -1479,10 +1554,10 @@ export const SettingsModal: React.FC = () => {
                             >
                               <div className="flex items-center justify-between">
                                 <div>
-                                  <h4 className="text-sm font-bold mb-0.5">
+                                  <h4 className={`text-sm mb-0.5 ${typo.cardTitle}`}>
                                     Settings Presentation Layout
                                   </h4>
-                                  <p className="text-xs opacity-75">
+                                  <p className={typo.subtitle}>
                                     Choose whether settings appears as a side drawer sliding in from the right or a centered floating panel.
                                   </p>
                                 </div>
@@ -1519,10 +1594,10 @@ export const SettingsModal: React.FC = () => {
                                 >
                                   <PanelRight size={20} className="mt-0.5" />
                                   <div>
-                                    <div className="text-xs font-bold">
+                                    <div className={`text-xs ${typo.cardTitle}`}>
                                       Right Drawer (Default)
                                     </div>
-                                    <div className="text-[11px] mt-0.5 leading-relaxed opacity-75">
+                                    <div className={`text-[11px] mt-0.5 leading-relaxed opacity-75 ${typo.subtitle}`}>
                                       Full-height side panel anchored to the right edge with smooth slide-in.
                                     </div>
                                   </div>
@@ -1555,10 +1630,10 @@ export const SettingsModal: React.FC = () => {
                                 >
                                   <AppWindow size={20} className="mt-0.5" />
                                   <div>
-                                    <div className="text-xs font-bold">
+                                    <div className={`text-xs ${typo.cardTitle}`}>
                                       Floating Panel
                                     </div>
-                                    <div className="text-[11px] mt-0.5 leading-relaxed opacity-75">
+                                    <div className={`text-[11px] mt-0.5 leading-relaxed opacity-75 ${typo.subtitle}`}>
                                       Centered modal dialogue window with backdrop blur.
                                     </div>
                                   </div>
@@ -1579,10 +1654,10 @@ export const SettingsModal: React.FC = () => {
                                   : 'bg-white/5 border-white/10'
                               }`}
                             >
-                              <h4 className="text-sm font-bold mb-1">
+                              <h4 className={`text-sm mb-1 ${typo.cardTitle}`}>
                                 Kiosk Hardware Specifications
                               </h4>
-                              <p className="leading-relaxed opacity-75">
+                              <p className={`leading-relaxed opacity-75 ${typo.subtitle}`}>
                                 Display target: Full HD (1920x1080) at 100% DPI scale.
                                 Auto-sleep: Screen sleeps between 00:00 and 06:00 IST via DPMS or smart plug.
                               </p>
@@ -1601,18 +1676,20 @@ export const SettingsModal: React.FC = () => {
                                   : 'bg-white/5 border-white/10'
                               }`}
                             >
-                              <h4 className="text-sm font-bold mb-2">
+                              <h4 className={`text-sm mb-2 ${typo.cardTitle}`}>
                                 Chromium Kiosk Flags
                               </h4>
                               <pre
-                                className={`p-3 font-mono text-[11px] overflow-x-auto border ${radiusSm} ${
-                                  isTui
-                                    ? 'bg-black border-[var(--color-accent,#10b981)]/60 text-[var(--color-accent,#10b981)]'
+                                className={`p-3 text-[11px] overflow-x-auto border ${radiusSm} ${
+                                  isEink
+                                    ? 'font-serif bg-[#f5f2eb] border-stone-800 text-stone-900'
+                                    : isTui
+                                    ? 'font-mono bg-black border-[var(--color-accent,#10b981)]/60 text-[var(--color-accent,#10b981)]'
                                     : isBrutalist
-                                    ? 'bg-neutral-100 border-2 border-black text-black font-bold'
+                                    ? 'font-mono bg-neutral-100 border-2 border-black text-black font-bold'
                                     : isLight
-                                    ? 'bg-slate-100 border-slate-200 text-slate-800'
-                                    : 'bg-black/60 border-white/10 text-gray-300'
+                                    ? 'font-mono bg-slate-100 border-slate-200 text-slate-800'
+                                    : 'font-mono bg-black/60 border-white/10 text-gray-300'
                                 }`}
                               >
 {`chromium-browser \\

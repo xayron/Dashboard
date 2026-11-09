@@ -5,7 +5,7 @@ import { Flame, MapPin, Calendar, Award, Zap, CloudSun } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
 
 export const BrutalistRaceWeekendMode: React.FC = () => {
-  const { f1, media, weather, colorMode } = useDashboard();
+  const { now, f1, media, weather, colorMode } = useDashboard();
   const isLight = colorMode === 'light';
   const [standingsTab, setStandingsTab] = useState<'drivers' | 'constructors'>('drivers');
 
@@ -45,9 +45,11 @@ export const BrutalistRaceWeekendMode: React.FC = () => {
         <div className={`bg-black text-yellow-400 px-4 py-2 border-2 border-white text-right ${
           isLight ? 'shadow-[3px_3px_0px_#000]' : 'shadow-[3px_3px_0px_#000]'
         }`}>
-          <span className="text-[10px] font-black uppercase tracking-wider block text-white">NEXT SESSION</span>
-          <span className="text-sm font-black text-yellow-300">{f1.nextSession.name}</span>
-          <span className="text-xs font-mono font-bold block text-red-400">{f1.nextSession.countdownFormatted}</span>
+          <span className="text-[10px] font-black uppercase tracking-wider block text-white">LIVE TIME • IST</span>
+          <span className="text-base font-black text-yellow-300 font-mono tracking-wider">
+            {now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+          </span>
+          <span className="text-[10px] font-mono font-bold block text-red-400 uppercase">UTC+5:30 TRACKSIDE</span>
         </div>
       </div>
 
@@ -55,57 +57,58 @@ export const BrutalistRaceWeekendMode: React.FC = () => {
       <div className="grid grid-cols-12 gap-5 flex-1 min-h-0">
         {/* Left Column (5 cols): Next Session Hero, Circuit Telemetry & Previous GP */}
         <div className="col-span-5 flex flex-col space-y-3">
-          {/* Hero Countdown Box */}
+          {/* Hero Countdown Box (Compact) */}
           <BrutalistBox
             title="NEXT SESSION COUNTDOWN"
             badge="LIVE IN IST"
             badgeColor="bg-red-600 text-white"
-            className="flex-1"
           >
-            <div className="flex flex-col justify-between h-full py-0.5">
-              <div>
-                <div className={`text-[10px] font-black uppercase tracking-wider ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>
-                  TARGET SESSION
+            <div className="py-1">
+              <div className="flex items-center justify-between pb-2 border-b-2 border-black">
+                <div>
+                  <div className={`text-[9px] font-black uppercase tracking-wider ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>
+                    TARGET SESSION
+                  </div>
+                  <div className="text-lg font-black uppercase tracking-tight">
+                    {f1.nextSession.name}
+                  </div>
+                  <div className="text-xs font-mono font-bold mt-0.5 flex items-center text-red-500">
+                    <Calendar size={12} className="mr-1.5" />
+                    {f1.nextSession.istTimeFormatted}
+                  </div>
                 </div>
-                <div className="text-xl font-black uppercase tracking-tight mt-0.5">
-                  {f1.nextSession.name}
-                </div>
-                <div className="text-xs font-mono font-bold mt-0.5 flex items-center text-red-500">
-                  <Calendar size={12} className="mr-1.5" />
-                  {f1.nextSession.istTimeFormatted}
-                </div>
-              </div>
 
-              {/* Big Countdown Box */}
-              <div
-                className={`my-2 p-3 border-2 border-black text-center ${
-                  isLight ? 'shadow-[3px_3px_0px_#000]' : 'shadow-[3px_3px_0px_#fff]'
-                }`}
-                style={{ backgroundColor: 'var(--color-accent, #facc15)' }}
-              >
-                <div className="text-[9px] font-black uppercase tracking-widest text-black">
-                  T-MINUS COUNTDOWN
-                </div>
-                <div className="text-2xl font-black font-mono text-black mt-0.5 tracking-wider animate-pulse">
-                  {f1.nextSession.countdownFormatted}
+                {/* Compact Countdown Box */}
+                <div
+                  className={`px-3 py-1.5 border-2 border-black text-center ${
+                    isLight ? 'shadow-[2px_2px_0px_#000]' : 'shadow-[2px_2px_0px_#fff]'
+                  }`}
+                  style={{ backgroundColor: 'var(--color-accent, #facc15)' }}
+                >
+                  <div className="text-[8px] font-black uppercase tracking-widest text-black">
+                    T-MINUS
+                  </div>
+                  <div className="text-base font-black font-mono text-black tracking-wider">
+                    {f1.nextSession.countdownFormatted}
+                  </div>
                 </div>
               </div>
 
               {/* Circuit Quick Telemetry */}
-              <div className="grid grid-cols-4 gap-1.5 text-xs">
-                <div className={`p-1.5 border-2 border-black text-center ${isLight ? 'bg-neutral-100 shadow-[2px_2px_0px_#000]' : 'bg-neutral-900 shadow-[2px_2px_0px_#fff]'}`}>
+              <div className="grid grid-cols-4 gap-1.5 text-xs pt-2">
+                <div className={`p-1 border-2 border-black text-center ${isLight ? 'bg-neutral-100 shadow-[2px_2px_0px_#000]' : 'bg-neutral-900 shadow-[2px_2px_0px_#fff]'}`}>
                   <span className={`block text-[8px] font-black uppercase ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>Laps</span>
                   <span className="font-mono font-black text-xs">50</span>
                 </div>
-                <div className={`p-1.5 border-2 border-black text-center ${isLight ? 'bg-neutral-100 shadow-[2px_2px_0px_#000]' : 'bg-neutral-900 shadow-[2px_2px_0px_#fff]'}`}>
+                <div className={`p-1 border-2 border-black text-center ${isLight ? 'bg-neutral-100 shadow-[2px_2px_0px_#000]' : 'bg-neutral-900 shadow-[2px_2px_0px_#fff]'}`}>
                   <span className={`block text-[8px] font-black uppercase ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>Length</span>
                   <span className="font-mono font-black text-xs">6.2 KM</span>
                 </div>
-                <div className={`p-1.5 border-2 border-black text-center ${isLight ? 'bg-neutral-100 shadow-[2px_2px_0px_#000]' : 'bg-neutral-900 shadow-[2px_2px_0px_#fff]'}`}>
+                <div className={`p-1 border-2 border-black text-center ${isLight ? 'bg-neutral-100 shadow-[2px_2px_0px_#000]' : 'bg-neutral-900 shadow-[2px_2px_0px_#fff]'}`}>
                   <span className={`block text-[8px] font-black uppercase ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>DRS</span>
                   <span className="font-mono font-black text-xs text-red-500">2 ZONES</span>
                 </div>
-                <div className={`p-1.5 border-2 border-black text-center ${isLight ? 'bg-neutral-100 shadow-[2px_2px_0px_#000]' : 'bg-neutral-900 shadow-[2px_2px_0px_#fff]'}`}>
+                <div className={`p-1 border-2 border-black text-center ${isLight ? 'bg-neutral-100 shadow-[2px_2px_0px_#000]' : 'bg-neutral-900 shadow-[2px_2px_0px_#fff]'}`}>
                   <span className={`block text-[8px] font-black uppercase ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>Record</span>
                   <span className="font-mono font-black text-xs text-amber-500">{f1.circuitLapRecord?.lapTime || '1:35.4'}</span>
                 </div>

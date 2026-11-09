@@ -5,7 +5,7 @@ import { Gauge, Calendar, CloudSun, Award, Zap } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
 
 export const HudRaceWeekendMode: React.FC = () => {
-  const { f1, media, weather, colorMode } = useDashboard();
+  const { now, f1, media, weather, colorMode } = useDashboard();
   const isLight = colorMode === 'light';
   const [standingsTab, setStandingsTab] = useState<'drivers' | 'constructors'>('drivers');
 
@@ -54,9 +54,11 @@ export const HudRaceWeekendMode: React.FC = () => {
         </div>
 
         <div className="text-right">
-          <span className={`text-[10px] block ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>TARGET SESSION</span>
-          <span className="text-sm font-bold" style={{ color: 'var(--color-accent)' }}>{f1.nextSession.name}</span>
-          <span className={`text-xs block ${isLight ? 'text-slate-600' : 'text-cyan-300'}`}>{f1.nextSession.countdownFormatted}</span>
+          <span className={`text-[10px] block ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>SYSTEM_TIME // IST</span>
+          <span className="text-sm font-bold font-mono tracking-wider" style={{ color: 'var(--color-accent)' }}>
+            {now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+          </span>
+          <span className={`text-[10px] block ${isLight ? 'text-slate-600' : 'text-cyan-300'}`}>UTC+5:30 // TELEMETRY</span>
         </div>
       </div>
 
@@ -64,31 +66,33 @@ export const HudRaceWeekendMode: React.FC = () => {
       <div className="grid grid-cols-12 gap-5 flex-1 min-h-0">
         {/* Left Column (5 cols): Next Session Hero, Circuit Telemetry & Previous GP */}
         <div className="col-span-5 flex flex-col space-y-3">
-          <HudBox title="NEXT_SESSION_COUNTDOWN" code="LIVE_IST" glowColor="cyan" className="flex-1">
-            <div className="flex flex-col justify-between h-full py-0.5">
-              <div>
-                <span className={`text-[10px] block ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>TARGET_EVENT</span>
-                <span className={`text-xl font-black tracking-wide ${isLight ? 'text-slate-900' : 'text-white'}`}>{f1.nextSession.name}</span>
-                <span className="text-xs font-mono block mt-0.5 flex items-center" style={{ color: 'var(--color-accent)' }}>
-                  <Calendar size={12} className="mr-1.5" />
-                  {f1.nextSession.istTimeFormatted}
-                </span>
-              </div>
-
-              {/* T-Minus Display */}
-              <div className={`my-2 p-2.5 border text-center ${
-                isLight ? 'bg-cyan-100/60 border-cyan-400' : 'bg-black/60 border-cyan-500/50'
-              }`}>
-                <div className={`text-[9px] uppercase tracking-widest ${isLight ? 'text-slate-600' : 'text-cyan-300'}`}>
-                  COUNTDOWN TO GREEN LIGHT
+          <HudBox title="NEXT_SESSION_COUNTDOWN" code="LIVE_IST" glowColor="cyan">
+            <div className="py-1">
+              <div className="flex items-center justify-between pb-2 border-b border-cyan-500/20">
+                <div>
+                  <span className={`text-[9px] block ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>TARGET_EVENT</span>
+                  <span className={`text-lg font-black tracking-wide ${isLight ? 'text-slate-900' : 'text-white'}`}>{f1.nextSession.name}</span>
+                  <span className="text-xs font-mono block mt-0.5 flex items-center" style={{ color: 'var(--color-accent)' }}>
+                    <Calendar size={12} className="mr-1.5" />
+                    {f1.nextSession.istTimeFormatted}
+                  </span>
                 </div>
-                <div className="text-2xl font-black font-mono mt-0.5 tracking-wider text-rose-500 animate-pulse">
-                  T-{f1.nextSession.countdownFormatted}
+
+                {/* Compact T-Minus Display */}
+                <div className={`px-3 py-1.5 border text-center ${
+                  isLight ? 'bg-cyan-100/60 border-cyan-400' : 'bg-black/60 border-cyan-500/50'
+                }`}>
+                  <div className={`text-[8px] uppercase tracking-widest ${isLight ? 'text-slate-600' : 'text-cyan-300'}`}>
+                    T-MINUS
+                  </div>
+                  <div className="text-base font-black font-mono tracking-wider text-rose-500 animate-pulse">
+                    T-{f1.nextSession.countdownFormatted}
+                  </div>
                 </div>
               </div>
 
               {/* Circuit Metrics Grid */}
-              <div className="grid grid-cols-4 gap-1.5 text-xs">
+              <div className="grid grid-cols-4 gap-1.5 text-xs pt-2">
                 <div className={`p-1.5 border text-center ${isLight ? 'bg-white/80 border-cyan-200' : 'bg-black/40 border-cyan-500/20'}`}>
                   <span className={`block text-[8px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>LAPS</span>
                   <span className="font-bold text-xs">50</span>
