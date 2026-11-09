@@ -129,6 +129,128 @@ export const DEFAULT_F1_SLOT_LAYOUT: Record<F1WidgetId, F1WidgetLayoutItem> = {
   podium:           { col: 7,  row: 4, colSpan: 6, rowSpan: 1 },
 };
 
+export const collides = (a: F1WidgetLayoutItem, b: F1WidgetLayoutItem): boolean => {
+  return !(
+    a.col + a.colSpan <= b.col ||
+    b.col + b.colSpan <= a.col ||
+    a.row + a.rowSpan <= b.row ||
+    b.row + b.rowSpan <= a.row
+  );
+};
+
+export function resolveCollisions(
+  baseLayout: Record<F1WidgetId, F1WidgetLayoutItem>,
+  activeId: F1WidgetId,
+  activeItem: F1WidgetLayoutItem,
+  widgetIds: F1WidgetId[]
+): Record<F1WidgetId, F1WidgetLayoutItem> {
+  const result: Record<F1WidgetId, F1WidgetLayoutItem> = {
+    ...baseLayout,
+    [activeId]: { ...activeItem },
+  };
+
+  const otherIds = widgetIds.filter((id) => id !== activeId);
+
+  let changed = true;
+  let iterations = 0;
+  const MAX_ITERATIONS = 40;
+
+  while (changed && iterations < MAX_ITERATIONS) {
+    changed = false;
+    iterations++;
+
+    // 1. Any other widget colliding with the actively moved/resized widget MUST shift down below it
+    for (const otherId of otherIds) {
+      const otherItem = result[otherId];
+      if (!otherItem) continue;
+      if (collides(result[activeId], otherItem)) {
+        result[otherId] = {
+          ...otherItem,
+          row: result[activeId].row + result[activeId].rowSpan,
+        };
+        changed = true;
+      }
+    }
+
+    // 2. Cascade down any secondary collisions among the other widgets
+    const currentSorted = [...otherIds].sort((a, b) => {
+      const rowA = result[a]?.row ?? 1;
+      const rowB = result[b]?.row ?? 1;
+      if (rowA !== rowB) return rowA - rowB;
+      const colA = result[a]?.col ?? 1;
+      const colB = result[b]?.col ?? 1;
+      return colA - colB;
+    });
+
+    for (let i = 0; i < currentSorted.length; i++) {
+      const idA = currentSorted[i];
+      const itemA = result[idA];
+      if (!itemA) continue;
+
+      for (let j = i + 1; j < currentSorted.length; j++) {
+        const idB = currentSorted[j];
+        const itemB = result[idB];
+        if (!itemB) continue;
+
+        if (collides(itemA, itemB)) {
+          result[idB] = {
+            ...itemB,
+            row: itemA.row + itemA.rowSpan,
+          };
+          changed = true;
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
+export function deoverlapAll(
+  layout: Record<F1WidgetId, F1WidgetLayoutItem>,
+  widgetIds: F1WidgetId[]
+): Record<F1WidgetId, F1WidgetLayoutItem> {
+  const result: Record<F1WidgetId, F1WidgetLayoutItem> = { ...layout };
+
+  let changed = true;
+  let iterations = 0;
+  const MAX_ITERATIONS = 40;
+
+  while (changed && iterations < MAX_ITERATIONS) {
+    changed = false;
+    iterations++;
+
+    const currentSorted = [...widgetIds].sort((a, b) => {
+      const itemA = result[a] || DEFAULT_F1_SLOT_LAYOUT[a];
+      const itemB = result[b] || DEFAULT_F1_SLOT_LAYOUT[b];
+      if (itemA.row !== itemB.row) return itemA.row - itemB.row;
+      return itemA.col - itemB.col;
+    });
+
+    for (let i = 0; i < currentSorted.length; i++) {
+      const idA = currentSorted[i];
+      const itemA = result[idA];
+      if (!itemA) continue;
+
+      for (let j = i + 1; j < currentSorted.length; j++) {
+        const idB = currentSorted[j];
+        const itemB = result[idB];
+        if (!itemB) continue;
+
+        if (collides(itemA, itemB)) {
+          result[idB] = {
+            ...itemB,
+            row: itemA.row + itemA.rowSpan,
+          };
+          changed = true;
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
 export const WIDGETS_WITH_LARGE: F1WidgetId[] = ['schedule', 'standings', 'news'];
 
 // Widgets whose natural content is a vertical list or timetable.
@@ -192,20 +314,24 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
     dir: ResizeDirection;
     startX: number;
     startY: number;
+    startScrollTop: number;
     startCol: number;
     startRow: number;
     startColSpan: number;
     startRowSpan: number;
+    baseLayout: Record<F1WidgetId, F1WidgetLayoutItem>;
   }
 
   interface MovingState {
     widgetId: F1WidgetId;
     startX: number;
     startY: number;
+    startScrollTop: number;
     startCol: number;
     startRow: number;
     colSpan: number;
     rowSpan: number;
+    baseLayout: Record<F1WidgetId, F1WidgetLayoutItem>;
   }
 
   const [slotLayout, setSlotLayout] = useState<Record<F1WidgetId, F1WidgetLayoutItem>>(() => {
@@ -214,12 +340,37 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       if (saved) {
         const parsed = JSON.parse(saved);
         if (typeof parsed === 'object' && parsed !== null) {
-          return { ...DEFAULT_F1_SLOT_LAYOUT, ...parsed };
+          const merged = { ...DEFAULT_F1_SLOT_LAYOUT, ...parsed };
+          return deoverlapAll(merged, Object.keys(merged) as F1WidgetId[]);
         }
       }
     } catch (e) {}
     return DEFAULT_F1_SLOT_LAYOUT;
   });
+
+  const latestSlotLayoutRef = useRef(slotLayout);
+  useEffect(() => {
+    latestSlotLayoutRef.current = slotLayout;
+  }, [slotLayout]);
+
+  // Ensure active widgets never overlap if active list changes
+  useEffect(() => {
+    setSlotLayout((prev) => {
+      const deoverlapped = deoverlapAll(prev, f1ActiveWidgets);
+      let changed = false;
+      for (const id of f1ActiveWidgets) {
+        if (
+          !prev[id] ||
+          prev[id].row !== deoverlapped[id]?.row ||
+          prev[id].col !== deoverlapped[id]?.col
+        ) {
+          changed = true;
+          break;
+        }
+      }
+      return changed ? deoverlapped : prev;
+    });
+  }, [f1ActiveWidgets]);
 
   const [resizingState, setResizingState] = useState<ResizingState | null>(null);
   const [movingState, setMovingState] = useState<MovingState | null>(null);
@@ -232,7 +383,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
     } catch (e) {}
   };
 
-  // Mouse Move & Mouse Up Listener for 8-Direction Resizing and Slot Moving
+  // Mouse Move & Mouse Up Listener for 8-Direction Resizing and Slot Moving with Collision Auto-Shift
   useEffect(() => {
     if (!movingState && !resizingState) return;
 
@@ -244,8 +395,9 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       const cellH = 140;
 
       if (movingState) {
+        const currentScrollTop = gridRef.current ? gridRef.current.scrollTop : 0;
         const deltaX = e.clientX - movingState.startX;
-        const deltaY = e.clientY - movingState.startY;
+        const deltaY = (e.clientY - movingState.startY) + (currentScrollTop - movingState.startScrollTop);
 
         const deltaCols = Math.round(deltaX / (cellW + gap));
         const deltaRows = Math.round(deltaY / (cellH + gap));
@@ -253,22 +405,28 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
         const newCol = Math.max(1, Math.min(13 - movingState.colSpan, movingState.startCol + deltaCols));
         const newRow = Math.max(1, movingState.startRow + deltaRows);
 
-        setSlotLayout((prev) => ({
-          ...prev,
-          [movingState.widgetId]: {
-            ...prev[movingState.widgetId],
+        const newLayout = resolveCollisions(
+          movingState.baseLayout,
+          movingState.widgetId,
+          {
             col: newCol,
             row: newRow,
+            colSpan: movingState.colSpan,
+            rowSpan: movingState.rowSpan,
           },
-        }));
+          f1ActiveWidgets
+        );
+
+        setSlotLayout(newLayout);
       } else if (resizingState) {
+        const currentScrollTop = gridRef.current ? gridRef.current.scrollTop : 0;
         const deltaX = e.clientX - resizingState.startX;
-        const deltaY = e.clientY - resizingState.startY;
+        const deltaY = (e.clientY - resizingState.startY) + (currentScrollTop - resizingState.startScrollTop);
 
         const deltaCols = Math.round(deltaX / (cellW + gap));
         const deltaRows = Math.round(deltaY / (cellH + gap));
 
-        const { dir, startCol, startRow, startColSpan, startRowSpan, widgetId } = resizingState;
+        const { dir, startCol, startRow, startColSpan, startRowSpan, widgetId, baseLayout } = resizingState;
 
         let newCol = startCol;
         let newRow = startRow;
@@ -293,10 +451,19 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           newRowSpan = startRowSpan + shift;
         }
 
-        setSlotLayout((prev) => ({
-          ...prev,
-          [widgetId]: { col: newCol, row: newRow, colSpan: newColSpan, rowSpan: newRowSpan },
-        }));
+        const newLayout = resolveCollisions(
+          baseLayout,
+          widgetId,
+          {
+            col: newCol,
+            row: newRow,
+            colSpan: newColSpan,
+            rowSpan: newRowSpan,
+          },
+          f1ActiveWidgets
+        );
+
+        setSlotLayout(newLayout);
       }
     };
 
@@ -304,7 +471,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       setMovingState(null);
       setResizingState(null);
       try {
-        localStorage.setItem('dashboard_f1_slot_layout', JSON.stringify(slotLayout));
+        localStorage.setItem('dashboard_f1_slot_layout', JSON.stringify(latestSlotLayoutRef.current));
       } catch (e) {}
     };
 
@@ -314,7 +481,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [movingState, resizingState, slotLayout]);
+  }, [movingState, resizingState, f1ActiveWidgets]);
 
   const handleMoveStart = (e: React.MouseEvent, widgetId: F1WidgetId) => {
     if (e.button !== 0) return;
@@ -326,10 +493,12 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       widgetId,
       startX: e.clientX,
       startY: e.clientY,
+      startScrollTop: gridRef.current ? gridRef.current.scrollTop : 0,
       startCol: current.col,
       startRow: current.row,
       colSpan: current.colSpan,
       rowSpan: current.rowSpan,
+      baseLayout: { ...slotLayout },
     });
   };
 
@@ -343,10 +512,12 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       dir,
       startX: e.clientX,
       startY: e.clientY,
+      startScrollTop: gridRef.current ? gridRef.current.scrollTop : 0,
       startCol: current.col,
       startRow: current.row,
       startColSpan: current.colSpan,
       startRowSpan: current.rowSpan,
+      baseLayout: { ...slotLayout },
     });
   };
 
@@ -2625,12 +2796,12 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                 gridColumn: `${layout.col} / span ${layout.colSpan}`,
                 gridRow: `${layout.row} / span ${layout.rowSpan}`,
               }}
-              className={`relative group transition-shadow ${
+              className={`relative group ${
                 isActivelyMoved
                   ? 'opacity-85 shadow-2xl z-30 ring-2 ring-blue-500 rounded-2xl'
                   : isActivelyResized
                   ? 'shadow-2xl z-30 ring-2 ring-amber-400 rounded-2xl'
-                  : 'z-10'
+                  : 'z-10 transition-all duration-150'
               }`}
             >
               {/* Widget Content Card */}
