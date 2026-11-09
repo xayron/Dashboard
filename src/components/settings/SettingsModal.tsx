@@ -26,7 +26,7 @@ import { getSavedCoords, saveCoords, type WeatherCoords } from '../../services/w
 import { photoService } from '../../services/photoService';
 import { THEMES, type ThemeId } from '../../types/theme';
 import { F1_AVAILABLE_WIDGETS } from '../f1/F1WidgetsColumn';
-import type { F1WidgetId } from '../../types/dashboard';
+import type { F1WidgetId, F1WidgetSize } from '../../types/dashboard';
 
 type SectionId = 'themes' | 'ha' | 'weather' | 'photos' | 'display' | 'f1';
 
@@ -46,8 +46,9 @@ export const SettingsModal: React.FC = () => {
     f1ActiveWidgets,
     setF1ActiveWidgets,
     toggleF1Widget,
-    f1AutoFit,
-    setF1AutoFit,
+    f1WidgetSizes,
+    setF1WidgetSize,
+    setAllF1WidgetSizes,
   } = useDashboard();
 
   const isLight = colorMode === 'light';
@@ -306,10 +307,10 @@ export const SettingsModal: React.FC = () => {
     {
       id: 'f1',
       title: 'Formula 1 & Race Weekend Widgets',
-      subtitle: 'Select active telemetry/race modules & dynamic vertical auto-fitting',
+      subtitle: 'Select active telemetry modules & customize widget sizes (Compact, Normal, Expanded)',
       icon: <Flag size={18} className={isLight ? 'text-red-600' : 'text-red-400'} />,
-      badge: `${f1ActiveWidgets.length} Active • ${f1AutoFit ? 'Auto-Fit' : 'Manual'}`,
-      keywords: 'f1 formula 1 race weekend countdown podium title battle championship qualifying shootout pitstop pit stop dhl telemetry circuit track weather grand prix standings',
+      badge: `${f1ActiveWidgets.length} Active • Manual Sizing`,
+      keywords: 'f1 formula 1 race weekend countdown podium title battle championship qualifying shootout pitstop pit stop dhl telemetry circuit track weather grand prix standings size compact normal expanded',
     },
     {
       id: 'display',
@@ -1733,7 +1734,7 @@ export const SettingsModal: React.FC = () => {
                         {/* ===================== SECTION: FORMULA 1 WIDGETS ===================== */}
                         {sec.id === 'f1' && (
                           <div className="space-y-4 text-xs">
-                            {/* Auto-Fit Mode Toggle */}
+                            {/* Manual Size & Density Controls */}
                             <div
                               className={`p-4 border space-y-3 ${radiusMd} ${
                                 isTui
@@ -1753,52 +1754,46 @@ export const SettingsModal: React.FC = () => {
                                   : 'bg-white/5 border-white/10'
                               }`}
                             >
-                              <div className="flex items-center justify-between">
+                              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                                 <div>
                                   <h4 className={`text-sm mb-0.5 ${typo.cardTitle}`}>
-                                    Dynamic Vertical Auto-Fitting
+                                    Manual Widget Size &amp; Density
                                   </h4>
                                   <p className={typo.subtitle}>
-                                    Automatically measures available column height on any screen or theme and populates 1–2 more widgets into the bottom space.
+                                    Set global widget scale or customize individual widget sizes (Compact, Normal, Expanded) to fit your screen.
                                   </p>
                                 </div>
-                                <button
-                                  type="button"
-                                  onClick={() => setF1AutoFit(!f1AutoFit)}
-                                  className={`px-3 py-1.5 font-mono text-xs uppercase tracking-wider font-bold transition-all cursor-pointer ${radiusSm} ${
-                                    f1AutoFit
-                                      ? isTui
-                                        ? isLight
-                                          ? 'bg-[var(--color-accent,#059669)] text-white'
-                                          : 'bg-[var(--color-accent,#10b981)] text-black'
-                                        : isHud
-                                        ? isLight
-                                          ? 'bg-[var(--color-accent,#0891b2)] text-white'
-                                          : 'bg-[var(--color-accent,#06b6d4)] text-black'
-                                        : isBrutalist
-                                        ? 'bg-amber-400 text-black border-2 border-black shadow-[2px_2px_0px_#000]'
-                                        : 'bg-emerald-600 text-white shadow-sm'
-                                      : isTui
-                                      ? isLight
-                                        ? 'border border-[var(--color-accent,#059669)]/40 text-slate-600 bg-white'
-                                        : 'border border-[var(--color-accent,#10b981)]/40 text-[var(--color-accent,#10b981)]/60'
-                                      : isHud
-                                      ? isLight
-                                        ? 'border border-[var(--color-accent,#0891b2)]/40 text-slate-600 bg-white'
-                                        : 'border border-[var(--color-accent,#06b6d4)]/40 text-[var(--color-accent,#06b6d4)]/60'
-                                      : isBrutalist
-                                      ? 'bg-neutral-200 text-neutral-600 border-2 border-black'
-                                      : isLight
-                                      ? 'bg-slate-200 text-slate-600'
-                                      : 'bg-white/10 text-slate-400'
-                                  }`}
-                                >
-                                  {f1AutoFit ? 'Enabled' : 'Disabled'}
-                                </button>
+                                <div className="flex items-center space-x-1 shrink-0">
+                                  <span className={`text-[10px] mr-1.5 opacity-70 font-mono ${typo.subtitle}`}>Set All:</span>
+                                  {(['compact', 'normal', 'expanded'] as F1WidgetSize[]).map((sz) => (
+                                    <button
+                                      key={sz}
+                                      type="button"
+                                      onClick={() => setAllF1WidgetSizes(sz)}
+                                      className={`px-2.5 py-1 text-[11px] font-mono uppercase font-bold transition-all cursor-pointer ${radiusSm} ${
+                                        isTui
+                                          ? isLight
+                                            ? 'border border-[var(--color-accent,#059669)] hover:bg-[var(--color-accent,#059669)] hover:text-white'
+                                            : 'border border-[var(--color-accent,#10b981)] hover:bg-[var(--color-accent,#10b981)] hover:text-black'
+                                          : isHud
+                                          ? isLight
+                                            ? 'border border-[var(--color-accent,#0891b2)] hover:bg-[var(--color-accent,#0891b2)] hover:text-white'
+                                            : 'border border-[var(--color-accent,#06b6d4)] hover:bg-[var(--color-accent,#06b6d4)] hover:text-black'
+                                          : isBrutalist
+                                          ? 'border-2 border-black bg-white hover:bg-yellow-300 shadow-[1px_1px_0px_#000]'
+                                          : isLight
+                                          ? 'border border-slate-300 hover:border-blue-500 hover:bg-blue-50 text-slate-800'
+                                          : 'border border-white/20 hover:border-blue-400 hover:bg-blue-600/20 text-white'
+                                      }`}
+                                    >
+                                      {sz === 'compact' ? 'S' : sz === 'normal' ? 'M' : 'L'}
+                                    </button>
+                                  ))}
+                                </div>
                               </div>
 
                               {/* Presets */}
-                              <div className="flex items-center space-x-2 pt-1 border-t border-current/10">
+                              <div className="flex items-center space-x-2 pt-2 border-t border-current/10">
                                 <span className={`text-[11px] opacity-75 ${typo.subtitle}`}>Quick Presets:</span>
                                 <button
                                   type="button"
@@ -1843,13 +1838,14 @@ export const SettingsModal: React.FC = () => {
                                   Available F1 Widgets ({f1ActiveWidgets.length} of {F1_AVAILABLE_WIDGETS.length} Selected)
                                 </h4>
                                 <span className={`text-[11px] opacity-70 ${isEink ? 'font-serif italic' : 'font-mono'}`}>
-                                  Toggle on/off to customize priority
+                                  Select widgets and toggle size (S / M / L)
                                 </span>
                               </div>
 
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
                                 {F1_AVAILABLE_WIDGETS.map((w) => {
                                   const isActive = f1ActiveWidgets.includes(w.id);
+                                  const currentSize = f1WidgetSizes[w.id] || 'normal';
                                   return (
                                     <div
                                       key={w.id}
@@ -1889,7 +1885,7 @@ export const SettingsModal: React.FC = () => {
                                       }`}
                                     >
                                       <div>
-                                        <div className="flex items-center justify-between mb-1">
+                                        <div className="flex items-center justify-between mb-1.5">
                                           <div className="flex items-center space-x-2">
                                             <div
                                               className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-colors ${
@@ -1910,13 +1906,34 @@ export const SettingsModal: React.FC = () => {
                                             </div>
                                             <span className={`text-xs font-semibold ${typo.cardTitle}`}>{w.name}</span>
                                           </div>
-                                          <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-mono font-bold ${
-                                            isActive
-                                              ? 'bg-blue-500/20 text-blue-500'
-                                              : 'bg-current/10 opacity-70'
-                                          }`}>
-                                            {w.badge}
-                                          </span>
+
+                                          {/* Manual Size Adjuster Pill */}
+                                          <div
+                                            className="flex items-center space-x-1"
+                                            onClick={(e) => e.stopPropagation()}
+                                          >
+                                            {(['compact', 'normal', 'expanded'] as F1WidgetSize[]).map((sz) => {
+                                              const isSzActive = currentSize === sz;
+                                              return (
+                                                <button
+                                                  key={sz}
+                                                  type="button"
+                                                  title={`Set to ${sz}`}
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setF1WidgetSize(w.id, sz);
+                                                  }}
+                                                  className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold transition-all cursor-pointer ${
+                                                    isSzActive
+                                                      ? 'bg-blue-600 text-white shadow-xs'
+                                                      : 'bg-current/10 opacity-60 hover:opacity-100'
+                                                  }`}
+                                                >
+                                                  {sz === 'compact' ? 'S' : sz === 'normal' ? 'M' : 'L'}
+                                                </button>
+                                              );
+                                            })}
+                                          </div>
                                         </div>
                                         <p className={`text-[11px] leading-relaxed opacity-75 pl-6 ${typo.subtitle}`}>
                                           {w.description}
@@ -1937,7 +1954,13 @@ export const SettingsModal: React.FC = () => {
                             <div
                               className={`p-4 border space-y-3 ${radiusMd} ${
                                 isTui
-                                  ? 'border-[var(--color-accent,#10b981)]/40 bg-black/60'
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#059669)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#10b981)]/40 bg-black/60'
+                                  : isHud
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#0891b2)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#06b6d4)]/40 bg-black/60'
                                   : isBrutalist
                                   ? isLight
                                     ? 'border-2 border-black bg-white shadow-[2px_2px_0px_#000]'
@@ -1968,7 +1991,13 @@ export const SettingsModal: React.FC = () => {
                                   className={`p-3.5 border text-left transition-all flex items-start space-x-3 cursor-pointer ${radiusLg} ${
                                     settingsLayout === 'drawer'
                                       ? isTui
-                                        ? 'border-2 border-[var(--color-accent,#10b981)] bg-[var(--color-accent,#10b981)]/20 shadow-[0_0_15px_var(--color-glow,rgba(16,185,129,0.3))]'
+                                        ? isLight
+                                          ? 'border-2 border-[var(--color-accent,#059669)] bg-emerald-50 text-slate-900 shadow-sm'
+                                          : 'border-2 border-[var(--color-accent,#10b981)] bg-[var(--color-accent,#10b981)]/20 shadow-[0_0_15px_var(--color-glow,rgba(16,185,129,0.3))]'
+                                        : isHud
+                                        ? isLight
+                                          ? 'border-2 border-[var(--color-accent,#0891b2)] bg-cyan-50 text-slate-900 shadow-sm'
+                                          : 'border-2 border-[var(--color-accent,#06b6d4)] bg-[var(--color-accent,#06b6d4)]/20 shadow-[0_0_15px_var(--color-glow,rgba(6,182,212,0.3))]'
                                         : isBrutalist
                                         ? isLight
                                           ? 'border-2 border-black bg-amber-300 text-black shadow-[3px_3px_0px_#000]'
@@ -1977,7 +2006,13 @@ export const SettingsModal: React.FC = () => {
                                         ? 'bg-blue-50 border-blue-500 shadow-xs ring-1 ring-blue-400/50 text-slate-900'
                                         : 'bg-blue-600/15 border-blue-500 shadow-lg ring-1 ring-blue-500/50 text-white'
                                       : isTui
-                                      ? 'border border-[var(--color-accent,#10b981)]/30 bg-black/60'
+                                      ? isLight
+                                        ? 'border border-[var(--color-accent,#059669)]/30 bg-white text-slate-700 hover:border-[var(--color-accent,#059669)]'
+                                        : 'border border-[var(--color-accent,#10b981)]/30 bg-black/60'
+                                      : isHud
+                                      ? isLight
+                                        ? 'border border-[var(--color-accent,#0891b2)]/30 bg-white text-slate-700 hover:border-[var(--color-accent,#0891b2)]'
+                                        : 'border border-[var(--color-accent,#06b6d4)]/30 bg-black/60'
                                       : isBrutalist
                                       ? isLight
                                         ? 'border-2 border-black bg-white shadow-[2px_2px_0px_#000]'
@@ -2004,7 +2039,13 @@ export const SettingsModal: React.FC = () => {
                                   className={`p-3.5 border text-left transition-all flex items-start space-x-3 cursor-pointer ${radiusLg} ${
                                     settingsLayout === 'modal'
                                       ? isTui
-                                        ? 'border-2 border-[var(--color-accent,#10b981)] bg-[var(--color-accent,#10b981)]/20 shadow-[0_0_15px_var(--color-glow,rgba(16,185,129,0.3))]'
+                                        ? isLight
+                                          ? 'border-2 border-[var(--color-accent,#059669)] bg-emerald-50 text-slate-900 shadow-sm'
+                                          : 'border-2 border-[var(--color-accent,#10b981)] bg-[var(--color-accent,#10b981)]/20 shadow-[0_0_15px_var(--color-glow,rgba(16,185,129,0.3))]'
+                                        : isHud
+                                        ? isLight
+                                          ? 'border-2 border-[var(--color-accent,#0891b2)] bg-cyan-50 text-slate-900 shadow-sm'
+                                          : 'border-2 border-[var(--color-accent,#06b6d4)] bg-[var(--color-accent,#06b6d4)]/20 shadow-[0_0_15px_var(--color-glow,rgba(6,182,212,0.3))]'
                                         : isBrutalist
                                         ? isLight
                                           ? 'border-2 border-black bg-amber-300 text-black shadow-[3px_3px_0px_#000]'
@@ -2013,7 +2054,13 @@ export const SettingsModal: React.FC = () => {
                                         ? 'bg-blue-50 border-blue-500 shadow-xs ring-1 ring-blue-400/50 text-slate-900'
                                         : 'bg-blue-600/15 border-blue-500 shadow-lg ring-1 ring-blue-500/50 text-white'
                                       : isTui
-                                      ? 'border border-[var(--color-accent,#10b981)]/30 bg-black/60'
+                                      ? isLight
+                                        ? 'border border-[var(--color-accent,#059669)]/30 bg-white text-slate-700 hover:border-[var(--color-accent,#059669)]'
+                                        : 'border border-[var(--color-accent,#10b981)]/30 bg-black/60'
+                                      : isHud
+                                      ? isLight
+                                        ? 'border border-[var(--color-accent,#0891b2)]/30 bg-white text-slate-700 hover:border-[var(--color-accent,#0891b2)]'
+                                        : 'border border-[var(--color-accent,#06b6d4)]/30 bg-black/60'
                                       : isBrutalist
                                       ? isLight
                                         ? 'border-2 border-black bg-white shadow-[2px_2px_0px_#000]'
@@ -2039,7 +2086,13 @@ export const SettingsModal: React.FC = () => {
                             <div
                               className={`p-4 border ${radiusMd} ${
                                 isTui
-                                  ? 'border-[var(--color-accent,#10b981)]/40 bg-black/60'
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#059669)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#10b981)]/40 bg-black/60'
+                                  : isHud
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#0891b2)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#06b6d4)]/40 bg-black/60'
                                   : isBrutalist
                                   ? isLight
                                     ? 'border-2 border-black bg-white shadow-[2px_2px_0px_#000]'
@@ -2061,7 +2114,13 @@ export const SettingsModal: React.FC = () => {
                             <div
                               className={`p-4 border ${radiusMd} ${
                                 isTui
-                                  ? 'border-[var(--color-accent,#10b981)]/40 bg-black/60'
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#059669)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#10b981)]/40 bg-black/60'
+                                  : isHud
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#0891b2)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#06b6d4)]/40 bg-black/60'
                                   : isBrutalist
                                   ? isLight
                                     ? 'border-2 border-black bg-white shadow-[2px_2px_0px_#000]'
@@ -2079,7 +2138,13 @@ export const SettingsModal: React.FC = () => {
                                   isEink
                                     ? 'font-serif bg-[#f5f2eb] border-stone-800 text-stone-900'
                                     : isTui
-                                    ? 'font-mono bg-black border-[var(--color-accent,#10b981)]/60 text-[var(--color-accent,#10b981)]'
+                                    ? isLight
+                                      ? 'font-mono bg-emerald-50/60 border-[var(--color-accent,#059669)]/50 text-slate-900'
+                                      : 'font-mono bg-black border-[var(--color-accent,#10b981)]/60 text-[var(--color-accent,#10b981)]'
+                                    : isHud
+                                    ? isLight
+                                      ? 'font-mono bg-cyan-50/60 border-[var(--color-accent,#0891b2)]/50 text-slate-900'
+                                      : 'font-mono bg-black/80 border-[var(--color-accent,#06b6d4)]/50 text-[#e0f2fe]'
                                     : isBrutalist
                                     ? 'font-mono bg-neutral-100 border-2 border-black text-black font-bold'
                                     : isLight

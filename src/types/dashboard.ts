@@ -166,6 +166,8 @@ export interface F1CircuitTelemetry {
   tyreAllocation: string;
 }
 
+export type F1WidgetSize = 'compact' | 'normal' | 'expanded';
+
 export type F1WidgetId =
   | 'countdown'
   | 'podium'

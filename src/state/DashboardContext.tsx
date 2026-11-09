@@ -6,6 +6,7 @@ import type {
   DashboardMode,
   F1Data,
   F1WidgetId,
+  F1WidgetSize,
   FinanceItem,
   MediaPlayerData,
   PhotoItem,
@@ -97,6 +98,26 @@ const UI_STYLE_ORDER: UIStyle[] = ['modern', 'tui', 'brutalist', 'minimal', 'hud
 
 export type SettingsLayout = 'drawer' | 'modal';
 
+export const DEFAULT_F1_WIDGETS: F1WidgetId[] = [
+  'countdown',
+  'podium',
+  'titleBattle',
+  'pitstop',
+  'qualifying',
+  'trackWeather',
+];
+
+export const DEFAULT_F1_WIDGET_SIZES: Record<F1WidgetId, F1WidgetSize> = {
+  countdown: 'normal',
+  podium: 'normal',
+  titleBattle: 'normal',
+  qualifying: 'normal',
+  pitstop: 'normal',
+  upcomingRaces: 'normal',
+  circuitTelemetry: 'normal',
+  trackWeather: 'normal',
+};
+
 interface DashboardContextType {
   uiStyle: UIStyle;
   setUiStyle: (style: UIStyle) => void;
@@ -140,8 +161,9 @@ interface DashboardContextType {
   f1ActiveWidgets: F1WidgetId[];
   setF1ActiveWidgets: (widgets: F1WidgetId[]) => void;
   toggleF1Widget: (id: F1WidgetId) => void;
-  f1AutoFit: boolean;
-  setF1AutoFit: (val: boolean) => void;
+  f1WidgetSizes: Record<F1WidgetId, F1WidgetSize>;
+  setF1WidgetSize: (id: F1WidgetId, size: F1WidgetSize) => void;
+  setAllF1WidgetSizes: (size: F1WidgetSize) => void;
 }
 
 const DashboardContext = createContext<DashboardContextType | null>(null);
@@ -254,15 +276,6 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [isKioskBarVisible, setIsKioskBarVisible] = useState<boolean>(true);
 
   // F1 Custom Widgets state
-  const DEFAULT_F1_WIDGETS: F1WidgetId[] = [
-    'countdown',
-    'podium',
-    'titleBattle',
-    'pitstop',
-    'qualifying',
-    'trackWeather',
-  ];
-
   const [f1ActiveWidgets, setF1ActiveWidgetsState] = useState<F1WidgetId[]>(() => {
     try {
       const saved = localStorage.getItem('dashboard_f1_active_widgets');
@@ -288,18 +301,43 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setF1ActiveWidgets(next);
   };
 
-  const [f1AutoFit, setF1AutoFitState] = useState<boolean>(() => {
+  const [f1WidgetSizes, setF1WidgetSizesState] = useState<Record<F1WidgetId, F1WidgetSize>>(() => {
     try {
-      const saved = localStorage.getItem('dashboard_f1_autofit');
-      if (saved !== null) return saved === 'true';
+      const saved = localStorage.getItem('dashboard_f1_widget_sizes');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (typeof parsed === 'object' && parsed !== null) {
+          return { ...DEFAULT_F1_WIDGET_SIZES, ...parsed };
+        }
+      }
     } catch (e) {}
-    return true; // Default to auto-fitting based on available height
+    return DEFAULT_F1_WIDGET_SIZES;
   });
 
-  const setF1AutoFit = (val: boolean) => {
-    setF1AutoFitState(val);
+  const setF1WidgetSize = (id: F1WidgetId, size: F1WidgetSize) => {
+    setF1WidgetSizesState(prev => {
+      const next = { ...prev, [id]: size };
+      try {
+        localStorage.setItem('dashboard_f1_widget_sizes', JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
+  };
+
+  const setAllF1WidgetSizes = (size: F1WidgetSize) => {
+    const next: Record<F1WidgetId, F1WidgetSize> = {
+      countdown: size,
+      podium: size,
+      titleBattle: size,
+      qualifying: size,
+      pitstop: size,
+      upcomingRaces: size,
+      circuitTelemetry: size,
+      trackWeather: size,
+    };
+    setF1WidgetSizesState(next);
     try {
-      localStorage.setItem('dashboard_f1_autofit', String(val));
+      localStorage.setItem('dashboard_f1_widget_sizes', JSON.stringify(next));
     } catch (e) {}
   };
 
@@ -638,8 +676,9 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         f1ActiveWidgets,
         setF1ActiveWidgets,
         toggleF1Widget,
-        f1AutoFit,
-        setF1AutoFit,
+        f1WidgetSizes,
+        setF1WidgetSize,
+        setAllF1WidgetSizes,
       }}
     >
       {children}
