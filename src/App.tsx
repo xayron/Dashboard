@@ -65,6 +65,22 @@ import { NeumorphicRaceWeekendMode } from './components/neumorphic/NeumorphicRac
 import { NeumorphicAmbientMode } from './components/neumorphic/NeumorphicAmbientMode';
 import { NeumorphicFinanceTicker } from './components/neumorphic/NeumorphicFinanceTicker';
 
+// 9. Obsidian Intelligence Components
+import { ObsidianHeader } from './components/obsidian/ObsidianHeader';
+import { ObsidianMorningMode } from './components/obsidian/ObsidianMorningMode';
+import { ObsidianEveningMode } from './components/obsidian/ObsidianEveningMode';
+import { ObsidianRaceWeekendMode } from './components/obsidian/ObsidianRaceWeekendMode';
+import { ObsidianAmbientMode } from './components/obsidian/ObsidianAmbientMode';
+import { ObsidianFinanceTicker } from './components/obsidian/ObsidianFinanceTicker';
+
+// 10. Andhbhakt Civic Transparency Components
+import { CivicHeader } from './components/civic/CivicHeader';
+import { CivicMorningMode } from './components/civic/CivicMorningMode';
+import { CivicEveningMode } from './components/civic/CivicEveningMode';
+import { CivicRaceWeekendMode } from './components/civic/CivicRaceWeekendMode';
+import { CivicAmbientMode } from './components/civic/CivicAmbientMode';
+import { CivicFinanceTicker } from './components/civic/CivicFinanceTicker';
+
 // Global Kiosk Controls & Settings
 import { KioskControls } from './components/kiosk/KioskControls';
 import { SettingsModal } from './components/settings/SettingsModal';
@@ -165,6 +181,32 @@ const DashboardContent: React.FC = () => {
             return <NeumorphicAmbientMode />;
         }
 
+      case 'obsidian':
+        switch (activeMode) {
+          case 'race':
+            return <ObsidianRaceWeekendMode />;
+          case 'evening':
+            return <ObsidianEveningMode />;
+          case 'morning':
+            return <ObsidianMorningMode />;
+          case 'ambient':
+          default:
+            return <ObsidianAmbientMode />;
+        }
+
+      case 'civic':
+        switch (activeMode) {
+          case 'race':
+            return <CivicRaceWeekendMode />;
+          case 'evening':
+            return <CivicEveningMode />;
+          case 'morning':
+            return <CivicMorningMode />;
+          case 'ambient':
+          default:
+            return <CivicAmbientMode />;
+        }
+
       case 'modern':
       default:
         switch (activeMode) {
@@ -197,6 +239,10 @@ const DashboardContent: React.FC = () => {
         return <RetrowaveHeader />;
       case 'neumorphic':
         return <NeumorphicHeader />;
+      case 'obsidian':
+        return <ObsidianHeader />;
+      case 'civic':
+        return <CivicHeader />;
       case 'modern':
       default:
         return <StatusHeader />;
@@ -221,6 +267,10 @@ const DashboardContent: React.FC = () => {
         return <RetrowaveFinanceTicker />;
       case 'neumorphic':
         return <NeumorphicFinanceTicker />;
+      case 'obsidian':
+        return <ObsidianFinanceTicker />;
+      case 'civic':
+        return <CivicFinanceTicker />;
       case 'modern':
       default:
         return <FinanceTicker mode="ticker" />;
@@ -244,6 +294,10 @@ const DashboardContent: React.FC = () => {
         return { backgroundColor: '#150424' };
       case 'neumorphic':
         return { backgroundColor: '#1a1d24' };
+      case 'obsidian':
+        return { backgroundColor: '#08080a' };
+      case 'civic':
+        return { backgroundColor: '#070b14' };
       case 'modern':
       default:
         return { backgroundColor: 'var(--color-bg-base, #030712)' };

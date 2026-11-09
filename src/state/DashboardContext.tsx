@@ -77,9 +77,21 @@ export const UI_STYLES: UIStyleInfo[] = [
     tagline: 'Embossed Tactile Titanium',
     description: 'Soft sculpted matte surfaces with dual inner/outer shadows and physical buttons.',
   },
+  {
+    id: 'obsidian',
+    name: 'Obsidian Ops',
+    tagline: 'Governed Evidence Terminal',
+    description: 'Cold air-gapped obsidian facets (#08080a) with lit borders, signed proof receipts, and operator telemetry.',
+  },
+  {
+    id: 'civic',
+    name: 'Civic Data Scorecard',
+    tagline: 'Public Transparency Audit',
+    description: 'High-contrast investigative governance tables, verification audit badges, and public ledger metrics.',
+  },
 ];
 
-const UI_STYLE_ORDER: UIStyle[] = ['modern', 'tui', 'brutalist', 'minimal', 'hud', 'eink', 'retrowave', 'neumorphic'];
+const UI_STYLE_ORDER: UIStyle[] = ['modern', 'tui', 'brutalist', 'minimal', 'hud', 'eink', 'retrowave', 'neumorphic', 'obsidian', 'civic'];
 
 interface DashboardContextType {
   uiStyle: UIStyle;
