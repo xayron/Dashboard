@@ -43,14 +43,27 @@ export const BrutalistRaceWeekendMode: React.FC = () => {
           </div>
         </div>
 
-        <div className={`bg-black text-yellow-400 px-4 py-2 border-2 border-white text-right ${
-          isLight ? 'shadow-[3px_3px_0px_#000]' : 'shadow-[3px_3px_0px_#000]'
-        }`}>
-          <span className="text-[10px] font-black uppercase tracking-wider block text-white">LIVE TIME • IST</span>
-          <span className="text-base font-black text-yellow-300 font-mono tracking-wider">
-            {now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
-          </span>
-          <span className="text-[10px] font-mono font-bold block text-red-400 uppercase">UTC+5:30 TRACKSIDE</span>
+        <div className="flex items-center space-x-3">
+          {/* Track Weather Beside Clock */}
+          <div className={`px-3 py-1.5 border-2 border-white text-left ${
+            isLight ? 'bg-yellow-400 text-black shadow-[3px_3px_0px_#000]' : 'bg-yellow-400 text-black shadow-[3px_3px_0px_#fff]'
+          }`}>
+            <span className="text-[9px] font-black uppercase tracking-wider block">CIRCUIT WEATHER</span>
+            <div className="font-mono font-black text-sm flex items-center space-x-1.5">
+              <span>{weather.temperature}°C {weather.condition.toUpperCase()}</span>
+            </div>
+            <span className="text-[9px] font-mono font-bold block">WIND {weather.windSpeed} KM/H</span>
+          </div>
+
+          <div className={`bg-black text-yellow-400 px-4 py-2 border-2 border-white text-right ${
+            isLight ? 'shadow-[3px_3px_0px_#000]' : 'shadow-[3px_3px_0px_#000]'
+          }`}>
+            <span className="text-[10px] font-black uppercase tracking-wider block text-white">LIVE TIME • IST</span>
+            <span className="text-base font-black text-yellow-300 font-mono tracking-wider">
+              {now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+            </span>
+            <span className="text-[10px] font-mono font-bold block text-red-400 uppercase">UTC+5:30 TRACKSIDE</span>
+          </div>
         </div>
       </div>
 

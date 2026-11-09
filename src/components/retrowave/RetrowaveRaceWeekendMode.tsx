@@ -68,14 +68,27 @@ export const RetrowaveRaceWeekendMode: React.FC = () => {
           </div>
         </div>
 
-        <div className={`text-right px-4 py-2 rounded-xl border ${
-          isLight ? 'bg-white/80 border-pink-300' : 'bg-pink-950/70 border-pink-500/50'
-        }`}>
-          <span className={`text-[10px] uppercase font-bold block ${isLight ? 'text-pink-800' : 'text-amber-300'}`}>GRID TIME // IST</span>
-          <span className="text-sm font-black font-mono tracking-wider" style={{ color: 'var(--color-accent)' }}>
-            {now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
-          </span>
-          <span className="text-xs font-black font-mono text-rose-500 block">UTC+5:30 // TRACKSIDE</span>
+        <div className="flex items-center space-x-3">
+          {/* Circuit Weather Beside Clock */}
+          <div className={`text-right px-3.5 py-1.5 rounded-xl border font-mono ${
+            isLight ? 'bg-white/80 border-pink-300' : 'bg-pink-950/70 border-pink-500/50'
+          }`}>
+            <span className={`text-[9px] uppercase font-bold block ${isLight ? 'text-pink-800' : 'text-amber-300'}`}>CIRCUIT METEO</span>
+            <span className="text-sm font-black block leading-none" style={{ color: 'var(--color-accent)' }}>
+              {weather.temperature}°C {weather.condition}
+            </span>
+            <span className="text-[9px] font-bold text-rose-500 block mt-0.5">WIND {weather.windSpeed} KM/H // HUM {weather.humidity}%</span>
+          </div>
+
+          <div className={`text-right px-4 py-2 rounded-xl border ${
+            isLight ? 'bg-white/80 border-pink-300' : 'bg-pink-950/70 border-pink-500/50'
+          }`}>
+            <span className={`text-[10px] uppercase font-bold block ${isLight ? 'text-pink-800' : 'text-amber-300'}`}>GRID TIME // IST</span>
+            <span className="text-sm font-black font-mono tracking-wider" style={{ color: 'var(--color-accent)' }}>
+              {now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+            </span>
+            <span className="text-xs font-black font-mono text-rose-500 block">UTC+5:30 // TRACKSIDE</span>
+          </div>
         </div>
       </div>
 

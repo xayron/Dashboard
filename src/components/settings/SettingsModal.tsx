@@ -310,7 +310,7 @@ export const SettingsModal: React.FC = () => {
       subtitle: 'Select active telemetry modules & customize widget sizes (Compact, Normal, Expanded)',
       icon: <Flag size={18} className={isLight ? 'text-red-600' : 'text-red-400'} />,
       badge: `${f1ActiveWidgets.length} Active • Manual Sizing`,
-      keywords: 'f1 formula 1 race weekend countdown podium title battle championship qualifying shootout pitstop pit stop dhl telemetry circuit track weather grand prix standings size compact normal expanded',
+      keywords: 'f1 formula 1 race weekend countdown podium title battle championship qualifying shootout pitstop pit stop dhl telemetry circuit grand prix standings size compact normal small medium',
     },
     {
       id: 'display',
@@ -1760,12 +1760,12 @@ export const SettingsModal: React.FC = () => {
                                     Manual Widget Size &amp; Density
                                   </h4>
                                   <p className={typo.subtitle}>
-                                    Set global widget scale or customize individual widget sizes (Compact, Normal, Expanded) to fit your screen.
+                                    Set global widget scale or customize individual widget sizes (Small [S], Medium [M]) to fit your screen.
                                   </p>
                                 </div>
                                 <div className="flex items-center space-x-1 shrink-0">
                                   <span className={`text-[10px] mr-1.5 opacity-70 font-mono ${typo.subtitle}`}>Set All:</span>
-                                  {(['compact', 'normal', 'expanded'] as F1WidgetSize[]).map((sz) => (
+                                  {(['compact', 'normal'] as F1WidgetSize[]).map((sz) => (
                                     <button
                                       key={sz}
                                       type="button"
@@ -1786,7 +1786,7 @@ export const SettingsModal: React.FC = () => {
                                           : 'border border-white/20 hover:border-blue-400 hover:bg-blue-600/20 text-white'
                                       }`}
                                     >
-                                      {sz === 'compact' ? 'S' : sz === 'normal' ? 'M' : 'L'}
+                                      {sz === 'compact' ? 'S' : 'M'}
                                     </button>
                                   ))}
                                 </div>
@@ -1797,25 +1797,25 @@ export const SettingsModal: React.FC = () => {
                                 <span className={`text-[11px] opacity-75 ${typo.subtitle}`}>Quick Presets:</span>
                                 <button
                                   type="button"
-                                  onClick={() => setF1ActiveWidgets(['countdown', 'podium', 'trackWeather'])}
+                                  onClick={() => setF1ActiveWidgets(['countdown', 'podium'])}
                                   className={`px-2 py-0.5 text-[11px] border cursor-pointer ${radiusSm} ${
-                                    f1ActiveWidgets.length === 3 && f1ActiveWidgets.includes('countdown')
+                                    f1ActiveWidgets.length === 2 && f1ActiveWidgets.includes('countdown')
                                       ? 'border-blue-500 font-bold bg-blue-500/10'
                                       : 'opacity-70 hover:opacity-100 border-current/20'
                                   }`}
                                 >
-                                  Compact (3)
+                                  Compact (2)
                                 </button>
                                 <button
                                   type="button"
-                                  onClick={() => setF1ActiveWidgets(['countdown', 'podium', 'titleBattle', 'pitstop', 'qualifying', 'trackWeather'])}
+                                  onClick={() => setF1ActiveWidgets(['countdown', 'podium', 'titleBattle', 'pitstop', 'qualifying'])}
                                   className={`px-2 py-0.5 text-[11px] border cursor-pointer ${radiusSm} ${
-                                    f1ActiveWidgets.length === 6 && f1ActiveWidgets.includes('titleBattle')
+                                    f1ActiveWidgets.length === 5 && f1ActiveWidgets.includes('titleBattle')
                                       ? 'border-blue-500 font-bold bg-blue-500/10'
                                       : 'opacity-70 hover:opacity-100 border-current/20'
                                   }`}
                                 >
-                                  Default (6)
+                                  Default (5)
                                 </button>
                                 <button
                                   type="button"
@@ -1838,7 +1838,7 @@ export const SettingsModal: React.FC = () => {
                                   Available F1 Widgets ({f1ActiveWidgets.length} of {F1_AVAILABLE_WIDGETS.length} Selected)
                                 </h4>
                                 <span className={`text-[11px] opacity-70 ${isEink ? 'font-serif italic' : 'font-mono'}`}>
-                                  Select widgets and toggle size (S / M / L)
+                                  Select widgets and toggle size (S / M)
                                 </span>
                               </div>
 
@@ -1912,7 +1912,7 @@ export const SettingsModal: React.FC = () => {
                                             className="flex items-center space-x-1"
                                             onClick={(e) => e.stopPropagation()}
                                           >
-                                            {(['compact', 'normal', 'expanded'] as F1WidgetSize[]).map((sz) => {
+                                            {(['compact', 'normal'] as F1WidgetSize[]).map((sz) => {
                                               const isSzActive = currentSize === sz;
                                               return (
                                                 <button
@@ -1929,7 +1929,7 @@ export const SettingsModal: React.FC = () => {
                                                       : 'bg-current/10 opacity-60 hover:opacity-100'
                                                   }`}
                                                 >
-                                                  {sz === 'compact' ? 'S' : sz === 'normal' ? 'M' : 'L'}
+                                                  {sz === 'compact' ? 'S' : 'M'}
                                                 </button>
                                               );
                                             })}

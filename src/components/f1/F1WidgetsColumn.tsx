@@ -80,13 +80,6 @@ export const F1_AVAILABLE_WIDGETS: F1WidgetDef[] = [
     description: 'Full throttle %, gear changes per lap, speed traps, and pit delta.',
     icon: Gauge,
   },
-  {
-    id: 'trackWeather',
-    name: 'Circuit Track Conditions',
-    badge: 'METEO',
-    description: 'Track and air weather conditions, humidity, and wind speed.',
-    icon: CloudSun,
-  },
 ];
 
 interface F1WidgetsColumnProps {
@@ -126,7 +119,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
   // Style Tokens per visual theme
   const getCardClass = (size: F1WidgetSize = 'normal') => {
-    const pad = size === 'compact' ? 'p-2.5' : size === 'expanded' ? 'p-4 md:p-5' : 'p-3.5';
+    const pad = size === 'compact' ? 'p-2.5' : 'p-3.5';
 
     if (uiStyle === 'minimal') {
       return `${pad} ${
@@ -209,7 +202,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
     const currentSize = f1WidgetSizes[widgetId] || 'normal';
     return (
       <div className="flex items-center space-x-1 opacity-60 hover:opacity-100 transition-opacity">
-        {(['compact', 'normal', 'expanded'] as F1WidgetSize[]).map((sz) => (
+        {(['compact', 'normal'] as F1WidgetSize[]).map((sz) => (
           <button
             key={sz}
             type="button"
@@ -224,7 +217,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                 : 'bg-black/10 hover:bg-black/20 text-current'
             }`}
           >
-            {sz === 'compact' ? 'S' : sz === 'normal' ? 'M' : 'L'}
+            {sz === 'compact' ? 'S' : 'M'}
           </button>
         ))}
       </div>
@@ -234,7 +227,6 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
   // 1. COUNTDOWN WIDGET
   const renderCountdownWidget = (size: F1WidgetSize) => {
     const isCompact = size === 'compact';
-    const isExpanded = size === 'expanded';
 
     if (uiStyle === 'tui') {
       return (
@@ -263,7 +255,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
             </div>
 
             {!isCompact && (
-              <div className={`grid grid-cols-4 gap-1 text-[10px] ${isExpanded ? 'pt-2.5 text-xs' : 'pt-1.5'}`}>
+              <div className="grid grid-cols-4 gap-1 text-[10px] pt-1.5">
                 <div className={`p-1 border text-center ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-white/5 border-white/10'}`}>
                   <div className="text-[8px] opacity-70">LAPS</div>
                   <div className="font-bold">50 LAPS</div>
@@ -319,7 +311,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
             </div>
 
             {!isCompact && (
-              <div className={`grid grid-cols-4 gap-1.5 text-xs ${isExpanded ? 'pt-2.5' : 'pt-1.5'}`}>
+              <div className="grid grid-cols-4 gap-1.5 text-xs pt-1.5">
                 <div className={`p-1 border-2 border-black text-center ${isLight ? 'bg-neutral-100 shadow-[1px_1px_0px_#000]' : 'bg-neutral-900 shadow-[1px_1px_0px_#fff]'}`}>
                   <span className="block text-[8px] font-black uppercase opacity-75">Laps</span>
                   <span className="font-mono font-black text-xs">50</span>
@@ -409,7 +401,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
         <div className="flex items-center justify-between py-2">
           <div>
-            <h2 className={`${isCompact ? 'text-base font-bold' : isExpanded ? 'text-xl font-extrabold' : 'text-lg font-bold'}`}>
+            <h2 className={`${isCompact ? 'text-base font-bold' : 'text-lg font-bold'}`}>
               {f1.nextSession.name}
             </h2>
             <p className="text-xs font-mono mt-0.5 flex items-center opacity-75">
@@ -943,55 +935,6 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
     );
   };
 
-  // 8. TRACK WEATHER WIDGET
-  const renderTrackWeatherWidget = (size: F1WidgetSize) => {
-    const isCompact = size === 'compact';
-
-    if (uiStyle === 'tui') {
-      return (
-        <TuiBox key="trackWeather" title="CIRCUIT_WEATHER" badge={`${weather.temperature}°C`} badgeColor="text-cyan-400">
-          <div className="flex items-center justify-between text-xs py-0.5">
-            <span className="font-bold">{weather.condition.toUpperCase()}</span>
-            <span className="text-gray-400 font-mono">WIND: {weather.windSpeed} KM/H • HUM: {weather.humidity}%</span>
-          </div>
-        </TuiBox>
-      );
-    }
-
-    if (uiStyle === 'brutalist') {
-      return (
-        <BrutalistBox key="trackWeather" title="TRACK CONDITIONS" badge="LOCAL METEO" badgeColor="bg-cyan-400 text-black">
-          <div className="flex items-center justify-between py-0.5 text-xs">
-            <div className="flex items-center space-x-2">
-              <CloudSun size={18} className="text-amber-500" />
-              <div className="font-mono font-black">{weather.temperature}°C {weather.condition}</div>
-            </div>
-            <div className="text-right font-mono font-bold text-[10px]">
-              <div>HUM: {weather.humidity}% • WIND: {weather.windSpeed} KM/H</div>
-            </div>
-          </div>
-        </BrutalistBox>
-      );
-    }
-
-    if (uiStyle === 'hud') {
-      return (
-        <HudBox key="trackWeather" title="TRACK_CONDITIONS" code="CIRCUIT_METEO" glowColor="cyan">
-          <div className="flex items-center justify-between py-0.5 text-xs font-mono">
-            <span className="font-bold text-cyan-300">{weather.temperature}°C // {weather.condition.toUpperCase()}</span>
-            <span className="text-[10px] text-gray-400">WIND: {weather.windSpeed} KM/H // HUM: {weather.humidity}%</span>
-          </div>
-        </HudBox>
-      );
-    }
-
-    return (
-      <div key="trackWeather" className={`${isCompact ? 'h-20' : 'h-28'}`}>
-        <WeatherWidget layout="compact" className="h-full" />
-      </div>
-    );
-  };
-
   const renderWidgetInTheme = (id: F1WidgetId) => {
     const size = f1WidgetSizes[id] || 'normal';
     switch (id) {
@@ -1009,8 +952,6 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
         return renderUpcomingRacesWidget(size);
       case 'circuitTelemetry':
         return renderCircuitTelemetryWidget(size);
-      case 'trackWeather':
-        return renderTrackWeatherWidget(size);
       default:
         return null;
     }
@@ -1029,7 +970,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
         <div className="flex items-center space-x-1.5">
           {/* Quick Global Size Presets */}
           <div className="flex items-center space-x-0.5 mr-1 bg-black/10 dark:bg-white/10 p-0.5 rounded-lg">
-            {(['compact', 'normal', 'expanded'] as F1WidgetSize[]).map((sz) => (
+            {(['compact', 'normal'] as F1WidgetSize[]).map((sz) => (
               <button
                 key={sz}
                 type="button"
@@ -1037,7 +978,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                 onClick={() => setAllF1WidgetSizes(sz)}
                 className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold hover:bg-black/15 dark:hover:bg-white/15 transition-colors cursor-pointer"
               >
-                {sz === 'compact' ? 'S' : sz === 'normal' ? 'M' : 'L'}
+                {sz === 'compact' ? 'S' : 'M'}
               </button>
             ))}
           </div>
@@ -1086,13 +1027,13 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                 <span className="text-[10px] text-gray-400">Scale all widgets simultaneously</span>
               </div>
               <div className="flex items-center space-x-1">
-                {(['compact', 'normal', 'expanded'] as F1WidgetSize[]).map((sz) => (
+                {(['compact', 'normal'] as F1WidgetSize[]).map((sz) => (
                   <button
                     key={sz}
                     onClick={() => setAllF1WidgetSizes(sz)}
                     className="px-2.5 py-1 text-[10px] font-mono font-bold rounded-lg border border-white/20 hover:bg-white/20 transition-all cursor-pointer"
                   >
-                    {sz === 'compact' ? 'S (Compact)' : sz === 'normal' ? 'M (Normal)' : 'L (Expanded)'}
+                    {sz === 'compact' ? 'S (Compact)' : 'M (Normal)'}
                   </button>
                 ))}
               </div>
@@ -1132,7 +1073,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                     <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
                       {/* Individual Widget Size Picker */}
                       <div className="flex items-center space-x-0.5 bg-black/40 p-0.5 rounded-lg border border-white/15">
-                        {(['compact', 'normal', 'expanded'] as F1WidgetSize[]).map((sz) => {
+                        {(['compact', 'normal'] as F1WidgetSize[]).map((sz) => {
                           const isSzActive = currentSize === sz;
                           return (
                             <button
@@ -1147,7 +1088,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                                 isSzActive ? 'bg-blue-600 text-white shadow-xs' : 'text-gray-400 hover:text-white'
                               }`}
                             >
-                              {sz === 'compact' ? 'S' : sz === 'normal' ? 'M' : 'L'}
+                              {sz === 'compact' ? 'S' : 'M'}
                             </button>
                           );
                         })}
@@ -1171,22 +1112,22 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           <div className="pt-2.5 border-t border-white/15 flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <button
-                onClick={() => setF1ActiveWidgets(['countdown', 'podium', 'trackWeather'])}
+                onClick={() => setF1ActiveWidgets(['countdown', 'podium'])}
                 className="px-2 py-1 rounded-lg text-[10px] border border-white/10 bg-white/5 hover:bg-white/10 text-gray-300 cursor-pointer"
               >
-                Compact (3)
+                Compact (2)
               </button>
               <button
-                onClick={() => setF1ActiveWidgets(['countdown', 'podium', 'titleBattle', 'pitstop', 'qualifying', 'trackWeather'])}
+                onClick={() => setF1ActiveWidgets(['countdown', 'podium', 'titleBattle', 'pitstop', 'qualifying'])}
                 className="px-2 py-1 rounded-lg text-[10px] border border-white/10 bg-white/5 hover:bg-white/10 text-gray-300 cursor-pointer"
               >
-                Default (6)
+                Default (5)
               </button>
               <button
                 onClick={() => setF1ActiveWidgets(F1_AVAILABLE_WIDGETS.map((w) => w.id))}
                 className="px-2 py-1 rounded-lg text-[10px] border border-white/10 bg-white/5 hover:bg-white/10 text-gray-300 cursor-pointer"
               >
-                All (8)
+                All (7)
               </button>
             </div>
             <button

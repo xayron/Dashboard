@@ -104,7 +104,6 @@ export const DEFAULT_F1_WIDGETS: F1WidgetId[] = [
   'titleBattle',
   'pitstop',
   'qualifying',
-  'trackWeather',
 ];
 
 export const DEFAULT_F1_WIDGET_SIZES: Record<F1WidgetId, F1WidgetSize> = {
@@ -115,7 +114,6 @@ export const DEFAULT_F1_WIDGET_SIZES: Record<F1WidgetId, F1WidgetSize> = {
   pitstop: 'normal',
   upcomingRaces: 'normal',
   circuitTelemetry: 'normal',
-  trackWeather: 'normal',
 };
 
 interface DashboardContextType {
@@ -333,7 +331,6 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       pitstop: size,
       upcomingRaces: size,
       circuitTelemetry: size,
-      trackWeather: size,
     };
     setF1WidgetSizesState(next);
     try {

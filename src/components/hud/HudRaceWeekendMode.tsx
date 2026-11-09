@@ -54,12 +54,23 @@ export const HudRaceWeekendMode: React.FC = () => {
           </div>
         </div>
 
-        <div className="text-right">
-          <span className={`text-[10px] block ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>SYSTEM_TIME // IST</span>
-          <span className="text-sm font-bold font-mono tracking-wider" style={{ color: 'var(--color-accent)' }}>
-            {now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
-          </span>
-          <span className={`text-[10px] block ${isLight ? 'text-slate-600' : 'text-cyan-300'}`}>UTC+5:30 // TELEMETRY</span>
+        <div className="flex items-center space-x-4">
+          {/* Circuit Weather Beside Clock */}
+          <div className={`px-3 py-1.5 border text-right font-mono ${
+            isLight ? 'bg-cyan-100/60 border-cyan-400 text-slate-800' : 'bg-black/60 border-cyan-500/40 text-cyan-300'
+          }`}>
+            <span className="text-[9px] block opacity-75">CIRCUIT_METEO</span>
+            <span className="text-sm font-bold block leading-none">{weather.temperature}°C // {weather.condition.toUpperCase()}</span>
+            <span className="text-[9px] block opacity-75 mt-0.5">WIND: {weather.windSpeed} KM/H // HUM: {weather.humidity}%</span>
+          </div>
+
+          <div className="text-right">
+            <span className={`text-[10px] block ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>SYSTEM_TIME // IST</span>
+            <span className="text-sm font-bold font-mono tracking-wider" style={{ color: 'var(--color-accent)' }}>
+              {now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+            </span>
+            <span className={`text-[10px] block ${isLight ? 'text-slate-600' : 'text-cyan-300'}`}>UTC+5:30 // TELEMETRY</span>
+          </div>
         </div>
       </div>
 

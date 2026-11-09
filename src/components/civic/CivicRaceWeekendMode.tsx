@@ -52,12 +52,25 @@ export const CivicRaceWeekendMode: React.FC = () => {
           <p className={`text-xs font-mono mt-0.5 ${mutedClass}`}>{f1.circuitName} — {f1.location}</p>
         </div>
 
-        <div className={`text-right border-l pl-6 font-mono ${isLight ? 'border-slate-200' : 'border-slate-700'}`}>
-          <span className={`text-[10px] uppercase block font-bold ${mutedClass}`}>Official Clock • IST</span>
-          <span className={`text-base font-black tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>
-            {now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
-          </span>
-          <span className="text-xs block font-black mt-0.5" style={{ color: 'var(--color-accent, #f97316)' }}>UTC+5:30 // TRACKSIDE</span>
+        <div className="flex items-center space-x-6">
+          {/* Circuit Weather Beside Clock */}
+          <div className={`text-right border-l pl-6 font-mono ${isLight ? 'border-slate-200' : 'border-slate-700'}`}>
+            <span className={`text-[10px] uppercase block font-bold ${mutedClass}`}>Track Meteorological</span>
+            <span className={`text-base font-black tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>
+              {weather.temperature}°C {weather.condition}
+            </span>
+            <span className="text-xs block font-mono font-bold mt-0.5" style={{ color: 'var(--color-accent, #f97316)' }}>
+              Wind {weather.windSpeed} km/h • Hum {weather.humidity}%
+            </span>
+          </div>
+
+          <div className={`text-right border-l pl-6 font-mono ${isLight ? 'border-slate-200' : 'border-slate-700'}`}>
+            <span className={`text-[10px] uppercase block font-bold ${mutedClass}`}>Official Clock • IST</span>
+            <span className={`text-base font-black tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>
+              {now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+            </span>
+            <span className="text-xs block font-black mt-0.5" style={{ color: 'var(--color-accent, #f97316)' }}>UTC+5:30 // TRACKSIDE</span>
+          </div>
         </div>
       </div>
 

@@ -41,12 +41,23 @@ export const EinkRaceWeekendMode: React.FC = () => {
           <p className={`text-xs italic ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>{f1.circuitName} — {f1.location}</p>
         </div>
 
-        <div className={`text-right border-l pl-4 ${isLight ? 'border-stone-400' : 'border-stone-600'}`}>
-          <span className={`text-[10px] font-mono uppercase block ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>Gazette Time • IST</span>
-          <span className="text-base font-bold font-mono" style={{ color: 'var(--color-accent)' }}>
-            {now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
-          </span>
-          <span className={`text-xs font-mono block ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>UTC+5:30</span>
+        <div className="flex items-center space-x-4">
+          {/* Circuit Weather Beside Clock */}
+          <div className={`text-right border-l pl-4 font-mono ${isLight ? 'border-stone-400' : 'border-stone-600'}`}>
+            <span className={`text-[10px] uppercase block ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>Almanac Weather</span>
+            <span className="text-base font-bold block leading-none">
+              {weather.temperature}°C {weather.condition}
+            </span>
+            <span className={`text-xs block mt-0.5 ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>Wind {weather.windSpeed} km/h • Hum {weather.humidity}%</span>
+          </div>
+
+          <div className={`text-right border-l pl-4 ${isLight ? 'border-stone-400' : 'border-stone-600'}`}>
+            <span className={`text-[10px] font-mono uppercase block ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>Gazette Time • IST</span>
+            <span className="text-base font-bold font-mono" style={{ color: 'var(--color-accent)' }}>
+              {now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+            </span>
+            <span className={`text-xs font-mono block ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>UTC+5:30</span>
+          </div>
         </div>
       </div>
 

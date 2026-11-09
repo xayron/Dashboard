@@ -166,7 +166,7 @@ export interface F1CircuitTelemetry {
   tyreAllocation: string;
 }
 
-export type F1WidgetSize = 'compact' | 'normal' | 'expanded';
+export type F1WidgetSize = 'compact' | 'normal';
 
 export type F1WidgetId =
   | 'countdown'
@@ -175,8 +175,7 @@ export type F1WidgetId =
   | 'qualifying'
   | 'pitstop'
   | 'upcomingRaces'
-  | 'circuitTelemetry'
-  | 'trackWeather';
+  | 'circuitTelemetry';
 
 export interface F1Data {
   isRaceWeekend: boolean;

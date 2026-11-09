@@ -31,12 +31,25 @@ export const MinimalRaceWeekendMode: React.FC = () => {
           <p className={`text-xs font-light mt-0.5 ${isLight ? 'text-neutral-500' : 'text-neutral-400'}`}>{f1.circuitName}</p>
         </div>
 
-        <div className="text-right">
-          <span className={`text-[11px] font-mono uppercase block ${isLight ? 'text-neutral-500' : 'text-neutral-400'}`}>Official Time (IST)</span>
-          <span className={`text-base font-medium font-mono ${isLight ? 'text-neutral-900' : 'text-white'}`}>
-            {now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
-          </span>
-          <span className="text-xs font-mono font-medium block mt-0.5" style={{ color: 'var(--color-accent)' }}>UTC+5:30</span>
+        <div className="flex items-center space-x-5">
+          {/* Track Weather Beside Clock */}
+          <div className="text-right">
+            <span className={`text-[11px] font-mono uppercase block ${isLight ? 'text-neutral-500' : 'text-neutral-400'}`}>Circuit Weather</span>
+            <span className={`text-base font-light font-mono ${isLight ? 'text-neutral-900' : 'text-white'}`}>
+              {weather.temperature}°C {weather.condition}
+            </span>
+            <span className="text-xs font-mono block mt-0.5 opacity-70">Wind {weather.windSpeed} km/h • Hum {weather.humidity}%</span>
+          </div>
+
+          <div className={`h-8 w-px ${isLight ? 'bg-neutral-200' : 'bg-white/10'}`} />
+
+          <div className="text-right">
+            <span className={`text-[11px] font-mono uppercase block ${isLight ? 'text-neutral-500' : 'text-neutral-400'}`}>Official Time (IST)</span>
+            <span className={`text-base font-medium font-mono ${isLight ? 'text-neutral-900' : 'text-white'}`}>
+              {now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+            </span>
+            <span className="text-xs font-mono font-medium block mt-0.5" style={{ color: 'var(--color-accent)' }}>UTC+5:30</span>
+          </div>
         </div>
       </div>
 

@@ -57,12 +57,25 @@ export const ObsidianRaceWeekendMode: React.FC = () => {
           <p className={`text-xs font-mono mt-0.5 ${mutedClass}`}>{f1.circuitName} — {f1.location}</p>
         </div>
 
-        <div className={`text-right border-l pl-6 font-mono ${isLight ? 'border-slate-200' : 'border-white/[0.12]'}`}>
-          <span className={`text-[10px] uppercase block ${mutedClass}`}>System Clock • IST</span>
-          <span className={`text-base font-bold tracking-wider ${isLight ? 'text-slate-900' : 'text-[#eef0f3]'}`}>
-            {now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
-          </span>
-          <span className="text-xs block font-bold mt-0.5" style={{ color: 'var(--color-accent, #5fd49b)' }}>UTC+5:30 // TELEMETRY</span>
+        <div className="flex items-center space-x-6">
+          {/* Circuit Weather Beside Clock */}
+          <div className={`text-right border-l pl-6 font-mono ${isLight ? 'border-slate-200' : 'border-white/[0.12]'}`}>
+            <span className={`text-[10px] uppercase block ${mutedClass}`}>Track Weather</span>
+            <span className={`text-base font-bold tracking-wider ${isLight ? 'text-slate-900' : 'text-[#eef0f3]'}`}>
+              {weather.temperature}°C {weather.condition}
+            </span>
+            <span className="text-xs block font-mono mt-0.5" style={{ color: 'var(--color-accent, #5fd49b)' }}>
+              Wind {weather.windSpeed} km/h • Hum {weather.humidity}%
+            </span>
+          </div>
+
+          <div className={`text-right border-l pl-6 font-mono ${isLight ? 'border-slate-200' : 'border-white/[0.12]'}`}>
+            <span className={`text-[10px] uppercase block ${mutedClass}`}>System Clock • IST</span>
+            <span className={`text-base font-bold tracking-wider ${isLight ? 'text-slate-900' : 'text-[#eef0f3]'}`}>
+              {now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+            </span>
+            <span className="text-xs block font-bold mt-0.5" style={{ color: 'var(--color-accent, #5fd49b)' }}>UTC+5:30 // TELEMETRY</span>
+          </div>
         </div>
       </div>
 

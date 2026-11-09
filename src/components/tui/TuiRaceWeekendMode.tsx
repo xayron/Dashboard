@@ -4,7 +4,7 @@ import { TuiBox } from './TuiBox';
 import { F1WidgetsColumn } from '../f1/F1WidgetsColumn';
 
 export const TuiRaceWeekendMode: React.FC = () => {
-  const { f1, media, weather, colorMode } = useDashboard();
+  const { now, f1, media, weather, colorMode } = useDashboard();
   const isLight = colorMode === 'light';
   const [standingsTab, setStandingsTab] = useState<'drivers' | 'constructors'>('drivers');
 
@@ -32,10 +32,30 @@ export const TuiRaceWeekendMode: React.FC = () => {
           <span className={isLight ? 'text-slate-500' : 'text-gray-400'}>({f1.circuitName.toUpperCase()})</span>
         </div>
 
-        <div className="flex items-center space-x-3 text-red-500 font-bold">
-          <span className="animate-pulse">● LIVE_TELEMETRY</span>
-          <span className={isLight ? 'text-slate-400' : 'text-gray-500'}>|</span>
-          <span className={isLight ? 'text-slate-900' : 'text-white'}>ROUND {f1.activeRound}/{f1.totalRounds}</span>
+        <div className="flex items-center space-x-3 text-xs">
+          {/* Track Weather Beside Clock */}
+          <div className={`px-2.5 py-1 border ${
+            isLight ? 'bg-slate-50 border-slate-300 text-slate-800' : 'bg-black/60 border-cyan-500/40 text-cyan-400'
+          }`}>
+            <span className="font-bold">{weather.temperature}°C {weather.condition.toUpperCase()}</span>
+            <span className={`text-[10px] ml-1.5 font-mono ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>WIND: {weather.windSpeed}KM/H</span>
+          </div>
+
+          {/* Clock */}
+          <div className={`px-2.5 py-1 border ${
+            isLight ? 'bg-slate-50 border-slate-300 text-slate-900' : 'bg-black/60 border-red-500/50 text-white'
+          }`}>
+            <span className="text-red-500 font-bold">IST: </span>
+            <span className="font-mono font-bold">
+              {now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+            </span>
+          </div>
+
+          <div className="flex items-center space-x-2 text-red-500 font-bold ml-1">
+            <span className="animate-pulse">● LIVE</span>
+            <span className={isLight ? 'text-slate-400' : 'text-gray-500'}>|</span>
+            <span className={isLight ? 'text-slate-900' : 'text-white'}>R{f1.activeRound}/{f1.totalRounds}</span>
+          </div>
         </div>
       </div>
 

@@ -50,12 +50,25 @@ export const NeumorphicRaceWeekendMode: React.FC = () => {
           </div>
         </div>
 
-        <div className={`text-right px-4 py-2 rounded-2xl ${insetClass}`}>
-          <span className={`text-[10px] uppercase block font-medium ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>Official Time (IST)</span>
-          <span className={`text-sm font-bold font-mono tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>
-            {now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
-          </span>
-          <span className="text-xs font-mono font-bold text-red-500 block">UTC+5:30</span>
+        <div className="flex items-center space-x-4">
+          {/* Track Weather Beside Clock */}
+          <div className={`text-right px-4 py-2 rounded-2xl ${insetClass}`}>
+            <span className={`text-[10px] uppercase block font-medium ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>Circuit Weather</span>
+            <span className={`text-sm font-bold font-mono tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>
+              {weather.temperature}°C {weather.condition}
+            </span>
+            <span className={`text-[10px] font-mono block mt-0.5 ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>
+              Wind {weather.windSpeed} km/h • Hum {weather.humidity}%
+            </span>
+          </div>
+
+          <div className={`text-right px-4 py-2 rounded-2xl ${insetClass}`}>
+            <span className={`text-[10px] uppercase block font-medium ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>Official Time (IST)</span>
+            <span className={`text-sm font-bold font-mono tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>
+              {now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+            </span>
+            <span className="text-xs font-mono font-bold text-red-500 block">UTC+5:30</span>
+          </div>
         </div>
       </div>
 

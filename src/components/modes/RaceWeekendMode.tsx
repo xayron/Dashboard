@@ -10,6 +10,7 @@ import {
   Gauge,
   Users,
   ChevronRight,
+  CloudSun,
 } from 'lucide-react';
 import { useDashboard } from '../../state/DashboardContext';
 import { ClockWidget } from '../common/ClockWidget';
@@ -18,7 +19,7 @@ import { AudioBanner } from '../common/AudioBanner';
 import { F1WidgetsColumn } from '../f1/F1WidgetsColumn';
 
 export const RaceWeekendMode: React.FC = () => {
-  const { f1, media, colorMode } = useDashboard();
+  const { f1, media, weather, colorMode } = useDashboard();
   const isLight = colorMode === 'light';
   const [standingsTab, setStandingsTab] = useState<'drivers' | 'constructors'>('drivers');
 
@@ -75,7 +76,21 @@ export const RaceWeekendMode: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3">
+          {/* Track Weather Beside Clock */}
+          <div className={`glass-panel px-4 py-2 rounded-2xl border flex items-center space-x-2.5 ${
+            isLight ? 'bg-white/80 border-slate-200 shadow-sm text-slate-800' : 'border-white/10 bg-white/[0.03] text-white'
+          }`}>
+            <CloudSun size={18} className="text-amber-500 shrink-0" />
+            <div>
+              <div className="text-xs font-bold leading-none">{weather.temperature}°C {weather.condition}</div>
+              <div className={`text-[10px] font-mono mt-0.5 ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
+                Wind {weather.windSpeed} km/h • Hum {weather.humidity}%
+              </div>
+            </div>
+          </div>
+
+          {/* Clock Widget */}
           <div className={`glass-panel px-5 py-2 rounded-2xl border ${
             isLight ? 'bg-white/80 border-slate-200 shadow-sm' : 'border-white/10'
           }`}>
