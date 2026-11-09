@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDashboard } from '../../state/DashboardContext';
 import type { F1WidgetId, F1WidgetSize, UIStyle } from '../../types/dashboard';
 import {
@@ -21,6 +21,7 @@ import {
   GripVertical,
   Newspaper,
   ExternalLink,
+  RotateCcw,
 } from 'lucide-react';
 import { BrutalistBox } from '../brutalist/BrutalistBox';
 import { HudBox } from '../hud/HudBox';
@@ -108,11 +109,29 @@ export const F1_AVAILABLE_WIDGETS: F1WidgetDef[] = [
   },
 ];
 
+export interface F1WidgetLayoutItem {
+  col: number;      // 1 to 12
+  row: number;      // 1 to N
+  colSpan: number;  // 2 to 12
+  rowSpan: number;  // 1 to 6
+}
+
+export const DEFAULT_F1_SLOT_LAYOUT: Record<F1WidgetId, F1WidgetLayoutItem> = {
+  countdown:        { col: 1,  row: 1, colSpan: 6, rowSpan: 1 },
+  circuitTelemetry: { col: 7,  row: 1, colSpan: 6, rowSpan: 1 },
+  schedule:         { col: 1,  row: 2, colSpan: 3, rowSpan: 2 },
+  standings:        { col: 4,  row: 2, colSpan: 3, rowSpan: 2 },
+  titleBattle:      { col: 7,  row: 2, colSpan: 3, rowSpan: 1 },
+  pitstop:          { col: 10, row: 2, colSpan: 3, rowSpan: 1 },
+  qualifying:       { col: 7,  row: 3, colSpan: 3, rowSpan: 1 },
+  upcomingRaces:    { col: 10, row: 3, colSpan: 3, rowSpan: 1 },
+  news:             { col: 1,  row: 4, colSpan: 6, rowSpan: 2 },
+  podium:           { col: 7,  row: 4, colSpan: 6, rowSpan: 1 },
+};
+
 export const WIDGETS_WITH_LARGE: F1WidgetId[] = ['schedule', 'standings', 'news'];
 
 // Widgets whose natural content is a vertical list or timetable.
-// When set to 'normal' (medium), these widgets are shaped as 2 smalls stacked on top of each other (col-span-3 row-span-2).
-// Horizontal widgets (countdown, podium, titleBattle, circuitTelemetry, pitstop, qualifying) are 2 smalls side by side (col-span-6 row-span-1).
 export const VERTICAL_MEDIUM_WIDGETS: F1WidgetId[] = [
   'standings',
   'schedule',
@@ -124,9 +143,6 @@ export const isVerticalMediumWidget = (id?: F1WidgetId, size: F1WidgetSize = 'no
   return size === 'normal' && id !== undefined && VERTICAL_MEDIUM_WIDGETS.includes(id);
 };
 
-// Widgets that retain 3 columns in compact mode to display full session names / driver leaderboard / headlines.
-// All other widgets (countdown, podium, titleBattle, qualifying, pitstop, upcomingRaces, circuitTelemetry)
-// format in an ultra-compact 2-column footprint (col-span-2 row-span-1) in compact mode.
 export const COMPACT_3COL_WIDGETS: F1WidgetId[] = ['schedule', 'standings', 'news'];
 
 export const isNarrowCompactWidget = (id?: F1WidgetId, size: F1WidgetSize = 'compact') => {
@@ -169,8 +185,170 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
   const [gridDragOverId, setGridDragOverId] = useState<F1WidgetId | null>(null);
   const [standingsTab, setStandingsTab] = useState<'drivers' | 'constructors'>('drivers');
 
-  const getSupportedSizes = (id: F1WidgetId): F1WidgetSize[] =>
-    WIDGETS_WITH_LARGE.includes(id) ? ['compact', 'normal', 'large'] : ['compact', 'normal'];
+  type ResizeDirection = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
+
+  interface ResizingState {
+    widgetId: F1WidgetId;
+    dir: ResizeDirection;
+    startX: number;
+    startY: number;
+    startCol: number;
+    startRow: number;
+    startColSpan: number;
+    startRowSpan: number;
+  }
+
+  interface MovingState {
+    widgetId: F1WidgetId;
+    startX: number;
+    startY: number;
+    startCol: number;
+    startRow: number;
+    colSpan: number;
+    rowSpan: number;
+  }
+
+  const [slotLayout, setSlotLayout] = useState<Record<F1WidgetId, F1WidgetLayoutItem>>(() => {
+    try {
+      const saved = localStorage.getItem('dashboard_f1_slot_layout');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (typeof parsed === 'object' && parsed !== null) {
+          return { ...DEFAULT_F1_SLOT_LAYOUT, ...parsed };
+        }
+      }
+    } catch (e) {}
+    return DEFAULT_F1_SLOT_LAYOUT;
+  });
+
+  const [resizingState, setResizingState] = useState<ResizingState | null>(null);
+  const [movingState, setMovingState] = useState<MovingState | null>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  const resetSlotLayout = () => {
+    setSlotLayout(DEFAULT_F1_SLOT_LAYOUT);
+    try {
+      localStorage.setItem('dashboard_f1_slot_layout', JSON.stringify(DEFAULT_F1_SLOT_LAYOUT));
+    } catch (e) {}
+  };
+
+  // Mouse Move & Mouse Up Listener for 8-Direction Resizing and Slot Moving
+  useEffect(() => {
+    if (!movingState && !resizingState) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!gridRef.current) return;
+      const gridRect = gridRef.current.getBoundingClientRect();
+      const gap = 12;
+      const cellW = (gridRect.width - gap * 11) / 12;
+      const cellH = 140;
+
+      if (movingState) {
+        const deltaX = e.clientX - movingState.startX;
+        const deltaY = e.clientY - movingState.startY;
+
+        const deltaCols = Math.round(deltaX / (cellW + gap));
+        const deltaRows = Math.round(deltaY / (cellH + gap));
+
+        const newCol = Math.max(1, Math.min(13 - movingState.colSpan, movingState.startCol + deltaCols));
+        const newRow = Math.max(1, movingState.startRow + deltaRows);
+
+        setSlotLayout((prev) => ({
+          ...prev,
+          [movingState.widgetId]: {
+            ...prev[movingState.widgetId],
+            col: newCol,
+            row: newRow,
+          },
+        }));
+      } else if (resizingState) {
+        const deltaX = e.clientX - resizingState.startX;
+        const deltaY = e.clientY - resizingState.startY;
+
+        const deltaCols = Math.round(deltaX / (cellW + gap));
+        const deltaRows = Math.round(deltaY / (cellH + gap));
+
+        const { dir, startCol, startRow, startColSpan, startRowSpan, widgetId } = resizingState;
+
+        let newCol = startCol;
+        let newRow = startRow;
+        let newColSpan = startColSpan;
+        let newRowSpan = startRowSpan;
+
+        if (dir.includes('e')) {
+          newColSpan = Math.max(2, Math.min(13 - startCol, startColSpan + deltaCols));
+        } else if (dir.includes('w')) {
+          const maxLeftShift = startColSpan - 2;
+          const shift = Math.max(-startCol + 1, Math.min(maxLeftShift, -deltaCols));
+          newCol = startCol - shift;
+          newColSpan = startColSpan + shift;
+        }
+
+        if (dir.includes('s')) {
+          newRowSpan = Math.max(1, Math.min(6, startRowSpan + deltaRows));
+        } else if (dir.includes('n')) {
+          const maxUpShift = startRowSpan - 1;
+          const shift = Math.max(-startRow + 1, Math.min(maxUpShift, -deltaRows));
+          newRow = startRow - shift;
+          newRowSpan = startRowSpan + shift;
+        }
+
+        setSlotLayout((prev) => ({
+          ...prev,
+          [widgetId]: { col: newCol, row: newRow, colSpan: newColSpan, rowSpan: newRowSpan },
+        }));
+      }
+    };
+
+    const handleMouseUp = () => {
+      setMovingState(null);
+      setResizingState(null);
+      try {
+        localStorage.setItem('dashboard_f1_slot_layout', JSON.stringify(slotLayout));
+      } catch (e) {}
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [movingState, resizingState, slotLayout]);
+
+  const handleMoveStart = (e: React.MouseEvent, widgetId: F1WidgetId) => {
+    if (e.button !== 0) return;
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('a') || target.closest('input')) return;
+    e.preventDefault();
+    const current = slotLayout[widgetId] || DEFAULT_F1_SLOT_LAYOUT[widgetId];
+    setMovingState({
+      widgetId,
+      startX: e.clientX,
+      startY: e.clientY,
+      startCol: current.col,
+      startRow: current.row,
+      colSpan: current.colSpan,
+      rowSpan: current.rowSpan,
+    });
+  };
+
+  const handleResizeStart = (e: React.MouseEvent, widgetId: F1WidgetId, dir: ResizeDirection) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const current = slotLayout[widgetId] || DEFAULT_F1_SLOT_LAYOUT[widgetId];
+    setResizingState({
+      widgetId,
+      dir,
+      startX: e.clientX,
+      startY: e.clientY,
+      startCol: current.col,
+      startRow: current.row,
+      startColSpan: current.colSpan,
+      startRowSpan: current.rowSpan,
+    });
+  };
 
   // Map f1ActiveWidgets in exact user-defined order
   const visibleWidgets = React.useMemo(() => {
@@ -179,33 +357,12 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       .filter((w): w is F1WidgetDef => Boolean(w));
   }, [f1ActiveWidgets]);
 
-  // Unified grid unit: 140px row height, 12-col grid, gap-3 (12px)
-  // S (compact):
-  //    - Narrow (countdown, podium, titleBattle, qualifying, pitstop, upcomingRaces, circuitTelemetry):
-  //        col-span-2 row-span-1 → 140px tall, sixth-width (2 cols) = ultra-compact glanceable tile
-  //    - Standard (schedule, standings, news):
-  //        col-span-3 row-span-1 → 140px tall, quarter-width (3 cols) = fits list rows cleanly
-  // Horizontal M (countdown, podium, titleBattle, circuitTelemetry, pitstop, qualifying):
-  //    col-span-6 row-span-1 → 140px tall, half-width (6 cols) = 3×S (2-col) or 2×S (3-col)
-  // Vertical M (standings, schedule, news, upcomingRaces):
-  //    col-span-3 row-span-2 → 292px tall, quarter-width (3 cols) = 2×S stacked vertically
-  // L: col-span-6 row-span-2 → 292px tall (2×140+12px), half-width = 2×M stacked (or 6×S 2-col)
+  // Card Theme classes - fills 100% of the slot's dimensions
   const getCardClass = (size: F1WidgetSize = 'normal', widgetId?: F1WidgetId) => {
-    const isTall = size === 'large' || isVerticalMediumWidget(widgetId, size);
-    const isUltraCompact = size === 'compact' && isNarrowCompactWidget(widgetId, size);
-    // Static Tailwind-safe height tokens:
-    //   1 row track:  h-[140px]
-    //   2 row tracks: h-[292px]
-    const h = isTall
-      ? 'h-[292px] min-h-[292px] max-h-[292px]'
-      : 'h-[140px] min-h-[140px] max-h-[140px]';
-    const pad = isUltraCompact
-      ? `p-2 ${h} overflow-hidden flex flex-col justify-between`
-      : size === 'compact'
-      ? `p-2.5 ${h} overflow-hidden flex flex-col justify-between`
-      : isTall
-      ? `p-3.5 ${h} overflow-hidden flex flex-col justify-between`
-      : `p-3 ${h} overflow-hidden flex flex-col justify-between`;
+    const pad =
+      size === 'compact'
+        ? 'p-2.5 h-full overflow-hidden flex flex-col justify-between'
+        : 'p-3.5 h-full overflow-hidden flex flex-col justify-between';
 
     if (uiStyle === 'minimal') {
       return `${pad} ${
@@ -283,76 +440,33 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
   const fontClass = uiStyle === 'tui' || uiStyle === 'hud' ? 'font-mono' : uiStyle === 'eink' ? 'font-serif' : 'font-sans';
 
-  // Helper controls (Drag handle + Move Up/Down reordering + Size toggles) inside each widget card header
+  // Helper controls (Dimension Indicator + Drag Move Handle) inside each widget card header
   const renderCardControls = (widgetId: F1WidgetId) => {
-    const currentSize = f1WidgetSizes[widgetId] || 'normal';
-    const index = f1ActiveWidgets.indexOf(widgetId);
-    const canMoveUp = index > 0;
-    const canMoveDown = index !== -1 && index < f1ActiveWidgets.length - 1;
-    const supportedSizes = getSupportedSizes(widgetId);
+    const layout = slotLayout[widgetId] || DEFAULT_F1_SLOT_LAYOUT[widgetId];
+    const isActivelyMoved = movingState?.widgetId === widgetId;
+    const isActivelyResized = resizingState?.widgetId === widgetId;
 
     return (
-      <div className="flex items-center space-x-1 opacity-70 hover:opacity-100 transition-opacity">
-        {/* Drag Handle Grip */}
+      <div className="flex items-center space-x-1.5 opacity-80 hover:opacity-100 transition-opacity">
+        {/* Dimension & Slot Pill */}
         <span
-          title="Drag card in grid to rearrange"
-          className="cursor-grab active:cursor-grabbing p-0.5 rounded text-current/60 hover:text-current hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+          className={`text-[9px] font-mono px-1.5 py-0.5 rounded border transition-colors ${
+            isActivelyMoved || isActivelyResized
+              ? 'bg-blue-500/20 text-blue-400 border-blue-500/40 font-bold'
+              : 'bg-black/10 dark:bg-white/10 border-black/5 dark:border-white/10 text-current/70'
+          }`}
+          title={`Slot: Col ${layout.col}, Row ${layout.row} | Size: ${layout.colSpan} cols × ${layout.rowSpan} rows (Drag edges or corners to resize)`}
         >
-          <GripVertical size={11} />
+          {layout.colSpan}×{layout.rowSpan}
         </span>
 
-        {/* Reorder Arrows */}
-        <div className="flex items-center space-x-0.5 bg-black/10 dark:bg-white/10 p-0.5 rounded">
-          <button
-            type="button"
-            title="Move widget up in layout"
-            disabled={!canMoveUp}
-            onClick={(e) => {
-              e.stopPropagation();
-              moveF1Widget(widgetId, 'up');
-            }}
-            className={`p-0.5 rounded text-[10px] transition-colors ${
-              canMoveUp ? 'hover:bg-black/20 dark:hover:bg-white/20 text-current cursor-pointer' : 'opacity-20 cursor-not-allowed'
-            }`}
-          >
-            <ChevronUp size={10} strokeWidth={2.5} />
-          </button>
-          <button
-            type="button"
-            title="Move widget down in layout"
-            disabled={!canMoveDown}
-            onClick={(e) => {
-              e.stopPropagation();
-              moveF1Widget(widgetId, 'down');
-            }}
-            className={`p-0.5 rounded text-[10px] transition-colors ${
-              canMoveDown ? 'hover:bg-black/20 dark:hover:bg-white/20 text-current cursor-pointer' : 'opacity-20 cursor-not-allowed'
-            }`}
-          >
-            <ChevronDown size={10} strokeWidth={2.5} />
-          </button>
-        </div>
-
-        {/* Size Toggles [ S | M | L ] */}
-        <div className="flex items-center space-x-0.5 bg-black/10 dark:bg-white/10 p-0.5 rounded">
-          {supportedSizes.map((sz) => (
-            <button
-              key={sz}
-              type="button"
-              title={`Set widget size: ${sz}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                setF1WidgetSize(widgetId, sz);
-              }}
-              className={`px-1.5 py-0.2 text-[9px] font-mono uppercase font-bold rounded transition-colors cursor-pointer ${
-                currentSize === sz
-                  ? 'bg-blue-600 text-white font-extrabold shadow-xs'
-                  : 'hover:bg-black/20 dark:hover:bg-white/20 text-current'
-              }`}
-            >
-              {sz === 'compact' ? 'S' : sz === 'normal' ? 'M' : 'L'}
-            </button>
-          ))}
+        {/* Drag Handle Grip */}
+        <div
+          onMouseDown={(e) => handleMoveStart(e, widgetId)}
+          title="Drag to place anywhere on the grid"
+          className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-black/15 dark:hover:bg-white/15 text-current/70 hover:text-current transition-colors"
+        >
+          <GripVertical size={13} />
         </div>
       </div>
     );
@@ -2404,7 +2518,10 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
   };
 
   const renderWidgetInTheme = (id: F1WidgetId) => {
-    const size = f1WidgetSizes[id] || 'normal';
+    const layout = slotLayout[id] || DEFAULT_F1_SLOT_LAYOUT[id];
+    const isLarge = (layout.colSpan >= 5 && layout.rowSpan >= 2) || layout.rowSpan >= 3;
+    const isCompact = layout.colSpan <= 3 && layout.rowSpan === 1;
+    const size: F1WidgetSize = isLarge ? 'large' : isCompact ? 'compact' : 'normal';
     switch (id) {
       case 'countdown':
         return renderCountdownWidget(size);
@@ -2433,29 +2550,28 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
   return (
     <div className={`h-full flex flex-col space-y-2.5 relative min-h-0 ${fontClass} ${className}`}>
-      {/* Top Bar with Widget Management & Size Controls */}
+      {/* Top Bar with Widget Management & Slot Grid Controls */}
       <div className="flex items-center justify-between px-1 shrink-0">
         <div className="flex items-center space-x-2 text-[10px] font-mono uppercase tracking-wider opacity-75">
           <span>Active ({visibleWidgets.length})</span>
           <span className="opacity-40">|</span>
-          <span className="opacity-80">Manual Sizing</span>
+          <span className="opacity-80">Slot-Based Grid</span>
         </div>
 
         <div className="flex items-center space-x-1.5">
-          {/* Quick Global Size Presets */}
-          <div className="flex items-center space-x-0.5 mr-1 bg-black/10 dark:bg-white/10 p-0.5 rounded-lg">
-            {(['compact', 'normal', 'large'] as F1WidgetSize[]).map((sz) => (
-              <button
-                key={sz}
-                type="button"
-                title={`Resize all widgets to ${sz}`}
-                onClick={() => setAllF1WidgetSizes(sz)}
-                className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold hover:bg-black/15 dark:hover:bg-white/15 transition-colors cursor-pointer"
-              >
-                {sz === 'compact' ? 'S' : sz === 'normal' ? 'M' : 'L'}
-              </button>
-            ))}
-          </div>
+          <button
+            type="button"
+            onClick={resetSlotLayout}
+            className={`flex items-center space-x-1 px-2.5 py-1 rounded-xl text-[10px] font-mono border transition-all cursor-pointer ${
+              isLight
+                ? 'bg-white hover:bg-slate-50 border-slate-300 text-slate-700 shadow-xs'
+                : 'bg-white/5 hover:bg-white/10 border-white/10 text-gray-300 hover:text-white'
+            }`}
+            title="Reset all widgets to default slot coordinates"
+          >
+            <RotateCcw size={11} />
+            <span>Reset Grid</span>
+          </button>
 
           <button
             onClick={() => setIsPickerOpen(true)}
@@ -2464,7 +2580,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                 ? 'bg-white hover:bg-slate-50 border-slate-300 text-slate-800 shadow-sm'
                 : 'bg-white/10 hover:bg-white/15 border-white/10 text-white'
             }`}
-            title="Configure F1 Widgets & Sizes"
+            title="Configure F1 Widgets"
           >
             <Sliders size={12} />
             <span>F1 Widgets</span>
@@ -2472,113 +2588,124 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
         </div>
       </div>
 
-      {/* Render Active Widgets in a 12-Column Responsive Grid with HTML5 Drag-and-Drop:
-          Grid unit = 140px row height, gap-3 (12px)
-          - S (compact):       col-span-3 row-span-1  →  140px tall, quarter-row width (1 unit)
-          - Horizontal M:      col-span-6 row-span-1  →  140px tall, half-row width    = 2×S side by side (2 units)
-          - Vertical M (list): col-span-3 row-span-2  →  292px tall, quarter-row width = 2×S stacked vertically (2 units)
-          - L (large):         col-span-6 row-span-2  →  292px tall, half-row width    = 2×M stacked / 4×S (4 units)
-          grid-flow-dense fills any gaps automatically
-      */}
+      {/* Slot-Based 12-Column Grid with 8-Direction Mouse-Drag Resizing & Positioning */}
       <div
-        onDragOver={(e) => {
-          e.preventDefault();
-          e.dataTransfer.dropEffect = 'move';
-        }}
-        onDrop={(e) => {
-          e.preventDefault();
-          if (e.target === e.currentTarget) {
-            const sourceId = (e.dataTransfer.getData('text/plain') as F1WidgetId) || gridDraggedId;
-            if (sourceId) {
-              const fromIdx = f1ActiveWidgets.indexOf(sourceId);
-              if (fromIdx !== -1 && fromIdx !== f1ActiveWidgets.length - 1) {
-                reorderF1Widgets(fromIdx, f1ActiveWidgets.length - 1);
-              }
-            }
-            setGridDraggedId(null);
-            setGridDragOverId(null);
-          }
-        }}
-        className="grid grid-cols-12 gap-3 overflow-y-auto pr-1 flex-1 min-h-0 grid-flow-dense"
+        ref={gridRef}
+        className="grid grid-cols-12 gap-3 overflow-y-auto pr-1 flex-1 min-h-0 relative select-none"
         style={{ gridAutoRows: '140px' }}
       >
+        {/* Visual Blueprint Grid Matrix during Move or Resize */}
+        {(movingState || resizingState) && (
+          <div
+            className="absolute inset-0 pointer-events-none grid grid-cols-12 gap-3 z-0"
+            style={{ gridAutoRows: '140px' }}
+          >
+            {Array.from({ length: 48 }).map((_, i) => (
+              <div
+                key={i}
+                className="border border-dashed border-blue-500/20 dark:border-blue-400/20 rounded-2xl bg-blue-500/[0.02] flex items-center justify-center"
+              >
+                <span className="text-[9px] font-mono opacity-20">
+                  {Math.floor(i / 12) + 1}:{(i % 12) + 1}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
         {visibleWidgets.map((w) => {
-          const size = f1WidgetSizes[w.id] || 'normal';
-          const isCompact = size === 'compact';
-          const isLarge = size === 'large';
-          const isVerticalMedium = !isCompact && !isLarge && VERTICAL_MEDIUM_WIDGETS.includes(w.id);
-          const isNarrowCompact = isCompact && !COMPACT_3COL_WIDGETS.includes(w.id);
+          const layout = slotLayout[w.id] || DEFAULT_F1_SLOT_LAYOUT[w.id];
+          const isActivelyMoved = movingState?.widgetId === w.id;
+          const isActivelyResized = resizingState?.widgetId === w.id;
+
           return (
             <div
               key={w.id}
-              draggable
-              onDragStart={(e) => {
-                e.dataTransfer.setData('text/plain', w.id);
-                e.dataTransfer.effectAllowed = 'move';
-                setGridDraggedId(w.id);
+              style={{
+                gridColumn: `${layout.col} / span ${layout.colSpan}`,
+                gridRow: `${layout.row} / span ${layout.rowSpan}`,
               }}
-              onDragOver={(e) => {
-                e.preventDefault();
-                e.dataTransfer.dropEffect = 'move';
-                if (gridDragOverId !== w.id) {
-                  setGridDragOverId(w.id);
-                }
-              }}
-              onDragLeave={(e) => {
-                if (e.currentTarget.contains(e.relatedTarget as Node)) return;
-                if (gridDragOverId === w.id) {
-                  setGridDragOverId(null);
-                }
-              }}
-              onDrop={(e) => {
-                e.preventDefault();
-                const sourceId = (e.dataTransfer.getData('text/plain') as F1WidgetId) || gridDraggedId;
-                if (sourceId && sourceId !== w.id) {
-                  const fromIdx = f1ActiveWidgets.indexOf(sourceId);
-                  const toIdx = f1ActiveWidgets.indexOf(w.id);
-                  if (fromIdx !== -1 && toIdx !== -1) {
-                    reorderF1Widgets(fromIdx, toIdx);
-                  }
-                }
-                setGridDraggedId(null);
-                setGridDragOverId(null);
-              }}
-              onDragEnd={() => {
-                setGridDraggedId(null);
-                setGridDragOverId(null);
-              }}
-              className={`transition-all duration-150 ${
-                isLarge
-                  ? 'col-span-6 row-span-2'
-                  : isNarrowCompact
-                  ? 'col-span-2 row-span-1'
-                  : isCompact
-                  ? 'col-span-3 row-span-1'
-                  : isVerticalMedium
-                  ? 'col-span-3 row-span-2'
-                  : 'col-span-6 row-span-1'
-              } ${
-                gridDraggedId === w.id
-                  ? 'opacity-35 scale-[0.98] ring-2 ring-blue-500 rounded-2xl z-20'
-                  : gridDragOverId === w.id
-                  ? 'ring-2 ring-amber-400 ring-offset-2 scale-[1.01] rounded-2xl z-10'
-                  : ''
+              className={`relative group transition-shadow ${
+                isActivelyMoved
+                  ? 'opacity-85 shadow-2xl z-30 ring-2 ring-blue-500 rounded-2xl'
+                  : isActivelyResized
+                  ? 'shadow-2xl z-30 ring-2 ring-amber-400 rounded-2xl'
+                  : 'z-10'
               }`}
             >
+              {/* Widget Content Card */}
               {renderWidgetInTheme(w.id)}
+
+              {/* 8-Direction Interactive Resize Handles */}
+              {/* North */}
+              <div
+                onMouseDown={(e) => handleResizeStart(e, w.id, 'n')}
+                className="absolute -top-1 left-2 right-2 h-2.5 cursor-ns-resize z-20 group-hover:bg-amber-400/20 hover:!bg-amber-400/60 rounded-full transition-colors"
+                title="Drag to resize height (North)"
+              />
+              {/* South */}
+              <div
+                onMouseDown={(e) => handleResizeStart(e, w.id, 's')}
+                className="absolute -bottom-1 left-2 right-2 h-2.5 cursor-ns-resize z-20 group-hover:bg-amber-400/20 hover:!bg-amber-400/60 rounded-full transition-colors"
+                title="Drag to resize height (South)"
+              />
+              {/* West */}
+              <div
+                onMouseDown={(e) => handleResizeStart(e, w.id, 'w')}
+                className="absolute -left-1 top-2 bottom-2 w-2.5 cursor-ew-resize z-20 group-hover:bg-amber-400/20 hover:!bg-amber-400/60 rounded-full transition-colors"
+                title="Drag to resize width (West)"
+              />
+              {/* East */}
+              <div
+                onMouseDown={(e) => handleResizeStart(e, w.id, 'e')}
+                className="absolute -right-1 top-2 bottom-2 w-2.5 cursor-ew-resize z-20 group-hover:bg-amber-400/20 hover:!bg-amber-400/60 rounded-full transition-colors"
+                title="Drag to resize width (East)"
+              />
+              {/* North-West */}
+              <div
+                onMouseDown={(e) => handleResizeStart(e, w.id, 'nw')}
+                className="absolute -top-1.5 -left-1.5 w-3.5 h-3.5 cursor-nwse-resize z-30 flex items-center justify-center group-hover:opacity-100 opacity-0 transition-opacity"
+                title="Drag to resize corner (North-West)"
+              >
+                <div className="w-2 h-2 rounded-full bg-amber-400 border border-black/40 shadow-xs" />
+              </div>
+              {/* North-East */}
+              <div
+                onMouseDown={(e) => handleResizeStart(e, w.id, 'ne')}
+                className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 cursor-nesw-resize z-30 flex items-center justify-center group-hover:opacity-100 opacity-0 transition-opacity"
+                title="Drag to resize corner (North-East)"
+              >
+                <div className="w-2 h-2 rounded-full bg-amber-400 border border-black/40 shadow-xs" />
+              </div>
+              {/* South-West */}
+              <div
+                onMouseDown={(e) => handleResizeStart(e, w.id, 'sw')}
+                className="absolute -bottom-1.5 -left-1.5 w-3.5 h-3.5 cursor-nesw-resize z-30 flex items-center justify-center group-hover:opacity-100 opacity-0 transition-opacity"
+                title="Drag to resize corner (South-West)"
+              >
+                <div className="w-2 h-2 rounded-full bg-amber-400 border border-black/40 shadow-xs" />
+              </div>
+              {/* South-East (Primary Corner Indicator) */}
+              <div
+                onMouseDown={(e) => handleResizeStart(e, w.id, 'se')}
+                className="absolute -bottom-1.5 -right-1.5 w-4 h-4 cursor-nwse-resize z-30 flex items-center justify-center"
+                title="Drag to resize width and height (South-East)"
+              >
+                <div className="w-2.5 h-2.5 rounded-full bg-amber-400/70 hover:bg-amber-400 border border-black/30 shadow-xs transition-colors" />
+              </div>
             </div>
           );
         })}
       </div>
 
-      {/* Interactive Widget Selector & Manual Sizing Popover / Modal */}
+      {/* Interactive Widget Selector & Slot Grid Popover / Modal */}
       {isPickerOpen && (
         <div className="absolute inset-0 z-50 p-4 rounded-3xl bg-black/92 backdrop-blur-md border border-white/20 flex flex-col justify-between text-white animate-in fade-in zoom-in-95 duration-200">
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-white/15">
               <div className="flex items-center space-x-2">
                 <Sliders size={18} className="text-amber-400" />
-                <h3 className="text-sm font-bold tracking-tight">F1 Widgets &amp; Size Adjuster</h3>
+                <h3 className="text-sm font-bold tracking-tight">F1 Widgets &amp; Slot Grid</h3>
               </div>
               <button
                 onClick={() => setIsPickerOpen(false)}
@@ -2588,33 +2715,30 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
               </button>
             </div>
 
-            {/* Global Sizing Bar */}
+            {/* Reset Grid Layout Action */}
             <div className="my-2.5 p-2 rounded-xl border border-white/10 bg-white/5 flex items-center justify-between">
               <div>
-                <span className="text-xs font-bold block">Global Widget Sizing</span>
-                <span className="text-[10px] text-gray-400">Scale all widgets simultaneously</span>
+                <span className="text-xs font-bold block">Slot-Based Grid Layout</span>
+                <span className="text-[10px] text-gray-400">Drag headers to place anywhere, drag edges to resize</span>
               </div>
-              <div className="flex items-center space-x-1">
-                {(['compact', 'normal', 'large'] as F1WidgetSize[]).map((sz) => (
-                  <button
-                    key={sz}
-                    onClick={() => setAllF1WidgetSizes(sz)}
-                    className="px-2.5 py-1 text-[10px] font-mono font-bold rounded-lg border border-white/20 hover:bg-white/20 transition-all cursor-pointer"
-                  >
-                    {sz === 'compact' ? 'S (Compact)' : sz === 'normal' ? 'M (Normal)' : 'L (Large)'}
-                  </button>
-                ))}
-              </div>
+              <button
+                type="button"
+                onClick={resetSlotLayout}
+                className="flex items-center space-x-1 px-2.5 py-1 text-[10px] font-mono font-bold rounded-lg border border-white/20 hover:bg-white/20 transition-all cursor-pointer"
+              >
+                <RotateCcw size={11} />
+                <span>Reset Grid</span>
+              </button>
             </div>
 
             {/* Active & Arranged Widgets List with Drag & Up/Down Controls */}
             <div className="space-y-1.5 max-h-[300px] overflow-y-auto pr-1">
               <div className="flex items-center justify-between pb-1 text-[10px] uppercase font-mono text-gray-400">
-                <span>Active Sequence ({visibleWidgets.length}) • Drag or use arrows to rearrange</span>
+                <span>Active Widgets ({visibleWidgets.length}) • Drag or use arrows to rearrange</span>
               </div>
 
               {visibleWidgets.map((widget, idx) => {
-                const currentSize = f1WidgetSizes[widget.id] || 'normal';
+                const layout = slotLayout[widget.id] || DEFAULT_F1_SLOT_LAYOUT[widget.id];
                 const Icon = widget.icon;
                 const canMoveUp = idx > 0;
                 const canMoveDown = idx < visibleWidgets.length - 1;
@@ -2657,6 +2781,13 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                     </div>
 
                     <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
+                      {/* Slot Coordinates & Size Pill */}
+                      {layout && (
+                        <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-black/40 border border-white/15 text-amber-400">
+                          Col {layout.col}, Row {layout.row} ({layout.colSpan}×{layout.rowSpan})
+                        </span>
+                      )}
+
                       {/* Reorder Up / Down Buttons */}
                       <div className="flex items-center space-x-0.5 bg-black/40 p-0.5 rounded-lg border border-white/15">
                         <button
@@ -2681,26 +2812,6 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                         >
                           <ChevronDown size={12} strokeWidth={2.5} />
                         </button>
-                      </div>
-
-                      {/* Individual Widget Size Picker */}
-                      <div className="flex items-center space-x-0.5 bg-black/40 p-0.5 rounded-lg border border-white/15">
-                        {getSupportedSizes(widget.id).map((sz) => {
-                          const isSzActive = currentSize === sz;
-                          return (
-                            <button
-                              key={sz}
-                              type="button"
-                              title={`Set ${widget.name} to ${sz}`}
-                              onClick={() => setF1WidgetSize(widget.id, sz)}
-                              className={`px-1.5 py-0.5 text-[9px] font-mono font-bold rounded transition-colors cursor-pointer ${
-                                isSzActive ? 'bg-blue-600 text-white shadow-xs' : 'text-gray-400 hover:text-white'
-                              }`}
-                            >
-                              {sz === 'compact' ? 'S' : sz === 'normal' ? 'M' : 'L'}
-                            </button>
-                          );
-                        })}
                       </div>
 
                       {/* Remove / Toggle Active */}
