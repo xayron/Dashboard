@@ -19,6 +19,9 @@
   --color-accent-soft: rgba(59, 130, 246, 0.2);
   --color-glow: rgba(59, 130, 246, 0.25);
   --bg-radial: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 60%);
+  --theme-accent: var(--color-accent);
+  --theme-accent-soft: var(--color-accent-soft);
+  --theme-glow: var(--color-glow);
 
   /* Scrollbar tokens */
   --scrollbar-track: rgba(15, 23, 42, 0.6);
@@ -134,8 +137,8 @@
    ========================================================================== */
 [data-style="tui"] {
   --scrollbar-track: #000000;
-  --scrollbar-thumb: #059669;
-  --scrollbar-thumb-hover: #10b981;
+  --scrollbar-thumb: var(--color-accent, #059669);
+  --scrollbar-thumb-hover: var(--color-accent, #10b981);
   --scrollbar-radius: 0px;
   --scrollbar-size: 8px;
   color-scheme: dark;
@@ -143,7 +146,7 @@
 
 [data-style="brutalist"] {
   --scrollbar-track: #000000;
-  --scrollbar-thumb: #facc15;
+  --scrollbar-thumb: var(--color-accent, #facc15);
   --scrollbar-thumb-hover: #ffffff;
   --scrollbar-radius: 0px;
   --scrollbar-size: 10px;
@@ -161,8 +164,8 @@
 
 [data-style="hud"] {
   --scrollbar-track: rgba(3, 7, 18, 0.85);
-  --scrollbar-thumb: rgba(6, 182, 212, 0.55);
-  --scrollbar-thumb-hover: #22d3ee;
+  --scrollbar-thumb: var(--color-accent, rgba(6, 182, 212, 0.55));
+  --scrollbar-thumb-hover: var(--color-accent, #22d3ee);
   --scrollbar-radius: 1px;
   --scrollbar-size: 6px;
   color-scheme: dark;
@@ -179,7 +182,7 @@
 
 [data-style="retrowave"] {
   --scrollbar-track: #150424;
-  --scrollbar-thumb: #ec4899;
+  --scrollbar-thumb: var(--color-accent, #ec4899);
   --scrollbar-thumb-hover: #06b6d4;
   --scrollbar-radius: 9999px;
   --scrollbar-size: 7px;
@@ -197,8 +200,8 @@
 
 [data-style="obsidian"] {
   --scrollbar-track: #08080a;
-  --scrollbar-thumb: rgba(96, 165, 250, 0.35);
-  --scrollbar-thumb-hover: rgba(96, 165, 250, 0.75);
+  --scrollbar-thumb: var(--color-accent, rgba(96, 165, 250, 0.35));
+  --scrollbar-thumb-hover: var(--color-accent, rgba(96, 165, 250, 0.75));
   --scrollbar-radius: 2px;
   --scrollbar-size: 6px;
   color-scheme: dark;
@@ -206,7 +209,7 @@
 
 [data-style="civic"] {
   --scrollbar-track: #e2e8f0;
-  --scrollbar-thumb: #94a3b8;
+  --scrollbar-thumb: var(--color-accent, #94a3b8);
   --scrollbar-thumb-hover: #475569;
   --scrollbar-radius: 4px;
   --scrollbar-size: 7px;

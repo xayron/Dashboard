@@ -22,7 +22,7 @@ export const RetrowaveMorningMode: React.FC = () => {
       <div
         className="absolute inset-x-0 bottom-0 h-64 pointer-events-none opacity-25 z-0"
         style={{
-          backgroundImage: 'linear-gradient(to right, #ff007f 1px, transparent 1px), linear-gradient(to bottom, #ff007f 1px, transparent 1px)',
+          backgroundImage: 'linear-gradient(to right, var(--color-accent, #ff007f) 1px, transparent 1px), linear-gradient(to bottom, var(--color-accent, #ff007f) 1px, transparent 1px)',
           backgroundSize: '40px 40px',
           transform: 'perspective(300px) rotateX(60deg)',
           transformOrigin: 'bottom center',

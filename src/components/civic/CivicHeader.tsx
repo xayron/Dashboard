@@ -8,13 +8,21 @@ export const CivicHeader: React.FC = () => {
   return (
     <header className="w-full bg-[#0f172a] text-white px-8 py-2.5 border-b-2 border-slate-300 relative select-none z-30 shadow-md">
       {/* Tricolor Institutional Accent Line */}
-      <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#f97316] via-white to-[#16a34a]" />
+      <div
+        className="absolute top-0 inset-x-0 h-1"
+        style={{
+          background: 'linear-gradient(to right, var(--color-accent, #f97316), white, #16a34a)',
+        }}
+      />
 
       <div className="flex items-center justify-between">
         {/* Brand & Verification Stamp */}
         <div className="flex items-center space-x-3">
           <div className="flex items-center space-x-2 border-r border-slate-700 pr-4">
-            <span className="px-2 py-0.5 text-xs font-black bg-[#f97316] text-slate-950 rounded uppercase tracking-wider">
+            <span
+              className="px-2 py-0.5 text-xs font-black text-slate-950 rounded uppercase tracking-wider"
+              style={{ backgroundColor: 'var(--color-accent, #f97316)' }}
+            >
               PUBLIC GAZETTE
             </span>
             <span className="font-bold tracking-tight text-slate-200 text-sm">
@@ -28,7 +36,10 @@ export const CivicHeader: React.FC = () => {
               <span>EDITION 15.6"</span>
             </span>
             <span className="text-slate-500">•</span>
-            <span className="text-amber-400 font-bold uppercase tracking-wider">
+            <span
+              className="font-bold uppercase tracking-wider"
+              style={{ color: 'var(--color-accent, #f97316)' }}
+            >
               {activeMode.toUpperCase()} VIEW
             </span>
           </div>
@@ -37,7 +48,7 @@ export const CivicHeader: React.FC = () => {
         {/* System Telemetry & Status */}
         <div className="flex items-center space-x-6 text-xs text-slate-300 font-mono">
           <div className="flex items-center space-x-1.5">
-            <Activity size={13} className="text-[#f97316]" />
+            <Activity size={13} style={{ color: 'var(--color-accent, #f97316)' }} />
             <span className="text-slate-400">WEATHER:</span>
             <span className="text-white font-semibold">{weather.temperature}°C ({weather.condition})</span>
           </div>

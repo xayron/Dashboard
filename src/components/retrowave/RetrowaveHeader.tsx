@@ -6,7 +6,13 @@ export const RetrowaveHeader: React.FC = () => {
   const { systemHealth, activeMode, weather } = useDashboard();
 
   return (
-    <header className="w-full bg-[#150424] border-b-2 border-pink-500 shadow-[0_4px_25px_rgba(255,0,127,0.35)] px-8 py-2.5 flex items-center justify-between text-xs select-none z-30">
+    <header
+      className="w-full bg-[#150424] border-b-2 px-8 py-2.5 flex items-center justify-between text-xs select-none z-30"
+      style={{
+        borderColor: 'var(--color-accent, #ec4899)',
+        boxShadow: '0 4px 25px var(--color-glow, rgba(255,0,127,0.35))',
+      }}
+    >
       {/* 80s Outrun Sliced Sun Logo & Title */}
       <div className="flex items-center space-x-3.5">
         {/* Sliced Neon Sun Icon */}
@@ -20,7 +26,14 @@ export const RetrowaveHeader: React.FC = () => {
           <span className="text-sm font-black italic tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-pink-400 to-fuchsia-400 drop-shadow-[0_0_8px_rgba(255,0,127,0.6)]">
             OUTRUN // 1984
           </span>
-          <span className="ml-2 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/40">
+          <span
+            className="ml-2 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border"
+            style={{
+              backgroundColor: 'var(--color-accent-soft, rgba(236,72,153,0.2))',
+              borderColor: 'var(--color-accent, #ec4899)',
+              color: 'var(--color-accent, #ec4899)',
+            }}
+          >
             {activeMode}
           </span>
         </div>

@@ -6,7 +6,10 @@ export const BrutalistHeader: React.FC = () => {
   const { systemHealth, activeMode, uiStyle, toggleUiStyle } = useDashboard();
 
   return (
-    <header className="w-full bg-yellow-400 text-black px-6 py-2 border-b-4 border-black flex items-center justify-between z-30 select-none shadow-[0_4px_0px_#000]">
+    <header
+      className="w-full text-black px-6 py-2 border-b-4 border-black flex items-center justify-between z-30 select-none shadow-[0_4px_0px_#000]"
+      style={{ backgroundColor: 'var(--color-accent, #facc15)' }}
+    >
       {/* Brand & Mode */}
       <div className="flex items-center space-x-3">
         <div className="px-2.5 py-1 bg-black text-white font-black text-xs uppercase tracking-widest border border-black shadow-[2px_2px_0px_#fff]">

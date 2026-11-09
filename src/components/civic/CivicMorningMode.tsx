@@ -22,7 +22,10 @@ export const CivicMorningMode: React.FC = () => {
       {/* Top Banner: Morning Briefing & Audio Banner */}
       <div className="flex items-center justify-between mb-4 pb-3 border-b-2 border-slate-300">
         <div className="flex items-center space-x-3">
-          <div className="p-2.5 bg-[#0f172a] text-[#f97316] rounded-lg shadow-sm">
+          <div
+            className="p-2.5 bg-[#0f172a] rounded-lg shadow-sm"
+            style={{ color: 'var(--color-accent, #f97316)' }}
+          >
             <Clock size={20} />
           </div>
           <div>
@@ -51,7 +54,7 @@ export const CivicMorningMode: React.FC = () => {
           <div className="p-5 bg-white border border-slate-300 rounded-xl shadow-sm flex flex-col justify-between">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 text-xs font-mono text-slate-500">
               <span className="flex items-center space-x-1.5 text-slate-800 font-bold">
-                <Clock size={14} className="text-[#f97316]" />
+                <Clock size={14} style={{ color: 'var(--color-accent, #f97316)' }} />
                 <span>CURRENT TIME</span>
               </span>
               <span className="text-[10px] text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded font-bold border border-emerald-300">
@@ -62,7 +65,7 @@ export const CivicMorningMode: React.FC = () => {
             <div className="py-4 text-center">
               <div className="text-6xl font-mono font-black tracking-tight text-slate-950 flex items-baseline justify-center">
                 <span>{hours}:{minutes}</span>
-                <span className="text-2xl text-[#f97316] font-mono ml-2">:{seconds}</span>
+                <span className="text-2xl font-mono ml-2" style={{ color: 'var(--color-accent, #f97316)' }}>:{seconds}</span>
               </div>
               <div className="text-xs font-bold text-slate-600 mt-2 uppercase tracking-wide">
                 {dateFormatted} • IST (UTC+05:30)
@@ -79,7 +82,7 @@ export const CivicMorningMode: React.FC = () => {
           <div className="p-5 bg-white border border-slate-300 rounded-xl shadow-sm flex-1 flex flex-col justify-between">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2 text-xs font-mono text-slate-500">
               <span className="flex items-center space-x-1.5 text-slate-800 font-bold">
-                <Database size={14} className="text-[#f97316]" />
+                <Database size={14} style={{ color: 'var(--color-accent, #f97316)' }} />
                 <span>WEATHER & ENVIRONMENT</span>
               </span>
               <span className="text-[10px] text-slate-500 font-semibold">{weather.condition.toUpperCase()}</span>
@@ -134,7 +137,7 @@ export const CivicMorningMode: React.FC = () => {
           <div className="p-5 bg-white border border-slate-300 rounded-xl shadow-sm flex-1 flex flex-col justify-between">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2 text-xs font-mono text-slate-500">
               <span className="flex items-center space-x-1.5 text-slate-800 font-bold">
-                <Calendar size={14} className="text-[#f97316]" />
+                <Calendar size={14} style={{ color: 'var(--color-accent, #f97316)' }} />
                 <span>TODAY'S SCHEDULE</span>
               </span>
               <span className="text-[10px] px-1.5 py-0.5 bg-slate-100 rounded text-slate-600 font-bold">
@@ -176,7 +179,7 @@ export const CivicMorningMode: React.FC = () => {
           <div className="p-5 bg-white border border-slate-300 rounded-xl shadow-sm flex-1 flex flex-col justify-between">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2 text-xs font-mono text-slate-500">
               <span className="flex items-center space-x-1.5 text-slate-800 font-bold">
-                <CheckSquare size={14} className="text-[#f97316]" />
+                <CheckSquare size={14} style={{ color: 'var(--color-accent, #f97316)' }} />
                 <span>TASKS & TO-DOS</span>
               </span>
               <span className="text-[10px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded font-bold border border-amber-300">
@@ -192,14 +195,14 @@ export const CivicMorningMode: React.FC = () => {
                   className={`p-2.5 border rounded-lg transition-all cursor-pointer flex items-center justify-between ${
                     task.completed
                       ? 'bg-slate-50 border-slate-200 opacity-60'
-                      : 'bg-white border-slate-300 hover:border-[#f97316] shadow-sm'
+                      : 'bg-white border-slate-300 hover:border-slate-500 shadow-sm'
                   }`}
                 >
                   <div className="flex items-center space-x-2.5 min-w-0 pr-2">
                     {task.completed ? (
                       <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />
                     ) : (
-                      <CircleDashed size={15} className="text-[#f97316] shrink-0" />
+                      <CircleDashed size={15} style={{ color: 'var(--color-accent, #f97316)' }} className="shrink-0" />
                     )}
                     <span className={`text-xs truncate font-medium ${task.completed ? 'line-through text-slate-400' : 'text-slate-800'}`}>
                       {task.title}
@@ -227,7 +230,7 @@ export const CivicMorningMode: React.FC = () => {
           <div className="p-5 bg-white border border-slate-300 rounded-xl shadow-sm flex-1 flex flex-col justify-between">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2 text-xs font-mono text-slate-500">
               <span className="flex items-center space-x-1.5 text-slate-800 font-bold">
-                <TrendingUp size={14} className="text-[#f97316]" />
+                <TrendingUp size={14} style={{ color: 'var(--color-accent, #f97316)' }} />
                 <span>MARKET WATCH</span>
               </span>
               <span className="text-[10px] text-emerald-800 font-bold bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
@@ -268,7 +271,7 @@ export const CivicMorningMode: React.FC = () => {
           <div className="p-5 bg-white border border-slate-300 rounded-xl shadow-sm flex flex-col justify-between">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2 text-xs font-mono text-slate-500">
               <span className="flex items-center space-x-1.5 text-slate-800 font-bold">
-                <Flag size={14} className="text-[#f97316]" />
+                <Flag size={14} style={{ color: 'var(--color-accent, #f97316)' }} />
                 <span>FORMULA 1</span>
               </span>
               <span className="text-[10px] text-slate-700 bg-slate-100 px-2 py-0.5 rounded font-bold border border-slate-300">
@@ -289,7 +292,9 @@ export const CivicMorningMode: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <span className="text-[10px] text-slate-500 uppercase block font-bold">Countdown</span>
-                  <span className="text-sm font-black text-[#f97316]">{f1.nextSession.countdownFormatted}</span>
+                  <span className="text-sm font-black" style={{ color: 'var(--color-accent, #f97316)' }}>
+                    {f1.nextSession.countdownFormatted}
+                  </span>
                 </div>
               </div>
             </div>

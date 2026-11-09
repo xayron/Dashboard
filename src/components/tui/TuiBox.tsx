@@ -13,7 +13,7 @@ interface TuiBoxProps {
 export const TuiBox: React.FC<TuiBoxProps> = ({
   title,
   badge,
-  badgeColor = 'text-emerald-400',
+  badgeColor,
   children,
   className = '',
   borderStyle = 'single',
@@ -21,24 +21,43 @@ export const TuiBox: React.FC<TuiBoxProps> = ({
 }) => {
   return (
     <div
-      className={`font-mono border border-emerald-500/40 bg-black/90 p-3 rounded-none relative flex flex-col ${className}`}
+      className={`font-mono border bg-black/90 p-3 rounded-none relative flex flex-col ${className}`}
       style={{
-        boxShadow: '0 0 15px rgba(16, 185, 129, 0.08)',
+        borderColor: 'var(--color-accent, #10b981)',
+        boxShadow: '0 0 15px var(--color-glow, rgba(16, 185, 129, 0.15))',
       }}
     >
       {/* Terminal Title Bar */}
       {(title || headerRight || badge) && (
-        <div className="flex items-center justify-between text-xs pb-2 mb-2 border-b border-emerald-500/30 text-emerald-400 font-bold uppercase tracking-wider select-none">
+        <div
+          className="flex items-center justify-between text-xs pb-2 mb-2 border-b font-bold uppercase tracking-wider select-none"
+          style={{
+            borderColor: 'var(--color-accent-soft, rgba(16, 185, 129, 0.25))',
+            color: 'var(--color-accent, #10b981)',
+          }}
+        >
           <div className="flex items-center space-x-2 truncate">
-            <span className="text-emerald-500 font-extrabold">&gt;</span>
+            <span style={{ color: 'var(--color-accent, #10b981)' }} className="font-extrabold">&gt;</span>
             {title && <span>{title}</span>}
             {badge && (
-              <span className={`text-[10px] px-1.5 py-0.2 bg-emerald-950/80 border border-emerald-500/40 rounded ${badgeColor}`}>
+              <span
+                className={`text-[10px] px-1.5 py-0.5 rounded ${badgeColor || ''}`}
+                style={{
+                  backgroundColor: 'var(--color-accent-soft, rgba(16, 185, 129, 0.15))',
+                  borderColor: 'var(--color-accent, #10b981)',
+                  borderWidth: 1,
+                  color: 'var(--color-accent, #10b981)',
+                }}
+              >
                 [{badge}]
               </span>
             )}
           </div>
-          {headerRight && <div className="text-emerald-300/80 text-[11px] shrink-0">{headerRight}</div>}
+          {headerRight && (
+            <div style={{ color: 'var(--color-accent, #10b981)' }} className="text-[11px] shrink-0 opacity-80">
+              {headerRight}
+            </div>
+          )}
         </div>
       )}
 

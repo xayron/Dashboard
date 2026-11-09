@@ -19,7 +19,7 @@ import { getFinanceData } from '../services/financeService';
 import { photoService } from '../services/photoService';
 import { getCalendarEvents, getTodoTasks } from '../services/calendarService';
 
-import { THEMES, type ThemeId } from '../types/theme';
+import { THEMES, type ThemeId, type ThemeDefinition } from '../types/theme';
 
 export interface UIStyleInfo {
   id: UIStyle;
@@ -98,6 +98,7 @@ interface DashboardContextType {
   setUiStyle: (style: UIStyle) => void;
   toggleUiStyle: () => void;
   theme: ThemeId;
+  themeDef: ThemeDefinition;
   setTheme: (theme: ThemeId) => void;
   activeMode: DashboardMode;
   autoCalculatedMode: DashboardMode;
@@ -173,6 +174,11 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const isLightStyle = uiStyle === 'eink' || uiStyle === 'civic';
     document.documentElement.style.colorScheme = isLightStyle ? 'light' : 'dark';
 
+    const currentThemeDef = THEMES[theme] || THEMES.obsidian;
+    document.documentElement.style.setProperty('--theme-accent', currentThemeDef.colors.accent);
+    document.documentElement.style.setProperty('--theme-border', currentThemeDef.colors.border);
+    document.documentElement.style.setProperty('--theme-bg', currentThemeDef.colors.bg);
+
     if (uiStyle === 'eink') {
       document.body.style.backgroundColor = '#f5f2eb';
     } else if (uiStyle === 'civic') {
@@ -192,8 +198,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     } else if (uiStyle === 'obsidian') {
       document.body.style.backgroundColor = '#050507';
     } else {
-      const themeDef = THEMES[theme] || THEMES.obsidian;
-      document.body.style.backgroundColor = themeDef.colors.bg;
+      document.body.style.backgroundColor = currentThemeDef.colors.bg;
     }
   }, [theme, uiStyle]);
 
@@ -515,6 +520,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setUiStyle,
         toggleUiStyle,
         theme,
+        themeDef: THEMES[theme] || THEMES.obsidian,
         setTheme,
         activeMode,
         autoCalculatedMode,

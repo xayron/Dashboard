@@ -23,18 +23,24 @@ export const BrutalistMorningMode: React.FC = () => {
       {/* Top Bar: Morning Header & Audio Banner */}
       <div className="flex items-center justify-between mb-4 pb-3 border-b-2 border-white/40">
         <div className="flex items-center space-x-3">
-          <div className="p-2 bg-yellow-400 text-black border-2 border-black shadow-[3px_3px_0px_#fff]">
+          <div
+            className="p-2 text-black border-2 border-black shadow-[3px_3px_0px_#fff]"
+            style={{ backgroundColor: 'var(--color-accent, #facc15)' }}
+          >
             <Coffee size={20} />
           </div>
           <div>
             <h1 className="text-xl font-black uppercase tracking-tight text-white flex items-center">
               MORNING BRIEFING
-              <span className="ml-2 px-2 py-0.5 bg-yellow-400 text-black text-[10px] font-black border border-black shadow-[2px_2px_0px_#fff]">
+              <span
+                className="ml-2 px-2 py-0.5 text-black text-[10px] font-black border border-black shadow-[2px_2px_0px_#fff]"
+                style={{ backgroundColor: 'var(--color-accent, #facc15)' }}
+              >
                 DAILY DOSSIER
               </span>
             </h1>
             <p className="text-xs font-bold text-neutral-400 flex items-center mt-0.5 uppercase">
-              <Sunrise size={12} className="mr-1 text-yellow-400" />
+              <Sunrise size={12} className="mr-1" style={{ color: 'var(--color-accent, #facc15)' }} />
               Sunrise at {weather.sunrise} • Target high {weather.highTemp}°C
             </p>
           </div>
@@ -56,7 +62,7 @@ export const BrutalistMorningMode: React.FC = () => {
             <div className="py-2 text-center">
               <div className="text-6xl font-black tracking-tight text-white flex items-baseline justify-center">
                 <span>{hours}:{minutes}</span>
-                <span className="text-2xl text-yellow-400 ml-2 font-mono">:{seconds}</span>
+                <span className="text-2xl ml-2 font-mono" style={{ color: 'var(--color-accent, #facc15)' }}>:{seconds}</span>
               </div>
               <div className="mt-2 py-1 bg-white text-black font-black text-xs uppercase tracking-widest border border-black shadow-[2px_2px_0px_#000]">
                 {dateFormatted}

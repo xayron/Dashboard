@@ -18,19 +18,32 @@ export const TuiHeader: React.FC = () => {
   const timeFormatted = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
   return (
-    <header className="w-full bg-black border-b border-emerald-500/40 px-6 py-2.5 flex items-center justify-between font-mono text-xs select-none z-40 text-emerald-400">
+    <header
+      className="w-full bg-black px-6 py-2.5 flex items-center justify-between font-mono text-xs select-none z-40 border-b"
+      style={{
+        borderColor: 'var(--color-accent, #10b981)',
+        color: 'var(--color-accent, #10b981)',
+      }}
+    >
       {/* Left: Shell Prompt & Mode */}
       <div className="flex items-center space-x-3">
         <div className="flex items-center space-x-1.5 font-bold">
-          <Terminal size={15} className="text-emerald-400" />
+          <Terminal size={15} style={{ color: 'var(--color-accent, #10b981)' }} />
           <span>debjit@kiosk-1080p:~$</span>
         </div>
 
-        <span className="text-emerald-500/50">|</span>
+        <span className="opacity-40">|</span>
 
         <div className="flex items-center space-x-2">
           <span className="text-gray-400 uppercase">MODE:</span>
-          <span className="px-2 py-0.5 bg-emerald-950/80 border border-emerald-500/40 font-bold uppercase text-emerald-300">
+          <span
+            className="px-2 py-0.5 font-bold uppercase border"
+            style={{
+              backgroundColor: 'var(--color-accent-soft, rgba(16, 185, 129, 0.15))',
+              borderColor: 'var(--color-accent, #10b981)',
+              color: 'var(--color-accent, #10b981)',
+            }}
+          >
             [{activeMode}]
           </span>
           {manualOverrideMode && (

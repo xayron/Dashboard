@@ -212,9 +212,9 @@ export const SettingsModal: React.FC = () => {
               {/* SECTION 2: COLOR PALETTES */}
               <div className="pt-4 border-t border-white/10">
                 <div className="mb-3">
-                  <h3 className="text-sm font-bold text-white mb-1">Color Palette (Modern Glass Mode)</h3>
+                  <h3 className="text-sm font-bold text-white mb-1">Color Palette</h3>
                   <p className="text-xs text-gray-400">
-                    Custom lighting & accent hues applied across modern translucent glass panels.
+                    Signature accent hues, glows, and indicators applied dynamically across all dashboard design styles.
                   </p>
                 </div>
 
