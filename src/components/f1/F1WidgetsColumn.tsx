@@ -648,6 +648,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
   // 1. COUNTDOWN WIDGET
   const renderCountdownWidget = (size: F1WidgetSize) => {
     const isCompact = size === 'compact';
+    const isLarge = size === 'large';
 
     if (uiStyle === 'tui') {
       return (
@@ -656,10 +657,10 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           title={isCompact ? 'COUNTDOWN' : 'NEXT_SESSION_COUNTDOWN'}
           badge={isCompact ? f1.nextSession.countdownFormatted : 'LIVE IN IST'}
           badgeColor="text-red-500"
-          className={`border-red-500/50 ${isCompact ? 'h-full flex flex-col justify-between' : ''}`}
+          className="border-red-500/50 h-full flex flex-col justify-between"
         >
           <div className="py-0.5 flex flex-col justify-between h-full">
-            <div className={!isCompact ? 'flex items-center justify-between pb-1.5 border-b border-red-500/30' : 'space-y-1'}>
+            <div className={!isCompact ? 'flex items-center justify-between pb-1 border-b border-red-500/30' : 'space-y-1'}>
               <div>
                 <div className={`text-[8px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>TARGET:</div>
                 <div className="text-xs font-bold truncate mt-0.5">
@@ -676,7 +677,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
             </div>
 
             {!isCompact && (
-              <div className="grid grid-cols-4 gap-1 text-[10px] pt-1.5">
+              <div className="grid grid-cols-4 gap-1 text-[10px] pt-1">
                 <div className={`p-1 border text-center ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-white/5 border-white/10'}`}>
                   <div className="text-[8px] opacity-70">LAPS</div>
                   <div className="font-bold">50 LAPS</div>
@@ -707,10 +708,10 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           title={isCompact ? 'COUNTDOWN' : 'NEXT SESSION COUNTDOWN'}
           badge={isCompact ? f1.nextSession.countdownFormatted : 'LIVE IN IST'}
           badgeColor="bg-red-600 text-white"
-          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+          className="h-full flex flex-col justify-between"
         >
           <div className="py-0.5 flex flex-col justify-between h-full">
-            <div className={!isCompact ? 'flex items-center justify-between pb-1.5 border-b-2 border-black' : 'space-y-1'}>
+            <div className={!isCompact ? 'flex items-center justify-between pb-1 border-b-2 border-black' : 'space-y-1'}>
               <div>
                 <div className="text-[8px] font-black uppercase tracking-wider opacity-75">TARGET</div>
                 <div className="text-xs font-black uppercase tracking-tight truncate">
@@ -733,7 +734,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
             </div>
 
             {!isCompact && (
-              <div className="grid grid-cols-4 gap-1.5 text-xs pt-1.5">
+              <div className="grid grid-cols-4 gap-1.5 text-xs pt-1">
                 <div className={`p-1 border-2 border-black text-center ${isLight ? 'bg-neutral-100 shadow-[1px_1px_0px_#000]' : 'bg-neutral-900 shadow-[1px_1px_0px_#fff]'}`}>
                   <span className="block text-[8px] font-black uppercase opacity-75">Laps</span>
                   <span className="font-mono font-black text-xs">50</span>
@@ -764,10 +765,10 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           title={isCompact ? 'COUNTDOWN' : 'NEXT_SESSION_COUNTDOWN'}
           code={isCompact ? f1.nextSession.countdownFormatted : 'LIVE_IST'}
           glowColor="cyan"
-          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+          className="h-full flex flex-col justify-between"
         >
           <div className="py-0.5 flex flex-col justify-between h-full">
-            <div className={!isCompact ? 'flex items-center justify-between pb-1.5 border-b border-cyan-500/20' : 'space-y-1'}>
+            <div className={!isCompact ? 'flex items-center justify-between pb-1 border-b border-cyan-500/20' : 'space-y-1'}>
               <div>
                 <span className="text-[8px] block opacity-75">TARGET</span>
                 <span className="text-xs font-black tracking-wide truncate block">{f1.nextSession.name}</span>
@@ -785,7 +786,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
             </div>
 
             {!isCompact && (
-              <div className="grid grid-cols-4 gap-1.5 text-xs pt-2">
+              <div className="grid grid-cols-4 gap-1.5 text-xs pt-1">
                 <div className={`p-1 border text-center ${isLight ? 'bg-white/80 border-cyan-200' : 'bg-black/40 border-cyan-500/20'}`}>
                   <span className="block text-[8px] opacity-75">LAPS</span>
                   <span className="font-bold text-xs">50</span>
@@ -812,27 +813,27 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
     // Default Glass / Minimal / Neumorphic / Eink / Retrowave / Obsidian / Civic
     return (
       <div key="countdown" className={`border shadow-md relative overflow-hidden ${getCardClass(size, 'countdown')}`}>
-        <div className="flex items-center justify-between pb-1.5 border-b border-red-500/10">
-          <div className={`flex items-center space-x-1.5 text-[10px] uppercase font-extrabold tracking-widest ${
-            isLight ? 'text-red-600' : 'text-red-400'
-          }`}>
-            <Timer size={12} />
+        {/* Header - Aligned with other widgets */}
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
+            <Timer size={12} className="text-red-500 shrink-0" />
             <span className="truncate">{isCompact ? 'Countdown' : 'Next Session Countdown'}</span>
-          </div>
+          </span>
           <div className="flex items-center space-x-1.5 shrink-0">
-            {renderSizeToggle('countdown')}
             {!isCompact && (
-              <span className="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase bg-red-600 text-white shadow-sm">
+              <span className="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase bg-red-600 text-white shadow-xs">
                 LIVE IST
               </span>
             )}
+            {renderSizeToggle('countdown')}
           </div>
         </div>
 
         {isCompact ? (
-          <div className="py-1.5 flex flex-col justify-between flex-1 space-y-1.5">
+          <div className="py-1 flex flex-col justify-between flex-1">
             <div>
-              <h2 className="text-xs font-extrabold truncate">
+              <div className="text-[8px] uppercase tracking-wider font-bold opacity-70">TARGET SESSION</div>
+              <h2 className="text-xs font-extrabold truncate mt-0.5">
                 {f1.nextSession.name}
               </h2>
               <p className="text-[10px] font-mono opacity-75 truncate flex items-center mt-0.5">
@@ -848,73 +849,78 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
             </div>
           </div>
         ) : (
-          <>
-            <div className="flex items-center justify-between py-2">
-              <div>
-                <h2 className="text-lg font-bold">
+          <div className="flex flex-col justify-between flex-1 min-h-0 pt-0.5">
+            {/* Session Info & Countdown Clock */}
+            <div className="flex items-center justify-between gap-2 py-0.5">
+              <div className="min-w-0 flex-1">
+                <div className="text-[8px] uppercase font-mono font-bold text-red-500 opacity-90 truncate">TARGET SESSION</div>
+                <h2 className="text-sm font-extrabold tracking-tight truncate leading-tight">
                   {f1.nextSession.name}
                 </h2>
-                <p className="text-xs font-mono mt-0.5 flex items-center opacity-75">
-                  <Calendar size={11} className="mr-1 text-red-500" />
+                <p className="text-[10px] font-mono opacity-75 truncate flex items-center mt-0.5">
+                  <Calendar size={10} className="mr-1 text-red-500 shrink-0" />
                   {f1.nextSession.istTimeFormatted}
                 </p>
               </div>
-              <div className={`px-2 py-1 rounded-xl border flex items-center space-x-1 font-mono ${getInnerClass()}`}>
+
+              {/* Countdown Digits Matrix */}
+              <div className={`px-2 py-1 rounded-xl border flex items-center space-x-1 font-mono shrink-0 shadow-xs ${getInnerClass()}`}>
                 {(f1.nextSession.days ?? 0) > 0 && (
                   <>
-                    <div className="text-center min-w-[24px]">
-                      <span className="text-sm font-extrabold block leading-tight tabular-nums">
+                    <div className="text-center min-w-[22px]">
+                      <span className="text-xs font-black font-mono block leading-none tabular-nums">
                         {String(f1.nextSession.days).padStart(2, '0')}
                       </span>
-                      <span className="text-[7px] uppercase tracking-wider block opacity-70">Days</span>
+                      <span className="text-[7px] uppercase tracking-wider block opacity-70 mt-0.5">Days</span>
                     </div>
-                    <span className="text-xs text-red-500 font-bold">:</span>
+                    <span className="text-xs text-red-500 font-bold self-start -mt-0.5">:</span>
                   </>
                 )}
-                <div className="text-center min-w-[24px]">
-                  <span className="text-sm font-extrabold block leading-tight tabular-nums">
+                <div className="text-center min-w-[22px]">
+                  <span className="text-xs font-black font-mono block leading-none tabular-nums">
                     {String(f1.nextSession.hours ?? 0).padStart(2, '0')}
                   </span>
-                  <span className="text-[7px] uppercase tracking-wider block opacity-70">Hrs</span>
+                  <span className="text-[7px] uppercase tracking-wider block opacity-70 mt-0.5">Hrs</span>
                 </div>
-                <span className="text-xs text-red-500 font-bold">:</span>
-                <div className="text-center min-w-[24px]">
-                  <span className="text-sm font-extrabold block leading-tight tabular-nums">
+                <span className="text-xs text-red-500 font-bold self-start -mt-0.5">:</span>
+                <div className="text-center min-w-[22px]">
+                  <span className="text-xs font-black font-mono block leading-none tabular-nums">
                     {String(f1.nextSession.mins ?? 0).padStart(2, '0')}
                   </span>
-                  <span className="text-[7px] uppercase tracking-wider block opacity-70">Min</span>
+                  <span className="text-[7px] uppercase tracking-wider block opacity-70 mt-0.5">Min</span>
                 </div>
-                <span className="text-xs text-red-500 font-bold">:</span>
-                <div className="text-center min-w-[24px]">
-                  <span className="text-sm font-extrabold text-red-500 block leading-tight tabular-nums animate-pulse">
+                <span className="text-xs text-red-500 font-bold self-start -mt-0.5">:</span>
+                <div className="text-center min-w-[22px]">
+                  <span className="text-xs font-black font-mono text-red-500 block leading-none tabular-nums animate-pulse">
                     {String(f1.nextSession.secs ?? 0).padStart(2, '0')}
                   </span>
-                  <span className="text-[7px] uppercase tracking-wider block opacity-70">Sec</span>
+                  <span className="text-[7px] uppercase tracking-wider block opacity-70 mt-0.5">Sec</span>
                 </div>
               </div>
             </div>
 
-            <div className={`grid grid-cols-4 gap-1.5 pt-1.5 border-t border-current/10 text-xs`}>
-              <div className={`p-1 rounded-lg text-center ${getInnerClass()}`}>
-                <span className="block text-[8px] uppercase opacity-70">Laps</span>
-                <span className="font-mono font-bold text-xs">50</span>
+            {/* Circuit Telemetry Specs Footer */}
+            <div className="grid grid-cols-4 gap-1.5 pt-1.5 border-t border-current/10 text-xs text-center font-mono">
+              <div className={`p-1 rounded-lg border text-center ${getInnerClass()}`}>
+                <span className="block text-[7px] uppercase opacity-70">Laps</span>
+                <span className="font-mono font-bold text-[11px] block leading-tight">50</span>
               </div>
-              <div className={`p-1 rounded-lg text-center ${getInnerClass()}`}>
-                <span className="block text-[8px] uppercase opacity-70">Length</span>
-                <span className="font-mono font-bold text-xs">6.2 km</span>
+              <div className={`p-1 rounded-lg border text-center ${getInnerClass()}`}>
+                <span className="block text-[7px] uppercase opacity-70">Length</span>
+                <span className="font-mono font-bold text-[11px] block leading-tight">6.2 km</span>
               </div>
-              <div className={`p-1 rounded-lg text-center ${getInnerClass()}`}>
-                <span className="block text-[8px] uppercase opacity-70">DRS</span>
-                <span className="font-mono font-bold text-red-500 text-xs">2 Zones</span>
+              <div className={`p-1 rounded-lg border text-center ${getInnerClass()}`}>
+                <span className="block text-[7px] uppercase opacity-70">DRS</span>
+                <span className="font-mono font-bold text-red-500 text-[11px] block leading-tight">2 Zones</span>
               </div>
-              <div className={`p-1 rounded-lg text-center ${getInnerClass()}`}>
-                <span className="block text-[8px] uppercase opacity-70">Record</span>
-                <span className="font-mono font-bold text-amber-500 text-xs">
+              <div className={`p-1 rounded-lg border text-center ${getInnerClass()}`}>
+                <span className="block text-[7px] uppercase opacity-70">Record</span>
+                <span className="font-mono font-bold text-amber-500 text-[11px] block leading-tight truncate">
                   {f1.circuitLapRecord?.lapTime || '1:35.4'}
                 </span>
               </div>
             </div>
-          </>
+          </div>
         )}
       </div>
     );
@@ -1035,13 +1041,13 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
             <span className="truncate">{isCompact ? 'Prev Podium' : `PREV GP: ${f1.lastRace.raceName}`}</span>
           </span>
           <div className="flex items-center space-x-1.5 shrink-0">
-            {renderSizeToggle('podium')}
             {!isCompact && (
               <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center space-x-1">
                 <Zap size={9} />
                 <span>FL: {f1.lastRace.fastestLapDriver} ({f1.lastRace.fastestLapTime})</span>
               </span>
             )}
+            {renderSizeToggle('podium')}
           </div>
         </div>
 
@@ -1214,13 +1220,13 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
             <Trophy size={12} className="text-emerald-500 shrink-0" />
             <span className="truncate">{isCompact ? 'Title Battle' : 'TITLE BATTLE (P1 VS P2)'}</span>
           </span>
-          <div className="flex items-center space-x-1 shrink-0">
-            {renderSizeToggle('titleBattle')}
+          <div className="flex items-center space-x-1.5 shrink-0">
             {!isCompact && (
               <span className="text-[9px] font-mono px-1.5 py-0.2 rounded font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                 +{battle.pointsGap} PTS GAP
               </span>
             )}
+            {renderSizeToggle('titleBattle')}
           </div>
         </div>
 
@@ -1331,13 +1337,13 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
             <Zap size={12} className="text-amber-500 shrink-0" />
             <span className="truncate">{isCompact ? 'Qualifying' : `QUALIFYING: ${quali.raceName}`}</span>
           </span>
-          <div className="flex items-center space-x-1 shrink-0">
-            {renderSizeToggle('qualifying')}
+          <div className="flex items-center space-x-1.5 shrink-0">
             {!isCompact && (
               <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">
                 POLE: {quali.poleTime}
               </span>
             )}
+            {renderSizeToggle('qualifying')}
           </div>
         </div>
 
@@ -1554,9 +1560,9 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
             <Flag size={12} className="text-cyan-400 shrink-0" />
             <span className="truncate">{isCompact ? 'Next GP' : 'UPCOMING GRAND PRIX'}</span>
           </span>
-          <div className="flex items-center space-x-1 shrink-0">
-            {renderSizeToggle('upcomingRaces')}
+          <div className="flex items-center space-x-1.5 shrink-0">
             {!isCompact && <span className="text-[9px] font-mono font-bold opacity-75">2026 CALENDAR</span>}
+            {renderSizeToggle('upcomingRaces')}
           </div>
         </div>
 
@@ -1633,9 +1639,9 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
             <Gauge size={12} className="text-cyan-400 shrink-0" />
             <span className="truncate">{isCompact ? 'Circuit Tech' : 'CIRCUIT TECHNICAL SPECS'}</span>
           </span>
-          <div className="flex items-center space-x-1 shrink-0">
-            {renderSizeToggle('circuitTelemetry')}
+          <div className="flex items-center space-x-1.5 shrink-0">
             {!isCompact && <span className="text-[9px] font-mono opacity-70">{tel.tyreAllocation}</span>}
+            {renderSizeToggle('circuitTelemetry')}
           </div>
         </div>
 
@@ -1962,13 +1968,13 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
             <Newspaper size={12} className="text-red-500 shrink-0" />
             <span className="truncate">{isCompact ? 'Paddock Wire' : isLarge ? 'F1 PADDOCK NEWS & WIRE (DEEP FEED)' : 'F1 PADDOCK NEWS & WIRE'}</span>
           </span>
-          <div className="flex items-center space-x-1 shrink-0">
-            {renderSizeToggle('news')}
+          <div className="flex items-center space-x-1.5 shrink-0">
             {!isCompact && (
               <span className="text-[9px] font-mono font-bold text-red-500 bg-red-500/10 px-1.5 py-0.2 rounded border border-red-500/20">
                 LIVE
               </span>
             )}
+            {renderSizeToggle('news')}
           </div>
         </div>
 
@@ -2282,9 +2288,9 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
             <Calendar size={12} className="text-red-500 shrink-0" />
             <span className="truncate">{isCompact ? 'Schedule' : isLarge ? 'WEEKEND TIMETABLE & TELEMETRY' : 'WEEKEND SCHEDULE (IST)'}</span>
           </span>
-          <div className="flex items-center space-x-1 shrink-0">
-            {renderSizeToggle('schedule')}
+          <div className="flex items-center space-x-1.5 shrink-0">
             {!isCompact && <span className="text-[9px] font-mono opacity-70">UTC+5:30</span>}
+            {renderSizeToggle('schedule')}
           </div>
         </div>
 
@@ -2617,9 +2623,9 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center space-x-1 shrink-0">
-            {renderSizeToggle('standings')}
+          <div className="flex items-center space-x-1.5 shrink-0">
             {!isCompact && <span className="text-[9px] font-mono opacity-70">PTS</span>}
+            {renderSizeToggle('standings')}
           </div>
         </div>
 
