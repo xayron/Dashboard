@@ -6,9 +6,14 @@ import { AudioBanner } from '../common/AudioBanner';
 import { F1WidgetsColumn } from '../f1/F1WidgetsColumn';
 
 export const BrutalistRaceWeekendMode: React.FC = () => {
-  const { now, f1, media, weather, colorMode } = useDashboard();
+  const { now, f1, media, weather, colorMode, f1WidgetSizes, setF1WidgetSize } = useDashboard();
   const isLight = colorMode === 'light';
   const [standingsTab, setStandingsTab] = useState<'drivers' | 'constructors'>('drivers');
+
+  const scheduleSize = f1WidgetSizes?.schedule || 'normal';
+  const isScheduleCompact = scheduleSize === 'compact';
+  const standingsSize = f1WidgetSizes?.standings || 'normal';
+  const isStandingsCompact = standingsSize === 'compact';
 
   const sessionsList = [
     { key: 'fp1', label: 'Practice 1', data: f1.sessions.fp1 },
@@ -76,17 +81,36 @@ export const BrutalistRaceWeekendMode: React.FC = () => {
         <div className="col-span-4 flex flex-col">
           <BrutalistBox
             title="WEEKEND SCHEDULE (IST)"
-            badge="LIVE TIMINGS"
+            badge={
+              <div className="flex items-center space-x-1.5">
+                <div className="flex space-x-0.5">
+                  {(['compact', 'normal'] as const).map((sz) => (
+                    <button
+                      key={sz}
+                      type="button"
+                      title={`Set Schedule size: ${sz}`}
+                      onClick={() => setF1WidgetSize('schedule', sz)}
+                      className={`px-1.5 py-0.2 text-[9px] font-black uppercase border border-black cursor-pointer ${
+                        scheduleSize === sz ? 'bg-black text-white' : 'bg-white text-black hover:bg-neutral-200'
+                      }`}
+                    >
+                      {sz === 'compact' ? 'S' : 'M'}
+                    </button>
+                  ))}
+                </div>
+                <span>IST</span>
+              </div>
+            }
             badgeColor="bg-yellow-400 text-black"
             className="h-full"
           >
-            <div className="space-y-2 overflow-y-auto max-h-[56vh] pr-1 pt-1">
+            <div className={`${isScheduleCompact ? 'space-y-1' : 'space-y-2'} overflow-y-auto max-h-[56vh] pr-1 pt-1`}>
               {sessionsList.map((s) => {
                 const isNext = f1.nextSession.name.toLowerCase().includes(s.label.toLowerCase());
                 return (
                   <div
                     key={s.key}
-                    className={`p-2 border-2 flex items-center justify-between ${
+                    className={`${isScheduleCompact ? 'p-1' : 'p-2'} border-2 flex items-center justify-between ${
                       isNext
                         ? 'text-black border-black font-black'
                         : isLight
@@ -117,31 +141,48 @@ export const BrutalistRaceWeekendMode: React.FC = () => {
           <BrutalistBox
             title={standingsTab === 'drivers' ? 'DRIVERS (WDC)' : 'TEAMS (WCC)'}
             badge={
-              <div className="flex space-x-1">
-                <button
-                  onClick={() => setStandingsTab('drivers')}
-                  className={`px-1.5 py-0.2 text-[9px] font-black uppercase ${standingsTab === 'drivers' ? 'bg-black text-yellow-400' : 'text-neutral-500'}`}
-                >
-                  WDC
-                </button>
-                <button
-                  onClick={() => setStandingsTab('constructors')}
-                  className={`px-1.5 py-0.2 text-[9px] font-black uppercase ${standingsTab === 'constructors' ? 'bg-black text-yellow-400' : 'text-neutral-500'}`}
-                >
-                  WCC
-                </button>
+              <div className="flex items-center space-x-1.5">
+                <div className="flex space-x-1">
+                  <button
+                    onClick={() => setStandingsTab('drivers')}
+                    className={`px-1.5 py-0.2 text-[9px] font-black uppercase ${standingsTab === 'drivers' ? 'bg-black text-yellow-400' : 'text-neutral-500'}`}
+                  >
+                    WDC
+                  </button>
+                  <button
+                    onClick={() => setStandingsTab('constructors')}
+                    className={`px-1.5 py-0.2 text-[9px] font-black uppercase ${standingsTab === 'constructors' ? 'bg-black text-yellow-400' : 'text-neutral-500'}`}
+                  >
+                    WCC
+                  </button>
+                </div>
+                <div className="flex space-x-0.5">
+                  {(['compact', 'normal'] as const).map((sz) => (
+                    <button
+                      key={sz}
+                      type="button"
+                      title={`Set Standings size: ${sz}`}
+                      onClick={() => setF1WidgetSize('standings', sz)}
+                      className={`px-1.5 py-0.2 text-[9px] font-black uppercase border border-black cursor-pointer ${
+                        standingsSize === sz ? 'bg-black text-white' : 'bg-white text-black hover:bg-neutral-200'
+                      }`}
+                    >
+                      {sz === 'compact' ? 'S' : 'M'}
+                    </button>
+                  ))}
+                </div>
               </div>
             }
             badgeColor="bg-cyan-400 text-black"
             shadowColor={isLight ? 'shadow-[5px_5px_0px_#000]' : 'shadow-[5px_5px_0px_#00f0ff]'}
             className="h-full"
           >
-            <div className="space-y-1.5 overflow-y-auto max-h-[56vh] pr-1 pt-1">
+            <div className={`${isStandingsCompact ? 'space-y-1' : 'space-y-1.5'} overflow-y-auto max-h-[56vh] pr-1 pt-1`}>
               {standingsTab === 'drivers' ? (
                 f1.standings.map((driver) => (
                   <div
                     key={driver.driverCode}
-                    className={`p-1.5 border-2 flex items-center justify-between text-xs ${
+                    className={`${isStandingsCompact ? 'p-1' : 'p-1.5'} border-2 flex items-center justify-between text-xs ${
                       isLight
                         ? 'bg-neutral-100 border-black shadow-[2px_2px_0px_#000] text-black'
                         : 'bg-neutral-900 border-white/60 shadow-[2px_2px_0px_#fff] text-white'
@@ -158,8 +199,12 @@ export const BrutalistRaceWeekendMode: React.FC = () => {
                         style={{ backgroundColor: driver.teamColor || '#ff0000' }}
                       />
                       <div className="truncate">
-                        <span className="font-black text-xs uppercase block truncate">{driver.driver}</span>
-                        <span className={`text-[9px] uppercase truncate block ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>{driver.team}</span>
+                        <span className="font-black text-xs uppercase block truncate">
+                          {isStandingsCompact ? driver.driverCode : driver.driver}
+                        </span>
+                        {!isStandingsCompact && (
+                          <span className={`text-[9px] uppercase truncate block ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>{driver.team}</span>
+                        )}
                       </div>
                     </div>
                     <div className="font-mono font-black text-xs shrink-0 ml-1" style={{ color: 'var(--color-accent)' }}>
@@ -171,7 +216,7 @@ export const BrutalistRaceWeekendMode: React.FC = () => {
                 (f1.constructorStandings || []).map((team) => (
                   <div
                     key={team.team}
-                    className={`p-1.5 border-2 flex items-center justify-between text-xs ${
+                    className={`${isStandingsCompact ? 'p-1' : 'p-1.5'} border-2 flex items-center justify-between text-xs ${
                       isLight
                         ? 'bg-neutral-100 border-black shadow-[2px_2px_0px_#000] text-black'
                         : 'bg-neutral-900 border-white/60 shadow-[2px_2px_0px_#fff] text-white'

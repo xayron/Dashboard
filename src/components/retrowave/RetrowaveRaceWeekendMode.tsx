@@ -5,9 +5,14 @@ import { AudioBanner } from '../common/AudioBanner';
 import { F1WidgetsColumn } from '../f1/F1WidgetsColumn';
 
 export const RetrowaveRaceWeekendMode: React.FC = () => {
-  const { now, f1, media, weather, colorMode } = useDashboard();
+  const { now, f1, media, weather, colorMode, f1WidgetSizes, setF1WidgetSize } = useDashboard();
   const isLight = colorMode === 'light';
   const [standingsTab, setStandingsTab] = useState<'drivers' | 'constructors'>('drivers');
+
+  const scheduleSize = f1WidgetSizes?.schedule || 'normal';
+  const isScheduleCompact = scheduleSize === 'compact';
+  const standingsSize = f1WidgetSizes?.standings || 'normal';
+  const isStandingsCompact = standingsSize === 'compact';
 
   const sessionsList = [
     { key: 'fp1', label: 'Practice 1', data: f1.sessions.fp1 },
@@ -107,18 +112,39 @@ export const RetrowaveRaceWeekendMode: React.FC = () => {
             }`}
             style={{ borderColor: 'var(--color-accent)' }}
           >
-            <span className={`text-[10px] font-black uppercase tracking-wider border-b pb-2 mb-3 ${
-              isLight ? 'text-pink-800 border-pink-200' : 'text-amber-300 border-pink-500/30'
+            <div className={`flex items-center justify-between border-b pb-2 mb-3 ${
+              isLight ? 'border-pink-200' : 'border-pink-500/30'
             }`}>
-              HIGHWAY CHECKPOINTS (IST)
-            </span>
-            <div className="space-y-2 overflow-y-auto max-h-[56vh] pr-1">
+              <span className={`text-[10px] font-black uppercase tracking-wider ${
+                isLight ? 'text-pink-800' : 'text-amber-300'
+              }`}>
+                HIGHWAY CHECKPOINTS (IST)
+              </span>
+              <div className="flex items-center space-x-1.5">
+                <div className="flex space-x-0.5">
+                  {(['compact', 'normal'] as const).map((sz) => (
+                    <button
+                      key={sz}
+                      type="button"
+                      title={`Set Schedule size: ${sz}`}
+                      onClick={() => setF1WidgetSize('schedule', sz)}
+                      className={`px-1.5 py-0.2 text-[8px] font-black uppercase border border-pink-500 rounded cursor-pointer ${
+                        scheduleSize === sz ? 'bg-pink-500 text-white' : 'text-pink-400 hover:text-white'
+                      }`}
+                    >
+                      {sz === 'compact' ? 'S' : 'M'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className={`${isScheduleCompact ? 'space-y-1' : 'space-y-2'} overflow-y-auto max-h-[56vh] pr-1`}>
               {sessionsList.map((s) => {
                 const isNext = f1.nextSession.name.toLowerCase().includes(s.label.toLowerCase());
                 return (
                   <div
                     key={s.key}
-                    className={`p-2 rounded-xl border flex items-center justify-between ${
+                    className={`${isScheduleCompact ? 'p-1' : 'p-2'} rounded-xl border flex items-center justify-between ${
                       isNext
                         ? isLight
                           ? 'bg-pink-200/80 border-pink-500 font-bold text-slate-900 shadow-sm'
@@ -173,15 +199,32 @@ export const RetrowaveRaceWeekendMode: React.FC = () => {
                   SQUADS
                 </button>
               </div>
-              <span className={`text-[9px] font-mono font-bold ${isLight ? 'text-pink-700' : 'text-amber-300'}`}>PTS</span>
+              <div className="flex items-center space-x-1.5">
+                <div className="flex space-x-0.5">
+                  {(['compact', 'normal'] as const).map((sz) => (
+                    <button
+                      key={sz}
+                      type="button"
+                      title={`Set Standings size: ${sz}`}
+                      onClick={() => setF1WidgetSize('standings', sz)}
+                      className={`px-1.5 py-0.2 text-[8px] font-black uppercase border border-pink-500 rounded cursor-pointer ${
+                        standingsSize === sz ? 'bg-pink-500 text-white' : 'text-pink-400 hover:text-white'
+                      }`}
+                    >
+                      {sz === 'compact' ? 'S' : 'M'}
+                    </button>
+                  ))}
+                </div>
+                <span className={`text-[9px] font-mono font-bold ${isLight ? 'text-pink-700' : 'text-amber-300'}`}>PTS</span>
+              </div>
             </div>
 
-            <div className="space-y-1.5 overflow-y-auto max-h-[56vh] pr-1">
+            <div className={`${isStandingsCompact ? 'space-y-1' : 'space-y-1.5'} overflow-y-auto max-h-[56vh] pr-1`}>
               {standingsTab === 'drivers' ? (
                 f1.standings.map((driver) => (
                   <div
                     key={driver.driverCode}
-                    className={`p-2 rounded-xl border flex items-center justify-between text-xs ${
+                    className={`${isStandingsCompact ? 'p-1' : 'p-2'} rounded-xl border flex items-center justify-between text-xs ${
                       isLight
                         ? 'bg-white/80 border-pink-200 text-slate-900'
                         : 'bg-[#120320] border-pink-500/25 text-pink-100'
@@ -196,8 +239,12 @@ export const RetrowaveRaceWeekendMode: React.FC = () => {
                         style={{ backgroundColor: driver.teamColor || '#ff007f' }}
                       />
                       <div className="truncate">
-                        <span className={`font-black uppercase block truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{driver.driver}</span>
-                        <span className={`text-[9px] block truncate ${isLight ? 'text-pink-700' : 'text-pink-300/70'}`}>({driver.team})</span>
+                        <span className={`font-black uppercase block truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                          {isStandingsCompact ? driver.driverCode : driver.driver}
+                        </span>
+                        {!isStandingsCompact && (
+                          <span className={`text-[9px] block truncate ${isLight ? 'text-pink-700' : 'text-pink-300/70'}`}>({driver.team})</span>
+                        )}
                       </div>
                     </div>
                     <span className="font-mono font-black shrink-0 ml-1" style={{ color: 'var(--color-accent)' }}>
@@ -209,7 +256,7 @@ export const RetrowaveRaceWeekendMode: React.FC = () => {
                 (f1.constructorStandings || []).map((team) => (
                   <div
                     key={team.team}
-                    className={`p-2 rounded-xl border flex items-center justify-between text-xs ${
+                    className={`${isStandingsCompact ? 'p-1' : 'p-2'} rounded-xl border flex items-center justify-between text-xs ${
                       isLight
                         ? 'bg-white/80 border-pink-200 text-slate-900'
                         : 'bg-[#120320] border-pink-500/25 text-pink-100'

@@ -3,7 +3,7 @@ import { useDashboard } from '../../state/DashboardContext';
 import { TuiBox } from './TuiBox';
 
 export const TuiMorningMode: React.FC = () => {
-  const { now, weather, aqi, events, tasks, toggleTask, f1, finance, colorMode } = useDashboard();
+  const { now, weather, aqi, events, tasks, toggleTask, finance, news, setManualOverrideMode, colorMode } = useDashboard();
   const isLight = colorMode === 'light';
 
   const hours = String(now.getHours()).padStart(2, '0');
@@ -193,18 +193,25 @@ export const TuiMorningMode: React.FC = () => {
             </div>
           </TuiBox>
 
-          {/* F1 Radar Box */}
-          <TuiBox title="F1_TELEMETRY_RADAR" badge={`RD ${f1.activeRound}/${f1.totalRounds}`}>
-            <div className="space-y-2 text-xs">
-              <div className="text-red-500 font-bold text-sm truncate">{f1.raceName}</div>
-              <div className={`text-[11px] ${isLight ? 'text-slate-600' : 'text-gray-400'}`}>{f1.circuitName} ({f1.country})</div>
-
-              <div className={`p-2 border mt-2 ${isLight ? 'bg-red-50 border-red-200' : 'bg-red-950/20 border-red-500/40'}`}>
-                <div className={`text-[10px] uppercase ${isLight ? 'text-slate-600' : 'text-gray-400'}`}>NEXT_SESSION: {f1.nextSession.name}</div>
-                <div className={`font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>{f1.nextSession.istTimeFormatted}</div>
-                <div className="text-red-500 font-extrabold text-lg mt-1">
-                  T-MINUS: {f1.nextSession.countdownFormatted}
+          {/* Global News Wire Box */}
+          <TuiBox title="INTEL_NEWS_WIRE" badge="LIVE">
+            <div className="space-y-2 text-xs cursor-pointer" onClick={() => setManualOverrideMode('news')}>
+              {news.slice(0, 2).map((item) => (
+                <div key={item.id} className={`p-1.5 border ${isLight ? 'bg-black/[0.03] border-black/15' : 'bg-white/5 border-white/10'}`}>
+                  <div className="flex justify-between text-[10px] mb-0.5">
+                    <span style={{ color: 'var(--color-accent)' }}>&gt; {item.source}</span>
+                    <span className={isLight ? 'text-slate-500' : 'text-gray-400'}>{item.time}</span>
+                  </div>
+                  <div className="font-bold truncate">{item.title}</div>
+                  {(item.snippet || item.summary) && (
+                    <div className={`text-[10px] mt-0.5 line-clamp-2 ${isLight ? 'text-slate-600' : 'text-gray-400'}`}>
+                      {item.snippet || item.summary}
+                    </div>
+                  )}
                 </div>
+              ))}
+              <div className="text-[10px] text-right font-bold pt-1" style={{ color: 'var(--color-accent)' }}>
+                [EXPAND_FULL_DISPATCH &gt;&gt;]
               </div>
             </div>
           </TuiBox>

@@ -8,6 +8,7 @@ import {
   Camera,
   Server,
   Layers,
+  Newspaper,
 } from 'lucide-react';
 import { useDashboard } from '../../state/DashboardContext';
 
@@ -52,6 +53,14 @@ export const StatusHeader: React.FC = () => {
           color: isLight
             ? 'border-amber-300 bg-amber-50 text-amber-800'
             : 'border-amber-500/40 bg-amber-950/40 text-amber-300',
+        };
+      case 'news':
+        return {
+          label: 'News Mode',
+          icon: <Newspaper size={14} className={isLight ? 'text-blue-600' : 'text-blue-400'} />,
+          color: isLight
+            ? 'border-blue-300 bg-blue-50 text-blue-800'
+            : 'border-blue-500/40 bg-blue-950/40 text-blue-300',
         };
       case 'ambient':
       default:
@@ -149,6 +158,22 @@ export const StatusHeader: React.FC = () => {
           }`}
         >
           {isLight ? <Moon size={16} className="text-purple-600" /> : <Sun size={16} className="text-amber-400" />}
+        </button>
+
+        {/* News Feed Page Toggle */}
+        <button
+          onClick={() => setManualOverrideMode(activeMode === 'news' ? null : 'news')}
+          title="Top News & Headlines (Press 'N')"
+          aria-label="News Headlines"
+          className={`p-2 rounded-xl transition-all cursor-pointer ${
+            activeMode === 'news'
+              ? 'glass-pill font-bold ring-2 ring-blue-500 text-blue-400'
+              : isLight
+              ? 'glass-pill text-slate-700 hover:text-slate-900 hover:bg-black/5 hover:border-slate-300'
+              : 'glass-pill text-gray-300 hover:text-white hover:border-white/30'
+          }`}
+        >
+          <Newspaper size={16} />
         </button>
 
         {/* Settings Button */}

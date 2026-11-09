@@ -92,6 +92,20 @@ export const F1_AVAILABLE_WIDGETS: F1WidgetDef[] = [
     description: 'Latest breaking F1 headlines, paddock reports, and driver news.',
     icon: Newspaper,
   },
+  {
+    id: 'schedule',
+    name: 'Weekend Session Schedule',
+    badge: 'TIMETABLE',
+    description: 'FP1, FP2, FP3, Qualifying, and Race start times in IST with live status.',
+    icon: Calendar,
+  },
+  {
+    id: 'standings',
+    name: 'Championship Standings',
+    badge: 'WDC / WCC',
+    description: 'Driver & constructor championship standings with live points.',
+    icon: Trophy,
+  },
 ];
 
 interface F1WidgetsColumnProps {
@@ -1446,6 +1460,269 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
     );
   };
 
+  // 9. WEEKEND SCHEDULE WIDGET
+  const renderScheduleWidget = (size: F1WidgetSize) => {
+    const isCompact = size === 'compact';
+    const sList = [
+      { key: 'fp1', label: 'Practice 1', data: f1.sessions?.fp1 },
+      { key: 'fp2', label: 'Practice 2', data: f1.sessions?.fp2 },
+      { key: 'fp3', label: 'Practice 3', data: f1.sessions?.fp3 },
+      { key: 'sprintQualifying', label: 'Sprint Shootout', data: f1.sessions?.sprintQualifying },
+      { key: 'sprint', label: 'Sprint Race', data: f1.sessions?.sprint },
+      { key: 'qualifying', label: 'Qualifying', data: f1.sessions?.qualifying },
+      { key: 'race', label: 'Grand Prix', data: f1.sessions?.race },
+    ].filter(s => Boolean(s.data));
+
+    const displaySessions = isCompact ? sList.slice(0, 3) : sList;
+
+    if (uiStyle === 'tui') {
+      return (
+        <TuiBox
+          key="schedule"
+          title={isCompact ? 'SCHEDULE' : 'WEEKEND_SCHEDULE_IST'}
+          badge="IST"
+          badgeColor="text-red-400"
+          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+        >
+          <div className="space-y-1 text-xs py-0.5 flex flex-col justify-between h-full font-mono">
+            {displaySessions.map((s) => (
+              <div key={s.key} className="flex items-center justify-between">
+                <span className="truncate">{s.label}</span>
+                <span className="text-red-400 font-bold ml-1 shrink-0">{s.data?.istTime.split('•')[1] || s.data?.istTime}</span>
+              </div>
+            ))}
+          </div>
+        </TuiBox>
+      );
+    }
+
+    if (uiStyle === 'brutalist') {
+      return (
+        <BrutalistBox
+          key="schedule"
+          title={isCompact ? 'SCHEDULE' : 'WEEKEND SCHEDULE (IST)'}
+          badge={isCompact ? 'IST' : 'OFFICIAL'}
+          badgeColor="bg-red-600 text-white"
+          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+        >
+          <div className="space-y-1.5 py-0.5 flex flex-col justify-between h-full">
+            {displaySessions.map((s) => (
+              <div
+                key={s.key}
+                className={`p-1.5 border-2 border-black flex items-center justify-between text-[11px] font-bold ${
+                  isLight ? 'bg-neutral-100' : 'bg-neutral-900 text-white'
+                }`}
+              >
+                <span className="truncate">{s.label}</span>
+                <span className="font-mono text-red-500 ml-1 shrink-0">{s.data?.istTime.split('•')[1] || s.data?.istTime}</span>
+              </div>
+            ))}
+          </div>
+        </BrutalistBox>
+      );
+    }
+
+    if (uiStyle === 'hud') {
+      return (
+        <HudBox
+          key="schedule"
+          title={isCompact ? 'SCHEDULE' : 'SESSION_TIMETABLE_IST'}
+          code="IST_SYNC"
+          glowColor="cyan"
+          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+        >
+          <div className="space-y-1 py-0.5 flex flex-col justify-between h-full font-mono text-[10px]">
+            {displaySessions.map((s) => (
+              <div key={s.key} className="p-1 rounded border border-cyan-500/20 flex items-center justify-between">
+                <span className="text-slate-200 truncate">{s.label}</span>
+                <span className="text-cyan-400 font-bold ml-1 shrink-0">{s.data?.istTime.split('•')[1] || s.data?.istTime}</span>
+              </div>
+            ))}
+          </div>
+        </HudBox>
+      );
+    }
+
+    return (
+      <div key="schedule" className={`border ${getCardClass(size)}`}>
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
+            <Calendar size={12} className="text-red-500 shrink-0" />
+            <span className="truncate">{isCompact ? 'Schedule' : 'WEEKEND SCHEDULE (IST)'}</span>
+          </span>
+          <div className="flex items-center space-x-1 shrink-0">
+            {renderSizeToggle('schedule')}
+            {!isCompact && <span className="text-[9px] font-mono opacity-70">UTC+5:30</span>}
+          </div>
+        </div>
+
+        {isCompact ? (
+          <div className="space-y-1 py-1 flex-1 flex flex-col justify-between">
+            {displaySessions.map((s) => (
+              <div key={s.key} className={`p-1 rounded-lg border flex items-center justify-between text-[10px] ${getInnerClass()}`}>
+                <span className="font-bold truncate mr-1">{s.label}</span>
+                <span className="font-mono font-bold text-red-500 shrink-0">{s.data?.istTime.split('•')[1] || s.data?.istTime}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-1.5 text-xs">
+            {displaySessions.map((s) => {
+              const isNext = f1.nextSession?.name === s.data?.name;
+              return (
+                <div
+                  key={s.key}
+                  className={`p-2 rounded-xl border flex items-center justify-between ${
+                    isNext ? 'border-red-500 ring-1 ring-red-500/40 bg-red-500/10' : getInnerClass()
+                  }`}
+                >
+                  <div className="flex items-center space-x-2 truncate">
+                    <div
+                      className={`w-2 h-2 rounded-full shrink-0 ${
+                        s.data?.status === 'live'
+                          ? 'bg-red-500 animate-ping'
+                          : s.data?.status === 'completed'
+                          ? 'bg-gray-400'
+                          : 'bg-emerald-500'
+                      }`}
+                    />
+                    <div className="truncate">
+                      <span className="font-bold text-[11px] block truncate">{s.label}</span>
+                      <span className="text-[9px] opacity-70 font-mono truncate">{s.data?.istTime}</span>
+                    </div>
+                  </div>
+                  <span className="text-[9px] uppercase font-bold font-mono px-1.5 py-0.5 rounded bg-black/20 text-current shrink-0">
+                    {s.data?.status}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // 10. STANDINGS WIDGET
+  const renderStandingsWidget = (size: F1WidgetSize) => {
+    const isCompact = size === 'compact';
+    const drivers = (f1.standings || []).slice(0, isCompact ? 3 : 6);
+
+    if (uiStyle === 'tui') {
+      return (
+        <TuiBox
+          key="standings"
+          title={isCompact ? 'STANDINGS' : 'WORLD_DRIVERS_CHAMPIONSHIP'}
+          badge="WDC"
+          badgeColor="text-amber-400"
+          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+        >
+          <div className="space-y-1 text-xs py-0.5 flex flex-col justify-between h-full font-mono">
+            {drivers.map((d: any) => (
+              <div key={d.driverCode} className="flex items-center justify-between">
+                <span>P{d.position} {d.driverCode}</span>
+                <span className="text-amber-400 font-bold">{d.points}P</span>
+              </div>
+            ))}
+          </div>
+        </TuiBox>
+      );
+    }
+
+    if (uiStyle === 'brutalist') {
+      return (
+        <BrutalistBox
+          key="standings"
+          title={isCompact ? 'STANDINGS' : 'CHAMPIONSHIP STANDINGS'}
+          badge="TOP"
+          badgeColor="bg-amber-400 text-black"
+          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+        >
+          <div className="space-y-1.5 py-0.5 flex flex-col justify-between h-full">
+            {drivers.map((d: any) => (
+              <div
+                key={d.driverCode}
+                className={`p-1.5 border-2 border-black flex items-center justify-between text-[11px] font-black ${
+                  isLight ? 'bg-neutral-100' : 'bg-neutral-900 text-white'
+                }`}
+              >
+                <span>P{d.position} • {d.driver}</span>
+                <span className="font-mono text-amber-500">{d.points} PTS</span>
+              </div>
+            ))}
+          </div>
+        </BrutalistBox>
+      );
+    }
+
+    if (uiStyle === 'hud') {
+      return (
+        <HudBox
+          key="standings"
+          title={isCompact ? 'PILOT_RANKS' : 'PILOT_CHAMPIONSHIP_RANKS'}
+          code="WDC"
+          glowColor="amber"
+          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+        >
+          <div className="space-y-1 py-0.5 flex flex-col justify-between h-full font-mono text-[10px]">
+            {drivers.map((d: any) => (
+              <div key={d.driverCode} className="p-1 rounded border border-amber-500/20 flex items-center justify-between">
+                <span className="text-slate-200 truncate">P{d.position} {d.driverCode}</span>
+                <span className="text-amber-400 font-bold">{d.points}P</span>
+              </div>
+            ))}
+          </div>
+        </HudBox>
+      );
+    }
+
+    return (
+      <div key="standings" className={`border ${getCardClass(size)}`}>
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
+            <Trophy size={12} className="text-amber-500 shrink-0" />
+            <span className="truncate">{isCompact ? 'Standings' : 'DRIVER STANDINGS (WDC)'}</span>
+          </span>
+          <div className="flex items-center space-x-1 shrink-0">
+            {renderSizeToggle('standings')}
+            {!isCompact && <span className="text-[9px] font-mono opacity-70">TOP {drivers.length}</span>}
+          </div>
+        </div>
+
+        {isCompact ? (
+          <div className="space-y-1 py-1 flex-1 flex flex-col justify-between">
+            {drivers.map((d: any) => (
+              <div key={d.driverCode} className={`p-1 rounded-lg border flex items-center justify-between text-[10px] ${getInnerClass()}`}>
+                <div className="flex items-center space-x-1.5 truncate">
+                  <span className="font-mono font-bold opacity-60 w-3 text-center">{d.position}</span>
+                  <div className="w-1.5 h-3 rounded-full shrink-0" style={{ backgroundColor: d.teamColor }} />
+                  <span className="font-bold truncate">{d.driverCode}</span>
+                </div>
+                <span className="font-mono font-extrabold text-amber-500 shrink-0 ml-1">{d.points}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-1 text-xs">
+            {drivers.map((d: any) => (
+              <div key={d.driverCode} className={`p-1.5 rounded-xl border flex items-center justify-between ${getInnerClass()}`}>
+                <div className="flex items-center space-x-2 truncate">
+                  <span className="font-mono font-bold opacity-60 w-3 text-center text-xs">{d.position}</span>
+                  <div className="w-1.5 h-4 rounded-full shrink-0" style={{ backgroundColor: d.teamColor }} />
+                  <div className="truncate">
+                    <span className="font-bold text-[11px] block truncate">{d.driver}</span>
+                    <span className="text-[9px] opacity-70 truncate block">{d.team}</span>
+                  </div>
+                </div>
+                <span className="font-mono font-extrabold text-xs text-amber-500 shrink-0">{d.points} PTS</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const renderWidgetInTheme = (id: F1WidgetId) => {
     const size = f1WidgetSizes[id] || 'normal';
     switch (id) {
@@ -1465,6 +1742,10 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
         return renderCircuitTelemetryWidget(size);
       case 'news':
         return renderNewsWidget(size);
+      case 'schedule':
+        return renderScheduleWidget(size);
+      case 'standings':
+        return renderStandingsWidget(size);
       default:
         return null;
     }

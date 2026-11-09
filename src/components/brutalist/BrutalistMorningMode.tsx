@@ -5,7 +5,7 @@ import { CheckSquare, Square, Sunrise, Coffee } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
 
 export const BrutalistMorningMode: React.FC = () => {
-  const { now, weather, aqi, events, tasks, toggleTask, f1, finance, media, colorMode } = useDashboard();
+  const { now, weather, aqi, events, tasks, toggleTask, finance, media, news, setManualOverrideMode, colorMode } = useDashboard();
   const isLight = colorMode === 'light';
 
   const hours = String(now.getHours()).padStart(2, '0');
@@ -223,29 +223,28 @@ export const BrutalistMorningMode: React.FC = () => {
           </BrutalistBox>
 
           <BrutalistBox
-            title="NEXT GRAND PRIX"
-            badge={`ROUND ${f1.activeRound}/${f1.totalRounds}`}
-            badgeColor="bg-red-600 text-white"
-            shadowColor={isLight ? 'shadow-[5px_5px_0px_#000]' : 'shadow-[5px_5px_0px_#ef4444]'}
+            title="TOP HEADLINES"
+            badge="LIVE NEWS"
+            badgeColor="bg-black text-white"
+            shadowColor={isLight ? 'shadow-[5px_5px_0px_#000]' : 'shadow-[5px_5px_0px_#facc15]'}
           >
-            <div className="space-y-2 pt-1 text-xs">
-              <div>
-                <h4 className="text-sm font-black uppercase truncate" style={{ color: 'var(--color-accent)' }}>{f1.raceName}</h4>
-                <p className={`text-[11px] font-bold uppercase ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>{f1.circuitName}</p>
-              </div>
-
-              <div className={`p-2.5 border-2 flex items-center justify-between ${
-                isLight ? 'bg-white border-black shadow-[2px_2px_0px_#000]' : 'bg-neutral-900 border-white shadow-[2px_2px_0px_#fff]'
-              }`}>
-                <div>
-                  <span className={`text-[9px] uppercase font-bold block ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>NEXT SESSION</span>
-                  <span className={`text-xs font-black ${isLight ? 'text-black' : 'text-white'}`}>{f1.nextSession.name}</span>
+            <div className="space-y-2 pt-1 text-xs cursor-pointer" onClick={() => setManualOverrideMode('news')}>
+              {news.slice(0, 3).map((item) => (
+                <div key={item.id} className={`p-2 border-2 ${
+                  isLight ? 'bg-white border-black shadow-[2px_2px_0px_#000]' : 'bg-neutral-900 border-white shadow-[2px_2px_0px_#fff]'
+                }`}>
+                  <div className="flex items-center justify-between text-[9px] font-black uppercase mb-0.5">
+                    <span style={{ color: 'var(--color-accent)' }}>{item.source}</span>
+                    <span className={isLight ? 'text-neutral-500' : 'text-neutral-400'}>{item.time}</span>
+                  </div>
+                  <p className="font-black line-clamp-1">{item.title}</p>
+                  {(item.snippet || item.summary) && (
+                    <p className={`text-[10px] mt-0.5 line-clamp-2 ${isLight ? 'text-neutral-600' : 'text-neutral-300'}`}>
+                      {item.snippet || item.summary}
+                    </p>
+                  )}
                 </div>
-                <div className="text-right">
-                  <span className={`text-[9px] uppercase font-bold block ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>COUNTDOWN</span>
-                  <span className="text-sm font-black font-mono text-red-500">{f1.nextSession.countdownFormatted}</span>
-                </div>
-              </div>
+              ))}
             </div>
           </BrutalistBox>
         </div>

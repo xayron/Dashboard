@@ -4,7 +4,7 @@ import { Check, Sunrise, Sparkles } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
 
 export const RetrowaveMorningMode: React.FC = () => {
-  const { now, weather, aqi, events, tasks, toggleTask, f1, finance, media, colorMode } = useDashboard();
+  const { now, weather, aqi, events, tasks, toggleTask, finance, media, news, setManualOverrideMode, colorMode } = useDashboard();
   const isLight = colorMode === 'light';
 
   const hours = String(now.getHours()).padStart(2, '0');
@@ -277,8 +277,10 @@ export const RetrowaveMorningMode: React.FC = () => {
             </div>
           </div>
 
+          {/* Neon News Wire */}
           <div
-            className={`p-4 rounded-2xl border-2 ${
+            onClick={() => setManualOverrideMode('news')}
+            className={`p-4 rounded-2xl border-2 cursor-pointer transition-all ${
               isLight
                 ? 'bg-pink-50/90 border-pink-400 shadow-[0_0_20px_rgba(236,72,153,0.18)]'
                 : 'bg-[#1d0633]/90'
@@ -289,23 +291,28 @@ export const RetrowaveMorningMode: React.FC = () => {
             }}
           >
             <div className="flex items-center justify-between text-[10px] uppercase font-bold border-b pb-1.5 mb-2" style={{ borderColor: 'var(--theme-accent-soft)' }}>
-              <span className={isLight ? 'text-pink-800' : 'text-amber-300'}>NEON GRAND PRIX</span>
-              <span className="font-mono text-rose-500 font-black">ROUND {f1.activeRound}/{f1.totalRounds}</span>
+              <span className={isLight ? 'text-pink-800' : 'text-amber-300'}>SYNTH NEWS // BROADCAST</span>
+              <span className="font-mono text-cyan-400 font-black">LIVE FEED</span>
             </div>
-            <h4 className="text-sm font-black uppercase truncate" style={{ color: 'var(--color-accent)' }}>{f1.raceName}</h4>
-            <p className={`text-xs mt-0.5 truncate ${isLight ? 'text-slate-600' : 'text-pink-300/80'}`}>{f1.circuitName}</p>
-
-            <div className={`mt-2.5 p-2 rounded-xl border flex items-center justify-between text-xs ${
-              isLight ? 'bg-white/80 border-pink-300' : 'bg-[#120320] border-pink-500/40'
+            {news.slice(0, 2).map((item, idx) => (
+              <div key={item.id} className={idx > 0 ? 'mt-2 pt-1.5 border-t border-pink-500/20' : ''}>
+                <div className="flex justify-between text-[10px] font-bold">
+                  <span style={{ color: 'var(--color-accent)' }}>{item.source}</span>
+                  <span className={isLight ? 'text-slate-500' : 'text-pink-300/70'}>{item.time}</span>
+                </div>
+                <h4 className="text-xs font-black uppercase truncate mt-0.5">{item.title}</h4>
+                {(item.snippet || item.summary) && (
+                  <p className={`text-[10px] mt-0.5 line-clamp-2 ${isLight ? 'text-pink-900/80' : 'text-pink-200/80'}`}>
+                    {item.snippet || item.summary}
+                  </p>
+                )}
+              </div>
+            ))}
+            <div className={`mt-2.5 pt-1.5 border-t flex items-center justify-between text-[10px] font-bold ${
+              isLight ? 'border-pink-300 text-pink-700' : 'border-pink-500/30 text-pink-300'
             }`}>
-              <div>
-                <span className={`text-[9px] uppercase font-bold block ${isLight ? 'text-slate-600' : 'text-pink-300/70'}`}>NEXT CHECKPOINT</span>
-                <span className={`font-black ${isLight ? 'text-slate-900' : 'text-white'}`}>{f1.nextSession.name}</span>
-              </div>
-              <div className="text-right">
-                <span className={`text-[9px] uppercase font-bold block ${isLight ? 'text-slate-600' : 'text-pink-300/70'}`}>COUNTDOWN</span>
-                <span className="text-sm font-mono font-black text-rose-500">{f1.nextSession.countdownFormatted}</span>
-              </div>
+              <span>GLOBAL REUTERS WIRE</span>
+              <span className="text-cyan-400">VIEW DISPATCH &rarr;</span>
             </div>
           </div>
         </div>

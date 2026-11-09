@@ -6,9 +6,14 @@ import { AudioBanner } from '../common/AudioBanner';
 import { F1WidgetsColumn } from '../f1/F1WidgetsColumn';
 
 export const HudRaceWeekendMode: React.FC = () => {
-  const { now, f1, media, weather, colorMode } = useDashboard();
+  const { now, f1, media, weather, colorMode, f1WidgetSizes, setF1WidgetSize } = useDashboard();
   const isLight = colorMode === 'light';
   const [standingsTab, setStandingsTab] = useState<'drivers' | 'constructors'>('drivers');
+
+  const scheduleSize = f1WidgetSizes?.schedule || 'normal';
+  const isScheduleCompact = scheduleSize === 'compact';
+  const standingsSize = f1WidgetSizes?.standings || 'normal';
+  const isStandingsCompact = standingsSize === 'compact';
 
   const sessionsList = [
     { key: 'fp1', label: 'FP1', data: f1.sessions.fp1 },
@@ -81,14 +86,38 @@ export const HudRaceWeekendMode: React.FC = () => {
 
         {/* Center Column (4 cols): Sessions Timeline */}
         <div className="col-span-4 flex flex-col">
-          <HudBox title="SESSION_TIMELINE" code="IST_ZONE" glowColor="cyan" className="h-full">
-            <div className="space-y-2 overflow-y-auto max-h-[56vh] pr-1 pt-1">
+          <HudBox
+            title="SESSION_TIMELINE"
+            code={
+              <div className="flex items-center space-x-1.5">
+                <div className="flex space-x-0.5">
+                  {(['compact', 'normal'] as const).map((sz) => (
+                    <button
+                      key={sz}
+                      type="button"
+                      title={`Set Schedule size: ${sz}`}
+                      onClick={() => setF1WidgetSize('schedule', sz)}
+                      className={`px-1 py-0.2 text-[8px] border cursor-pointer ${
+                        scheduleSize === sz ? 'bg-cyan-500 text-black border-cyan-400 font-bold' : 'border-cyan-500/40 text-cyan-400 hover:text-white'
+                      }`}
+                    >
+                      [{sz === 'compact' ? 'S' : 'M'}]
+                    </button>
+                  ))}
+                </div>
+                <span>IST_ZONE</span>
+              </div>
+            }
+            glowColor="cyan"
+            className="h-full"
+          >
+            <div className={`${isScheduleCompact ? 'space-y-1' : 'space-y-2'} overflow-y-auto max-h-[56vh] pr-1 pt-1`}>
               {sessionsList.map((s) => {
                 const isNext = f1.nextSession.name.toLowerCase().includes(s.label.toLowerCase());
                 return (
                   <div
                     key={s.key}
-                    className={`p-2.5 border flex items-center justify-between ${
+                    className={`${isScheduleCompact ? 'p-1.5' : 'p-2.5'} border flex items-center justify-between ${
                       isNext
                         ? isLight
                           ? 'bg-cyan-100/90 border-cyan-500 font-bold text-slate-900'
@@ -124,30 +153,47 @@ export const HudRaceWeekendMode: React.FC = () => {
           <HudBox
             title={standingsTab === 'drivers' ? 'PILOT_TELEMETRY' : 'SQUAD_TELEMETRY'}
             code={
-              <div className="flex space-x-1">
-                <button
-                  onClick={() => setStandingsTab('drivers')}
-                  className={`px-1.5 py-0.2 text-[9px] border ${standingsTab === 'drivers' ? 'bg-cyan-500 text-black border-cyan-400 font-bold' : 'border-cyan-500/40 text-cyan-400'}`}
-                >
-                  PILOTS
-                </button>
-                <button
-                  onClick={() => setStandingsTab('constructors')}
-                  className={`px-1.5 py-0.2 text-[9px] border ${standingsTab === 'constructors' ? 'bg-cyan-500 text-black border-cyan-400 font-bold' : 'border-cyan-500/40 text-cyan-400'}`}
-                >
-                  SQUADS
-                </button>
+              <div className="flex items-center space-x-1.5">
+                <div className="flex space-x-1">
+                  <button
+                    onClick={() => setStandingsTab('drivers')}
+                    className={`px-1.5 py-0.2 text-[9px] border ${standingsTab === 'drivers' ? 'bg-cyan-500 text-black border-cyan-400 font-bold' : 'border-cyan-500/40 text-cyan-400'}`}
+                  >
+                    PILOTS
+                  </button>
+                  <button
+                    onClick={() => setStandingsTab('constructors')}
+                    className={`px-1.5 py-0.2 text-[9px] border ${standingsTab === 'constructors' ? 'bg-cyan-500 text-black border-cyan-400 font-bold' : 'border-cyan-500/40 text-cyan-400'}`}
+                  >
+                    SQUADS
+                  </button>
+                </div>
+                <div className="flex space-x-0.5">
+                  {(['compact', 'normal'] as const).map((sz) => (
+                    <button
+                      key={sz}
+                      type="button"
+                      title={`Set Standings size: ${sz}`}
+                      onClick={() => setF1WidgetSize('standings', sz)}
+                      className={`px-1 py-0.2 text-[8px] border cursor-pointer ${
+                        standingsSize === sz ? 'bg-amber-500 text-black border-amber-400 font-bold' : 'border-amber-500/40 text-amber-400 hover:text-white'
+                      }`}
+                    >
+                      [{sz === 'compact' ? 'S' : 'M'}]
+                    </button>
+                  ))}
+                </div>
               </div>
             }
             glowColor="amber"
             className="h-full"
           >
-            <div className="space-y-1.5 overflow-y-auto max-h-[56vh] pr-1 pt-1">
+            <div className={`${isStandingsCompact ? 'space-y-1' : 'space-y-1.5'} overflow-y-auto max-h-[56vh] pr-1 pt-1`}>
               {standingsTab === 'drivers' ? (
                 f1.standings.map((driver) => (
                   <div
                     key={driver.driverCode}
-                    className={`p-1.5 border flex items-center justify-between text-xs ${
+                    className={`${isStandingsCompact ? 'p-1' : 'p-1.5'} border flex items-center justify-between text-xs ${
                       isLight
                         ? 'bg-cyan-50/60 border-cyan-200/60 text-slate-800'
                         : 'bg-black/40 border-cyan-500/20 text-cyan-300'
@@ -162,8 +208,12 @@ export const HudRaceWeekendMode: React.FC = () => {
                         style={{ backgroundColor: driver.teamColor || '#ff0000' }}
                       />
                       <div className="truncate">
-                        <span className={`font-bold block truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{driver.driver}</span>
-                        <span className={`text-[9px] block truncate ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>({driver.team})</span>
+                        <span className={`font-bold block truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                          {isStandingsCompact ? driver.driverCode : driver.driver}
+                        </span>
+                        {!isStandingsCompact && (
+                          <span className={`text-[9px] block truncate ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>({driver.team})</span>
+                        )}
                       </div>
                     </div>
                     <span className="font-bold shrink-0 ml-1" style={{ color: 'var(--color-accent)' }}>
@@ -175,7 +225,7 @@ export const HudRaceWeekendMode: React.FC = () => {
                 (f1.constructorStandings || []).map((team) => (
                   <div
                     key={team.team}
-                    className={`p-1.5 border flex items-center justify-between text-xs ${
+                    className={`${isStandingsCompact ? 'p-1' : 'p-1.5'} border flex items-center justify-between text-xs ${
                       isLight
                         ? 'bg-cyan-50/60 border-cyan-200/60 text-slate-800'
                         : 'bg-black/40 border-cyan-500/20 text-cyan-300'

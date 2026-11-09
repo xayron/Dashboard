@@ -1,10 +1,10 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { Clock, Activity, ArrowUpRight, ArrowDownRight, Wind, Droplets, Sun, Calendar, CheckSquare, CheckCircle2, CircleDashed, TrendingUp, Flag } from 'lucide-react';
+import { Clock, Activity, ArrowUpRight, ArrowDownRight, Wind, Droplets, Sun, Calendar, CheckSquare, CheckCircle2, CircleDashed, TrendingUp, Flag, Newspaper } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
 
 export const ObsidianMorningMode: React.FC = () => {
-  const { now, weather, aqi, events, tasks, toggleTask, f1, finance, media, colorMode } = useDashboard();
+  const { now, weather, aqi, events, tasks, toggleTask, finance, media, news, setManualOverrideMode, colorMode } = useDashboard();
   const isLight = colorMode === 'light';
 
   const hours = String(now.getHours()).padStart(2, '0');
@@ -317,41 +317,38 @@ export const ObsidianMorningMode: React.FC = () => {
             </div>
           </div>
 
-          {/* Formula 1 */}
-          <div className={`p-5 ${cardClass} flex flex-col justify-between`}>
+          {/* Intelligence Headlines */}
+          <div className={`p-5 ${cardClass} flex flex-col justify-between cursor-pointer`} onClick={() => setManualOverrideMode('news')}>
             <div className={`flex items-center justify-between border-b pb-2 text-xs font-mono ${borderDivider} ${mutedClass}`}>
               <span className={`flex items-center space-x-1.5 ${isLight ? 'text-slate-900' : 'text-[#eef0f3]'}`}>
-                <Flag size={13} className="text-red-500" />
-                <span className="font-bold tracking-wider">FORMULA 1</span>
+                <Newspaper size={13} style={{ color: 'var(--color-accent, #5fd49b)' }} />
+                <span className="font-bold tracking-wider">INTEL WIRE</span>
               </span>
-              <span className="text-[10px] text-red-500 border border-red-500/30 px-1.5 py-0.5">
-                ROUND {f1.activeRound} OF {f1.totalRounds}
+              <span className="text-[10px] text-emerald-500 border border-emerald-500/30 px-1.5 py-0.5">
+                DISPATCH LIVE
               </span>
             </div>
 
             <div className="my-2 space-y-2 font-mono">
-              <div>
-                <h4 className={`text-sm font-bold truncate ${isLight ? 'text-slate-900' : 'text-[#eef0f3]'}`}>{f1.raceName}</h4>
-                <p className={`text-xs truncate mt-0.5 ${mutedClass}`}>{f1.circuitName}</p>
-              </div>
-
-              <div className={`p-3 ${innerClass} flex items-center justify-between`}>
-                <div>
-                  <span className={`text-[10px] uppercase block ${mutedClass}`}>Target Session</span>
-                  <span className={`text-xs font-bold ${isLight ? 'text-slate-900' : 'text-[#eef0f3]'}`}>{f1.nextSession.name}</span>
+              {news.slice(0, 2).map((item) => (
+                <div key={item.id} className={`p-2.5 ${innerClass}`}>
+                  <div className={`text-[10px] uppercase font-bold flex justify-between ${mutedClass}`}>
+                    <span style={{ color: 'var(--color-accent, #5fd49b)' }}>{item.source}</span>
+                    <span>{item.time}</span>
+                  </div>
+                  <p className={`text-xs font-bold line-clamp-1 mt-0.5 ${isLight ? 'text-slate-900' : 'text-[#eef0f3]'}`}>{item.title}</p>
+                  {(item.snippet || item.summary) && (
+                    <p className={`text-[10px] mt-0.5 line-clamp-2 ${mutedClass}`}>
+                      {item.snippet || item.summary}
+                    </p>
+                  )}
                 </div>
-                <div className="text-right">
-                  <span className={`text-[10px] uppercase block ${mutedClass}`}>Countdown</span>
-                  <span className="text-sm font-bold" style={{ color: 'var(--color-accent, #5fd49b)' }}>
-                    {f1.nextSession.countdownFormatted}
-                  </span>
-                </div>
-              </div>
+              ))}
             </div>
 
             <div className={`pt-2 border-t flex items-center justify-between text-[11px] font-mono ${borderDivider} ${mutedClass}`}>
-              <span>FIA OFFICIAL DATA FEED</span>
-              <span className={isLight ? 'text-slate-900' : 'text-[#eef0f3]'}>UP TO DATE</span>
+              <span>GLOBAL REUTERS / AP FEED</span>
+              <span className="font-bold" style={{ color: 'var(--color-accent, #5fd49b)' }}>VIEW ALL &rarr;</span>
             </div>
           </div>
         </div>

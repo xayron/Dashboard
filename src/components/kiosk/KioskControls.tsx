@@ -9,6 +9,8 @@ import {
   X,
   Moon,
   Sun,
+  Smartphone,
+  Newspaper,
 } from 'lucide-react';
 import { useDashboard } from '../../state/DashboardContext';
 import type { DashboardMode } from '../../types/dashboard';
@@ -26,6 +28,8 @@ export const KioskControls: React.FC = () => {
     nextPhoto,
     prevPhoto,
     media,
+    setIsPairingModalOpen,
+    connectedRemotesCount,
   } = useDashboard();
 
   if (!isKioskBarVisible) {
@@ -50,6 +54,7 @@ export const KioskControls: React.FC = () => {
       ? [{ id: 'evening' as DashboardMode, label: 'Now Playing', icon: <Moon size={14} className="text-purple-400" /> }]
       : []),
     { id: 'morning', label: 'Morning', icon: <Sun size={14} className="text-amber-400" /> },
+    { id: 'news', label: 'News', icon: <Newspaper size={14} className="text-cyan-400" /> },
     { id: 'ambient', label: 'Ambient', icon: <Camera size={14} className="text-emerald-400" /> },
   ];
 
@@ -148,6 +153,21 @@ export const KioskControls: React.FC = () => {
             className="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all"
           >
             <ChevronRight size={16} />
+          </button>
+        </div>
+
+        {/* Phone Remote Control Trigger */}
+        <div className="pl-2 border-l border-white/10 flex items-center space-x-1">
+          <button
+            onClick={() => setIsPairingModalOpen(true)}
+            title="Connect Phone Controller"
+            className="relative px-2.5 py-1 rounded-xl text-xs font-semibold bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/40 transition-all flex items-center space-x-1.5 shadow-sm"
+          >
+            <Smartphone size={13} />
+            <span>Remote</span>
+            {connectedRemotesCount > 0 && (
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            )}
           </button>
         </div>
 

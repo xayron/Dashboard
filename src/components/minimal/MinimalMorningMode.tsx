@@ -1,10 +1,10 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { Check, Flag } from 'lucide-react';
+import { Check, Flag, Newspaper } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
 
 export const MinimalMorningMode: React.FC = () => {
-  const { now, weather, aqi, events, tasks, toggleTask, f1, finance, media, colorMode } = useDashboard();
+  const { now, weather, aqi, events, tasks, toggleTask, finance, media, news, setManualOverrideMode, colorMode } = useDashboard();
   const isLight = colorMode === 'light';
 
   const hours = String(now.getHours()).padStart(2, '0');
@@ -187,30 +187,29 @@ export const MinimalMorningMode: React.FC = () => {
             </div>
           </div>
 
-          {/* F1 Countdown Card */}
-          <div className={`pt-3 border-t ${isLight ? 'border-neutral-200' : 'border-white/10'}`}>
-            <div className={`flex items-center justify-between mb-1 text-[10px] uppercase font-mono ${isLight ? 'text-neutral-500' : 'text-neutral-500'}`}>
-              <span className="flex items-center">
-                <Flag size={10} className="mr-1 text-red-500" />
-                Next Grand Prix
+          {/* Top Headlines Card */}
+          <div
+            onClick={() => setManualOverrideMode('news')}
+            className={`pt-3 border-t cursor-pointer transition-opacity hover:opacity-90 ${isLight ? 'border-neutral-200' : 'border-white/10'}`}
+          >
+            <div className={`flex items-center justify-between mb-1 text-[10px] uppercase font-mono ${isLight ? 'text-neutral-500' : 'text-neutral-400'}`}>
+              <span className="flex items-center space-x-1">
+                <Newspaper size={11} />
+                <span>Headlines</span>
               </span>
-              <span>Round {f1.activeRound}/{f1.totalRounds}</span>
+              <span>Live Wire</span>
             </div>
-            <h4 className={`text-sm font-medium truncate ${isLight ? 'text-neutral-900' : 'text-white'}`}>{f1.raceName}</h4>
-            <p className={`text-xs truncate ${isLight ? 'text-neutral-500' : 'text-neutral-500'}`}>{f1.circuitName}</p>
-
-            <div className={`mt-2.5 p-2.5 rounded-xl border flex items-center justify-between text-xs ${
-              isLight ? 'bg-neutral-100/80 border-neutral-200/80' : 'bg-white/5 border-white/5'
-            }`}>
-              <div>
-                <span className={`text-[10px] uppercase block ${isLight ? 'text-neutral-400' : 'text-neutral-500'}`}>Next Session</span>
-                <span className={`font-light ${isLight ? 'text-neutral-800' : 'text-neutral-300'}`}>{f1.nextSession.name}</span>
+            {news.slice(0, 2).map((item, idx) => (
+              <div key={item.id} className={idx > 0 ? 'mt-2' : ''}>
+                <div className={`text-[10px] ${isLight ? 'text-neutral-500' : 'text-neutral-400'}`}>{item.source} • {item.time}</div>
+                <h4 className={`text-xs font-medium truncate ${isLight ? 'text-neutral-900' : 'text-white'}`}>{item.title}</h4>
+                {(item.snippet || item.summary) && (
+                  <p className={`text-[10px] mt-0.5 line-clamp-2 ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>
+                    {item.snippet || item.summary}
+                  </p>
+                )}
               </div>
-              <div className="text-right">
-                <span className={`text-[10px] uppercase block ${isLight ? 'text-neutral-400' : 'text-neutral-500'}`}>Countdown</span>
-                <span className="text-sm font-mono text-red-500">{f1.nextSession.countdownFormatted}</span>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>

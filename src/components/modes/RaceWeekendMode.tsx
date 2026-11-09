@@ -19,9 +19,14 @@ import { AudioBanner } from '../common/AudioBanner';
 import { F1WidgetsColumn } from '../f1/F1WidgetsColumn';
 
 export const RaceWeekendMode: React.FC = () => {
-  const { f1, media, weather, colorMode } = useDashboard();
+  const { f1, media, weather, colorMode, f1WidgetSizes, setF1WidgetSize } = useDashboard();
   const isLight = colorMode === 'light';
   const [standingsTab, setStandingsTab] = useState<'drivers' | 'constructors'>('drivers');
+
+  const scheduleSize = f1WidgetSizes?.schedule || 'normal';
+  const isScheduleCompact = scheduleSize === 'compact';
+  const standingsSize = f1WidgetSizes?.standings || 'normal';
+  const isStandingsCompact = standingsSize === 'compact';
 
   const sessionsList = [
     { key: 'fp1', label: 'Practice 1', data: f1.sessions.fp1 },
@@ -105,10 +110,10 @@ export const RaceWeekendMode: React.FC = () => {
         <F1WidgetsColumn f1={f1} uiStyle="modern" isLight={isLight} className="col-span-5" />
 
         {/* Center Column (4 cols): Session Schedule in IST */}
-        <div className={`col-span-4 glass-panel p-5 rounded-3xl border flex flex-col min-h-0 shadow-xl ${
+        <div className={`col-span-4 glass-panel ${isScheduleCompact ? 'p-3.5' : 'p-5'} rounded-3xl border flex flex-col min-h-0 shadow-xl ${
           isLight ? 'bg-white/70 border-slate-200' : 'border-white/10'
         }`}>
-          <div className={`flex items-center justify-between mb-3.5 pb-2 border-b ${
+          <div className={`flex items-center justify-between ${isScheduleCompact ? 'mb-2 pb-1.5' : 'mb-3.5 pb-2'} border-b ${
             isLight ? 'border-slate-200' : 'border-white/10'
           }`}>
             <div className={`flex items-center space-x-2 text-sm font-bold uppercase tracking-wider ${
@@ -117,16 +122,35 @@ export const RaceWeekendMode: React.FC = () => {
               <Calendar size={16} className="text-red-500" />
               <span>Weekend Schedule (IST)</span>
             </div>
-            <span className={`text-[11px] font-mono-numbers ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>UTC+5:30</span>
+            <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-0.5 bg-black/10 dark:bg-white/10 p-0.5 rounded">
+                {(['compact', 'normal'] as const).map((sz) => (
+                  <button
+                    key={sz}
+                    type="button"
+                    title={`Set Schedule size: ${sz}`}
+                    onClick={() => setF1WidgetSize('schedule', sz)}
+                    className={`px-1.5 py-0.2 text-[9px] font-mono uppercase font-bold rounded transition-colors cursor-pointer ${
+                      scheduleSize === sz
+                        ? 'bg-blue-600 text-white font-extrabold shadow-xs'
+                        : 'hover:bg-black/20 dark:hover:bg-white/20 text-current'
+                    }`}
+                  >
+                    {sz === 'compact' ? 'S' : 'M'}
+                  </button>
+                ))}
+              </div>
+              <span className={`text-[11px] font-mono-numbers ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>UTC+5:30</span>
+            </div>
           </div>
 
-          <div className="space-y-2 overflow-y-auto pr-1 flex-1">
+          <div className={`${isScheduleCompact ? 'space-y-1' : 'space-y-2'} overflow-y-auto pr-1 flex-1`}>
             {sessionsList.map((s) => {
               const isCurrentNext = s.data?.name === f1.nextSession.name;
               return (
                 <div
                   key={s.key}
-                  className={`p-2.5 rounded-2xl border transition-all flex items-center justify-between ${
+                  className={`${isScheduleCompact ? 'p-1.5 rounded-xl' : 'p-2.5 rounded-2xl'} border transition-all flex items-center justify-between ${
                     isCurrentNext
                       ? isLight
                         ? 'bg-red-50 border-red-400 shadow-md'
@@ -172,50 +196,69 @@ export const RaceWeekendMode: React.FC = () => {
         </div>
 
         {/* Right Column (3 cols): Driver & Constructor Standings */}
-        <div className={`col-span-3 glass-panel p-5 rounded-3xl border flex flex-col min-h-0 shadow-xl ${
+        <div className={`col-span-3 glass-panel ${isStandingsCompact ? 'p-3.5' : 'p-5'} rounded-3xl border flex flex-col min-h-0 shadow-xl ${
           isLight ? 'bg-white/70 border-slate-200' : 'border-white/10'
         }`}>
           {/* Header with WDC / WCC Switcher */}
-          <div className={`flex items-center justify-between mb-3 pb-2 border-b ${
+          <div className={`flex items-center justify-between ${isStandingsCompact ? 'mb-2 pb-1.5' : 'mb-3 pb-2'} border-b ${
             isLight ? 'border-slate-200' : 'border-white/10'
           }`}>
             <div className="flex items-center space-x-1 p-0.5 rounded-xl border border-white/10 bg-black/20 text-xs">
               <button
                 onClick={() => setStandingsTab('drivers')}
-                className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
+                className={`px-2 py-0.5 rounded-lg font-bold transition-all text-xs ${
                   standingsTab === 'drivers'
                     ? 'bg-red-600 text-white shadow-sm'
                     : isLight ? 'text-slate-600 hover:text-slate-900' : 'text-gray-400 hover:text-white'
                 }`}
               >
-                Drivers (WDC)
+                Drivers
               </button>
               <button
                 onClick={() => setStandingsTab('constructors')}
-                className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
+                className={`px-2 py-0.5 rounded-lg font-bold transition-all text-xs ${
                   standingsTab === 'constructors'
                     ? 'bg-red-600 text-white shadow-sm'
                     : isLight ? 'text-slate-600 hover:text-slate-900' : 'text-gray-400 hover:text-white'
                 }`}
               >
-                Teams (WCC)
+                Teams
               </button>
             </div>
 
-            <span className={`text-[10px] font-mono font-bold ${
-              isLight ? 'text-slate-500' : 'text-gray-400'
-            }`}>
-              {standingsTab === 'drivers' ? `GAP: +${titleGap}P` : 'PTS'}
-            </span>
+            <div className="flex items-center space-x-1.5">
+              <div className="flex items-center space-x-0.5 bg-black/10 dark:bg-white/10 p-0.5 rounded">
+                {(['compact', 'normal'] as const).map((sz) => (
+                  <button
+                    key={sz}
+                    type="button"
+                    title={`Set Standings size: ${sz}`}
+                    onClick={() => setF1WidgetSize('standings', sz)}
+                    className={`px-1.5 py-0.2 text-[9px] font-mono uppercase font-bold rounded transition-colors cursor-pointer ${
+                      standingsSize === sz
+                        ? 'bg-blue-600 text-white font-extrabold shadow-xs'
+                        : 'hover:bg-black/20 dark:hover:bg-white/20 text-current'
+                    }`}
+                  >
+                    {sz === 'compact' ? 'S' : 'M'}
+                  </button>
+                ))}
+              </div>
+              <span className={`text-[10px] font-mono font-bold ${
+                isLight ? 'text-slate-500' : 'text-gray-400'
+              }`}>
+                {standingsTab === 'drivers' ? `+${titleGap}P` : 'PTS'}
+              </span>
+            </div>
           </div>
 
           {/* Standings List */}
-          <div className="space-y-1.5 overflow-y-auto pr-1 flex-1">
+          <div className={`${isStandingsCompact ? 'space-y-1' : 'space-y-1.5'} overflow-y-auto pr-1 flex-1`}>
             {standingsTab === 'drivers' ? (
               f1.standings.map(driver => (
                 <div
                   key={driver.driverCode}
-                  className={`p-2 rounded-xl transition-all flex items-center justify-between text-xs ${
+                  className={`${isStandingsCompact ? 'p-1.5' : 'p-2'} rounded-xl transition-all flex items-center justify-between text-xs ${
                     isLight
                       ? 'bg-slate-50 hover:bg-slate-100 border border-slate-200'
                       : 'bg-white/5 hover:bg-white/10'
@@ -226,16 +269,20 @@ export const RaceWeekendMode: React.FC = () => {
                       {driver.position}
                     </span>
                     <div
-                      className="w-1.5 h-4 rounded-full shrink-0"
+                      className={`${isStandingsCompact ? 'w-1 h-3' : 'w-1.5 h-4'} rounded-full shrink-0`}
                       style={{ backgroundColor: driver.teamColor }}
                     />
                     <div className="truncate max-w-[120px]">
-                      <p className={`font-bold leading-none truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{driver.driver}</p>
-                      <p className={`text-[10px] mt-0.5 truncate ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>{driver.team}</p>
+                      <p className={`font-bold leading-none truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                        {isStandingsCompact ? driver.driverCode : driver.driver}
+                      </p>
+                      {!isStandingsCompact && (
+                        <p className={`text-[10px] mt-0.5 truncate ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>{driver.team}</p>
+                      )}
                     </div>
                   </div>
 
-                  <span className={`font-mono-numbers font-extrabold text-sm ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                  <span className={`font-mono-numbers font-extrabold ${isStandingsCompact ? 'text-xs' : 'text-sm'} ${isLight ? 'text-slate-900' : 'text-white'}`}>
                     {driver.points}
                   </span>
                 </div>
@@ -244,7 +291,7 @@ export const RaceWeekendMode: React.FC = () => {
               (f1.constructorStandings || []).map(team => (
                 <div
                   key={team.team}
-                  className={`p-2.5 rounded-xl transition-all flex items-center justify-between text-xs ${
+                  className={`${isStandingsCompact ? 'p-1.5' : 'p-2.5'} rounded-xl transition-all flex items-center justify-between text-xs ${
                     isLight
                       ? 'bg-slate-50 hover:bg-slate-100 border border-slate-200'
                       : 'bg-white/5 hover:bg-white/10'
@@ -255,18 +302,20 @@ export const RaceWeekendMode: React.FC = () => {
                       {team.position}
                     </span>
                     <div
-                      className="w-1.5 h-4 rounded-full shrink-0"
+                      className={`${isStandingsCompact ? 'w-1 h-3' : 'w-1.5 h-4'} rounded-full shrink-0`}
                       style={{ backgroundColor: team.teamColor }}
                     />
                     <div className="truncate max-w-[120px]">
                       <p className={`font-bold leading-none truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{team.team}</p>
-                      <p className={`text-[10px] mt-0.5 truncate ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
-                        {team.wins > 0 ? `${team.wins} Win${team.wins > 1 ? 's' : ''}` : '0 Wins'}
-                      </p>
+                      {!isStandingsCompact && (
+                        <p className={`text-[10px] mt-0.5 truncate ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
+                          {team.wins > 0 ? `${team.wins} Win${team.wins > 1 ? 's' : ''}` : '0 Wins'}
+                        </p>
+                      )}
                     </div>
                   </div>
 
-                  <span className={`font-mono-numbers font-extrabold text-sm ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                  <span className={`font-mono-numbers font-extrabold ${isStandingsCompact ? 'text-xs' : 'text-sm'} ${isLight ? 'text-slate-900' : 'text-white'}`}>
                     {team.points}
                   </span>
                 </div>

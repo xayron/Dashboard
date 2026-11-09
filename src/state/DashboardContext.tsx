@@ -121,6 +121,8 @@ export const DEFAULT_F1_WIDGET_SIZES: Record<F1WidgetId, F1WidgetSize> = {
   upcomingRaces: 'normal',
   circuitTelemetry: 'normal',
   news: 'normal',
+  schedule: 'normal',
+  standings: 'normal',
 };
 
 interface DashboardContextType {
@@ -163,6 +165,9 @@ interface DashboardContextType {
   toggleSettingsLayout: () => void;
   isKioskBarVisible: boolean;
   toggleKioskBar: () => void;
+  showMorningFinanceTicker: boolean;
+  setShowMorningFinanceTicker: (show: boolean) => void;
+  toggleMorningFinanceTicker: () => void;
   f1ActiveWidgets: F1WidgetId[];
   setF1ActiveWidgets: (widgets: F1WidgetId[]) => void;
   toggleF1Widget: (id: F1WidgetId) => void;
@@ -290,6 +295,25 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const [isKioskBarVisible, setIsKioskBarVisible] = useState<boolean>(true);
+  const [showMorningFinanceTicker, setShowMorningFinanceTickerState] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('dashboard_show_morning_ticker');
+      if (saved !== null) return saved === 'true';
+    } catch (e) {}
+    return false;
+  });
+
+  const setShowMorningFinanceTicker = (show: boolean) => {
+    setShowMorningFinanceTickerState(show);
+    try {
+      localStorage.setItem('dashboard_show_morning_ticker', String(show));
+    } catch (e) {}
+  };
+
+  const toggleMorningFinanceTicker = () => {
+    setShowMorningFinanceTicker(!showMorningFinanceTicker);
+  };
+
   const [isPairingModalOpen, setIsPairingModalOpen] = useState<boolean>(false);
   const [connectedRemotesCount, setConnectedRemotesCount] = useState<number>(0);
 
@@ -373,6 +397,8 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       upcomingRaces: size,
       circuitTelemetry: size,
       news: size,
+      schedule: size,
+      standings: size,
     };
     setF1WidgetSizesState(next);
     try {
@@ -474,6 +500,8 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         toggleUiStyle();
       } else if (e.key === 'd' || e.key === 'D') {
         toggleColorMode();
+      } else if (e.key === 'i' || e.key === 'I') {
+        toggleMorningFinanceTicker();
       }
     };
     window.addEventListener('keydown', handleKey);
@@ -888,6 +916,9 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         toggleSettingsLayout,
         isKioskBarVisible,
         toggleKioskBar,
+        showMorningFinanceTicker,
+        setShowMorningFinanceTicker,
+        toggleMorningFinanceTicker,
         f1ActiveWidgets,
         setF1ActiveWidgets,
         toggleF1Widget,

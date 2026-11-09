@@ -4,9 +4,14 @@ import { TuiBox } from './TuiBox';
 import { F1WidgetsColumn } from '../f1/F1WidgetsColumn';
 
 export const TuiRaceWeekendMode: React.FC = () => {
-  const { now, f1, media, weather, colorMode } = useDashboard();
+  const { now, f1, media, weather, colorMode, f1WidgetSizes, setF1WidgetSize } = useDashboard();
   const isLight = colorMode === 'light';
   const [standingsTab, setStandingsTab] = useState<'drivers' | 'constructors'>('drivers');
+
+  const scheduleSize = f1WidgetSizes?.schedule || 'normal';
+  const isScheduleCompact = scheduleSize === 'compact';
+  const standingsSize = f1WidgetSizes?.standings || 'normal';
+  const isStandingsCompact = standingsSize === 'compact';
 
   const sessionsList = [
     { key: 'fp1', label: 'FP1', data: f1.sessions.fp1 },
@@ -68,16 +73,35 @@ export const TuiRaceWeekendMode: React.FC = () => {
         <div className="col-span-4 flex flex-col">
           <TuiBox
             title="WEEKEND_TIMETABLE_IST"
-            badge="UTC+5:30"
+            badge={
+              <div className="flex items-center space-x-1.5">
+                <div className="flex items-center space-x-0.5 bg-black/20 dark:bg-white/10 p-0.5 rounded">
+                  {(['compact', 'normal'] as const).map((sz) => (
+                    <button
+                      key={sz}
+                      type="button"
+                      title={`Set Schedule size: ${sz}`}
+                      onClick={() => setF1WidgetSize('schedule', sz)}
+                      className={`px-1 py-0.2 text-[8px] font-mono uppercase font-bold rounded cursor-pointer ${
+                        scheduleSize === sz ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      [{sz === 'compact' ? 'S' : 'M'}]
+                    </button>
+                  ))}
+                </div>
+                <span>UTC+5:30</span>
+              </div>
+            }
             className="flex-1"
           >
-            <div className="space-y-1.5 overflow-y-auto max-h-[58vh] pr-1 text-xs">
+            <div className={`${isScheduleCompact ? 'space-y-1' : 'space-y-1.5'} overflow-y-auto max-h-[58vh] pr-1 text-xs`}>
               {sessionsList.map((s) => {
                 const isCurrentNext = s.data?.name === f1.nextSession.name;
                 return (
                   <div
                     key={s.key}
-                    className={`p-2 border transition-all ${
+                    className={`${isScheduleCompact ? 'p-1.5' : 'p-2'} border transition-all ${
                       isCurrentNext
                         ? (isLight ? 'border-red-500 bg-red-50 text-red-950 font-bold' : 'border-red-500 bg-red-950/30 text-white font-bold')
                         : (isLight ? 'border-slate-200 bg-black/[0.02] text-slate-800' : 'border-gray-800 bg-white/5 text-gray-300')
@@ -110,24 +134,41 @@ export const TuiRaceWeekendMode: React.FC = () => {
           <TuiBox
             title={standingsTab === 'drivers' ? 'DRIVER_STANDINGS' : 'TEAM_STANDINGS'}
             badge={
-              <div className="flex space-x-1">
-                <button
-                  onClick={() => setStandingsTab('drivers')}
-                  className={`px-1.5 py-0.2 text-[9px] font-bold ${standingsTab === 'drivers' ? 'bg-red-600 text-white' : 'text-gray-400'}`}
-                >
-                  [WDC]
-                </button>
-                <button
-                  onClick={() => setStandingsTab('constructors')}
-                  className={`px-1.5 py-0.2 text-[9px] font-bold ${standingsTab === 'constructors' ? 'bg-red-600 text-white' : 'text-gray-400'}`}
-                >
-                  [WCC]
-                </button>
+              <div className="flex items-center space-x-1.5">
+                <div className="flex space-x-0.5">
+                  <button
+                    onClick={() => setStandingsTab('drivers')}
+                    className={`px-1 py-0.2 text-[8px] font-bold ${standingsTab === 'drivers' ? 'bg-red-600 text-white' : 'text-gray-400'}`}
+                  >
+                    [WDC]
+                  </button>
+                  <button
+                    onClick={() => setStandingsTab('constructors')}
+                    className={`px-1 py-0.2 text-[8px] font-bold ${standingsTab === 'constructors' ? 'bg-red-600 text-white' : 'text-gray-400'}`}
+                  >
+                    [WCC]
+                  </button>
+                </div>
+                <div className="flex items-center space-x-0.5 bg-black/20 dark:bg-white/10 p-0.5 rounded">
+                  {(['compact', 'normal'] as const).map((sz) => (
+                    <button
+                      key={sz}
+                      type="button"
+                      title={`Set Standings size: ${sz}`}
+                      onClick={() => setF1WidgetSize('standings', sz)}
+                      className={`px-1 py-0.2 text-[8px] font-mono uppercase font-bold rounded cursor-pointer ${
+                        standingsSize === sz ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      [{sz === 'compact' ? 'S' : 'M'}]
+                    </button>
+                  ))}
+                </div>
               </div>
             }
             className="flex-1"
           >
-            <div className="space-y-1 overflow-y-auto max-h-[58vh] pr-1 text-xs">
+            <div className={`${isStandingsCompact ? 'space-y-0.5' : 'space-y-1'} overflow-y-auto max-h-[58vh] pr-1 text-xs`}>
               <div className={`flex items-center justify-between pb-1 border-b text-[10px] font-bold uppercase ${
                 isLight ? 'border-slate-200 text-slate-500' : 'border-gray-800 text-gray-500'
               }`}>
@@ -139,7 +180,7 @@ export const TuiRaceWeekendMode: React.FC = () => {
                 f1.standings.map((driver) => (
                   <div
                     key={driver.driverCode}
-                    className={`p-1.5 border flex items-center justify-between ${
+                    className={`${isStandingsCompact ? 'p-1' : 'p-1.5'} border flex items-center justify-between ${
                       isLight ? 'border-slate-200 bg-black/[0.02] hover:bg-black/[0.05]' : 'border-gray-900 bg-white/5 hover:bg-white/10'
                     }`}
                   >
@@ -147,7 +188,9 @@ export const TuiRaceWeekendMode: React.FC = () => {
                       <span className={`font-bold w-4 ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>{String(driver.position).padStart(2, '0')}</span>
                       <div className="w-1 h-3 shrink-0" style={{ backgroundColor: driver.teamColor }} />
                       <span className={`font-bold truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{driver.driverCode}</span>
-                      <span className={`text-[10px] truncate ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>({driver.team})</span>
+                      {!isStandingsCompact && (
+                        <span className={`text-[10px] truncate ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>({driver.team})</span>
+                      )}
                     </div>
                     <span className={`font-extrabold ${isLight ? 'text-slate-900' : 'text-white'}`}>{driver.points}</span>
                   </div>
@@ -156,7 +199,7 @@ export const TuiRaceWeekendMode: React.FC = () => {
                 (f1.constructorStandings || []).map((team) => (
                   <div
                     key={team.team}
-                    className={`p-1.5 border flex items-center justify-between ${
+                    className={`${isStandingsCompact ? 'p-1' : 'p-1.5'} border flex items-center justify-between ${
                       isLight ? 'border-slate-200 bg-black/[0.02] hover:bg-black/[0.05]' : 'border-gray-900 bg-white/5 hover:bg-white/10'
                     }`}
                   >

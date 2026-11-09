@@ -5,9 +5,14 @@ import { AudioBanner } from '../common/AudioBanner';
 import { F1WidgetsColumn } from '../f1/F1WidgetsColumn';
 
 export const NeumorphicRaceWeekendMode: React.FC = () => {
-  const { now, f1, media, weather, colorMode } = useDashboard();
+  const { now, f1, media, weather, colorMode, f1WidgetSizes, setF1WidgetSize } = useDashboard();
   const isLight = colorMode === 'light';
   const [standingsTab, setStandingsTab] = useState<'drivers' | 'constructors'>('drivers');
+
+  const scheduleSize = f1WidgetSizes?.schedule || 'normal';
+  const isScheduleCompact = scheduleSize === 'compact';
+  const standingsSize = f1WidgetSizes?.standings || 'normal';
+  const isStandingsCompact = standingsSize === 'compact';
 
   const sessionsList = [
     { key: 'fp1', label: 'Practice 1', data: f1.sessions.fp1 },
@@ -79,19 +84,42 @@ export const NeumorphicRaceWeekendMode: React.FC = () => {
 
         {/* Center Column (4 cols): Weekend Sessions */}
         <div className="col-span-4 flex flex-col">
-          <div className={`p-5 rounded-3xl ${cardClass} h-full flex flex-col`}>
-            <span className={`text-[10px] font-bold uppercase tracking-wider border-b pb-2 mb-3 ${
-              isLight ? 'text-slate-500 border-slate-300' : 'text-neutral-400 border-neutral-700/50'
+          <div className={`${isScheduleCompact ? 'p-3.5' : 'p-5'} rounded-3xl ${cardClass} h-full flex flex-col`}>
+            <div className={`flex items-center justify-between border-b pb-2 mb-3 ${
+              isLight ? 'border-slate-300' : 'border-neutral-700/50'
             }`}>
-              Weekend Sessions (IST)
-            </span>
-            <div className="space-y-2 overflow-y-auto max-h-[56vh] pr-1">
+              <span className={`text-[10px] font-bold uppercase tracking-wider ${
+                isLight ? 'text-slate-500' : 'text-neutral-400'
+              }`}>
+                Weekend Sessions (IST)
+              </span>
+              <div className="flex items-center space-x-1.5">
+                <div className="flex items-center space-x-0.5 p-0.5 rounded-lg">
+                  {(['compact', 'normal'] as const).map((sz) => (
+                    <button
+                      key={sz}
+                      type="button"
+                      title={`Set Schedule size: ${sz}`}
+                      onClick={() => setF1WidgetSize('schedule', sz)}
+                      className={`px-1.5 py-0.2 text-[9px] font-mono uppercase font-bold rounded-lg transition-colors cursor-pointer ${
+                        scheduleSize === sz
+                          ? insetClass + ' text-red-500 font-extrabold'
+                          : 'opacity-60 hover:opacity-100'
+                      }`}
+                    >
+                      {sz === 'compact' ? 'S' : 'M'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className={`${isScheduleCompact ? 'space-y-1' : 'space-y-2'} overflow-y-auto max-h-[56vh] pr-1`}>
               {sessionsList.map((s) => {
                 const isNext = f1.nextSession.name.toLowerCase().includes(s.label.toLowerCase());
                 return (
                   <div
                     key={s.key}
-                    className={`p-2.5 rounded-2xl flex items-center justify-between ${
+                    className={`${isScheduleCompact ? 'p-1.5' : 'p-2.5'} rounded-2xl flex items-center justify-between ${
                       isNext
                         ? isLight
                           ? 'bg-[#cbd5e1] shadow-[inset_2px_2px_5px_#94a3b8,inset_-2px_-2px_5px_#f1f5f9] font-bold text-slate-900'
@@ -120,7 +148,7 @@ export const NeumorphicRaceWeekendMode: React.FC = () => {
 
         {/* Right Column (3 cols): Driver & Constructor Standings */}
         <div className="col-span-3 flex flex-col">
-          <div className={`p-5 rounded-3xl ${cardClass} h-full flex flex-col`}>
+          <div className={`${isStandingsCompact ? 'p-3.5' : 'p-5'} rounded-3xl ${cardClass} h-full flex flex-col`}>
             <div className="flex items-center justify-between border-b pb-2 mb-3">
               <div className="flex items-center space-x-1">
                 <button
@@ -140,15 +168,34 @@ export const NeumorphicRaceWeekendMode: React.FC = () => {
                   Teams
                 </button>
               </div>
-              <span className={`text-[9px] font-mono ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>PTS</span>
+              <div className="flex items-center space-x-1.5">
+                <div className="flex items-center space-x-0.5 p-0.5 rounded-lg">
+                  {(['compact', 'normal'] as const).map((sz) => (
+                    <button
+                      key={sz}
+                      type="button"
+                      title={`Set Standings size: ${sz}`}
+                      onClick={() => setF1WidgetSize('standings', sz)}
+                      className={`px-1.5 py-0.2 text-[9px] font-mono uppercase font-bold rounded-lg transition-colors cursor-pointer ${
+                        standingsSize === sz
+                          ? insetClass + ' text-red-500 font-extrabold'
+                          : 'opacity-60 hover:opacity-100'
+                      }`}
+                    >
+                      {sz === 'compact' ? 'S' : 'M'}
+                    </button>
+                  ))}
+                </div>
+                <span className={`text-[9px] font-mono ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>PTS</span>
+              </div>
             </div>
 
-            <div className="space-y-1.5 overflow-y-auto max-h-[56vh] pr-1">
+            <div className={`${isStandingsCompact ? 'space-y-1' : 'space-y-1.5'} overflow-y-auto max-h-[56vh] pr-1`}>
               {standingsTab === 'drivers' ? (
                 f1.standings.map((driver) => (
                   <div
                     key={driver.driverCode}
-                    className={`p-2 rounded-2xl ${insetClass} flex items-center justify-between text-xs`}
+                    className={`${isStandingsCompact ? 'p-1.5' : 'p-2'} rounded-2xl ${insetClass} flex items-center justify-between text-xs`}
                   >
                     <div className="flex items-center space-x-2 truncate">
                       <span className={`w-4 font-mono text-[11px] ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>
@@ -159,8 +206,12 @@ export const NeumorphicRaceWeekendMode: React.FC = () => {
                         style={{ backgroundColor: driver.teamColor || '#888' }}
                       />
                       <div className="truncate">
-                        <span className={`font-medium block truncate ${isLight ? 'text-slate-900' : 'text-neutral-200'}`}>{driver.driver}</span>
-                        <span className={`text-[9px] block truncate ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>({driver.team})</span>
+                        <span className={`font-medium block truncate ${isLight ? 'text-slate-900' : 'text-neutral-200'}`}>
+                          {isStandingsCompact ? driver.driverCode : driver.driver}
+                        </span>
+                        {!isStandingsCompact && (
+                          <span className={`text-[9px] block truncate ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>({driver.team})</span>
+                        )}
                       </div>
                     </div>
                     <span className="font-mono font-medium shrink-0 ml-1" style={{ color: 'var(--color-accent)' }}>
@@ -172,7 +223,7 @@ export const NeumorphicRaceWeekendMode: React.FC = () => {
                 (f1.constructorStandings || []).map((team) => (
                   <div
                     key={team.team}
-                    className={`p-2 rounded-2xl ${insetClass} flex items-center justify-between text-xs`}
+                    className={`${isStandingsCompact ? 'p-1.5' : 'p-2'} rounded-2xl ${insetClass} flex items-center justify-between text-xs`}
                   >
                     <div className="flex items-center space-x-2 truncate">
                       <span className={`w-4 font-mono text-[11px] ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>

@@ -5,7 +5,7 @@ import { CheckCircle2, CircleDashed, Compass } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
 
 export const HudMorningMode: React.FC = () => {
-  const { now, weather, aqi, events, tasks, toggleTask, f1, finance, media, colorMode } = useDashboard();
+  const { now, weather, aqi, events, tasks, toggleTask, finance, media, news, setManualOverrideMode, colorMode } = useDashboard();
   const isLight = colorMode === 'light';
 
   const hours = String(now.getHours()).padStart(2, '0');
@@ -232,27 +232,29 @@ export const HudMorningMode: React.FC = () => {
           </HudBox>
 
           <HudBox
-            title="F1_TACTICAL_RADAR"
-            code={`ROUND_${f1.activeRound}`}
-            glowColor="amber"
+            title="GLOBAL_INTEL_FEED"
+            code="LIVE_WIRE"
+            glowColor="cyan"
           >
-            <div className="space-y-2 pt-1 text-xs">
-              <div>
-                <h4 className="text-sm font-bold truncate" style={{ color: 'var(--color-accent)' }}>{f1.raceName}</h4>
-                <p className={`text-[11px] truncate ${isLight ? 'text-slate-600' : 'text-gray-400'}`}>{f1.circuitName}</p>
-              </div>
-
-              <div className={`p-2 border flex items-center justify-between ${
-                isLight ? 'bg-cyan-50/60 border-cyan-300/40' : 'bg-[#050e20] border-cyan-500/30'
-              }`}>
-                <div>
-                  <span className={`text-[9px] block uppercase ${isLight ? 'text-slate-600' : 'text-gray-400'}`}>TARGET_SESSION</span>
-                  <span className={`text-xs font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>{f1.nextSession.name}</span>
+            <div className="space-y-2 pt-1 text-xs cursor-pointer" onClick={() => setManualOverrideMode('news')}>
+              {news.slice(0, 2).map((item) => (
+                <div key={item.id} className={`p-2 border ${
+                  isLight ? 'bg-cyan-50/60 border-cyan-300/40' : 'bg-[#050e20] border-cyan-500/30'
+                }`}>
+                  <div className="flex items-center justify-between text-[9px] uppercase tracking-wider mb-0.5">
+                    <span style={{ color: 'var(--color-accent)' }}>{item.source}</span>
+                    <span className={isLight ? 'text-slate-500' : 'text-cyan-400/70'}>{item.time}</span>
+                  </div>
+                  <p className="font-bold line-clamp-1">{item.title}</p>
+                  {(item.snippet || item.summary) && (
+                    <p className={`text-[10px] mt-0.5 line-clamp-2 ${isLight ? 'text-slate-600' : 'text-cyan-300/80'}`}>
+                      {item.snippet || item.summary}
+                    </p>
+                  )}
                 </div>
-                <div className="text-right">
-                  <span className={`text-[9px] block uppercase ${isLight ? 'text-slate-600' : 'text-gray-400'}`}>COUNTDOWN</span>
-                  <span className="text-sm font-black text-rose-500">{f1.nextSession.countdownFormatted}</span>
-                </div>
+              ))}
+              <div className="text-[10px] text-right font-bold text-cyan-400 hover:underline">
+                [EXPAND_INTELLIGENCE &gt;&gt;]
               </div>
             </div>
           </HudBox>

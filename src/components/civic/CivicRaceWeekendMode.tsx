@@ -5,9 +5,14 @@ import { AudioBanner } from '../common/AudioBanner';
 import { F1WidgetsColumn } from '../f1/F1WidgetsColumn';
 
 export const CivicRaceWeekendMode: React.FC = () => {
-  const { now, f1, media, weather, colorMode } = useDashboard();
+  const { now, f1, media, weather, colorMode, f1WidgetSizes, setF1WidgetSize } = useDashboard();
   const isLight = colorMode === 'light';
   const [standingsTab, setStandingsTab] = useState<'drivers' | 'constructors'>('drivers');
+
+  const scheduleSize = f1WidgetSizes?.schedule || 'normal';
+  const isScheduleCompact = scheduleSize === 'compact';
+  const standingsSize = f1WidgetSizes?.standings || 'normal';
+  const isStandingsCompact = standingsSize === 'compact';
 
   const sessionsList = [
     { key: 'fp1', label: 'Practice 1', data: f1.sessions.fp1 },
@@ -80,22 +85,41 @@ export const CivicRaceWeekendMode: React.FC = () => {
         <F1WidgetsColumn f1={f1} uiStyle="civic" isLight={isLight} className="col-span-5" />
 
         {/* Center Column (4 cols): Weekend Timetable */}
-        <div className={`col-span-4 flex flex-col ${cardClass} p-5`}>
+        <div className={`col-span-4 flex flex-col ${cardClass} ${isScheduleCompact ? 'p-3.5' : 'p-5'}`}>
           <div className={`flex items-center justify-between border-b pb-2 mb-3 text-xs font-mono ${borderDivider} ${mutedClass}`}>
             <span className={`font-bold flex items-center space-x-1.5 ${isLight ? 'text-slate-800' : 'text-slate-200'}`}>
               <Calendar size={14} style={{ color: 'var(--color-accent, #f97316)' }} />
               <span>WEEKEND TIMETABLE</span>
             </span>
-            <span>IST (UTC+5:30)</span>
+            <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-0.5 bg-black/10 dark:bg-white/10 p-0.5 rounded">
+                {(['compact', 'normal'] as const).map((sz) => (
+                  <button
+                    key={sz}
+                    type="button"
+                    title={`Set Schedule size: ${sz}`}
+                    onClick={() => setF1WidgetSize('schedule', sz)}
+                    className={`px-1.5 py-0.2 text-[9px] font-mono uppercase font-bold rounded transition-colors cursor-pointer ${
+                      scheduleSize === sz
+                        ? 'bg-orange-600 text-white font-extrabold shadow-xs'
+                        : 'hover:bg-black/20 dark:hover:bg-white/20 text-current'
+                    }`}
+                  >
+                    {sz === 'compact' ? 'S' : 'M'}
+                  </button>
+                ))}
+              </div>
+              <span>IST</span>
+            </div>
           </div>
 
-          <div className="space-y-2 overflow-y-auto font-mono flex-1 max-h-[56vh] pr-1">
+          <div className={`${isScheduleCompact ? 'space-y-1' : 'space-y-2'} overflow-y-auto font-mono flex-1 max-h-[56vh] pr-1`}>
             {sessionsList.map((s) => {
               const isNext = f1.nextSession.name.toLowerCase().includes(s.label.toLowerCase());
               return (
                 <div
                   key={s.key}
-                  className={`p-2.5 ${innerClass} flex items-center justify-between ${
+                  className={`${isScheduleCompact ? 'p-1.5' : 'p-2.5'} ${innerClass} flex items-center justify-between ${
                     isNext ? 'border-l-4 border-orange-500' : ''
                   }`}
                 >
@@ -117,7 +141,7 @@ export const CivicRaceWeekendMode: React.FC = () => {
         </div>
 
         {/* Right Column (3 cols): World Drivers Championship with Switcher */}
-        <div className={`col-span-3 flex flex-col ${cardClass} p-5`}>
+        <div className={`col-span-3 flex flex-col ${cardClass} ${isStandingsCompact ? 'p-3.5' : 'p-5'}`}>
           <div className={`flex items-center justify-between border-b pb-2 mb-3 text-xs font-mono ${borderDivider}`}>
             <div className="flex space-x-1 text-[10px] font-bold">
               <button
@@ -137,15 +161,34 @@ export const CivicRaceWeekendMode: React.FC = () => {
                 Teams
               </button>
             </div>
-            <span className={`text-[9px] font-mono ${mutedClass}`}>PTS</span>
+            <div className="flex items-center space-x-1.5">
+              <div className="flex items-center space-x-0.5 bg-black/10 dark:bg-white/10 p-0.5 rounded">
+                {(['compact', 'normal'] as const).map((sz) => (
+                  <button
+                    key={sz}
+                    type="button"
+                    title={`Set Standings size: ${sz}`}
+                    onClick={() => setF1WidgetSize('standings', sz)}
+                    className={`px-1.5 py-0.2 text-[9px] font-mono uppercase font-bold rounded transition-colors cursor-pointer ${
+                      standingsSize === sz
+                        ? 'bg-orange-600 text-white font-extrabold shadow-xs'
+                        : 'hover:bg-black/20 dark:hover:bg-white/20 text-current'
+                    }`}
+                  >
+                    {sz === 'compact' ? 'S' : 'M'}
+                  </button>
+                ))}
+              </div>
+              <span className={`text-[9px] font-mono ${mutedClass}`}>PTS</span>
+            </div>
           </div>
 
-          <div className="space-y-1.5 overflow-y-auto max-h-[56vh] font-mono flex-1 pr-1">
+          <div className={`${isStandingsCompact ? 'space-y-1' : 'space-y-1.5'} overflow-y-auto max-h-[56vh] font-mono flex-1 pr-1`}>
             {standingsTab === 'drivers' ? (
               f1.standings.map((driver) => (
                 <div
                   key={driver.driverCode}
-                  className={`p-2 ${innerClass} flex items-center justify-between text-xs`}
+                  className={`${isStandingsCompact ? 'p-1' : 'p-2'} ${innerClass} flex items-center justify-between text-xs`}
                 >
                   <div className="flex items-center space-x-2 truncate">
                     <span className={`w-4 font-bold ${mutedClass}`}>
@@ -156,8 +199,12 @@ export const CivicRaceWeekendMode: React.FC = () => {
                       style={{ backgroundColor: driver.teamColor || '#888' }}
                     />
                     <div className="truncate">
-                      <span className={`font-bold uppercase block truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{driver.driver}</span>
-                      <span className={`text-[9px] block truncate ${mutedClass}`}>({driver.team})</span>
+                      <span className={`font-bold uppercase block truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                        {isStandingsCompact ? driver.driverCode : driver.driver}
+                      </span>
+                      {!isStandingsCompact && (
+                        <span className={`text-[9px] block truncate ${mutedClass}`}>({driver.team})</span>
+                      )}
                     </div>
                   </div>
                   <span className="font-bold shrink-0 ml-1" style={{ color: 'var(--color-accent, #f97316)' }}>
@@ -169,7 +216,7 @@ export const CivicRaceWeekendMode: React.FC = () => {
               (f1.constructorStandings || []).map((team) => (
                 <div
                   key={team.team}
-                  className={`p-2 ${innerClass} flex items-center justify-between text-xs`}
+                  className={`${isStandingsCompact ? 'p-1' : 'p-2'} ${innerClass} flex items-center justify-between text-xs`}
                 >
                   <div className="flex items-center space-x-2 truncate">
                     <span className={`w-4 font-bold ${mutedClass}`}>

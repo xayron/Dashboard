@@ -4,7 +4,7 @@ import { CheckCircle2, Circle, Coffee, Sunrise } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
 
 export const NeumorphicMorningMode: React.FC = () => {
-  const { now, weather, aqi, events, tasks, toggleTask, f1, finance, media, colorMode } = useDashboard();
+  const { now, weather, aqi, events, tasks, toggleTask, finance, media, news, setManualOverrideMode, colorMode } = useDashboard();
   const isLight = colorMode === 'light';
 
   const hours = String(now.getHours()).padStart(2, '0');
@@ -195,24 +195,28 @@ export const NeumorphicMorningMode: React.FC = () => {
             </div>
           </div>
 
-          {/* F1 Card */}
-          <div className={`p-6 rounded-3xl ${cardClass}`}>
-            <div className={`flex items-center justify-between mb-1 text-[10px] uppercase font-mono ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>
-              <span>Next Grand Prix</span>
-              <span className="text-red-500 font-bold">Round {f1.activeRound}/{f1.totalRounds}</span>
+          {/* Top News Card */}
+          <div className={`p-6 rounded-3xl cursor-pointer ${cardClass}`} onClick={() => setManualOverrideMode('news')}>
+            <div className={`flex items-center justify-between mb-2 text-[10px] uppercase font-mono ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>
+              <span className="font-bold">Top Headlines</span>
+              <span className="text-emerald-500 font-bold">Live Feed</span>
             </div>
-            <h4 className="text-sm font-bold truncate" style={{ color: 'var(--color-accent)' }}>{f1.raceName}</h4>
-            <p className={`text-xs truncate ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>{f1.circuitName}</p>
-
-            <div className={`mt-3 p-3 rounded-2xl ${insetClass} flex items-center justify-between text-xs`}>
-              <div>
-                <span className={`text-[10px] uppercase block ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>Next Session</span>
-                <span className={`font-medium ${isLight ? 'text-slate-900' : 'text-neutral-200'}`}>{f1.nextSession.name}</span>
+            {news.slice(0, 2).map((item, idx) => (
+              <div key={item.id} className={idx > 0 ? 'mt-2.5 pt-2' : ''}>
+                <div className="flex justify-between text-[10px] mb-0.5">
+                  <span style={{ color: 'var(--color-accent)' }}>{item.source}</span>
+                  <span className={isLight ? 'text-slate-500' : 'text-neutral-400'}>{item.time}</span>
+                </div>
+                <h4 className="text-xs font-bold truncate">{item.title}</h4>
+                {(item.snippet || item.summary) && (
+                  <p className={`text-[10px] mt-0.5 line-clamp-2 ${isLight ? 'text-slate-600' : 'text-neutral-400'}`}>
+                    {item.snippet || item.summary}
+                  </p>
+                )}
               </div>
-              <div className="text-right">
-                <span className={`text-[10px] uppercase block ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>Countdown</span>
-                <span className="text-sm font-mono font-bold text-red-500">{f1.nextSession.countdownFormatted}</span>
-              </div>
+            ))}
+            <div className={`mt-3 p-2 rounded-2xl ${insetClass} text-center text-[10px] font-bold`} style={{ color: 'var(--color-accent)' }}>
+              View All Headlines &rarr;
             </div>
           </div>
         </div>

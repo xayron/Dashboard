@@ -52,6 +52,8 @@ export const SettingsModal: React.FC = () => {
     f1WidgetSizes,
     setF1WidgetSize,
     setAllF1WidgetSizes,
+    showMorningFinanceTicker,
+    toggleMorningFinanceTicker,
   } = useDashboard();
 
   const isLight = colorMode === 'light';
@@ -318,10 +320,10 @@ export const SettingsModal: React.FC = () => {
     {
       id: 'display',
       title: 'Display & Hardware Kiosk',
-      subtitle: 'Right drawer vs modal layout, hardware specs, and kiosk flags',
+      subtitle: 'Presentation layout, optional morning scrolling ticker, and kiosk flags',
       icon: <Monitor size={18} className={isLight ? 'text-amber-600' : 'text-amber-400'} />,
-      badge: `${isDrawer ? 'Right Drawer' : 'Modal'} • 1080p Kiosk`,
-      keywords: 'display layout sleep screen drawer modal kiosk chromium flags presentation resolution hardware hdmi auto-sleep',
+      badge: `${isDrawer ? 'Right Drawer' : 'Modal'} • Ticker: ${showMorningFinanceTicker ? 'On' : 'Off'}`,
+      keywords: 'display layout sleep screen drawer modal kiosk chromium flags presentation resolution hardware ticker stocks finance index points scrolling morning markets',
     },
   ];
 
@@ -2120,6 +2122,71 @@ export const SettingsModal: React.FC = () => {
                                       Centered modal dialogue window with backdrop blur.
                                     </div>
                                   </div>
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Morning Mode Scrolling Index Points Ticker Toggle */}
+                            <div
+                              className={`p-4 border space-y-3 ${radiusMd} ${
+                                isTui
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#059669)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#10b981)]/40 bg-black/60'
+                                  : isHud
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#0891b2)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#06b6d4)]/40 bg-black/60'
+                                  : isBrutalist
+                                  ? isLight
+                                    ? 'border-2 border-black bg-white shadow-[2px_2px_0px_#000]'
+                                    : 'border-2 border-white bg-black shadow-[2px_2px_0px_#fff]'
+                                  : isLight
+                                  ? 'bg-white border-slate-200 shadow-xs'
+                                  : 'bg-white/5 border-white/10'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <h4 className={`text-sm mb-0.5 ${typo.cardTitle}`}>
+                                    Morning Scrolling Index Points Ticker
+                                  </h4>
+                                  <p className={typo.subtitle}>
+                                    Show or hide the continuous horizontal scrolling ticker at the bottom of Morning View. Press &apos;I&apos; to toggle anytime.
+                                  </p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={toggleMorningFinanceTicker}
+                                  className={`px-3 py-1.5 font-mono text-xs uppercase tracking-wider font-bold transition-all cursor-pointer ${radiusSm} ${
+                                    showMorningFinanceTicker
+                                      ? isTui
+                                        ? isLight
+                                          ? 'bg-[var(--color-accent,#059669)] text-white'
+                                          : 'bg-[var(--color-accent,#10b981)] text-black'
+                                        : isHud
+                                        ? isLight
+                                          ? 'bg-[var(--color-accent,#0891b2)] text-white'
+                                          : 'bg-[var(--color-accent,#06b6d4)] text-black'
+                                        : isBrutalist
+                                        ? 'bg-amber-400 text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                        : 'bg-emerald-600 text-white shadow-sm'
+                                      : isTui
+                                      ? isLight
+                                        ? 'border border-[var(--color-accent,#059669)]/40 text-slate-600 bg-white'
+                                        : 'border border-[var(--color-accent,#10b981)]/40 text-[var(--color-accent,#10b981)]/60'
+                                      : isHud
+                                      ? isLight
+                                        ? 'border border-[var(--color-accent,#0891b2)]/40 text-slate-600 bg-white'
+                                        : 'border border-[var(--color-accent,#06b6d4)]/40 text-[var(--color-accent,#06b6d4)]/60'
+                                      : isBrutalist
+                                      ? 'bg-neutral-200 text-neutral-600 border-2 border-black'
+                                      : isLight
+                                      ? 'bg-slate-200 text-slate-600'
+                                      : 'bg-white/10 text-slate-400'
+                                  }`}
+                                >
+                                  {showMorningFinanceTicker ? 'Enabled' : 'Disabled'}
                                 </button>
                               </div>
                             </div>

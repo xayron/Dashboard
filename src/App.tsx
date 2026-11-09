@@ -84,6 +84,9 @@ import { CivicFinanceTicker } from './components/civic/CivicFinanceTicker';
 // Global Kiosk Controls & Settings
 import { KioskControls } from './components/kiosk/KioskControls';
 import { SettingsModal } from './components/settings/SettingsModal';
+import { PairingModal } from './components/kiosk/PairingModal';
+import { NewsModal } from './components/news/NewsModal';
+import { NewsMode } from './components/modes/NewsMode';
 
 class SettingsErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -134,12 +137,16 @@ class SettingsErrorBoundary extends React.Component<
 }
 
 const DashboardContent: React.FC = () => {
-  const { activeMode, uiStyle, theme, colorMode, media } = useDashboard();
+  const { activeMode, uiStyle, theme, colorMode, media, showMorningFinanceTicker } = useDashboard();
   const isLight = colorMode === 'light';
   const isPlaying = media.state === 'playing';
   const effectiveMode = (activeMode === 'evening' && !isPlaying) ? 'ambient' : activeMode;
 
   const renderActiveMode = () => {
+    if (effectiveMode === 'news') {
+      return <NewsMode />;
+    }
+
     switch (uiStyle) {
       case 'tui':
         switch (effectiveMode) {
@@ -301,7 +308,9 @@ const DashboardContent: React.FC = () => {
   };
 
   const renderFinanceTicker = () => {
-    if (activeMode === 'ambient' || activeMode === 'evening') return null;
+    // Scrolling index points ticker removed from Race Weekend and other non-morning modes.
+    // In Morning mode, it is an optional widget controlled by user preference.
+    if (activeMode !== 'morning' || !showMorningFinanceTicker) return null;
 
     switch (uiStyle) {
       case 'tui':
@@ -400,7 +409,7 @@ const DashboardContent: React.FC = () => {
         {renderActiveMode()}
       </main>
 
-      {/* Persistent Bottom Financial Strip in Morning and Race Weekend */}
+      {/* Optional Bottom Financial Strip in Morning Mode (Removed from Race Weekend) */}
       {renderFinanceTicker()}
 
       {/* Floating Kiosk Quick Switcher Controls */}
@@ -410,6 +419,12 @@ const DashboardContent: React.FC = () => {
       <SettingsErrorBoundary>
         <SettingsModal />
       </SettingsErrorBoundary>
+
+      {/* Top News Headlines Modal */}
+      <NewsModal />
+
+      {/* Phone Remote Pairing Modal */}
+      <PairingModal />
     </div>
   );
 };

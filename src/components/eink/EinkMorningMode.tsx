@@ -1,10 +1,10 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { CheckSquare, Square, Feather } from 'lucide-react';
+import { CheckSquare, Square, Feather, Newspaper } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
 
 export const EinkMorningMode: React.FC = () => {
-  const { now, weather, aqi, events, tasks, toggleTask, f1, finance, media, colorMode } = useDashboard();
+  const { now, weather, aqi, events, tasks, toggleTask, finance, media, news, setManualOverrideMode, colorMode } = useDashboard();
   const isLight = colorMode === 'light';
 
   const hours = String(now.getHours()).padStart(2, '0');
@@ -208,25 +208,40 @@ export const EinkMorningMode: React.FC = () => {
             </div>
           </div>
 
-          {/* F1 Countdown Card */}
-          <div className={`p-4 border-2 ${
-            isLight
-              ? 'border-stone-800 bg-[#ede8df] shadow-[2px_2px_0px_#1c1917]'
-              : 'border-stone-500 bg-[#292524] shadow-[2px_2px_0px_#000]'
-          }`}>
-            <div className={`text-[10px] uppercase font-mono border-b pb-1 mb-2 ${
+          {/* Gazette Top Headlines Card */}
+          <div
+            onClick={() => setManualOverrideMode('news')}
+            className={`p-4 border-2 cursor-pointer transition-all ${
+              isLight
+                ? 'border-stone-800 bg-[#ede8df] shadow-[2px_2px_0px_#1c1917]'
+                : 'border-stone-500 bg-[#292524] shadow-[2px_2px_0px_#000]'
+            }`}
+          >
+            <div className={`text-[10px] uppercase font-mono border-b pb-1 mb-2 flex justify-between ${
               isLight ? 'text-stone-600 border-stone-400' : 'text-stone-400 border-stone-600'
             }`}>
-              Prix Automobile • Round {f1.activeRound}/{f1.totalRounds}
+              <span>The Morning Gazette • Top Wire</span>
+              <span className="font-bold">LIVE DISPATCH</span>
             </div>
-            <h4 className="text-sm font-bold uppercase truncate" style={{ color: 'var(--color-accent)' }}>{f1.raceName}</h4>
-            <p className={`text-xs italic ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>{f1.circuitName}</p>
-
-            <div className={`mt-2.5 pt-2 border-t flex justify-between items-center text-xs ${
-              isLight ? 'border-stone-400' : 'border-stone-600'
+            {news.slice(0, 2).map((item, idx) => (
+              <div key={item.id} className={idx > 0 ? `mt-2 pt-2 border-t ${isLight ? 'border-stone-300' : 'border-stone-700'}` : ''}>
+                <div className="flex justify-between text-[10px] italic">
+                  <span style={{ color: 'var(--color-accent)' }}>{item.source}</span>
+                  <span className={isLight ? 'text-stone-500' : 'text-stone-400'}>{item.time}</span>
+                </div>
+                <h4 className="text-xs font-bold leading-tight line-clamp-1">{item.title}</h4>
+                {(item.snippet || item.summary) && (
+                  <p className={`text-[10px] mt-0.5 line-clamp-2 ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>
+                    {item.snippet || item.summary}
+                  </p>
+                )}
+              </div>
+            ))}
+            <div className={`mt-2.5 pt-1.5 border-t flex justify-between items-center text-[10px] ${
+              isLight ? 'border-stone-400 text-stone-600' : 'border-stone-600 text-stone-400'
             }`}>
-              <span>Next Trial: <strong>{f1.nextSession.name}</strong></span>
-              <span className="font-mono font-bold" style={{ color: 'var(--color-accent)' }}>{f1.nextSession.countdownFormatted}</span>
+              <span>Full Dispatch Edition</span>
+              <span className="font-mono font-bold" style={{ color: 'var(--color-accent)' }}>READ MORE &rarr;</span>
             </div>
           </div>
         </div>

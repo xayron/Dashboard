@@ -15,9 +15,10 @@ import { ClockWidget } from '../common/ClockWidget';
 import { WeatherWidget } from '../common/WeatherWidget';
 import { FinanceTicker } from '../common/FinanceTicker';
 import { AudioBanner } from '../common/AudioBanner';
+import { NewsWidget } from '../common/NewsWidget';
 
 export const MorningMode: React.FC = () => {
-  const { weather, events, tasks, toggleTask, f1, media, colorMode } = useDashboard();
+  const { weather, events, tasks, toggleTask, media, colorMode } = useDashboard();
   const isLight = colorMode === 'light';
 
   return (
@@ -175,38 +176,8 @@ export const MorningMode: React.FC = () => {
             </div>
           </div>
 
-          {/* F1 Countdown Card in Morning */}
-          <div className={`glass-panel p-5 rounded-3xl border ${
-            isLight
-              ? 'border-red-200 bg-red-50/40'
-              : 'border-white/10 bg-gradient-to-br from-red-950/30 to-black/40'
-          }`}>
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center space-x-2 text-xs font-bold text-red-500 uppercase tracking-wider">
-                <Flag size={14} />
-                <span>Next Grand Prix</span>
-              </div>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/20 text-red-600 font-mono-numbers border border-red-500/30">
-                Round {f1.activeRound}/{f1.totalRounds}
-              </span>
-            </div>
-
-            <h3 className={`text-base font-bold truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{f1.raceName}</h3>
-            <p className={`text-xs ${isLight ? 'text-slate-600' : 'text-gray-300'}`}>{f1.circuitName}</p>
-
-            <div className={`mt-3 p-3 rounded-2xl border flex items-center justify-between ${
-              isLight ? 'bg-white/60 border-red-200' : 'bg-white/5 border-white/10'
-            }`}>
-              <div>
-                <span className={`text-[10px] uppercase font-semibold ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>Next Session: {f1.nextSession.name}</span>
-                <p className={`text-xs font-mono-numbers font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>{f1.nextSession.istTimeFormatted}</p>
-              </div>
-              <div className="text-right">
-                <span className={`text-[10px] uppercase font-semibold ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>Countdown</span>
-                <p className="text-sm font-mono-numbers font-extrabold text-red-500">{f1.nextSession.countdownFormatted}</p>
-              </div>
-            </div>
-          </div>
+          {/* Top News Headlines Widget */}
+          <NewsWidget />
         </div>
       </div>
     </div>

@@ -5,9 +5,14 @@ import { AudioBanner } from '../common/AudioBanner';
 import { F1WidgetsColumn } from '../f1/F1WidgetsColumn';
 
 export const EinkRaceWeekendMode: React.FC = () => {
-  const { now, f1, media, weather, colorMode } = useDashboard();
+  const { now, f1, media, weather, colorMode, f1WidgetSizes, setF1WidgetSize } = useDashboard();
   const isLight = colorMode === 'light';
   const [standingsTab, setStandingsTab] = useState<'drivers' | 'constructors'>('drivers');
+
+  const scheduleSize = f1WidgetSizes?.schedule || 'normal';
+  const isScheduleCompact = scheduleSize === 'compact';
+  const standingsSize = f1WidgetSizes?.standings || 'normal';
+  const isStandingsCompact = standingsSize === 'compact';
 
   const sessionsList = [
     { key: 'fp1', label: 'Practice 1', data: f1.sessions.fp1 },
@@ -70,18 +75,37 @@ export const EinkRaceWeekendMode: React.FC = () => {
         <div className={`col-span-4 flex flex-col border-r-2 pr-6 ${
           isLight ? 'border-stone-300' : 'border-stone-700'
         }`}>
-          <h3 className={`text-xs uppercase font-bold tracking-widest border-b-2 pb-1 mb-3 ${
-            isLight ? 'text-stone-900 border-stone-800' : 'text-stone-100 border-stone-500'
+          <div className={`flex items-center justify-between border-b-2 pb-1 mb-3 ${
+            isLight ? 'border-stone-800' : 'border-stone-500'
           }`}>
-            Programme of the Weekend
-          </h3>
-          <div className="space-y-2 overflow-y-auto max-h-[56vh] pr-1">
+            <h3 className={`text-xs uppercase font-bold tracking-widest ${
+              isLight ? 'text-stone-900' : 'text-stone-100'
+            }`}>
+              Programme (IST)
+            </h3>
+            <div className="flex items-center space-x-1 font-mono text-[9px]">
+              {(['compact', 'normal'] as const).map((sz) => (
+                <button
+                  key={sz}
+                  type="button"
+                  title={`Set Schedule size: ${sz}`}
+                  onClick={() => setF1WidgetSize('schedule', sz)}
+                  className={`px-1.5 py-0.2 border border-current font-bold uppercase cursor-pointer ${
+                    scheduleSize === sz ? (isLight ? 'bg-stone-900 text-stone-100' : 'bg-stone-100 text-stone-900') : 'opacity-60 hover:opacity-100'
+                  }`}
+                >
+                  {sz === 'compact' ? 'S' : 'M'}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className={`${isScheduleCompact ? 'space-y-1' : 'space-y-2'} overflow-y-auto max-h-[56vh] pr-1`}>
             {sessionsList.map((s) => {
               const isNext = f1.nextSession.name.toLowerCase().includes(s.label.toLowerCase());
               return (
                 <div
                   key={s.key}
-                  className={`p-2 border flex items-center justify-between ${
+                  className={`${isScheduleCompact ? 'p-1.5' : 'p-2'} border flex items-center justify-between ${
                     isNext
                       ? isLight
                         ? 'border-stone-900 bg-stone-300 font-bold'
@@ -126,15 +150,32 @@ export const EinkRaceWeekendMode: React.FC = () => {
                 Teams
               </button>
             </div>
-            <span className="text-[10px] font-mono uppercase font-bold">PTS</span>
+            <div className="flex items-center space-x-1.5">
+              <div className="flex items-center space-x-1 font-mono text-[9px]">
+                {(['compact', 'normal'] as const).map((sz) => (
+                  <button
+                    key={sz}
+                    type="button"
+                    title={`Set Standings size: ${sz}`}
+                    onClick={() => setF1WidgetSize('standings', sz)}
+                    className={`px-1.5 py-0.2 border border-current font-bold uppercase cursor-pointer ${
+                      standingsSize === sz ? (isLight ? 'bg-stone-900 text-stone-100' : 'bg-stone-100 text-stone-900') : 'opacity-60 hover:opacity-100'
+                    }`}
+                  >
+                    {sz === 'compact' ? 'S' : 'M'}
+                  </button>
+                ))}
+              </div>
+              <span className="text-[10px] font-mono uppercase font-bold">PTS</span>
+            </div>
           </div>
 
-          <div className="space-y-1.5 overflow-y-auto max-h-[56vh] pr-1">
+          <div className={`${isStandingsCompact ? 'space-y-1' : 'space-y-1.5'} overflow-y-auto max-h-[56vh] pr-1`}>
             {standingsTab === 'drivers' ? (
               f1.standings.map((driver) => (
                 <div
                   key={driver.driverCode}
-                  className={`p-1.5 border flex items-center justify-between text-xs ${
+                  className={`${isStandingsCompact ? 'p-1' : 'p-1.5'} border flex items-center justify-between text-xs ${
                     isLight
                       ? 'border-stone-300 bg-[#ede8df]'
                       : 'border-stone-700 bg-[#292524]'
@@ -149,8 +190,12 @@ export const EinkRaceWeekendMode: React.FC = () => {
                       style={{ backgroundColor: driver.teamColor || '#888' }}
                     />
                     <div className="truncate">
-                      <span className="font-bold uppercase block truncate">{driver.driver}</span>
-                      <span className={`text-[9px] italic block truncate ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>({driver.team})</span>
+                      <span className="font-bold uppercase block truncate">
+                        {isStandingsCompact ? driver.driverCode : driver.driver}
+                      </span>
+                      {!isStandingsCompact && (
+                        <span className={`text-[9px] italic block truncate ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>({driver.team})</span>
+                      )}
                     </div>
                   </div>
                   <span className="font-mono font-bold shrink-0 ml-1" style={{ color: 'var(--color-accent)' }}>
@@ -162,7 +207,7 @@ export const EinkRaceWeekendMode: React.FC = () => {
               (f1.constructorStandings || []).map((team) => (
                 <div
                   key={team.team}
-                  className={`p-1.5 border flex items-center justify-between text-xs ${
+                  className={`${isStandingsCompact ? 'p-1' : 'p-1.5'} border flex items-center justify-between text-xs ${
                     isLight
                       ? 'border-stone-300 bg-[#ede8df]'
                       : 'border-stone-700 bg-[#292524]'

@@ -5,9 +5,14 @@ import { AudioBanner } from '../common/AudioBanner';
 import { F1WidgetsColumn } from '../f1/F1WidgetsColumn';
 
 export const MinimalRaceWeekendMode: React.FC = () => {
-  const { now, f1, media, weather, colorMode } = useDashboard();
+  const { now, f1, media, weather, colorMode, f1WidgetSizes, setF1WidgetSize } = useDashboard();
   const isLight = colorMode === 'light';
   const [standingsTab, setStandingsTab] = useState<'drivers' | 'constructors'>('drivers');
+
+  const scheduleSize = f1WidgetSizes?.schedule || 'normal';
+  const isScheduleCompact = scheduleSize === 'compact';
+  const standingsSize = f1WidgetSizes?.standings || 'normal';
+  const isStandingsCompact = standingsSize === 'compact';
 
   const sessionsList = [
     { key: 'fp1', label: 'Practice 1', data: f1.sessions.fp1 },
@@ -64,16 +69,35 @@ export const MinimalRaceWeekendMode: React.FC = () => {
             <h3 className={`text-xs uppercase tracking-widest font-medium ${isLight ? 'text-neutral-500' : 'text-neutral-400'}`}>
               Weekend Sessions (IST)
             </h3>
-            <span className={`text-[10px] font-mono ${isLight ? 'text-neutral-400' : 'text-neutral-500'}`}>UTC+5:30</span>
+            <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-0.5 bg-black/5 dark:bg-white/5 p-0.5 rounded">
+                {(['compact', 'normal'] as const).map((sz) => (
+                  <button
+                    key={sz}
+                    type="button"
+                    title={`Set Schedule size: ${sz}`}
+                    onClick={() => setF1WidgetSize('schedule', sz)}
+                    className={`px-1.5 py-0.2 text-[9px] font-mono uppercase font-medium rounded transition-colors cursor-pointer ${
+                      scheduleSize === sz
+                        ? 'bg-neutral-800 text-white dark:bg-neutral-200 dark:text-neutral-900 font-bold'
+                        : 'opacity-60 hover:opacity-100'
+                    }`}
+                  >
+                    {sz === 'compact' ? 'S' : 'M'}
+                  </button>
+                ))}
+              </div>
+              <span className={`text-[10px] font-mono ${isLight ? 'text-neutral-400' : 'text-neutral-500'}`}>UTC+5:30</span>
+            </div>
           </div>
 
-          <div className="space-y-2 overflow-y-auto max-h-[56vh] pr-1">
+          <div className={`${isScheduleCompact ? 'space-y-1' : 'space-y-2'} overflow-y-auto max-h-[56vh] pr-1`}>
             {sessionsList.map((s) => {
               const isNext = f1.nextSession.name.toLowerCase().includes(s.label.toLowerCase());
               return (
                 <div
                   key={s.key}
-                  className={`flex items-center justify-between py-1.5 px-2.5 rounded-lg border transition-all ${
+                  className={`flex items-center justify-between ${isScheduleCompact ? 'py-1 px-2' : 'py-1.5 px-2.5'} rounded-lg border transition-all ${
                     isNext
                       ? isLight
                         ? 'border-neutral-400 bg-neutral-100 font-medium'
@@ -128,15 +152,34 @@ export const MinimalRaceWeekendMode: React.FC = () => {
                 Teams
               </button>
             </div>
-            <span className={`text-[10px] font-mono uppercase ${isLight ? 'text-neutral-400' : 'text-neutral-500'}`}>PTS</span>
+            <div className="flex items-center space-x-1.5">
+              <div className="flex items-center space-x-0.5 bg-black/5 dark:bg-white/5 p-0.5 rounded">
+                {(['compact', 'normal'] as const).map((sz) => (
+                  <button
+                    key={sz}
+                    type="button"
+                    title={`Set Standings size: ${sz}`}
+                    onClick={() => setF1WidgetSize('standings', sz)}
+                    className={`px-1.5 py-0.2 text-[9px] font-mono uppercase font-medium rounded transition-colors cursor-pointer ${
+                      standingsSize === sz
+                        ? 'bg-neutral-800 text-white dark:bg-neutral-200 dark:text-neutral-900 font-bold'
+                        : 'opacity-60 hover:opacity-100'
+                    }`}
+                  >
+                    {sz === 'compact' ? 'S' : 'M'}
+                  </button>
+                ))}
+              </div>
+              <span className={`text-[10px] font-mono uppercase ${isLight ? 'text-neutral-400' : 'text-neutral-500'}`}>PTS</span>
+            </div>
           </div>
 
-          <div className="space-y-1 overflow-y-auto max-h-[56vh] pr-1">
+          <div className={`${isStandingsCompact ? 'space-y-0.5' : 'space-y-1'} overflow-y-auto max-h-[56vh] pr-1`}>
             {standingsTab === 'drivers' ? (
               f1.standings.map((driver) => (
                 <div
                   key={driver.driverCode}
-                  className={`flex items-center justify-between py-1.5 px-2 rounded border text-xs font-light ${
+                  className={`flex items-center justify-between ${isStandingsCompact ? 'py-1 px-1.5' : 'py-1.5 px-2'} rounded border text-xs font-light ${
                     isLight ? 'border-neutral-200/60 hover:bg-neutral-50' : 'border-white/5 hover:bg-white/[0.02]'
                   }`}
                 >
@@ -149,8 +192,12 @@ export const MinimalRaceWeekendMode: React.FC = () => {
                       style={{ backgroundColor: driver.teamColor || '#888' }}
                     />
                     <div className="truncate">
-                      <span className={`font-light block truncate ${isLight ? 'text-neutral-800' : 'text-neutral-200'}`}>{driver.driver}</span>
-                      <span className={`text-[9px] block truncate ${isLight ? 'text-neutral-400' : 'text-neutral-500'}`}>{driver.team}</span>
+                      <span className={`font-light block truncate ${isLight ? 'text-neutral-800' : 'text-neutral-200'}`}>
+                        {isStandingsCompact ? driver.driverCode : driver.driver}
+                      </span>
+                      {!isStandingsCompact && (
+                        <span className={`text-[9px] block truncate ${isLight ? 'text-neutral-400' : 'text-neutral-500'}`}>{driver.team}</span>
+                      )}
                     </div>
                   </div>
                   <span className="font-mono text-xs font-medium shrink-0 ml-1" style={{ color: 'var(--color-accent)' }}>
@@ -162,7 +209,7 @@ export const MinimalRaceWeekendMode: React.FC = () => {
               (f1.constructorStandings || []).map((team) => (
                 <div
                   key={team.team}
-                  className={`flex items-center justify-between py-1.5 px-2 rounded border text-xs font-light ${
+                  className={`flex items-center justify-between ${isStandingsCompact ? 'py-1 px-1.5' : 'py-1.5 px-2'} rounded border text-xs font-light ${
                     isLight ? 'border-neutral-200/60 hover:bg-neutral-50' : 'border-white/5 hover:bg-white/[0.02]'
                   }`}
                 >

@@ -11,6 +11,7 @@ export interface NewsItem {
   time: string;
   category: NewsCategory;
   summary?: string;
+  snippet?: string;
   url?: string;
   isBreaking?: boolean;
 }
@@ -200,7 +201,9 @@ export type F1WidgetId =
   | 'pitstop'
   | 'upcomingRaces'
   | 'circuitTelemetry'
-  | 'news';
+  | 'news'
+  | 'schedule'
+  | 'standings';
 
 export interface F1Data {
   isRaceWeekend: boolean;
