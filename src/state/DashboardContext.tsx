@@ -94,6 +94,8 @@ export const UI_STYLES: UIStyleInfo[] = [
 
 const UI_STYLE_ORDER: UIStyle[] = ['modern', 'tui', 'brutalist', 'minimal', 'hud', 'eink', 'retrowave', 'neumorphic', 'obsidian', 'civic'];
 
+export type SettingsLayout = 'drawer' | 'modal';
+
 interface DashboardContextType {
   uiStyle: UIStyle;
   setUiStyle: (style: UIStyle) => void;
@@ -129,6 +131,9 @@ interface DashboardContextType {
   systemHealth: SystemHealth;
   isSettingsOpen: boolean;
   setIsSettingsOpen: (open: boolean) => void;
+  settingsLayout: SettingsLayout;
+  setSettingsLayout: (layout: SettingsLayout) => void;
+  toggleSettingsLayout: () => void;
   isKioskBarVisible: boolean;
   toggleKioskBar: () => void;
 }
@@ -221,6 +226,25 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [manualOverrideMode, setManualOverrideMode] = useState<DashboardMode | null>(null);
   const [isRaceWeekendSimulated, setIsRaceWeekendSimulated] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [settingsLayout, setSettingsLayoutState] = useState<SettingsLayout>(() => {
+    try {
+      const saved = localStorage.getItem('dashboard_settings_layout') as SettingsLayout;
+      if (saved === 'drawer' || saved === 'modal') return saved;
+    } catch (e) {}
+    return 'drawer'; // Default to right-side drawer
+  });
+
+  const setSettingsLayout = (l: SettingsLayout) => {
+    setSettingsLayoutState(l);
+    try {
+      localStorage.setItem('dashboard_settings_layout', l);
+    } catch (e) {}
+  };
+
+  const toggleSettingsLayout = () => {
+    setSettingsLayout(settingsLayout === 'drawer' ? 'modal' : 'drawer');
+  };
+
   const [isKioskBarVisible, setIsKioskBarVisible] = useState<boolean>(true);
 
   // Data states
@@ -566,6 +590,9 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         systemHealth,
         isSettingsOpen,
         setIsSettingsOpen,
+        settingsLayout,
+        setSettingsLayout,
+        toggleSettingsLayout,
         isKioskBarVisible,
         toggleKioskBar,
       }}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   Server,
@@ -11,6 +11,8 @@ import {
   RotateCcw,
   FolderOpen,
   Palette,
+  PanelRight,
+  AppWindow,
 } from 'lucide-react';
 import { useDashboard, UI_STYLES } from '../../state/DashboardContext';
 import { haService, getSavedHAConfig, saveHAConfig } from '../../services/homeAssistant';
@@ -28,6 +30,9 @@ export const SettingsModal: React.FC = () => {
     setUiStyle,
     colorMode,
     setColorMode,
+    settingsLayout,
+    setSettingsLayout,
+    toggleSettingsLayout,
   } = useDashboard();
 
   const [haConfig, setHaConfig] = useState(getSavedHAConfig());

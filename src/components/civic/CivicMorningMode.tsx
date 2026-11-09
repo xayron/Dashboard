@@ -37,8 +37,12 @@ export const CivicMorningMode: React.FC = () => {
       <div className={`flex items-center justify-between mb-4 pb-3 border-b-2 ${isLight ? 'border-slate-300' : 'border-slate-700'}`}>
         <div className="flex items-center space-x-3">
           <div
-            className={`p-2.5 rounded-lg shadow-sm ${isLight ? 'bg-slate-900 text-white' : 'bg-slate-800 text-white'}`}
-            style={{ color: 'var(--color-accent, #f97316)' }}
+            className="p-2.5 rounded-lg border shadow-xs flex items-center justify-center transition-colors"
+            style={{
+              backgroundColor: 'var(--theme-accent-soft)',
+              borderColor: 'var(--color-accent, #f97316)',
+              color: 'var(--color-accent, #f97316)',
+            }}
           >
             <Clock size={20} />
           </div>
