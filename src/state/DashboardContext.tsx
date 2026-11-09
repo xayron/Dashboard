@@ -79,15 +79,15 @@ export const UI_STYLES: UIStyleInfo[] = [
   },
   {
     id: 'obsidian',
-    name: 'Obsidian Ops',
-    tagline: 'Governed Evidence Terminal',
-    description: 'Cold air-gapped obsidian facets (#08080a) with lit borders, signed proof receipts, and operator telemetry.',
+    name: 'Stealth Facet',
+    tagline: 'Crystalline Dark Monolith',
+    description: 'Void black surfaces with razor lit facet borders, cryptographic telemetry, and emerald status indicators.',
   },
   {
     id: 'civic',
-    name: 'Civic Data Scorecard',
-    tagline: 'Public Transparency Audit',
-    description: 'High-contrast investigative governance tables, verification audit badges, and public ledger metrics.',
+    name: 'Public Gazette',
+    tagline: 'Institutional Data Ledger',
+    description: 'High-contrast institutional layout with crisp white scorecards, tricolor accents, and official audit typography.',
   },
 ];
 
@@ -168,9 +168,34 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
-    const themeDef = THEMES[theme] || THEMES.obsidian;
-    document.body.style.backgroundColor = themeDef.colors.bg;
-  }, [theme]);
+    document.documentElement.setAttribute('data-style', uiStyle);
+
+    const isLightStyle = uiStyle === 'eink' || uiStyle === 'civic';
+    document.documentElement.style.colorScheme = isLightStyle ? 'light' : 'dark';
+
+    if (uiStyle === 'eink') {
+      document.body.style.backgroundColor = '#f5f2eb';
+    } else if (uiStyle === 'civic') {
+      document.body.style.backgroundColor = '#f1f5f9';
+    } else if (uiStyle === 'tui') {
+      document.body.style.backgroundColor = '#000000';
+    } else if (uiStyle === 'brutalist') {
+      document.body.style.backgroundColor = '#111111';
+    } else if (uiStyle === 'minimal') {
+      document.body.style.backgroundColor = '#09090b';
+    } else if (uiStyle === 'hud') {
+      document.body.style.backgroundColor = '#030712';
+    } else if (uiStyle === 'retrowave') {
+      document.body.style.backgroundColor = '#150424';
+    } else if (uiStyle === 'neumorphic') {
+      document.body.style.backgroundColor = '#1a1d24';
+    } else if (uiStyle === 'obsidian') {
+      document.body.style.backgroundColor = '#050507';
+    } else {
+      const themeDef = THEMES[theme] || THEMES.obsidian;
+      document.body.style.backgroundColor = themeDef.colors.bg;
+    }
+  }, [theme, uiStyle]);
 
   const [now, setNow] = useState<Date>(new Date());
   const [manualOverrideMode, setManualOverrideMode] = useState<DashboardMode | null>(null);

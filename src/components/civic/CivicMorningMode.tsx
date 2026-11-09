@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { FileCheck, CheckCircle2, CircleDashed, Calendar, Database, ArrowUpRight, ArrowDownRight, Clock, Wind, Droplets, Sun, Flag, AlertTriangle, ShieldAlert, Award } from 'lucide-react';
+import { FileCheck, CheckCircle2, CircleDashed, Calendar, Database, ArrowUpRight, ArrowDownRight, Clock, Wind, Droplets, Sun, Flag, CheckSquare, TrendingUp } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
 
 export const CivicMorningMode: React.FC = () => {
@@ -19,23 +19,23 @@ export const CivicMorningMode: React.FC = () => {
 
   return (
     <div className="w-full h-full p-6 flex flex-col justify-between overflow-hidden bg-[#f1f5f9] text-[#0f172a] select-none font-sans">
-      {/* Top Banner: Civic Audit Masthead & Audio Banner */}
+      {/* Top Banner: Morning Briefing & Audio Banner */}
       <div className="flex items-center justify-between mb-4 pb-3 border-b-2 border-slate-300">
         <div className="flex items-center space-x-3">
           <div className="p-2.5 bg-[#0f172a] text-[#f97316] rounded-lg shadow-sm">
-            <FileCheck size={20} />
+            <Clock size={20} />
           </div>
           <div>
             <div className="flex items-center space-x-2">
               <h1 className="text-xl font-extrabold tracking-tight text-slate-900">
-                GOVERNANCE & CIVIC TRANSPARENCY SCORECARD
+                MORNING OVERVIEW
               </h1>
-              <span className="px-2 py-0.5 text-[10px] font-mono bg-red-100 border border-red-300 text-red-700 font-bold rounded">
-                PIB CLAIM VS CAG AUDIT
+              <span className="px-2 py-0.5 text-[10px] font-mono bg-emerald-100 border border-emerald-300 text-emerald-800 font-bold rounded">
+                DAILY REPORT
               </span>
             </div>
             <p className="text-xs text-slate-500 font-mono mt-0.5">
-              DATA SOURCES: CAG AUDITS • IMD METEOROLOGY • ECI AFFIDAVITS • SEBI FISCAL DATA
+              SUNRISE AT {weather.sunrise} // SUNSET AT {weather.sunset} • EXPECTED HIGH {weather.highTemp}°C
             </p>
           </div>
         </div>
@@ -45,17 +45,17 @@ export const CivicMorningMode: React.FC = () => {
 
       {/* 3-Column 1080p Grid */}
       <div className="grid grid-cols-12 gap-5 flex-1 min-h-0">
-        {/* Left Column: Official Standard Time & CPCB Meteorological Audit (Cols 1-4) */}
+        {/* Left Column: Clock & Weather (Cols 1-4) */}
         <div className="col-span-4 flex flex-col space-y-4">
-          {/* Official Chrono Card */}
+          {/* Clock Card */}
           <div className="p-5 bg-white border border-slate-300 rounded-xl shadow-sm flex flex-col justify-between">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 text-xs font-mono text-slate-500">
               <span className="flex items-center space-x-1.5 text-slate-800 font-bold">
                 <Clock size={14} className="text-[#f97316]" />
-                <span>INDIAN STANDARD TIME (IST)</span>
+                <span>CURRENT TIME</span>
               </span>
               <span className="text-[10px] text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded font-bold border border-emerald-300">
-                CSIR-NPL SYNC
+                LIVE
               </span>
             </div>
 
@@ -65,42 +65,42 @@ export const CivicMorningMode: React.FC = () => {
                 <span className="text-2xl text-[#f97316] font-mono ml-2">:{seconds}</span>
               </div>
               <div className="text-xs font-bold text-slate-600 mt-2 uppercase tracking-wide">
-                {dateFormatted} • UTC+05:30
+                {dateFormatted} • IST (UTC+05:30)
               </div>
             </div>
 
             <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] font-mono text-slate-500">
               <span>SOLAR: {weather.sunrise} DAWN – {weather.sunset} DUSK</span>
-              <span className="text-emerald-700 font-bold">CERTIFIED</span>
+              <span className="text-emerald-700 font-bold">ACCURATE</span>
             </div>
           </div>
 
-          {/* Meteorological & Environmental Audit Card */}
+          {/* Weather & Environmental Conditions Card */}
           <div className="p-5 bg-white border border-slate-300 rounded-xl shadow-sm flex-1 flex flex-col justify-between">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2 text-xs font-mono text-slate-500">
               <span className="flex items-center space-x-1.5 text-slate-800 font-bold">
                 <Database size={14} className="text-[#f97316]" />
-                <span>CPCB / IMD ENVIRONMENTAL AUDIT</span>
+                <span>WEATHER & ENVIRONMENT</span>
               </span>
-              <span className="text-[10px] text-slate-500 font-semibold">STATION RECORD</span>
+              <span className="text-[10px] text-slate-500 font-semibold">{weather.condition.toUpperCase()}</span>
             </div>
 
             <div className="grid grid-cols-2 gap-3 my-2">
               <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg">
                 <span className="text-[10px] font-mono text-slate-500 uppercase font-bold block">
-                  Ground Temperature
+                  Temperature
                 </span>
                 <div className="text-3xl font-mono font-black text-slate-900 mt-0.5">
                   {weather.temperature}°C
                 </div>
                 <span className="text-[11px] text-slate-600 block mt-0.5 font-medium">
-                  {weather.condition} • Feels {weather.apparentTemperature}°C
+                  Feels like {weather.apparentTemperature}°C
                 </span>
               </div>
 
               <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
                 <span className="text-[10px] font-mono text-emerald-800 uppercase font-bold block">
-                  Air Quality Index (AQI)
+                  Air Quality Index
                 </span>
                 <div className="text-3xl font-mono font-black text-emerald-700 mt-0.5">
                   {aqi.usAqi}
@@ -128,23 +128,23 @@ export const CivicMorningMode: React.FC = () => {
           </div>
         </div>
 
-        {/* Center Column: Public Gazette & Civic Directives Pipeline (Cols 5-8) */}
+        {/* Center Column: Today's Schedule & Tasks (Cols 5-8) */}
         <div className="col-span-4 flex flex-col space-y-4">
-          {/* Public Gazette Schedule */}
+          {/* Today's Schedule */}
           <div className="p-5 bg-white border border-slate-300 rounded-xl shadow-sm flex-1 flex flex-col justify-between">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2 text-xs font-mono text-slate-500">
               <span className="flex items-center space-x-1.5 text-slate-800 font-bold">
                 <Calendar size={14} className="text-[#f97316]" />
-                <span>PUBLIC GAZETTE & ENGAGEMENTS</span>
+                <span>TODAY'S SCHEDULE</span>
               </span>
               <span className="text-[10px] px-1.5 py-0.5 bg-slate-100 rounded text-slate-600 font-bold">
-                {events.length} LOGGED
+                {events.length} UPCOMING
               </span>
             </div>
 
             <div className="space-y-2.5 overflow-y-auto max-h-[220px] my-2 pr-1 font-mono">
               {events.length === 0 ? (
-                <div className="text-xs text-slate-400 py-6 text-center italic">No public gazette engagements logged</div>
+                <div className="text-xs text-slate-400 py-6 text-center italic">No events scheduled for today</div>
               ) : (
                 events.map((ev) => (
                   <div
@@ -159,7 +159,7 @@ export const CivicMorningMode: React.FC = () => {
                       </div>
                     </div>
                     <span className="text-[9px] px-2 py-0.5 bg-amber-100 text-amber-800 border border-amber-300 font-bold uppercase rounded">
-                      PUBLIC
+                      CALENDAR
                     </span>
                   </div>
                 ))
@@ -167,20 +167,20 @@ export const CivicMorningMode: React.FC = () => {
             </div>
 
             <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-mono text-slate-500">
-              <span>OFFICIAL CALENDAR FEED</span>
-              <span className="text-emerald-700 font-bold">VERIFIED</span>
+              <span>GOOGLE CALENDAR</span>
+              <span className="text-emerald-700 font-bold">SYNCED</span>
             </div>
           </div>
 
-          {/* Civic Directives / CAG Audit Action Items */}
+          {/* Tasks & To-Dos */}
           <div className="p-5 bg-white border border-slate-300 rounded-xl shadow-sm flex-1 flex flex-col justify-between">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2 text-xs font-mono text-slate-500">
               <span className="flex items-center space-x-1.5 text-slate-800 font-bold">
-                <ShieldAlert size={14} className="text-[#f97316]" />
-                <span>CAG AUDIT DIRECTIVES PIPELINE</span>
+                <CheckSquare size={14} className="text-[#f97316]" />
+                <span>TASKS & TO-DOS</span>
               </span>
-              <span className="text-[10px] text-red-700 bg-red-100 px-2 py-0.5 rounded font-bold border border-red-300">
-                PUBLIC SCRUTINY
+              <span className="text-[10px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded font-bold border border-amber-300">
+                {tasks.filter(t => !t.completed).length} PENDING
               </span>
             </div>
 
@@ -215,23 +215,23 @@ export const CivicMorningMode: React.FC = () => {
             </div>
 
             <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-mono text-slate-500">
-              <span>CITIZEN INQUIRY: ACTIVE</span>
-              <span className="text-slate-600 font-bold">CLICK TO UPDATE</span>
+              <span>GOOGLE TASKS</span>
+              <span className="text-slate-600 font-bold">TAP TO COMPLETE</span>
             </div>
           </div>
         </div>
 
-        {/* Right Column: Public Fiscal Ledger & Motorsport Technical Scrutiny (Cols 9-12) */}
+        {/* Right Column: Market Watch & Formula 1 (Cols 9-12) */}
         <div className="col-span-4 flex flex-col space-y-4">
-          {/* Public Fiscal Ledger */}
+          {/* Market Watch */}
           <div className="p-5 bg-white border border-slate-300 rounded-xl shadow-sm flex-1 flex flex-col justify-between">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2 text-xs font-mono text-slate-500">
               <span className="flex items-center space-x-1.5 text-slate-800 font-bold">
-                <Database size={14} className="text-[#f97316]" />
-                <span>PUBLIC FISCAL INDICATORS</span>
+                <TrendingUp size={14} className="text-[#f97316]" />
+                <span>MARKET WATCH</span>
               </span>
               <span className="text-[10px] text-emerald-800 font-bold bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
-                RBI / SEBI
+                LIVE QUOTES
               </span>
             </div>
 
@@ -259,20 +259,20 @@ export const CivicMorningMode: React.FC = () => {
             </div>
 
             <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-mono text-slate-500">
-              <span>INDEX: REAL-TIME LEDGER</span>
-              <span className="text-emerald-700 font-bold">T+0 SYNC</span>
+              <span>NSE / NASDAQ / LSE</span>
+              <span className="text-emerald-700 font-bold">REAL-TIME</span>
             </div>
           </div>
 
-          {/* Motorsport Scrutiny / F1 Telemetry */}
+          {/* Formula 1 */}
           <div className="p-5 bg-white border border-slate-300 rounded-xl shadow-sm flex flex-col justify-between">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2 text-xs font-mono text-slate-500">
               <span className="flex items-center space-x-1.5 text-slate-800 font-bold">
                 <Flag size={14} className="text-[#f97316]" />
-                <span>MOTORSPORT TECHNICAL SCRUTINY</span>
+                <span>FORMULA 1</span>
               </span>
               <span className="text-[10px] text-slate-700 bg-slate-100 px-2 py-0.5 rounded font-bold border border-slate-300">
-                ROUND {f1.activeRound}
+                ROUND {f1.activeRound} OF {f1.totalRounds}
               </span>
             </div>
 
@@ -288,7 +288,7 @@ export const CivicMorningMode: React.FC = () => {
                   <span className="text-xs font-bold text-slate-900">{f1.nextSession.name}</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-[10px] text-slate-500 uppercase block font-bold">Scrutiny Lock</span>
+                  <span className="text-[10px] text-slate-500 uppercase block font-bold">Countdown</span>
                   <span className="text-sm font-black text-[#f97316]">{f1.nextSession.countdownFormatted}</span>
                 </div>
               </div>
@@ -296,7 +296,7 @@ export const CivicMorningMode: React.FC = () => {
 
             <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-mono text-slate-500">
               <span>FIA OFFICIAL DATA STREAM</span>
-              <span className="text-slate-800 font-bold">AUDITED</span>
+              <span className="text-slate-800 font-bold">UP TO DATE</span>
             </div>
           </div>
         </div>

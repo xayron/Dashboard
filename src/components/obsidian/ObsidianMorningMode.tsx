@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { ShieldCheck, CheckCircle2, CircleDashed, Terminal, Activity, ArrowUpRight, ArrowDownRight, Clock, Wind, Droplets, Sun, Radio, Compass, Lock, Hash } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, CircleDashed, Terminal, Activity, ArrowUpRight, ArrowDownRight, Clock, Wind, Droplets, Sun, Radio, Compass, Lock, Calendar, CheckSquare, TrendingUp, Flag } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
 
 export const ObsidianMorningMode: React.FC = () => {
@@ -27,23 +27,23 @@ export const ObsidianMorningMode: React.FC = () => {
         }}
       />
 
-      {/* Top Evidence Rail */}
+      {/* Top Briefing Rail */}
       <div className="relative z-10 flex items-center justify-between mb-4 pb-3 border-b border-white/[0.12]">
         <div className="flex items-center space-x-3">
           <div className="p-2 bg-[#101017] border border-white/[0.18] text-[#5fd49b] shadow-[0_0_15px_rgba(95,212,155,0.2)]">
-            <Lock size={18} />
+            <Clock size={18} />
           </div>
           <div>
             <div className="flex items-center space-x-2">
               <h1 className="text-lg font-bold font-mono tracking-widest text-[#eef0f3]">
-                OBSIDIAN INTELLIGENCE // GOVERNED AIR-GAP
+                MORNING BRIEFING
               </h1>
               <span className="px-2 py-0.5 text-[10px] font-mono bg-[#5fd49b]/10 border border-[#5fd49b]/40 text-[#5fd49b]">
-                RECEIPT://VERIFIED
+                SYSTEM ACTIVE
               </span>
             </div>
             <p className="text-xs font-mono text-[#9a9da6] mt-0.5">
-              HSM NODE 01 • PROOF HASH: SHA256//B74C..9E1A • SOLAR DAWN {weather.sunrise} // DUSK {weather.sunset}
+              SUNRISE AT {weather.sunrise} // SUNSET AT {weather.sunset} • EXPECTED HIGH {weather.highTemp}°C
             </p>
           </div>
         </div>
@@ -53,17 +53,17 @@ export const ObsidianMorningMode: React.FC = () => {
 
       {/* 3-Column 1080p Grid */}
       <div className="relative z-10 grid grid-cols-12 gap-5 flex-1 min-h-0">
-        {/* Left Column: Chrono & Atmospheric Sensors (Cols 1-4) */}
+        {/* Left Column: Clock & Weather (Cols 1-4) */}
         <div className="col-span-4 flex flex-col space-y-4">
-          {/* Chrono Facet Card */}
+          {/* Clock Facet Card */}
           <div className="p-5 bg-[#0f0f15] border border-white/[0.14] relative overflow-hidden flex flex-col justify-between shadow-lg">
             <div className="flex items-center justify-between border-b border-white/[0.08] pb-2 text-xs font-mono text-[#9a9da6]">
               <span className="flex items-center space-x-1.5 text-[#eef0f3]">
                 <Clock size={13} className="text-[#5fd49b]" />
-                <span className="font-bold tracking-wider">[01] CHRONO TELEMETRY</span>
+                <span className="font-bold tracking-wider">CURRENT TIME</span>
               </span>
               <span className="text-[10px] text-[#5fd49b] bg-[#5fd49b]/10 px-2 py-0.5 border border-[#5fd49b]/30">
-                PTP//ATOMIC
+                LIVE
               </span>
             </div>
 
@@ -78,32 +78,32 @@ export const ObsidianMorningMode: React.FC = () => {
             </div>
 
             <div className="pt-2 border-t border-white/[0.08] flex items-center justify-between text-[11px] font-mono text-[#9a9da6]">
-              <span className="text-[#54565e]">HASH: 8F2A..91D0</span>
-              <span className="text-[#5fd49b] font-bold">AIR-GAP PROVEN</span>
+              <span className="text-[#54565e]">NTP SYNCHRONIZED</span>
+              <span className="text-[#5fd49b] font-bold">ACCURATE</span>
             </div>
           </div>
 
-          {/* Atmospheric Sensors Facet Card */}
+          {/* Weather & Atmospheric Conditions Card */}
           <div className="p-5 bg-[#0f0f15] border border-white/[0.14] flex-1 flex flex-col justify-between shadow-lg">
             <div className="flex items-center justify-between border-b border-white/[0.08] pb-2 text-xs font-mono text-[#9a9da6]">
               <span className="flex items-center space-x-1.5 text-[#eef0f3]">
                 <Activity size={13} className="text-[#5fd49b]" />
-                <span className="font-bold tracking-wider">[02] ATMOSPHERIC SENSORS</span>
+                <span className="font-bold tracking-wider">WEATHER & ENVIRONMENT</span>
               </span>
-              <span className="text-[10px] text-[#9a9da6]">IMD METEOROLOGY</span>
+              <span className="text-[10px] text-[#9a9da6]">{weather.condition.toUpperCase()}</span>
             </div>
 
             <div className="grid grid-cols-2 gap-3 my-2 font-mono">
               <div className="p-3 bg-[#08080c] border border-white/[0.08]">
-                <span className="text-[10px] text-[#9a9da6] uppercase block">Ambient Temp</span>
+                <span className="text-[10px] text-[#9a9da6] uppercase block">Temperature</span>
                 <div className="text-3xl font-bold text-[#eef0f3] mt-0.5">
                   {weather.temperature}°C
                 </div>
-                <span className="text-[11px] text-[#9a9da6] block mt-0.5">Feels {weather.apparentTemperature}°C</span>
+                <span className="text-[11px] text-[#9a9da6] block mt-0.5">Feels like {weather.apparentTemperature}°C</span>
               </div>
 
               <div className="p-3 bg-[#08080c] border border-white/[0.08]">
-                <span className="text-[10px] text-[#9a9da6] uppercase block">Air Quality Index</span>
+                <span className="text-[10px] text-[#9a9da6] uppercase block">Air Quality</span>
                 <div className="text-3xl font-bold text-[#5fd49b] mt-0.5">
                   {aqi.usAqi}
                 </div>
@@ -128,21 +128,21 @@ export const ObsidianMorningMode: React.FC = () => {
           </div>
         </div>
 
-        {/* Center Column: Engagements & Governed Directives (Cols 5-8) */}
+        {/* Center Column: Today's Schedule & Tasks (Cols 5-8) */}
         <div className="col-span-4 flex flex-col space-y-4">
-          {/* Action Rail: Calendar Engagements */}
+          {/* Today's Schedule */}
           <div className="p-5 bg-[#0f0f15] border border-white/[0.14] flex-1 flex flex-col justify-between shadow-lg">
             <div className="flex items-center justify-between border-b border-white/[0.08] pb-2 text-xs font-mono text-[#9a9da6]">
               <span className="flex items-center space-x-1.5 text-[#eef0f3]">
-                <Terminal size={13} className="text-[#5fd49b]" />
-                <span className="font-bold tracking-wider">[03] SCHEDULED ENGAGEMENTS</span>
+                <Calendar size={13} className="text-[#5fd49b]" />
+                <span className="font-bold tracking-wider">TODAY'S SCHEDULE</span>
               </span>
-              <span className="text-[10px] text-[#9a9da6]">{events.length} QUEUED</span>
+              <span className="text-[10px] text-[#9a9da6]">{events.length} UPCOMING</span>
             </div>
 
             <div className="space-y-2.5 overflow-y-auto max-h-[220px] my-2 pr-1 font-mono">
               {events.length === 0 ? (
-                <div className="text-xs text-[#54565e] py-6 text-center italic">No scheduled operations logged</div>
+                <div className="text-xs text-[#54565e] py-6 text-center italic">No events scheduled for today</div>
               ) : (
                 events.map((ev) => (
                   <div
@@ -157,7 +157,7 @@ export const ObsidianMorningMode: React.FC = () => {
                       </div>
                     </div>
                     <span className="text-[9px] px-1.5 py-0.5 bg-white/[0.06] text-[#9a9da6] border border-white/[0.1] shrink-0">
-                      CAL-ID
+                      CALENDAR
                     </span>
                   </div>
                 ))
@@ -165,20 +165,20 @@ export const ObsidianMorningMode: React.FC = () => {
             </div>
 
             <div className="pt-2 border-t border-white/[0.08] flex items-center justify-between text-[11px] font-mono text-[#54565e]">
-              <span>LEDGER: GOOGLE WORKSPACE</span>
-              <span className="text-[#5fd49b]">ENCRYPTED</span>
+              <span>GOOGLE CALENDAR</span>
+              <span className="text-[#5fd49b]">SYNCED</span>
             </div>
           </div>
 
-          {/* Governed Directives (Tasks) */}
+          {/* Tasks & To-Dos */}
           <div className="p-5 bg-[#0f0f15] border border-white/[0.14] flex-1 flex flex-col justify-between shadow-lg">
             <div className="flex items-center justify-between border-b border-white/[0.08] pb-2 text-xs font-mono text-[#9a9da6]">
               <span className="flex items-center space-x-1.5 text-[#eef0f3]">
-                <ShieldCheck size={13} className="text-[#5fd49b]" />
-                <span className="font-bold tracking-wider">[04] GOVERNED DIRECTIVES</span>
+                <CheckSquare size={13} className="text-[#5fd49b]" />
+                <span className="font-bold tracking-wider">TASKS & TO-DOS</span>
               </span>
               <span className="text-[10px] text-[#e3b341] bg-[#e3b341]/10 px-1.5 py-0.5 border border-[#e3b341]/30">
-                ACTION REQUIRED
+                {tasks.filter(t => !t.completed).length} PENDING
               </span>
             </div>
 
@@ -213,22 +213,22 @@ export const ObsidianMorningMode: React.FC = () => {
             </div>
 
             <div className="pt-2 border-t border-white/[0.08] flex items-center justify-between text-[11px] font-mono text-[#54565e]">
-              <span>OPERATOR LOOP: ACTIVE</span>
-              <span className="text-[#9a9da6]">CLICK TO SIGN</span>
+              <span>GOOGLE TASKS</span>
+              <span className="text-[#9a9da6]">TAP TO TOGGLE</span>
             </div>
           </div>
         </div>
 
-        {/* Right Column: Capital Markets & Motorsport Radar (Cols 9-12) */}
+        {/* Right Column: Market Watch & Formula 1 (Cols 9-12) */}
         <div className="col-span-4 flex flex-col space-y-4">
-          {/* Capital Markets Telemetry */}
+          {/* Market Watch */}
           <div className="p-5 bg-[#0f0f15] border border-white/[0.14] flex-1 flex flex-col justify-between shadow-lg">
             <div className="flex items-center justify-between border-b border-white/[0.08] pb-2 text-xs font-mono text-[#9a9da6]">
               <span className="flex items-center space-x-1.5 text-[#eef0f3]">
-                <Activity size={13} className="text-[#5fd49b]" />
-                <span className="font-bold tracking-wider">[05] CAPITAL TELEMETRY</span>
+                <TrendingUp size={13} className="text-[#5fd49b]" />
+                <span className="font-bold tracking-wider">MARKET WATCH</span>
               </span>
-              <span className="text-[10px] text-[#5fd49b]">LIVE FEED</span>
+              <span className="text-[10px] text-[#5fd49b]">LIVE QUOTES</span>
             </div>
 
             <div className="grid grid-cols-2 gap-2.5 my-2 font-mono">
@@ -255,20 +255,20 @@ export const ObsidianMorningMode: React.FC = () => {
             </div>
 
             <div className="pt-2 border-t border-white/[0.08] flex items-center justify-between text-[11px] font-mono text-[#54565e]">
-              <span>FEED: NSE / NASDAQ / LSE</span>
-              <span className="text-[#5fd49b]">T+0 STREAM</span>
+              <span>NSE / NASDAQ / LSE</span>
+              <span className="text-[#5fd49b]">REAL-TIME</span>
             </div>
           </div>
 
-          {/* Motorsport Radar / F1 Telemetry */}
+          {/* Formula 1 */}
           <div className="p-5 bg-[#0f0f15] border border-white/[0.14] flex flex-col justify-between shadow-lg">
             <div className="flex items-center justify-between border-b border-white/[0.08] pb-2 text-xs font-mono text-[#9a9da6]">
               <span className="flex items-center space-x-1.5 text-[#eef0f3]">
-                <Compass size={13} className="text-[#e3b341]" />
-                <span className="font-bold tracking-wider">[06] MOTORSPORT APEX</span>
+                <Flag size={13} className="text-[#e3b341]" />
+                <span className="font-bold tracking-wider">FORMULA 1</span>
               </span>
               <span className="text-[10px] text-[#e3b341] bg-[#e3b341]/10 px-1.5 py-0.5 border border-[#e3b341]/30">
-                ROUND {f1.activeRound}
+                ROUND {f1.activeRound} OF {f1.totalRounds}
               </span>
             </div>
 
@@ -291,8 +291,8 @@ export const ObsidianMorningMode: React.FC = () => {
             </div>
 
             <div className="pt-2 border-t border-white/[0.08] flex items-center justify-between text-[11px] font-mono text-[#54565e]">
-              <span>FIA OFFICIAL DATA STREAM</span>
-              <span className="text-[#eef0f3]">SYNCED</span>
+              <span>FIA OFFICIAL DATA FEED</span>
+              <span className="text-[#eef0f3]">UP TO DATE</span>
             </div>
           </div>
         </div>

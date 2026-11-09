@@ -86,7 +86,7 @@ import { KioskControls } from './components/kiosk/KioskControls';
 import { SettingsModal } from './components/settings/SettingsModal';
 
 const DashboardContent: React.FC = () => {
-  const { activeMode, uiStyle } = useDashboard();
+  const { activeMode, uiStyle, theme } = useDashboard();
 
   const renderActiveMode = () => {
     switch (uiStyle) {
@@ -312,6 +312,8 @@ const DashboardContent: React.FC = () => {
 
   return (
     <div
+      data-theme={theme}
+      data-style={uiStyle}
       style={getBackgroundStyle()}
       className={`relative w-screen h-screen overflow-hidden text-white flex flex-col select-none transition-colors duration-500 ${getFontClass()}`}
     >

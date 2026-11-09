@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { Camera, MapPin, FileCheck, Award } from 'lucide-react';
+import { Camera, MapPin, Image } from 'lucide-react';
 
 export const CivicAmbientMode: React.FC = () => {
   const { currentPhoto, photoProgress, now, weather } = useDashboard();
@@ -11,7 +11,7 @@ export const CivicAmbientMode: React.FC = () => {
 
   return (
     <div className="relative w-full h-full bg-[#f1f5f9] overflow-hidden flex flex-col justify-between p-10 font-sans select-none">
-      {/* Background Photo Framed as Civic Archive Plate */}
+      {/* Background Photo Framed as Exhibition Plate */}
       <div className="absolute inset-0 z-0 flex items-center justify-center bg-[#f1f5f9] p-8">
         <div className="w-full h-full border-2 border-slate-300 p-2.5 bg-white shadow-xl rounded-2xl relative">
           <img
@@ -22,13 +22,13 @@ export const CivicAmbientMode: React.FC = () => {
         </div>
       </div>
 
-      {/* Top Bar: Official Clock & Conditions */}
+      {/* Top Bar: Clock & Conditions */}
       <div className="relative z-10 flex items-center justify-between">
         <div className="bg-white/95 backdrop-blur-md border border-slate-300 rounded-xl px-5 py-2.5 text-slate-900 shadow-md flex items-center space-x-3">
           <span className="text-3xl font-mono font-black tracking-tight">{hours}:{minutes}</span>
           <span className="text-sm font-mono text-[#f97316] font-bold">:{seconds}</span>
           <span className="text-[10px] font-mono text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded font-bold border border-emerald-300 uppercase">
-            PUBLIC ARCHIVE
+            AMBIENT DISPLAY
           </span>
         </div>
 
@@ -37,15 +37,15 @@ export const CivicAmbientMode: React.FC = () => {
         </div>
       </div>
 
-      {/* Bottom Bar: Curatorial Plate Stamp */}
+      {/* Bottom Bar: Photo Metadata */}
       <div className="relative z-10">
         <div className="bg-white/95 backdrop-blur-md border border-slate-300 rounded-xl p-4 max-w-lg text-slate-900 mb-3 shadow-md">
           <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 mb-1">
             <span className="flex items-center space-x-1.5 text-emerald-700 font-bold">
-              <FileCheck size={13} />
-              <span>CIVIC ARCHIVE RECORD</span>
+              <Image size={13} />
+              <span>PHOTO GALLERY</span>
             </span>
-            <span className="font-bold">EXHIBIT #{Math.floor(photoProgress * 10)}</span>
+            <span className="font-bold">PHOTO #{Math.floor(photoProgress * 10) + 1}</span>
           </div>
           <h2 className="text-base font-extrabold text-slate-900 truncate">{currentPhoto.title}</h2>
           {currentPhoto.location && (

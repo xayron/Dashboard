@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { FileCheck, Shield, Database, Radio, Activity, CheckSquare, AlertTriangle } from 'lucide-react';
+import { Newspaper, Activity, Database, Radio, CheckCircle } from 'lucide-react';
 
 export const CivicHeader: React.FC = () => {
   const { systemHealth, activeMode, weather } = useDashboard();
@@ -15,30 +15,30 @@ export const CivicHeader: React.FC = () => {
         <div className="flex items-center space-x-3">
           <div className="flex items-center space-x-2 border-r border-slate-700 pr-4">
             <span className="px-2 py-0.5 text-xs font-black bg-[#f97316] text-slate-950 rounded uppercase tracking-wider">
-              ANDHBHAKT.ORG
+              PUBLIC GAZETTE
             </span>
             <span className="font-bold tracking-tight text-slate-200 text-sm">
-              GOVLENS CIVIC AUDIT
+              DAILY REPORT
             </span>
           </div>
 
           <div className="flex items-center space-x-2 text-xs text-slate-300 font-mono">
             <span className="px-2 py-0.5 bg-emerald-900/60 text-emerald-300 border border-emerald-500/50 rounded flex items-center space-x-1 font-semibold">
-              <FileCheck size={13} />
-              <span>CAG AUDIT: ACTIVE</span>
+              <Newspaper size={13} />
+              <span>EDITION 15.6"</span>
             </span>
             <span className="text-slate-500">•</span>
             <span className="text-amber-400 font-bold uppercase tracking-wider">
-              REPORT: {activeMode.toUpperCase()}_DOSSIER
+              {activeMode.toUpperCase()} VIEW
             </span>
           </div>
         </div>
 
-        {/* Audit Telemetry & Host Health */}
+        {/* System Telemetry & Status */}
         <div className="flex items-center space-x-6 text-xs text-slate-300 font-mono">
           <div className="flex items-center space-x-1.5">
             <Activity size={13} className="text-[#f97316]" />
-            <span className="text-slate-400">IMD:</span>
+            <span className="text-slate-400">WEATHER:</span>
             <span className="text-white font-semibold">{weather.temperature}°C ({weather.condition})</span>
           </div>
 
@@ -46,7 +46,7 @@ export const CivicHeader: React.FC = () => {
 
           <div className="flex items-center space-x-1.5">
             <Database size={13} className="text-slate-400" />
-            <span className="text-slate-400">NODE LOAD:</span>
+            <span className="text-slate-400">CPU:</span>
             <span className="text-white font-semibold">{systemHealth.cpuUsage}%</span>
           </div>
 
@@ -54,13 +54,13 @@ export const CivicHeader: React.FC = () => {
 
           <div className="flex items-center space-x-1.5">
             <Radio size={13} className={systemHealth.haStatus === 'connected' ? 'text-emerald-400' : 'text-amber-400'} />
-            <span className="text-slate-400">PUBLIC FEED:</span>
+            <span className="text-slate-400">HOME ASSISTANT:</span>
             <span className="text-white font-semibold uppercase">{systemHealth.haStatus}</span>
           </div>
 
           <div className="hidden lg:flex items-center space-x-1.5 pl-3 border-l border-slate-700">
             <span className="px-2 py-0.5 text-[10px] bg-white text-slate-900 font-extrabold uppercase rounded shadow-sm">
-              100% PUBLIC DOMAIN
+              SYSTEM ONLINE
             </span>
           </div>
         </div>

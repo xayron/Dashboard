@@ -1,24 +1,24 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { Flag, Trophy, FileCheck, Calendar, Activity, CheckCircle2 } from 'lucide-react';
+import { Flag, Trophy, Calendar, Activity } from 'lucide-react';
 
 export const CivicRaceWeekendMode: React.FC = () => {
   const { f1 } = useDashboard();
 
   return (
     <div className="w-full h-full p-8 flex flex-col justify-between overflow-hidden bg-[#f1f5f9] text-[#0f172a] select-none font-sans">
-      {/* Top Banner: Civic Motorsport Masthead */}
+      {/* Top Banner: Race Weekend Masthead */}
       <div className="p-5 bg-white border border-slate-300 rounded-xl shadow-sm flex items-center justify-between mb-4 relative overflow-hidden">
         <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#f97316] via-slate-300 to-[#16a34a]" />
 
         <div>
           <div className="flex items-center space-x-2 text-xs font-mono text-slate-500">
-            <span className="text-[#f97316] font-extrabold uppercase">FIA GRAND PRIX SCRUTINY</span>
+            <span className="text-[#f97316] font-extrabold uppercase">FORMULA 1 WORLD CHAMPIONSHIP</span>
             <span>•</span>
             <span className="font-bold">ROUND {f1.activeRound} OF {f1.totalRounds}</span>
             <span>•</span>
             <span className="text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300 font-bold">
-              OFFICIAL RECORD
+              RACE WEEKEND
             </span>
           </div>
           <h1 className="text-2xl font-black tracking-tight text-slate-900 mt-1">{f1.raceName}</h1>
@@ -39,9 +39,9 @@ export const CivicRaceWeekendMode: React.FC = () => {
           <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-3 text-xs font-mono text-slate-500">
             <span className="font-bold text-slate-800 flex items-center space-x-1.5">
               <Calendar size={14} className="text-[#f97316]" />
-              <span>OFFICIAL PROGRAMME</span>
+              <span>WEEKEND TIMETABLE</span>
             </span>
-            <span>INDIAN STANDARD TIME</span>
+            <span>IST (UTC+5:30)</span>
           </div>
 
           <div className="space-y-2.5 overflow-y-auto font-mono flex-1">
@@ -74,10 +74,10 @@ export const CivicRaceWeekendMode: React.FC = () => {
           <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-3 text-xs font-mono text-slate-500">
             <span className="font-bold text-slate-800 flex items-center space-x-1.5">
               <Trophy size={14} className="text-[#f97316]" />
-              <span>CHAMPIONSHIP SCORECARD</span>
+              <span>DRIVERS' STANDINGS</span>
             </span>
             <span className="text-emerald-800 font-bold bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
-              AUDITED POINTS
+              TOP 10
             </span>
           </div>
 

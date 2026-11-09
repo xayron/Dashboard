@@ -1,16 +1,16 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { ArrowUpRight, ArrowDownRight, Activity } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, TrendingUp } from 'lucide-react';
 
 export const ObsidianFinanceTicker: React.FC = () => {
   const { finance } = useDashboard();
 
   return (
-    <div className="w-full bg-[#08080a] border-t border-white/[0.12] py-2 px-8 flex items-center justify-between text-xs font-mono text-[#eef0f3] select-none z-20">
+    <div className="w-full bg-[#050507] border-t border-white/[0.12] py-2 px-8 flex items-center justify-between text-xs font-mono text-[#eef0f3] select-none z-20">
       <div className="flex items-center space-x-2 shrink-0 pr-4 border-r border-white/[0.12] text-[#9a9da6]">
-        <Activity size={13} className="text-[#5fd49b]" />
+        <TrendingUp size={13} className="text-[#5fd49b]" />
         <span className="font-bold tracking-widest text-xs uppercase text-[#eef0f3]">
-          MARKET TELEMETRY:
+          MARKETS:
         </span>
       </div>
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { ArrowUpRight, ArrowDownRight, Database } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, TrendingUp } from 'lucide-react';
 
 export const CivicFinanceTicker: React.FC = () => {
   const { finance } = useDashboard();
@@ -10,9 +10,9 @@ export const CivicFinanceTicker: React.FC = () => {
       <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-[#f97316] via-slate-300 to-[#16a34a]" />
 
       <div className="flex items-center space-x-2 shrink-0 pr-4 border-r border-slate-300 text-slate-700">
-        <Database size={14} className="text-[#f97316]" />
+        <TrendingUp size={14} className="text-[#f97316]" />
         <span className="font-extrabold tracking-widest text-xs uppercase text-slate-900">
-          FISCAL RECORD:
+          MARKETS:
         </span>
       </div>
 

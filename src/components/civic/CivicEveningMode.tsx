@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { Play, Pause, SkipBack, SkipForward, Volume2, Disc, Radio, FileCheck, CheckCircle2, Award } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, Disc, Music, CheckCircle2 } from 'lucide-react';
 
 export const CivicEveningMode: React.FC = () => {
   const { media, livePosition, mediaControl } = useDashboard();
@@ -31,10 +31,10 @@ export const CivicEveningMode: React.FC = () => {
         {/* Tricolor Header Accent */}
         <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-[#f97316] via-white to-[#16a34a]" />
 
-        {/* Civic Transparency Badge */}
+        {/* Top Mode Label */}
         <div className="absolute top-3.5 right-6 flex items-center space-x-2 font-mono text-[11px] text-slate-500 font-bold">
-          <FileCheck size={14} className="text-emerald-600" />
-          <span>BROADCAST ARCHIVE // PUBLIC DOMAIN</span>
+          <Music size={14} className="text-[#f97316]" />
+          <span>NOW PLAYING // MEDIA CENTER</span>
         </div>
 
         {/* Media Artwork / Cover Plate */}
@@ -56,17 +56,17 @@ export const CivicEveningMode: React.FC = () => {
             {/* Overlaid Verified Tag */}
             <div className="absolute bottom-2 left-2 px-2.5 py-1 bg-white/95 border border-slate-300 rounded text-[9px] font-mono text-emerald-800 font-bold flex items-center space-x-1 shadow-sm">
               <CheckCircle2 size={11} className="text-emerald-600" />
-              <span>OFFICIAL FEED</span>
+              <span>STEREO</span>
             </div>
           </div>
 
           <div className="mt-2 pt-2 border-t border-slate-200 flex items-center justify-between text-[11px] font-mono text-slate-600 font-semibold">
-            <span>PUBLIC MEDIA LOG</span>
-            <span className="text-[#f97316] font-bold">AIRPLAY STREAM</span>
+            <span>HOME ASSISTANT</span>
+            <span className="text-[#f97316] font-bold">HIGH FIDELITY</span>
           </div>
         </div>
 
-        {/* Track Metadata & Civic Controls */}
+        {/* Track Metadata & Controls */}
         <div className="flex-1 flex flex-col justify-between h-72 py-1">
           <div>
             <div className="flex items-center space-x-2 mb-2 font-mono text-[10px]">
@@ -75,16 +75,16 @@ export const CivicEveningMode: React.FC = () => {
                   ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
                   : 'bg-amber-100 text-amber-800 border border-amber-300'
               }`}>
-                {isPlaying ? 'ACTIVE BROADCAST' : 'PAUSED'}
+                {isPlaying ? 'PLAYING' : 'PAUSED'}
               </span>
-              <span className="text-slate-500 font-semibold">HOME ASSISTANT AUDIO</span>
+              <span className="text-slate-500 font-semibold">AUDIO OUTPUT</span>
             </div>
 
             <h1 className="text-2xl font-black tracking-tight text-slate-950 truncate">
-              {media.title || 'No Media Active'}
+              {media.title || 'No Media Playing'}
             </h1>
             <p className="text-base text-slate-600 font-medium truncate mt-1">
-              {media.artist || 'Waiting for audio stream...'}
+              {media.artist || 'Waiting for audio playback...'}
             </p>
             {media.album && (
               <p className="text-xs font-mono text-slate-400 truncate mt-1">
@@ -106,7 +106,7 @@ export const CivicEveningMode: React.FC = () => {
             </div>
             <div className="flex justify-between items-center text-xs font-mono text-slate-500 font-semibold mt-1.5">
               <span>{formatSeconds(livePosition)}</span>
-              <span className="text-[10px] text-slate-400 font-bold">BROADCAST LOG #{Math.floor(livePosition * 7)}</span>
+              <span className="text-[10px] text-slate-400 font-bold">LIVE POSITION</span>
               <span>{formatSeconds(duration)}</span>
             </div>
           </div>
