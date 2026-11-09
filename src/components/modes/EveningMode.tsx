@@ -16,7 +16,8 @@ import { ClockWidget } from '../common/ClockWidget';
 import { WeatherWidget } from '../common/WeatherWidget';
 
 export const EveningMode: React.FC = () => {
-  const { media, livePosition, mediaControl, weather } = useDashboard();
+  const { media, livePosition, mediaControl, weather, colorMode } = useDashboard();
+  const isLight = colorMode === 'light';
   const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
@@ -45,48 +46,72 @@ export const EveningMode: React.FC = () => {
   };
 
   return (
-    <div className="relative w-full h-full p-10 flex flex-col justify-between overflow-hidden bg-black select-none">
+    <div className="relative w-full h-full p-10 flex flex-col justify-between overflow-hidden bg-transparent select-none">
       {/* 1. DYNAMIC VIBRANT BACKGROUND ALBUM ART EXTRACTION */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         {media.entityPicture && !imageError ? (
           <div
-            className="w-full h-full bg-cover bg-center transform scale-125 filter blur-[90px] opacity-35 brightness-75 contrast-125 transition-all duration-1000"
+            className={`w-full h-full bg-cover bg-center transform scale-125 filter blur-[90px] contrast-125 transition-all duration-1000 ${
+              isLight ? 'opacity-20 brightness-110' : 'opacity-35 brightness-75'
+            }`}
             style={{ backgroundImage: `url(${media.entityPicture})` }}
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-indigo-950/40 via-purple-950/30 to-black filter blur-[80px]" />
+          <div
+            className={`w-full h-full filter blur-[80px] ${
+              isLight ? 'opacity-10 bg-slate-200' : 'bg-gradient-to-br from-indigo-950/40 via-purple-950/30 to-black'
+            }`}
+          />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/70 to-black/80" />
+        <div className={`absolute inset-0 ${
+          isLight
+            ? 'bg-gradient-to-t from-slate-100/80 via-transparent to-slate-100/60'
+            : 'bg-gradient-to-t from-gray-950 via-gray-950/70 to-black/80'
+        }`} />
       </div>
 
       {/* 2. TOP ROW: EVENING AMBIENCE & CLOCK */}
       <div className="relative z-10 flex items-start justify-between">
         <div className="flex items-center space-x-3">
-          <div className="p-3 rounded-2xl bg-purple-500/20 text-purple-300 border border-purple-500/30">
+          <div
+            className="p-3 rounded-2xl border"
+            style={{
+              backgroundColor: 'var(--theme-accent-soft)',
+              borderColor: 'var(--color-accent)',
+              color: 'var(--color-accent)',
+            }}
+          >
             <Moon size={28} />
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h2 className="text-2xl font-bold font-display text-white">Evening Now Playing</h2>
-              <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center">
-                <Sparkles size={11} className="mr-1 text-purple-300" />
+              <h2 className={`text-2xl font-bold font-display ${isLight ? 'text-slate-900' : 'text-white'}`}>Evening Now Playing</h2>
+              <span
+                className="px-2 py-0.5 rounded-full text-xs font-semibold border flex items-center"
+                style={{
+                  backgroundColor: 'var(--theme-accent-soft)',
+                  borderColor: 'var(--color-accent)',
+                  color: 'var(--color-accent)',
+                }}
+              >
+                <Sparkles size={11} className="mr-1" style={{ color: 'var(--color-accent)' }} />
                 Cozy Vibe
               </span>
             </div>
-            <p className="text-xs text-gray-400 mt-0.5">
+            <p className={`text-xs mt-0.5 ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
               Sunset was at {weather.sunset} • Screen auto-sleep scheduled at 00:00
             </p>
           </div>
         </div>
 
-        <div className="glass-panel px-6 py-3 rounded-2xl border border-white/10">
+        <div className="glass-panel px-6 py-3 rounded-2xl border" style={{ borderColor: 'var(--color-panel-border)' }}>
           <ClockWidget size="normal" showSeconds={true} showDate={true} />
         </div>
       </div>
 
       {/* 3. CENTER HERO: NOW-PLAYING AUDIO EXPERIENCE */}
       <div className="relative z-10 flex-1 my-6 flex items-center justify-center">
-        <div className="w-full max-w-4xl glass-panel p-8 rounded-3xl border border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.8)] backdrop-blur-2xl flex items-center space-x-10">
+        <div className="w-full max-w-4xl glass-panel p-8 rounded-3xl border shadow-2xl backdrop-blur-2xl flex items-center space-x-10" style={{ borderColor: 'var(--color-panel-border)' }}>
           {/* Large Vinyl / Album Cover with shadow */}
           <div className="relative w-72 h-72 rounded-3xl overflow-hidden shrink-0 shadow-2xl border border-white/20 group bg-gray-900 flex items-center justify-center">
             {media.entityPicture && !imageError ? (
@@ -112,8 +137,11 @@ export const EveningMode: React.FC = () => {
             <div>
               {/* Media badge & Equalizer */}
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs uppercase tracking-widest text-indigo-400 font-bold flex items-center">
-                  <Radio size={14} className="mr-1.5 animate-pulse text-indigo-400" />
+                <span
+                  className="text-xs uppercase tracking-widest font-bold flex items-center"
+                  style={{ color: 'var(--color-accent)' }}
+                >
+                  <Radio size={14} className="mr-1.5 animate-pulse" style={{ color: 'var(--color-accent)' }} />
                   {media.entityId ? media.entityId.replace('media_player.', '') : 'Living Room Cast Speaker'}
                 </span>
 
@@ -122,8 +150,9 @@ export const EveningMode: React.FC = () => {
                   {[12, 20, 8, 24, 16, 28, 14, 22, 10, 18].map((h, i) => (
                     <span
                       key={i}
-                      className="w-1 bg-gradient-to-t from-indigo-500 to-purple-400 rounded-full transition-all duration-300"
+                      className="w-1 rounded-full transition-all duration-300"
                       style={{
+                        backgroundColor: 'var(--color-accent)',
                         height: isPlaying ? `${Math.max(4, (h + (i % 3) * 4))}px` : '4px',
                         animation: isPlaying ? `pulse-glow ${0.8 + (i % 4) * 0.2}s infinite ease-in-out` : 'none',
                       }}
@@ -133,14 +162,16 @@ export const EveningMode: React.FC = () => {
               </div>
 
               {/* Title & Artist */}
-              <h1 className="text-3xl font-extrabold font-display text-white tracking-tight line-clamp-1 drop-shadow-md">
+              <h1 className={`text-3xl font-extrabold font-display tracking-tight line-clamp-1 drop-shadow-sm ${
+                isLight ? 'text-slate-900' : 'text-white'
+              }`}>
                 {media.title}
               </h1>
-              <p className="text-lg font-medium text-gray-300 mt-1 truncate">
+              <p className={`text-lg font-medium mt-1 truncate ${isLight ? 'text-slate-700' : 'text-gray-300'}`}>
                 {media.artist}
               </p>
               {media.album && (
-                <p className="text-xs text-gray-400 mt-0.5 truncate">
+                <p className={`text-xs mt-0.5 truncate ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
                   {media.album}
                 </p>
               )}
@@ -151,44 +182,58 @@ export const EveningMode: React.FC = () => {
               <div
                 onClick={handleScrub}
                 title="Click to seek"
-                className="w-full h-3.5 bg-white/10 rounded-full overflow-hidden cursor-pointer relative flex items-center group py-0.5"
+                className={`w-full h-3.5 rounded-full overflow-hidden cursor-pointer relative flex items-center group py-0.5 ${
+                  isLight ? 'bg-black/[0.08]' : 'bg-white/10'
+                }`}
               >
                 <div
-                  className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full shadow-[0_0_10px_rgba(139,92,246,0.6)] transition-[width] duration-300 ease-linear"
-                  style={{ width: `${progressPercent}%` }}
+                  className="h-full rounded-full transition-[width] duration-300 ease-linear shadow-sm"
+                  style={{ width: `${progressPercent}%`, backgroundColor: 'var(--color-accent)' }}
                 />
                 <div
                   className="absolute w-3.5 h-3.5 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none -ml-1.5"
                   style={{ left: `${progressPercent}%` }}
                 />
               </div>
-              <div className="flex justify-between items-center text-xs font-mono-numbers text-gray-400 mt-1.5">
-                <span className="text-white font-medium">{formatSeconds(livePosition)}</span>
+              <div className={`flex justify-between items-center text-xs font-mono-numbers mt-1.5 ${
+                isLight ? 'text-slate-500' : 'text-gray-400'
+              }`}>
+                <span className={`font-medium ${isLight ? 'text-slate-900' : 'text-white'}`}>{formatSeconds(livePosition)}</span>
                 <span>{formatSeconds(media.duration)}</span>
               </div>
             </div>
 
             {/* Playback Controls & Volume */}
-            <div className="flex items-center justify-between pt-2 border-t border-white/10">
+            <div className={`flex items-center justify-between pt-2 border-t ${
+              isLight ? 'border-black/[0.08]' : 'border-white/10'
+            }`}>
               {/* Media Controls */}
               <div className="flex items-center space-x-4">
                 <button
                   onClick={() => mediaControl('prev')}
-                  className="p-2.5 rounded-full glass-pill text-gray-300 hover:text-white transition-all hover:scale-105 active:scale-95"
+                  className={`p-2.5 rounded-full glass-pill transition-all hover:scale-105 active:scale-95 ${
+                    isLight ? 'text-slate-600 hover:text-slate-900' : 'text-gray-300 hover:text-white'
+                  }`}
                   title="Previous Track"
                 >
                   <SkipBack size={20} />
                 </button>
                 <button
                   onClick={() => mediaControl('toggle')}
-                  className="p-4 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg shadow-purple-600/30 transition-all hover:scale-110 active:scale-95"
+                  className="p-4 rounded-full text-white shadow-lg transition-all hover:scale-110 active:scale-95"
+                  style={{
+                    backgroundColor: 'var(--color-accent)',
+                    boxShadow: '0 4px 15px var(--color-glow)',
+                  }}
                   title={isPlaying ? 'Pause' : 'Play'}
                 >
                   {isPlaying ? <Pause size={24} /> : <Play size={24} className="ml-0.5" />}
                 </button>
                 <button
                   onClick={() => mediaControl('next')}
-                  className="p-2.5 rounded-full glass-pill text-gray-300 hover:text-white transition-all hover:scale-105 active:scale-95"
+                  className={`p-2.5 rounded-full glass-pill transition-all hover:scale-105 active:scale-95 ${
+                    isLight ? 'text-slate-600 hover:text-slate-900' : 'text-gray-300 hover:text-white'
+                  }`}
                   title="Next Track"
                 >
                   <SkipForward size={20} />
@@ -197,16 +242,17 @@ export const EveningMode: React.FC = () => {
 
               {/* Volume Slider */}
               <div className="flex items-center space-x-2.5">
-                <Volume2 size={18} className="text-gray-400" />
+                <Volume2 size={18} className={isLight ? 'text-slate-500' : 'text-gray-400'} />
                 <input
                   type="range"
                   min="0"
                   max="100"
                   value={volume}
                   onChange={(e) => mediaControl('volume', Number(e.target.value))}
-                  className="w-24 h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                  className="w-24 h-1.5 rounded-lg appearance-none cursor-pointer"
+                  style={{ accentColor: 'var(--color-accent)' }}
                 />
-                <span className="text-xs font-mono-numbers text-gray-400 w-8 text-right">{volume}%</span>
+                <span className={`text-xs font-mono-numbers w-8 text-right ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>{volume}%</span>
               </div>
             </div>
           </div>
@@ -219,12 +265,14 @@ export const EveningMode: React.FC = () => {
           <WeatherWidget layout="compact" />
         </div>
 
-        <div className="glass-panel px-4 py-2 rounded-xl border border-white/10 text-xs text-gray-400 flex items-center space-x-3">
-          <span className="flex items-center text-purple-300">
+        <div className={`glass-panel px-4 py-2 rounded-xl border text-xs flex items-center space-x-3 ${
+          isLight ? 'text-slate-600 border-black/[0.08]' : 'text-gray-400 border-white/10'
+        }`}>
+          <span className="flex items-center" style={{ color: 'var(--color-accent)' }}>
             <Sliders size={13} className="mr-1.5" />
             Home Lighting: Warm Dim 2700K
           </span>
-          <span className="w-1 h-1 rounded-full bg-gray-600" />
+          <span className="w-1 h-1 rounded-full bg-gray-400" />
           <span>Volume Limiter: Max 80dB</span>
         </div>
       </div>

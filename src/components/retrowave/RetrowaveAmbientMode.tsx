@@ -10,14 +10,26 @@ export const RetrowaveAmbientMode: React.FC = () => {
 
   return (
     <div className="relative w-full h-full bg-[#150424] overflow-hidden flex flex-col justify-between p-8 select-none">
-      {/* Background Photo with Neon Tint */}
-      <div className="absolute inset-0 z-0 bg-black">
-        <img
-          src={currentPhoto.url}
-          alt={currentPhoto.title}
-          className="w-full h-full object-cover opacity-85 filter contrast-125 saturate-125"
+      {/* Neon Gradient Ambient Backdrop */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <div
+          className="w-full h-full bg-cover bg-center filter blur-3xl opacity-35 scale-110 saturate-150"
+          style={{ backgroundImage: `url(${currentPhoto.url})` }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#150424] via-transparent to-[#150424]/60" />
+      </div>
+
+      {/* Center Laser Neon Frame with True Aspect Ratio */}
+      <div className="absolute inset-0 z-0 flex items-center justify-center p-8">
+        <div className="relative z-0 max-w-[90vw] max-h-[82vh] p-2 border-2 border-pink-500/70 rounded-2xl bg-black/60 shadow-[0_0_35px_rgba(255,0,127,0.35)] flex items-center justify-center">
+          <img
+            key={currentPhoto.url}
+            src={currentPhoto.url}
+            alt={currentPhoto.title}
+            className="max-w-full max-h-[78vh] object-contain rounded-xl filter contrast-110 saturate-110"
+            style={{ aspectRatio: currentPhoto.aspectRatio }}
+          />
+        </div>
       </div>
 
       {/* Top Bar: Neon Sunset Clock */}

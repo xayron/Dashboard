@@ -1,10 +1,11 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { CheckCircle2, Circle, Coffee, Flag, Sunrise } from 'lucide-react';
+import { CheckCircle2, Circle, Coffee, Sunrise } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
 
 export const NeumorphicMorningMode: React.FC = () => {
-  const { now, weather, aqi, events, tasks, toggleTask, f1, finance, media } = useDashboard();
+  const { now, weather, aqi, events, tasks, toggleTask, f1, finance, media, colorMode } = useDashboard();
+  const isLight = colorMode === 'light';
 
   const hours = String(now.getHours()).padStart(2, '0');
   const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -16,20 +17,30 @@ export const NeumorphicMorningMode: React.FC = () => {
     day: 'numeric',
   });
 
+  const cardClass = isLight
+    ? 'bg-[#e2e8f0] shadow-[6px_6px_14px_#cbd5e1,-6px_-6px_14px_#ffffff] text-slate-900'
+    : 'bg-[#1a1d24] shadow-[6px_6px_14px_#101217,-6px_-6px_14px_#242831] text-neutral-200';
+
+  const insetClass = isLight
+    ? 'bg-[#e2e8f0] shadow-[inset_2px_2px_5px_#cbd5e1,inset_-2px_-2px_5px_#ffffff]'
+    : 'bg-[#1a1d24] shadow-[inset_2px_2px_5px_#101217,inset_-2px_-2px_5px_#242831]';
+
   return (
-    <div className="w-full h-full p-8 flex flex-col justify-between overflow-hidden bg-transparent text-neutral-200 select-none">
+    <div className={`w-full h-full p-8 flex flex-col justify-between overflow-hidden bg-transparent select-none ${
+      isLight ? 'text-slate-900' : 'text-neutral-200'
+    }`}>
       {/* Top Banner: Greeting & Audio */}
       <div className="flex items-center justify-between pb-4 mb-4">
         <div className="flex items-center space-x-3.5">
           <div
-            className="p-3 rounded-2xl bg-[#1a1d24] shadow-[4px_4px_8px_#101217,-4px_-4px_8px_#242831]"
+            className={`p-3 rounded-2xl ${cardClass}`}
             style={{ color: 'var(--color-accent)' }}
           >
             <Coffee size={22} />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white tracking-tight">Morning Overview</h1>
-            <p className="text-xs text-neutral-400 mt-0.5 flex items-center">
+            <h1 className={`text-xl font-bold tracking-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>Morning Overview</h1>
+            <p className={`text-xs mt-0.5 flex items-center ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>
               <Sunrise size={12} className="mr-1.5" style={{ color: 'var(--color-accent)' }} />
               Sunrise at {weather.sunrise} • Today&apos;s high {weather.highTemp}°C
             </p>
@@ -43,48 +54,50 @@ export const NeumorphicMorningMode: React.FC = () => {
       <div className="grid grid-cols-12 gap-6 flex-1 min-h-0">
         {/* Left Column: Clock & Weather (Cols 1-4) */}
         <div className="col-span-4 flex flex-col space-y-6">
-          <div className="p-6 rounded-3xl bg-[#1a1d24] shadow-[6px_6px_14px_#101217,-6px_-6px_14px_#242831] flex flex-col items-center">
-            <span className="text-[10px] text-neutral-500 uppercase font-bold tracking-widest mb-1">
+          <div className={`p-6 rounded-3xl ${cardClass} flex flex-col items-center`}>
+            <span className={`text-[10px] uppercase font-bold tracking-widest mb-1 ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>
               INDIAN STANDARD TIME
             </span>
-            <div className="text-6xl font-light text-white tracking-tight flex items-baseline">
+            <div className={`text-6xl font-light tracking-tight flex items-baseline ${isLight ? 'text-slate-900' : 'text-white'}`}>
               <span>{hours}:{minutes}</span>
               <span className="text-2xl ml-2 font-mono" style={{ color: 'var(--color-accent)' }}>
                 :{seconds}
               </span>
             </div>
-            <div className="text-xs text-neutral-400 mt-2 font-medium">
+            <div className={`text-xs mt-2 font-medium ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>
               {dateFormatted}
             </div>
           </div>
 
-          <div className="p-5 rounded-3xl bg-[#1a1d24] shadow-[6px_6px_14px_#101217,-6px_-6px_14px_#242831] flex-1 flex flex-col justify-between text-xs">
-            <div className="flex items-center justify-between border-b border-neutral-700/50 pb-2">
-              <span className="text-neutral-400 font-bold uppercase text-[10px] tracking-wider">Atmospheric Data</span>
-              <span className="font-bold" style={{ color: 'var(--color-accent)' }}>{weather.temperature}°C</span>
-            </div>
-            <div className="space-y-2 pt-2">
-              <div className="flex justify-between">
-                <span className="text-neutral-400">Sky Condition:</span>
-                <span className="text-white font-medium">{weather.condition}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-neutral-400">Apparent Feel:</span>
-                <span className="text-neutral-200">{weather.apparentTemperature}°C</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-neutral-400">Air Quality:</span>
-                <span className="font-medium" style={{ color: 'var(--color-accent)' }}>
-                  AQI {aqi.usAqi} ({aqi.label})
+          <div className={`p-6 rounded-3xl ${cardClass} flex-1 flex flex-col justify-between`}>
+            <div className="flex items-baseline justify-between border-b pb-3" style={{ borderColor: isLight ? '#cbd5e1' : 'rgba(255,255,255,0.06)' }}>
+              <div>
+                <span className={`text-3xl font-light ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                  {weather.temperature}°<span style={{ color: 'var(--color-accent)' }}>C</span>
                 </span>
+                <span className={`text-xs ml-2 ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>{weather.condition}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-neutral-400">Relative Humidity:</span>
-                <span className="text-neutral-200">{weather.humidity}%</span>
+              <span className="text-xs font-medium" style={{ color: 'var(--color-accent)' }}>
+                AQI {aqi.usAqi} ({aqi.label})
+              </span>
+            </div>
+
+            <div className={`grid grid-cols-2 gap-4 text-xs pt-4 ${isLight ? 'text-slate-600' : 'text-neutral-400'}`}>
+              <div className={`p-3 rounded-2xl ${insetClass}`}>
+                <span className={`block text-[10px] uppercase ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>Feels Like</span>
+                <span className={`font-medium ${isLight ? 'text-slate-900' : 'text-neutral-200'}`}>{weather.apparentTemperature}°C</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-neutral-400">Sunset:</span>
-                <span className="text-amber-400">{weather.sunset}</span>
+              <div className={`p-3 rounded-2xl ${insetClass}`}>
+                <span className={`block text-[10px] uppercase ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>Humidity</span>
+                <span className={`font-medium ${isLight ? 'text-slate-900' : 'text-neutral-200'}`}>{weather.humidity}%</span>
+              </div>
+              <div className={`p-3 rounded-2xl ${insetClass}`}>
+                <span className={`block text-[10px] uppercase ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>Wind</span>
+                <span className={`font-medium ${isLight ? 'text-slate-900' : 'text-neutral-200'}`}>{weather.windSpeed} km/h</span>
+              </div>
+              <div className={`p-3 rounded-2xl ${insetClass}`}>
+                <span className={`block text-[10px] uppercase ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>Sunset</span>
+                <span className={`font-medium ${isLight ? 'text-slate-900' : 'text-neutral-200'}`}>{weather.sunset}</span>
               </div>
             </div>
           </div>
@@ -92,103 +105,113 @@ export const NeumorphicMorningMode: React.FC = () => {
 
         {/* Center Column: Schedule & Priorities (Cols 5-8) */}
         <div className="col-span-4 flex flex-col space-y-6">
-          <div className="p-5 rounded-3xl bg-[#1a1d24] shadow-[6px_6px_14px_#101217,-6px_-6px_14px_#242831] flex-1 flex flex-col min-h-0">
-            <div className="flex items-center justify-between border-b border-neutral-700/50 pb-2 mb-3">
-              <span className="text-neutral-400 font-bold uppercase text-[10px] tracking-wider">Today&apos;s Schedule</span>
-              <span className="text-neutral-500 text-xs font-mono">{events.length} Events</span>
+          {/* Today's Agenda */}
+          <div className={`p-6 rounded-3xl ${cardClass} flex-1 flex flex-col min-h-0`}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={`text-xs uppercase font-bold tracking-wider ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>
+                Today&apos;s Schedule
+              </h3>
+              <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${insetClass} ${isLight ? 'text-slate-600' : 'text-neutral-400'}`}>
+                {events.length} Events
+              </span>
             </div>
-            <div className="space-y-2.5 overflow-y-auto pr-1 flex-1 text-xs">
+            <div className="space-y-3 overflow-y-auto pr-1 flex-1">
               {events.slice(0, 3).map((evt) => (
-                <div
-                  key={evt.id}
-                  className="p-3 rounded-2xl bg-[#1a1d24] shadow-[inset_2px_2px_5px_#101217,inset_-2px_-2px_5px_#242831]"
-                >
-                  <span className="text-[10px] font-mono font-bold block" style={{ color: 'var(--color-accent)' }}>
-                    {evt.startTime} - {evt.endTime}
-                  </span>
-                  <h4 className="text-xs font-bold text-white mt-0.5 truncate">{evt.title}</h4>
+                <div key={evt.id} className={`p-3.5 rounded-2xl ${insetClass}`}>
+                  <div className="flex items-center justify-between text-xs font-mono font-medium" style={{ color: 'var(--color-accent)' }}>
+                    <span>{evt.startTime} — {evt.endTime}</span>
+                    <span className="text-[10px] uppercase">{evt.category}</span>
+                  </div>
+                  <h4 className={`text-xs font-medium mt-1 truncate ${isLight ? 'text-slate-900' : 'text-neutral-200'}`}>{evt.title}</h4>
                   {evt.location && (
-                    <p className="text-[10px] text-neutral-400 mt-0.5 truncate">{evt.location}</p>
+                    <p className={`text-[10px] mt-0.5 truncate ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>{evt.location}</p>
                   )}
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="p-5 rounded-3xl bg-[#1a1d24] shadow-[6px_6px_14px_#101217,-6px_-6px_14px_#242831] flex-1 flex flex-col min-h-0">
-            <div className="flex items-center justify-between border-b border-neutral-700/50 pb-2 mb-2">
-              <span className="text-neutral-400 font-bold uppercase text-[10px] tracking-wider">Tasks &amp; Action</span>
-              <span className="text-xs font-mono font-bold" style={{ color: 'var(--color-accent)' }}>
+          {/* Action Tasks */}
+          <div className={`p-6 rounded-3xl ${cardClass} flex-1 flex flex-col min-h-0`}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className={`text-xs uppercase font-bold tracking-wider ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>
+                Priorities
+              </h3>
+              <span className="text-xs font-mono font-medium" style={{ color: 'var(--color-accent)' }}>
                 {tasks.filter(t => t.completed).length}/{tasks.length} Done
               </span>
             </div>
-            <div className="space-y-2 overflow-y-auto pr-1 flex-1 text-xs">
+            <div className="space-y-2 overflow-y-auto pr-1 flex-1">
               {tasks.slice(0, 4).map((task) => (
                 <div
                   key={task.id}
                   onClick={() => toggleTask(task.id)}
-                  className="p-2.5 rounded-xl bg-[#1a1d24] shadow-[3px_3px_6px_#101217,-3px_-3px_6px_#242831] hover:shadow-[inset_2px_2px_4px_#101217,inset_-2px_-2px_4px_#242831] cursor-pointer flex items-center space-x-2.5 transition-all"
+                  className={`p-2.5 rounded-2xl ${insetClass} flex items-center justify-between cursor-pointer group`}
                 >
-                  {task.completed ? (
-                    <CheckCircle2 size={16} className="shrink-0" style={{ color: 'var(--color-accent)' }} />
-                  ) : (
-                    <Circle size={16} className="text-neutral-500 shrink-0" />
+                  <div className="flex items-center space-x-2.5 min-w-0">
+                    <div style={{ color: 'var(--color-accent)' }}>
+                      {task.completed ? <CheckCircle2 size={16} /> : <Circle size={16} className={isLight ? 'text-slate-400' : 'text-neutral-500'} />}
+                    </div>
+                    <span className={`text-xs truncate ${task.completed ? (isLight ? 'text-slate-400 line-through' : 'text-neutral-500 line-through') : (isLight ? 'text-slate-900' : 'text-neutral-200')}`}>
+                      {task.title}
+                    </span>
+                  </div>
+                  {task.dueTime && (
+                    <span className={`text-[10px] font-mono shrink-0 ml-1 ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>
+                      {task.dueTime}
+                    </span>
                   )}
-                  <span className={`truncate ${task.completed ? 'line-through text-neutral-500' : 'text-neutral-200'}`}>
-                    {task.title}
-                  </span>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Right Column: Markets & Grand Prix Radar (Cols 9-12) */}
+        {/* Right Column: Financial Markets & F1 Radar (Cols 9-12) */}
         <div className="col-span-4 flex flex-col space-y-6">
-          <div className="p-5 rounded-3xl bg-[#1a1d24] shadow-[6px_6px_14px_#101217,-6px_-6px_14px_#242831] flex-1 flex flex-col">
-            <div className="flex items-center justify-between border-b border-neutral-700/50 pb-2 mb-3">
-              <span className="text-neutral-400 font-bold uppercase text-[10px] tracking-wider">Markets at Open</span>
-              <span className="text-emerald-400 text-xs font-mono">Live</span>
+          {/* Financial Markets */}
+          <div className={`p-6 rounded-3xl ${cardClass} flex-1 flex flex-col min-h-0`}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className={`text-xs uppercase font-bold tracking-wider ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>
+                Markets
+              </h3>
+              <span className="text-[10px] font-mono font-medium" style={{ color: 'var(--color-accent)' }}>Live</span>
             </div>
-            <div className="grid grid-cols-2 gap-3 text-xs">
+            <div className="grid grid-cols-2 gap-3">
               {finance.map((item) => {
                 const isUp = item.change >= 0;
                 return (
-                  <div
-                    key={item.id}
-                    className="p-3 rounded-2xl bg-[#1a1d24] shadow-[inset_2px_2px_5px_#101217,inset_-2px_-2px_5px_#242831] flex flex-col justify-between"
-                  >
+                  <div key={item.id} className={`p-3 rounded-2xl ${insetClass} flex flex-col justify-between`}>
                     <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-neutral-400 font-medium truncate">{item.symbol}</span>
-                      <span className={`font-mono text-[10px] font-bold ${isUp ? 'text-emerald-400' : 'text-rose-400'}`}>
+                      <span className={`font-bold truncate ${isLight ? 'text-slate-600' : 'text-neutral-400'}`}>{item.symbol}</span>
+                      <span className={`font-mono text-[10px] font-bold ${isUp ? 'text-emerald-500' : 'text-rose-500'}`}>
                         {isUp ? '+' : ''}{item.changePercent.toFixed(1)}%
                       </span>
                     </div>
-                    <div className="text-xs font-bold text-white mt-1.5">{item.price}</div>
+                    <div className={`text-xs font-bold mt-1 ${isLight ? 'text-slate-900' : 'text-neutral-200'}`}>{item.price}</div>
                   </div>
                 );
               })}
             </div>
           </div>
 
-          <div className="p-5 rounded-3xl bg-[#1a1d24] shadow-[6px_6px_14px_#101217,-6px_-6px_14px_#242831]">
-            <div className="flex items-center justify-between text-[10px] font-bold text-neutral-400 uppercase mb-1">
-              <span className="flex items-center text-red-400">
-                <Flag size={11} className="mr-1" /> Grand Prix
-              </span>
-              <span>Round {f1.activeRound}/{f1.totalRounds}</span>
+          {/* F1 Card */}
+          <div className={`p-6 rounded-3xl ${cardClass}`}>
+            <div className={`flex items-center justify-between mb-1 text-[10px] uppercase font-mono ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>
+              <span>Next Grand Prix</span>
+              <span className="text-red-500 font-bold">Round {f1.activeRound}/{f1.totalRounds}</span>
             </div>
-            <h4 className="text-sm font-bold text-white truncate">{f1.raceName}</h4>
-            <p className="text-xs text-neutral-400 truncate">{f1.circuitName}</p>
+            <h4 className="text-sm font-bold truncate" style={{ color: 'var(--color-accent)' }}>{f1.raceName}</h4>
+            <p className={`text-xs truncate ${isLight ? 'text-slate-500' : 'text-neutral-400'}`}>{f1.circuitName}</p>
 
-            <div className="mt-2.5 p-3 rounded-2xl bg-[#1a1d24] shadow-[inset_2px_2px_5px_#101217,inset_-2px_-2px_5px_#242831] flex items-center justify-between text-xs">
+            <div className={`mt-3 p-3 rounded-2xl ${insetClass} flex items-center justify-between text-xs`}>
               <div>
-                <span className="text-[10px] text-neutral-500 uppercase block">Next Session</span>
-                <span className="text-neutral-200 font-medium">{f1.nextSession.name}</span>
+                <span className={`text-[10px] uppercase block ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>Next Session</span>
+                <span className={`font-medium ${isLight ? 'text-slate-900' : 'text-neutral-200'}`}>{f1.nextSession.name}</span>
               </div>
               <div className="text-right">
-                <span className="text-[10px] text-neutral-500 uppercase block">Countdown</span>
-                <span className="text-sm font-bold font-mono text-red-400">{f1.nextSession.countdownFormatted}</span>
+                <span className={`text-[10px] uppercase block ${isLight ? 'text-slate-500' : 'text-neutral-500'}`}>Countdown</span>
+                <span className="text-sm font-mono font-bold text-red-500">{f1.nextSession.countdownFormatted}</span>
               </div>
             </div>
           </div>

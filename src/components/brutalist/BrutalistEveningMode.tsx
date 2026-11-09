@@ -1,9 +1,10 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { Play, Pause, SkipBack, SkipForward, Volume2, Music, Radio, Disc3 } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, Disc3 } from 'lucide-react';
 
 export const BrutalistEveningMode: React.FC = () => {
-  const { media, livePosition, mediaControl } = useDashboard();
+  const { media, livePosition, mediaControl, colorMode } = useDashboard();
+  const isLight = colorMode === 'light';
 
   const isPlaying = media.state === 'playing';
   const volume = media.volume ?? 68;
@@ -26,10 +27,20 @@ export const BrutalistEveningMode: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-full p-8 flex flex-col justify-center items-center bg-[#0d0d0d] text-white select-none">
-      <div className="w-full max-w-4xl border-4 border-white bg-black p-8 shadow-[8px_8px_0px_#ffffff] flex space-x-10 items-center">
+    <div className={`w-full h-full p-8 flex flex-col justify-center items-center bg-transparent select-none ${isLight ? 'text-black' : 'text-white'}`}>
+      <div className={`w-full max-w-4xl border-4 p-8 flex space-x-10 items-center ${
+        isLight
+          ? 'border-black bg-white shadow-[8px_8px_0px_#000000]'
+          : 'border-white bg-black shadow-[8px_8px_0px_#ffffff]'
+      }`}>
         {/* Album Artwork Frame */}
-        <div className="relative w-72 h-72 border-4 border-white bg-neutral-900 shrink-0 shadow-[6px_6px_0px_#ffff00] flex items-center justify-center overflow-hidden">
+        <div
+          className={`relative w-72 h-72 border-4 shrink-0 flex items-center justify-center overflow-hidden ${
+            isLight
+              ? 'border-black bg-neutral-100 shadow-[6px_6px_0px_#000000]'
+              : 'border-white bg-neutral-900 shadow-[6px_6px_0px_#ffff00]'
+          }`}
+        >
           {media.entityPicture ? (
             <img
               src={media.entityPicture}
@@ -38,11 +49,15 @@ export const BrutalistEveningMode: React.FC = () => {
             />
           ) : (
             <div className="flex flex-col items-center text-center p-4">
-              <Disc3 size={64} className="text-yellow-400 mb-2 animate-spin-slow" />
+              <Disc3 size={64} className="mb-2 animate-spin-slow" style={{ color: 'var(--color-accent)' }} />
               <span className="text-xs font-black uppercase tracking-wider">{media.title}</span>
             </div>
           )}
-          <div className="absolute top-2 left-2 px-2 py-0.5 bg-black text-yellow-400 font-black text-[10px] uppercase border border-white">
+          <div
+            className={`absolute top-2 left-2 px-2 py-0.5 font-black text-[10px] uppercase border ${
+              isLight ? 'bg-white text-black border-black' : 'bg-black text-yellow-400 border-white'
+            }`}
+          >
             AUDIO//STREAM
           </div>
         </div>
@@ -51,22 +66,27 @@ export const BrutalistEveningMode: React.FC = () => {
         <div className="flex-1 flex flex-col justify-between h-72 py-1">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="px-2 py-0.5 bg-cyan-400 text-black font-black text-xs uppercase tracking-wider border border-black shadow-[2px_2px_0px_#fff]">
+              <span
+                className={`px-2 py-0.5 text-black font-black text-xs uppercase tracking-wider border border-black ${
+                  isLight ? 'shadow-[2px_2px_0px_#000]' : 'shadow-[2px_2px_0px_#fff]'
+                }`}
+                style={{ backgroundColor: 'var(--color-accent, #22d3ee)' }}
+              >
                 {media.entityId ? media.entityId.replace('media_player.', '').toUpperCase() : 'MAIN SPEAKER'}
               </span>
-              <span className="text-xs font-mono font-bold text-neutral-400">
+              <span className={`text-xs font-mono font-bold ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>
                 STATUS: {isPlaying ? '▶ PLAYING' : '⏸ PAUSED'}
               </span>
             </div>
 
-            <h1 className="text-4xl font-black text-white uppercase tracking-tight line-clamp-1">
+            <h1 className="text-4xl font-black uppercase tracking-tight line-clamp-1">
               {media.title}
             </h1>
-            <p className="text-xl font-bold text-yellow-400 mt-1 uppercase tracking-wide truncate">
+            <p className="text-xl font-bold mt-1 uppercase tracking-wide truncate" style={{ color: 'var(--color-accent)' }}>
               {media.artist}
             </p>
             {media.album && (
-              <p className="text-xs font-bold text-neutral-400 uppercase mt-0.5 truncate">
+              <p className={`text-xs font-bold uppercase mt-0.5 truncate ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>
                 ALBUM: {media.album}
               </p>
             )}
@@ -77,54 +97,61 @@ export const BrutalistEveningMode: React.FC = () => {
             <div
               onClick={handleScrub}
               title="Click to seek"
-              className="w-full h-5 bg-neutral-900 border-2 border-white cursor-pointer relative flex items-center p-0.5"
+              className={`w-full h-5 border-2 cursor-pointer relative flex items-center p-0.5 ${
+                isLight ? 'bg-neutral-200 border-black' : 'bg-neutral-900 border-white'
+              }`}
             >
               <div
-                className="h-full bg-yellow-400 transition-[width] duration-300 ease-linear"
-                style={{ width: `${progressPercent}%` }}
+                className="h-full transition-[width] duration-300 ease-linear"
+                style={{ width: `${progressPercent}%`, backgroundColor: 'var(--color-accent, #facc15)' }}
               />
             </div>
-            <div className="flex justify-between items-center text-xs font-mono font-bold text-neutral-300 mt-1.5">
-              <span className="text-yellow-400">{formatSeconds(livePosition)}</span>
+            <div className={`flex justify-between items-center text-xs font-mono font-bold mt-1.5 ${isLight ? 'text-neutral-700' : 'text-neutral-300'}`}>
+              <span style={{ color: 'var(--color-accent)' }}>{formatSeconds(livePosition)}</span>
               <span>{formatSeconds(media.duration)}</span>
             </div>
           </div>
 
           {/* Buttons & Volume */}
-          <div className="flex items-center justify-between pt-2 border-t-2 border-white/30">
+          <div className={`flex items-center justify-between pt-2 border-t-2 ${isLight ? 'border-black/30' : 'border-white/30'}`}>
             <div className="flex items-center space-x-3">
               <button
                 onClick={() => mediaControl('prev')}
-                className="px-4 py-2 bg-white text-black font-black text-xs uppercase border-2 border-black shadow-[3px_3px_0px_#fff] hover:translate-x-0.5 active:translate-y-0.5"
+                className={`px-4 py-2 font-black text-xs uppercase border-2 hover:translate-x-0.5 active:translate-y-0.5 ${
+                  isLight
+                    ? 'bg-neutral-100 text-black border-black shadow-[3px_3px_0px_#000]'
+                    : 'bg-white text-black border-2 border-black shadow-[3px_3px_0px_#fff]'
+                }`}
               >
                 &lt;&lt; PREV
               </button>
+
               <button
                 onClick={() => mediaControl('toggle')}
-                className="px-6 py-2 bg-yellow-400 text-black font-black text-sm uppercase border-2 border-black shadow-[4px_4px_0px_#fff] hover:translate-x-0.5 active:translate-y-0.5 flex items-center space-x-1.5"
+                className={`px-6 py-2 text-black font-black text-sm uppercase border-2 border-black hover:translate-x-0.5 active:translate-y-0.5 ${
+                  isLight ? 'shadow-[3px_3px_0px_#000]' : 'shadow-[3px_3px_0px_#fff]'
+                }`}
+                style={{ backgroundColor: 'var(--color-accent, #facc15)' }}
               >
-                {isPlaying ? <Pause size={16} /> : <Play size={16} />}
-                <span>{isPlaying ? 'PAUSE' : 'PLAY'}</span>
+                {isPlaying ? 'PAUSE ||' : 'PLAY ▶'}
               </button>
+
               <button
                 onClick={() => mediaControl('next')}
-                className="px-4 py-2 bg-white text-black font-black text-xs uppercase border-2 border-black shadow-[3px_3px_0px_#fff] hover:translate-x-0.5 active:translate-y-0.5"
+                className={`px-4 py-2 font-black text-xs uppercase border-2 hover:translate-x-0.5 active:translate-y-0.5 ${
+                  isLight
+                    ? 'bg-neutral-100 text-black border-black shadow-[3px_3px_0px_#000]'
+                    : 'bg-white text-black border-2 border-black shadow-[3px_3px_0px_#fff]'
+                }`}
               >
                 NEXT &gt;&gt;
               </button>
             </div>
 
-            <div className="flex items-center space-x-2 bg-neutral-900 px-3 py-1.5 border border-white">
-              <Volume2 size={16} className="text-yellow-400" />
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={volume}
-                onChange={(e) => mediaControl('volume', Number(e.target.value))}
-                className="w-20 h-2 bg-neutral-700 accent-yellow-400 cursor-pointer"
-              />
-              <span className="text-xs font-mono font-bold w-8 text-right">{volume}%</span>
+            {/* Volume indicator */}
+            <div className="flex items-center space-x-2">
+              <Volume2 size={16} />
+              <span className="font-mono font-black text-xs">{volume}%</span>
             </div>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDashboard } from '../../state/DashboardContext';
 
 interface HudBoxProps {
   title: string;
@@ -13,14 +14,20 @@ export const HudBox: React.FC<HudBoxProps> = ({
   code,
   children,
   className = '',
-  glowColor = 'cyan',
 }) => {
+  const { colorMode } = useDashboard();
+  const isLight = colorMode === 'light';
+
   return (
     <div
-      className={`relative border bg-[#040814]/90 p-4 flex flex-col ${className}`}
+      className={`relative border hud-box p-4 flex flex-col ${
+        isLight ? 'bg-white/95 text-slate-900' : 'bg-[#040814]/90 text-cyan-100'
+      } ${className}`}
       style={{
         borderColor: 'var(--color-accent-soft, rgba(6, 182, 212, 0.4))',
-        boxShadow: '0 0 20px var(--color-glow, rgba(0, 240, 255, 0.15))',
+        boxShadow: isLight
+          ? '0 2px 10px var(--color-glow, rgba(0,0,0,0.06))'
+          : '0 0 20px var(--color-glow, rgba(0, 240, 255, 0.15))',
       }}
     >
       {/* 4 Tech Corner Brackets */}
@@ -54,7 +61,7 @@ export const HudBox: React.FC<HudBoxProps> = ({
         )}
       </div>
 
-      <div className="flex-1 min-h-0">
+      <div className={`flex-1 min-h-0 ${isLight ? 'text-slate-800' : 'text-cyan-100'}`}>
         {children}
       </div>
     </div>

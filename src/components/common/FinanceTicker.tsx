@@ -9,7 +9,8 @@ interface FinanceTickerProps {
 }
 
 export const FinanceTicker: React.FC<FinanceTickerProps> = ({ mode = 'ticker', className = '' }) => {
-  const { finance } = useDashboard();
+  const { finance, colorMode } = useDashboard();
+  const isLight = colorMode === 'light';
 
   const renderSparkline = (points: number[], isPositive: boolean) => {
     if (!points || points.length < 2) return null;
@@ -41,18 +42,26 @@ export const FinanceTicker: React.FC<FinanceTickerProps> = ({ mode = 'ticker', c
     return (
       <div
         key={item.id}
-        className="flex items-center space-x-3 px-4 py-2 rounded-xl bg-white/5 border border-white/5 shrink-0"
+        className={`flex items-center space-x-3 px-4 py-2 rounded-xl shrink-0 border ${
+          isLight
+            ? 'bg-black/[0.03] border-black/[0.08]'
+            : 'bg-white/5 border-white/5'
+        }`}
       >
         <div className="flex flex-col">
-          <span className="text-[11px] font-semibold tracking-wider text-gray-400 uppercase">{item.name}</span>
-          <span className="text-sm font-bold font-mono-numbers text-white">{item.price}</span>
+          <span className={`text-[11px] font-semibold tracking-wider uppercase ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
+            {item.name}
+          </span>
+          <span className={`text-sm font-bold font-mono-numbers ${isLight ? 'text-slate-900' : 'text-white'}`}>
+            {item.price}
+          </span>
         </div>
 
         <div className="flex items-center space-x-1.5 ml-1">
           {renderSparkline(item.sparkline, isPositive)}
           <div
             className={`flex items-center text-xs font-semibold font-mono-numbers px-1.5 py-0.5 rounded ${
-              isPositive ? 'text-emerald-400 bg-emerald-500/15' : 'text-rose-400 bg-rose-500/15'
+              isPositive ? 'text-emerald-500 bg-emerald-500/15' : 'text-rose-500 bg-rose-500/15'
             }`}
           >
             {isPositive ? <TrendingUp size={11} className="mr-0.5" /> : <TrendingDown size={11} className="mr-0.5" />}
@@ -73,8 +82,16 @@ export const FinanceTicker: React.FC<FinanceTickerProps> = ({ mode = 'ticker', c
 
   // Horizontal scrolling ticker
   return (
-    <div className={`w-full overflow-hidden bg-gray-950/80 backdrop-blur-md border-t border-white/10 py-1.5 px-4 flex items-center ${className}`}>
-      <div className="flex items-center space-x-2 mr-4 shrink-0 pr-3 border-r border-white/10 text-xs font-bold text-gray-400 uppercase tracking-widest">
+    <div
+      className={`w-full overflow-hidden backdrop-blur-md border-t py-1.5 px-4 flex items-center ${
+        isLight
+          ? 'bg-white/85 border-slate-200 text-slate-800'
+          : 'bg-gray-950/80 border-white/10 text-white'
+      } ${className}`}
+    >
+      <div className={`flex items-center space-x-2 mr-4 shrink-0 pr-3 border-r text-xs font-bold uppercase tracking-widest ${
+        isLight ? 'border-slate-200 text-slate-500' : 'border-white/10 text-gray-400'
+      }`}>
         <DollarSign size={14} style={{ color: 'var(--color-accent)' }} />
         <span>Markets</span>
       </div>

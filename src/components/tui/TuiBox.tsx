@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDashboard } from '../../state/DashboardContext';
 
 interface TuiBoxProps {
   title?: string;
@@ -19,12 +20,19 @@ export const TuiBox: React.FC<TuiBoxProps> = ({
   borderStyle = 'single',
   headerRight,
 }) => {
+  const { colorMode } = useDashboard();
+  const isLight = colorMode === 'light';
+
   return (
     <div
-      className={`font-mono border bg-black/90 p-3 rounded-none relative flex flex-col ${className}`}
+      className={`font-mono border tui-box p-3 rounded-none relative flex flex-col ${
+        isLight ? 'bg-white/95 text-slate-900' : 'bg-black/90 text-gray-100'
+      } ${className}`}
       style={{
         borderColor: 'var(--color-accent, #10b981)',
-        boxShadow: '0 0 15px var(--color-glow, rgba(16, 185, 129, 0.15))',
+        boxShadow: isLight
+          ? '0 2px 10px var(--color-glow, rgba(0,0,0,0.06))'
+          : '0 0 15px var(--color-glow, rgba(16, 185, 129, 0.15))',
       }}
     >
       {/* Terminal Title Bar */}
@@ -62,7 +70,7 @@ export const TuiBox: React.FC<TuiBoxProps> = ({
       )}
 
       {/* Content Area */}
-      <div className="flex-1 min-h-0 overflow-hidden font-mono text-gray-200">
+      <div className={`flex-1 min-h-0 overflow-hidden font-mono ${isLight ? 'text-slate-800' : 'text-gray-200'}`}>
         {children}
       </div>
     </div>

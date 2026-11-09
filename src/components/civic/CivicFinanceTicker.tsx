@@ -3,15 +3,31 @@ import { useDashboard } from '../../state/DashboardContext';
 import { ArrowUpRight, ArrowDownRight, TrendingUp } from 'lucide-react';
 
 export const CivicFinanceTicker: React.FC = () => {
-  const { finance } = useDashboard();
+  const { finance, colorMode } = useDashboard();
+  const isLight = colorMode === 'light';
 
   return (
-    <div className="w-full bg-white border-t-2 border-slate-300 py-2.5 px-8 flex items-center justify-between text-xs font-mono text-slate-800 select-none z-20 shadow-sm relative">
-      <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-[#f97316] via-slate-300 to-[#16a34a]" />
+    <div
+      className={`w-full border-t-2 py-2.5 px-8 flex items-center justify-between text-xs font-mono select-none z-20 relative ${
+        isLight
+          ? 'bg-white border-slate-300 text-slate-800 shadow-sm'
+          : 'bg-[#0f172a] border-slate-700 text-slate-100 shadow-md'
+      }`}
+    >
+      <div
+        className="absolute top-0 inset-x-0 h-0.5"
+        style={{
+          background: 'linear-gradient(to right, var(--color-accent, #f97316), white, #16a34a)',
+        }}
+      />
 
-      <div className="flex items-center space-x-2 shrink-0 pr-4 border-r border-slate-300 text-slate-700">
-        <TrendingUp size={14} className="text-[#f97316]" />
-        <span className="font-extrabold tracking-widest text-xs uppercase text-slate-900">
+      <div className={`flex items-center space-x-2 shrink-0 pr-4 border-r ${
+        isLight ? 'border-slate-300 text-slate-700' : 'border-slate-700 text-slate-300'
+      }`}>
+        <TrendingUp size={14} style={{ color: 'var(--color-accent, #f97316)' }} />
+        <span className={`font-extrabold tracking-widest text-xs uppercase ${
+          isLight ? 'text-slate-900' : 'text-slate-100'
+        }`}>
           MARKETS:
         </span>
       </div>
@@ -21,11 +37,11 @@ export const CivicFinanceTicker: React.FC = () => {
           const isUp = item.change >= 0;
           return (
             <div key={item.id} className="flex items-center space-x-2.5 shrink-0">
-              <span className="font-bold text-slate-500">{item.symbol}:</span>
-              <span className="text-slate-950 font-black">{item.price}</span>
+              <span className={`font-bold ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>{item.symbol}:</span>
+              <span className={`font-black ${isLight ? 'text-slate-950' : 'text-white'}`}>{item.price}</span>
               <span
                 className={`text-[11px] font-bold flex items-center ${
-                  isUp ? 'text-emerald-700' : 'text-red-600'
+                  isUp ? 'text-emerald-500' : 'text-red-500'
                 }`}
               >
                 {isUp ? <ArrowUpRight size={12} className="mr-0.5" /> : <ArrowDownRight size={12} className="mr-0.5" />}

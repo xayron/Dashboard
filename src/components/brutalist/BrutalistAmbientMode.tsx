@@ -10,14 +10,26 @@ export const BrutalistAmbientMode: React.FC = () => {
 
   return (
     <div className="relative w-full h-full bg-black overflow-hidden flex flex-col justify-between p-8 select-none">
-      {/* Background Photo */}
-      <div className="absolute inset-0 z-0 flex items-center justify-center bg-black">
-        <img
-          src={currentPhoto.url}
-          alt={currentPhoto.title}
-          className="w-full h-full object-cover filter contrast-110 brightness-90"
+      {/* Background Ambient Backdrop */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <div
+          className="w-full h-full bg-cover bg-center filter blur-[40px] opacity-35 scale-110 brightness-75"
+          style={{ backgroundImage: `url(${currentPhoto.url})` }}
         />
-        <div className="absolute inset-0 bg-black/25" />
+        <div className="absolute inset-0 bg-black/40" />
+      </div>
+
+      {/* Center Stage Neo-Brutalist Photo Frame (Correct Aspect Ratio) */}
+      <div className="absolute inset-0 z-0 flex items-center justify-center p-8">
+        <div className="max-w-[90vw] max-h-[82vh] p-2 bg-black border-4 border-white shadow-[8px_8px_0px_#ffff00] flex items-center justify-center">
+          <img
+            key={currentPhoto.url}
+            src={currentPhoto.url}
+            alt={currentPhoto.title}
+            className="max-w-full max-h-[78vh] object-contain filter contrast-110"
+            style={{ aspectRatio: currentPhoto.aspectRatio }}
+          />
+        </div>
       </div>
 
       {/* Top Bar: Floating Brutalist Clock & Weather Badge */}

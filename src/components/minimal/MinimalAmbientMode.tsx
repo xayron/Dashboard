@@ -9,14 +9,24 @@ export const MinimalAmbientMode: React.FC = () => {
 
   return (
     <div className="relative w-full h-full bg-black overflow-hidden flex flex-col justify-between p-12 select-none">
-      {/* Background Photo */}
-      <div className="absolute inset-0 z-0 bg-black">
+      {/* Minimal Ambient Backdrop */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <div
+          className="w-full h-full bg-cover bg-center filter blur-3xl opacity-30 scale-110"
+          style={{ backgroundImage: `url(${currentPhoto.url})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/50" />
+      </div>
+
+      {/* Floating Photo with True Aspect Ratio */}
+      <div className="absolute inset-0 z-0 flex items-center justify-center p-8">
         <img
+          key={currentPhoto.url}
           src={currentPhoto.url}
           alt={currentPhoto.title}
-          className="w-full h-full object-cover opacity-90"
+          className="relative z-0 max-w-[92vw] max-h-[84vh] object-contain shadow-2xl transition-opacity duration-1000"
+          style={{ aspectRatio: currentPhoto.aspectRatio }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/40" />
       </div>
 
       {/* Top Bar: Whispering Clock */}

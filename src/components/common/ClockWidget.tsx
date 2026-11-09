@@ -14,7 +14,8 @@ export const ClockWidget: React.FC<ClockWidgetProps> = ({
   showDate = true,
   className = '',
 }) => {
-  const { now } = useDashboard();
+  const { now, colorMode } = useDashboard();
+  const isLight = colorMode === 'light';
 
   const hours = String(now.getHours()).padStart(2, '0');
   const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -31,7 +32,9 @@ export const ClockWidget: React.FC<ClockWidgetProps> = ({
   if (size === 'large') {
     return (
       <div className={`flex flex-col ${className}`}>
-        <div className="flex items-baseline font-mono-numbers tracking-tight font-extrabold text-white drop-shadow-lg">
+        <div className={`flex items-baseline font-mono-numbers tracking-tight font-extrabold drop-shadow-sm ${
+          isLight ? 'text-slate-900' : 'text-white'
+        }`}>
           <span className="text-8xl md:text-9xl leading-none font-display">{hours}:{minutes}</span>
           {showSeconds && (
             <span
@@ -53,7 +56,9 @@ export const ClockWidget: React.FC<ClockWidgetProps> = ({
           </span>
         </div>
         {showDate && (
-          <div className="mt-2 text-xl md:text-2xl font-medium text-gray-200 tracking-wide drop-shadow">
+          <div className={`mt-2 text-xl md:text-2xl font-medium tracking-wide ${
+            isLight ? 'text-slate-600' : 'text-gray-200'
+          }`}>
             {dateFormatted}
           </div>
         )}
@@ -64,7 +69,7 @@ export const ClockWidget: React.FC<ClockWidgetProps> = ({
   if (size === 'compact') {
     return (
       <div className={`flex items-center space-x-2 font-mono-numbers ${className}`}>
-        <span className="text-2xl font-bold text-white">{hours}:{minutes}</span>
+        <span className={`text-2xl font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>{hours}:{minutes}</span>
         {showSeconds && (
           <span className="text-sm font-semibold" style={{ color: 'var(--color-accent)' }}>
             {seconds}
@@ -77,7 +82,9 @@ export const ClockWidget: React.FC<ClockWidgetProps> = ({
   // Normal size
   return (
     <div className={`flex flex-col ${className}`}>
-      <div className="flex items-baseline font-mono-numbers tracking-tight font-bold text-white drop-shadow-md">
+      <div className={`flex items-baseline font-mono-numbers tracking-tight font-bold drop-shadow-sm ${
+        isLight ? 'text-slate-900' : 'text-white'
+      }`}>
         <span className="text-6xl md:text-7xl leading-none font-display">{hours}:{minutes}</span>
         {showSeconds && (
           <span className="ml-2 text-2xl font-mono-numbers font-medium" style={{ color: 'var(--color-accent)' }}>
@@ -96,7 +103,9 @@ export const ClockWidget: React.FC<ClockWidgetProps> = ({
         </span>
       </div>
       {showDate && (
-        <div className="mt-1 text-base md:text-lg font-medium text-gray-300">
+        <div className={`mt-1 text-base md:text-lg font-medium ${
+          isLight ? 'text-slate-600' : 'text-gray-300'
+        }`}>
           {dateFormatted}
         </div>
       )}

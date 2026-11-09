@@ -27,7 +27,8 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({
   layout = 'card',
   className = '',
 }) => {
-  const { weather, aqi } = useDashboard();
+  const { weather, aqi, colorMode } = useDashboard();
+  const isLight = colorMode === 'light';
 
   const renderIcon = (code: number, isDay: boolean, size: number = 32) => {
     switch (code) {
@@ -38,30 +39,30 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({
       case 2:
         return isDay ? <CloudSun size={size} className="text-amber-300" /> : <CloudMoon size={size} className="text-indigo-300" />;
       case 3:
-        return <Cloud size={size} className="text-gray-300" />;
+        return <Cloud size={size} className={isLight ? 'text-slate-500' : 'text-gray-300'} />;
       case 45:
       case 48:
         return <CloudFog size={size} className="text-gray-400" />;
       case 51:
       case 53:
       case 55:
-        return <CloudDrizzle size={size} className="text-blue-300" />;
+        return <CloudDrizzle size={size} className="text-blue-400" />;
       case 61:
       case 63:
       case 65:
-        return <CloudRain size={size} className="text-blue-400" />;
+        return <CloudRain size={size} className="text-blue-500" />;
       case 71:
       case 73:
       case 75:
-        return <CloudSnow size={size} className="text-blue-200" />;
+        return <CloudSnow size={size} className="text-blue-300" />;
       case 80:
       case 81:
       case 82:
-        return <CloudRainWind size={size} className="text-cyan-400" />;
+        return <CloudRainWind size={size} className="text-cyan-500" />;
       case 95:
       case 96:
       case 99:
-        return <CloudLightning size={size} className="text-yellow-400" />;
+        return <CloudLightning size={size} className="text-yellow-500" />;
       default:
         return <Sun size={size} className="text-amber-400" />;
     }
@@ -73,13 +74,13 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({
         {renderIcon(weather.conditionCode, weather.isDay, 28)}
         <div className="flex flex-col">
           <div className="flex items-baseline space-x-2">
-            <span className="text-2xl font-bold font-mono-numbers text-white">{weather.temperature}°C</span>
-            <span className="text-xs text-gray-300 font-medium">{weather.condition}</span>
+            <span className={`text-2xl font-bold font-mono-numbers ${isLight ? 'text-slate-900' : 'text-white'}`}>{weather.temperature}°C</span>
+            <span className={`text-xs font-medium ${isLight ? 'text-slate-600' : 'text-gray-300'}`}>{weather.condition}</span>
           </div>
-          <div className="flex items-center space-x-2 text-xs text-gray-400 font-mono-numbers">
+          <div className={`flex items-center space-x-2 text-xs font-mono-numbers ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
             <span>H: {weather.highTemp}°</span>
             <span>L: {weather.lowTemp}°</span>
-            <span className="flex items-center text-blue-400"><Droplets size={12} className="mr-0.5" />{weather.rainProbability}%</span>
+            <span className="flex items-center text-blue-500"><Droplets size={12} className="mr-0.5" />{weather.rainProbability}%</span>
           </div>
         </div>
         <div
@@ -111,14 +112,16 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({
       <div className="flex items-start justify-between">
         <div>
           <div className="flex items-baseline space-x-2">
-            <span className="text-6xl font-extrabold font-mono-numbers tracking-tight text-white">
+            <span className={`text-6xl font-extrabold font-mono-numbers tracking-tight ${
+              isLight ? 'text-slate-900' : 'text-white'
+            }`}>
               {weather.temperature}°
             </span>
-            <span className="text-xl text-gray-300 font-medium font-mono-numbers">C</span>
+            <span className={`text-xl font-medium font-mono-numbers ${isLight ? 'text-slate-600' : 'text-gray-300'}`}>C</span>
           </div>
-          <div className="text-lg text-gray-200 font-semibold mt-0.5">{weather.condition}</div>
-          <div className="text-xs text-gray-400 mt-0.5">
-            Feels like <span className="font-mono-numbers text-gray-300 font-medium">{weather.apparentTemperature}°C</span>
+          <div className={`text-lg font-semibold mt-0.5 ${isLight ? 'text-slate-800' : 'text-gray-200'}`}>{weather.condition}</div>
+          <div className={`text-xs mt-0.5 ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
+            Feels like <span className={`font-mono-numbers font-medium ${isLight ? 'text-slate-700' : 'text-gray-300'}`}>{weather.apparentTemperature}°C</span>
           </div>
         </div>
 
@@ -143,28 +146,30 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({
       </div>
 
       {/* Metrics Row */}
-      <div className="grid grid-cols-4 gap-2 mt-5 pt-4 border-t border-white/10 text-xs">
+      <div className={`grid grid-cols-4 gap-2 mt-5 pt-4 border-t text-xs ${
+        isLight ? 'border-black/[0.08]' : 'border-white/10'
+      }`}>
         <div className="flex flex-col">
-          <span className="text-gray-400">High / Low</span>
-          <span className="font-mono-numbers font-semibold text-white mt-0.5">
+          <span className={isLight ? 'text-slate-500' : 'text-gray-400'}>High / Low</span>
+          <span className={`font-mono-numbers font-semibold mt-0.5 ${isLight ? 'text-slate-900' : 'text-white'}`}>
             {weather.highTemp}° / {weather.lowTemp}°
           </span>
         </div>
         <div className="flex flex-col">
-          <span className="text-gray-400 flex items-center"><Droplets size={11} className="mr-1 text-blue-400" />Rain %</span>
-          <span className="font-mono-numbers font-semibold text-blue-300 mt-0.5">
+          <span className={`${isLight ? 'text-slate-500' : 'text-gray-400'} flex items-center`}><Droplets size={11} className="mr-1 text-blue-500" />Rain %</span>
+          <span className="font-mono-numbers font-semibold text-blue-500 mt-0.5">
             {weather.rainProbability}%
           </span>
         </div>
         <div className="flex flex-col">
-          <span className="text-gray-400 flex items-center"><Wind size={11} className="mr-1 text-teal-400" />Wind</span>
-          <span className="font-mono-numbers font-semibold text-white mt-0.5">
+          <span className={`${isLight ? 'text-slate-500' : 'text-gray-400'} flex items-center`}><Wind size={11} className="mr-1 text-teal-500" />Wind</span>
+          <span className={`font-mono-numbers font-semibold mt-0.5 ${isLight ? 'text-slate-900' : 'text-white'}`}>
             {weather.windSpeed} km/h
           </span>
         </div>
         <div className="flex flex-col">
-          <span className="text-gray-400 flex items-center"><Sun size={11} className="mr-1 text-amber-400" />UV Index</span>
-          <span className="font-mono-numbers font-semibold text-amber-300 mt-0.5">
+          <span className={`${isLight ? 'text-slate-500' : 'text-gray-400'} flex items-center`}><Sun size={11} className="mr-1 text-amber-500" />UV Index</span>
+          <span className="font-mono-numbers font-semibold text-amber-600 mt-0.5">
             {weather.uvIndex} (Mod)
           </span>
         </div>

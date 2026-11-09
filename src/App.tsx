@@ -304,13 +304,15 @@ const DashboardContent: React.FC = () => {
     switch (uiStyle) {
       case 'eink':
         return { backgroundColor: '#1c1917' };
+      case 'neumorphic':
+        return { backgroundColor: '#14171c' };
+      case 'brutalist':
+        return { backgroundColor: '#000000' };
       case 'civic':
       case 'tui':
-      case 'brutalist':
       case 'minimal':
       case 'hud':
       case 'retrowave':
-      case 'neumorphic':
       case 'obsidian':
       case 'modern':
       default:

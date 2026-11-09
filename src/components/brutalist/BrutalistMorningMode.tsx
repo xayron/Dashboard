@@ -1,11 +1,12 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
 import { BrutalistBox } from './BrutalistBox';
-import { CheckSquare, Square, Calendar, TrendingUp, TrendingDown, Flag, Sunrise, Coffee } from 'lucide-react';
+import { CheckSquare, Square, Sunrise, Coffee } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
 
 export const BrutalistMorningMode: React.FC = () => {
-  const { now, weather, aqi, events, tasks, toggleTask, f1, finance, media } = useDashboard();
+  const { now, weather, aqi, events, tasks, toggleTask, f1, finance, media, colorMode } = useDashboard();
+  const isLight = colorMode === 'light';
 
   const hours = String(now.getHours()).padStart(2, '0');
   const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -19,27 +20,27 @@ export const BrutalistMorningMode: React.FC = () => {
   }).toUpperCase();
 
   return (
-    <div className="w-full h-full p-6 flex flex-col justify-between overflow-hidden bg-transparent text-white select-none">
+    <div className={`w-full h-full p-6 flex flex-col justify-between overflow-hidden bg-transparent select-none ${isLight ? 'text-black' : 'text-white'}`}>
       {/* Top Bar: Morning Header & Audio Banner */}
-      <div className="flex items-center justify-between mb-4 pb-3 border-b-2 border-white/40">
+      <div className={`flex items-center justify-between mb-4 pb-3 border-b-2 ${isLight ? 'border-black/30' : 'border-white/40'}`}>
         <div className="flex items-center space-x-3">
           <div
-            className="p-2 text-black border-2 border-black shadow-[3px_3px_0px_#fff]"
+            className={`p-2 text-black border-2 border-black ${isLight ? 'shadow-[3px_3px_0px_#000]' : 'shadow-[3px_3px_0px_#fff]'}`}
             style={{ backgroundColor: 'var(--color-accent, #facc15)' }}
           >
             <Coffee size={20} />
           </div>
           <div>
-            <h1 className="text-xl font-black uppercase tracking-tight text-white flex items-center">
+            <h1 className="text-xl font-black uppercase tracking-tight flex items-center">
               MORNING BRIEFING
               <span
-                className="ml-2 px-2 py-0.5 text-black text-[10px] font-black border border-black shadow-[2px_2px_0px_#fff]"
+                className={`ml-2 px-2 py-0.5 text-black text-[10px] font-black border border-black ${isLight ? 'shadow-[2px_2px_0px_#000]' : 'shadow-[2px_2px_0px_#fff]'}`}
                 style={{ backgroundColor: 'var(--color-accent, #facc15)' }}
               >
                 DAILY DOSSIER
               </span>
             </h1>
-            <p className="text-xs font-bold text-neutral-400 flex items-center mt-0.5 uppercase">
+            <p className={`text-xs font-bold flex items-center mt-0.5 uppercase ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>
               <Sunrise size={12} className="mr-1" style={{ color: 'var(--color-accent, #facc15)' }} />
               Sunrise at {weather.sunrise} • Target high {weather.highTemp}°C
             </p>
@@ -57,14 +58,16 @@ export const BrutalistMorningMode: React.FC = () => {
             title="CLOCK"
             badge="IST +05:30"
             badgeColor="bg-cyan-400 text-black"
-            shadowColor="shadow-[5px_5px_0px_#00f0ff]"
+            shadowColor={isLight ? 'shadow-[5px_5px_0px_#000]' : 'shadow-[5px_5px_0px_#00f0ff]'}
           >
             <div className="py-2 text-center">
-              <div className="text-6xl font-black tracking-tight text-white flex items-baseline justify-center">
+              <div className="text-6xl font-black tracking-tight flex items-baseline justify-center">
                 <span>{hours}:{minutes}</span>
                 <span className="text-2xl ml-2 font-mono" style={{ color: 'var(--color-accent, #facc15)' }}>:{seconds}</span>
               </div>
-              <div className="mt-2 py-1 bg-white text-black font-black text-xs uppercase tracking-widest border border-black shadow-[2px_2px_0px_#000]">
+              <div className={`mt-2 py-1 font-black text-xs uppercase tracking-widest border border-black ${
+                isLight ? 'bg-black text-white shadow-[2px_2px_0px_#555]' : 'bg-white text-black shadow-[2px_2px_0px_#000]'
+              }`}>
                 {dateFormatted}
               </div>
             </div>
@@ -77,21 +80,29 @@ export const BrutalistMorningMode: React.FC = () => {
             className="flex-1"
           >
             <div className="space-y-2 pt-1 text-xs font-bold">
-              <div className="flex justify-between items-center p-2 bg-neutral-900 border border-white/20">
-                <span className="text-neutral-400 uppercase">CONDITION:</span>
+              <div className={`flex justify-between items-center p-2 border ${
+                isLight ? 'bg-neutral-100 border-black/20 text-black' : 'bg-neutral-900 border-white/20 text-white'
+              }`}>
+                <span className={isLight ? 'text-neutral-600 uppercase' : 'text-neutral-400 uppercase'}>CONDITION:</span>
                 <span className="uppercase" style={{ color: 'var(--color-accent)' }}>{weather.condition}</span>
               </div>
-              <div className="flex justify-between items-center p-2 bg-neutral-900 border border-white/20">
-                <span className="text-neutral-400 uppercase">FEELS LIKE:</span>
-                <span className="text-white">{weather.apparentTemperature}°C</span>
+              <div className={`flex justify-between items-center p-2 border ${
+                isLight ? 'bg-neutral-100 border-black/20 text-black' : 'bg-neutral-900 border-white/20 text-white'
+              }`}>
+                <span className={isLight ? 'text-neutral-600 uppercase' : 'text-neutral-400 uppercase'}>FEELS LIKE:</span>
+                <span>{weather.apparentTemperature}°C</span>
               </div>
-              <div className="flex justify-between items-center p-2 bg-neutral-900 border border-white/20">
-                <span className="text-neutral-400 uppercase">AIR QUALITY:</span>
+              <div className={`flex justify-between items-center p-2 border ${
+                isLight ? 'bg-neutral-100 border-black/20 text-black' : 'bg-neutral-900 border-white/20 text-white'
+              }`}>
+                <span className={isLight ? 'text-neutral-600 uppercase' : 'text-neutral-400 uppercase'}>AIR QUALITY:</span>
                 <span className="font-black" style={{ color: 'var(--color-accent)' }}>AQI {aqi.usAqi} • {aqi.label.toUpperCase()}</span>
               </div>
-              <div className="flex justify-between items-center p-2 bg-neutral-900 border border-white/20">
-                <span className="text-neutral-400 uppercase">SUNRISE / SET:</span>
-                <span className="text-white">{weather.sunrise} / {weather.sunset}</span>
+              <div className={`flex justify-between items-center p-2 border ${
+                isLight ? 'bg-neutral-100 border-black/20 text-black' : 'bg-neutral-900 border-white/20 text-white'
+              }`}>
+                <span className={isLight ? 'text-neutral-600 uppercase' : 'text-neutral-400 uppercase'}>SUNRISE / SET:</span>
+                <span>{weather.sunrise} / {weather.sunset}</span>
               </div>
             </div>
           </BrutalistBox>
@@ -103,24 +114,28 @@ export const BrutalistMorningMode: React.FC = () => {
             title="SCHEDULE"
             badge={`${events.length} EVENTS`}
             badgeColor="bg-fuchsia-400 text-black"
-            shadowColor="shadow-[5px_5px_0px_#e879f9]"
+            shadowColor={isLight ? 'shadow-[5px_5px_0px_#000]' : 'shadow-[5px_5px_0px_#e879f9]'}
             className="flex-1"
           >
             <div className="space-y-2 overflow-y-auto max-h-[30vh] pr-1">
               {events.slice(0, 4).map((evt) => (
                 <div
                   key={evt.id}
-                  className="p-2.5 bg-neutral-900 border-2 border-white/80 shadow-[2px_2px_0px_#fff]"
+                  className={`p-2.5 border-2 ${
+                    isLight
+                      ? 'bg-neutral-100 border-black shadow-[2px_2px_0px_#000] text-black'
+                      : 'bg-neutral-900 border-white/80 shadow-[2px_2px_0px_#fff] text-white'
+                  }`}
                 >
                   <div className="flex items-center justify-between text-[10px] font-black uppercase" style={{ color: 'var(--color-accent)' }}>
                     <span>{evt.startTime} — {evt.endTime}</span>
-                    <span className="px-1.5 py-0.2 bg-white text-black font-bold text-[9px] uppercase">
+                    <span className={`px-1.5 py-0.2 font-bold text-[9px] uppercase ${isLight ? 'bg-black text-white' : 'bg-white text-black'}`}>
                       {evt.category}
                     </span>
                   </div>
-                  <h4 className="text-xs font-black text-white mt-0.5 truncate">{evt.title}</h4>
+                  <h4 className="text-xs font-black mt-0.5 truncate">{evt.title}</h4>
                   {evt.location && (
-                    <p className="text-[10px] text-neutral-400 mt-0.5 truncate uppercase">📍 {evt.location}</p>
+                    <p className={`text-[10px] mt-0.5 truncate uppercase ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>📍 {evt.location}</p>
                   )}
                 </div>
               ))}
@@ -131,7 +146,7 @@ export const BrutalistMorningMode: React.FC = () => {
             title="ACTION ITEMS"
             badge={`${tasks.filter(t => !t.completed).length} PENDING`}
             badgeColor="bg-lime-400 text-black"
-            shadowColor="shadow-[5px_5px_0px_#a3e635]"
+            shadowColor={isLight ? 'shadow-[5px_5px_0px_#000]' : 'shadow-[5px_5px_0px_#a3e635]'}
             className="flex-1"
           >
             <div className="space-y-2 overflow-y-auto max-h-[28vh] pr-1">
@@ -141,8 +156,12 @@ export const BrutalistMorningMode: React.FC = () => {
                   onClick={() => toggleTask(task.id)}
                   className={`p-2 border-2 cursor-pointer flex items-center justify-between transition-all ${
                     task.completed
-                      ? 'bg-neutral-900/60 border-neutral-700 text-neutral-500 line-through'
-                      : 'bg-black border-white shadow-[2px_2px_0px_#fff] text-white hover:translate-x-0.5'
+                      ? isLight
+                        ? 'bg-neutral-200 border-neutral-400 text-neutral-500 line-through'
+                        : 'bg-neutral-900/60 border-neutral-700 text-neutral-500 line-through'
+                      : isLight
+                        ? 'bg-white border-black shadow-[2px_2px_0px_#000] text-black hover:translate-x-0.5'
+                        : 'bg-black border-white shadow-[2px_2px_0px_#fff] text-white hover:translate-x-0.5'
                   }`}
                 >
                   <div className="flex items-center space-x-2 min-w-0">
@@ -154,7 +173,9 @@ export const BrutalistMorningMode: React.FC = () => {
                     <span className="text-xs font-bold truncate">{task.title}</span>
                   </div>
                   {task.dueTime && (
-                    <span className="text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 bg-neutral-800 text-neutral-300 shrink-0 ml-1">
+                    <span className={`text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 shrink-0 ml-1 ${
+                      isLight ? 'bg-neutral-200 text-black' : 'bg-neutral-800 text-neutral-300'
+                    }`}>
                       {task.dueTime}
                     </span>
                   )}
@@ -178,19 +199,23 @@ export const BrutalistMorningMode: React.FC = () => {
                 return (
                   <div
                     key={item.id}
-                    className="p-2 bg-neutral-900 border-2 border-white/60 shadow-[2px_2px_0px_#fff] flex flex-col justify-between"
+                    className={`p-2 border-2 flex flex-col justify-between ${
+                      isLight
+                        ? 'bg-white border-black shadow-[2px_2px_0px_#000] text-black'
+                        : 'bg-neutral-900 border-white/60 shadow-[2px_2px_0px_#fff] text-white'
+                    }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-black uppercase text-neutral-400 truncate">{item.symbol}</span>
+                      <span className={`text-[10px] font-black uppercase truncate ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>{item.symbol}</span>
                       <span
                         className={`text-[10px] font-black flex items-center ${
-                          isUp ? 'text-lime-400' : 'text-red-400'
+                          isUp ? 'text-lime-600 dark:text-lime-400' : 'text-red-600 dark:text-red-400'
                         }`}
                       >
                         {isUp ? '+' : ''}{item.changePercent.toFixed(1)}%
                       </span>
                     </div>
-                    <div className="text-sm font-black text-white mt-1">{item.price}</div>
+                    <div className="text-sm font-black mt-1">{item.price}</div>
                   </div>
                 );
               })}
@@ -201,22 +226,24 @@ export const BrutalistMorningMode: React.FC = () => {
             title="NEXT GRAND PRIX"
             badge={`ROUND ${f1.activeRound}/${f1.totalRounds}`}
             badgeColor="bg-red-600 text-white"
-            shadowColor="shadow-[5px_5px_0px_#ef4444]"
+            shadowColor={isLight ? 'shadow-[5px_5px_0px_#000]' : 'shadow-[5px_5px_0px_#ef4444]'}
           >
             <div className="space-y-2 pt-1 text-xs">
               <div>
-                <h4 className="text-sm font-black uppercase text-yellow-400 truncate">{f1.raceName}</h4>
-                <p className="text-[11px] font-bold text-neutral-400 uppercase">{f1.circuitName}</p>
+                <h4 className="text-sm font-black uppercase truncate" style={{ color: 'var(--color-accent)' }}>{f1.raceName}</h4>
+                <p className={`text-[11px] font-bold uppercase ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>{f1.circuitName}</p>
               </div>
 
-              <div className="p-2.5 bg-neutral-900 border-2 border-white flex items-center justify-between">
+              <div className={`p-2.5 border-2 flex items-center justify-between ${
+                isLight ? 'bg-white border-black shadow-[2px_2px_0px_#000]' : 'bg-neutral-900 border-white shadow-[2px_2px_0px_#fff]'
+              }`}>
                 <div>
-                  <span className="text-[9px] uppercase font-bold text-neutral-400 block">NEXT SESSION</span>
-                  <span className="text-xs font-black text-white">{f1.nextSession.name}</span>
+                  <span className={`text-[9px] uppercase font-bold block ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>NEXT SESSION</span>
+                  <span className={`text-xs font-black ${isLight ? 'text-black' : 'text-white'}`}>{f1.nextSession.name}</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-[9px] uppercase font-bold text-neutral-400 block">COUNTDOWN</span>
-                  <span className="text-sm font-black font-mono text-red-400">{f1.nextSession.countdownFormatted}</span>
+                  <span className={`text-[9px] uppercase font-bold block ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>COUNTDOWN</span>
+                  <span className="text-sm font-black font-mono text-red-500">{f1.nextSession.countdownFormatted}</span>
                 </div>
               </div>
             </div>

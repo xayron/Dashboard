@@ -1,9 +1,10 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { Play, Pause, SkipBack, SkipForward, Volume2, Disc, Crosshair, Radio } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, Disc } from 'lucide-react';
 
 export const HudEveningMode: React.FC = () => {
-  const { media, livePosition, mediaControl } = useDashboard();
+  const { media, livePosition, mediaControl, colorMode } = useDashboard();
+  const isLight = colorMode === 'light';
 
   const isPlaying = media.state === 'playing';
   const volume = media.volume ?? 68;
@@ -26,17 +27,34 @@ export const HudEveningMode: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-full p-8 flex flex-col justify-center items-center bg-[#030712] font-mono text-cyan-200 select-none">
-      <div className="relative w-full max-w-4xl border border-cyan-500/50 bg-[#04091a]/95 p-8 shadow-[0_0_35px_rgba(0,240,255,0.12)] flex space-x-10 items-center">
+    <div className={`w-full h-full p-8 flex flex-col justify-center items-center bg-transparent font-mono select-none ${
+      isLight ? 'text-slate-900' : 'text-cyan-200'
+    }`}>
+      <div
+        className={`relative w-full max-w-4xl border p-8 flex space-x-10 items-center ${
+          isLight
+            ? 'bg-cyan-50/90 border-cyan-400/60 shadow-[0_0_35px_rgba(0,180,216,0.15)] text-slate-900'
+            : 'bg-[#04091a]/95 border-cyan-500/50 shadow-[0_0_35px_rgba(0,240,255,0.12)] text-cyan-200'
+        }`}
+      >
         {/* 4 Corner HUD Reticles */}
-        <span className="absolute -top-[2px] -left-[2px] w-4 h-4 border-t-2 border-l-2 border-cyan-400" />
-        <span className="absolute -top-[2px] -right-[2px] w-4 h-4 border-t-2 border-r-2 border-cyan-400" />
-        <span className="absolute -bottom-[2px] -left-[2px] w-4 h-4 border-b-2 border-l-2 border-cyan-400" />
-        <span className="absolute -bottom-[2px] -right-[2px] w-4 h-4 border-b-2 border-r-2 border-cyan-400" />
+        <span className="absolute -top-[2px] -left-[2px] w-4 h-4 border-t-2 border-l-2" style={{ borderColor: 'var(--color-accent)' }} />
+        <span className="absolute -top-[2px] -right-[2px] w-4 h-4 border-t-2 border-r-2" style={{ borderColor: 'var(--color-accent)' }} />
+        <span className="absolute -bottom-[2px] -left-[2px] w-4 h-4 border-b-2 border-l-2" style={{ borderColor: 'var(--color-accent)' }} />
+        <span className="absolute -bottom-[2px] -right-[2px] w-4 h-4 border-b-2 border-r-2" style={{ borderColor: 'var(--color-accent)' }} />
 
         {/* Album Artwork Frame with Tactical Reticle */}
-        <div className="relative w-72 h-72 border border-cyan-500/60 p-2 shrink-0 bg-black flex items-center justify-center overflow-hidden">
-          <div className="absolute top-2 left-2 z-10 px-2 py-0.5 bg-cyan-950/90 border border-cyan-500/60 text-cyan-300 text-[10px]">
+        <div className={`relative w-72 h-72 border p-2 shrink-0 flex items-center justify-center overflow-hidden ${
+          isLight ? 'bg-white border-cyan-400/60' : 'bg-black border-cyan-500/60'
+        }`}>
+          <div
+            className="absolute top-2 left-2 z-10 px-2 py-0.5 border text-[10px]"
+            style={{
+              backgroundColor: 'var(--theme-accent-soft)',
+              borderColor: 'var(--color-accent)',
+              color: 'var(--color-accent)',
+            }}
+          >
             SONIC://FEED
           </div>
           {media.entityPicture ? (
@@ -46,107 +64,112 @@ export const HudEveningMode: React.FC = () => {
               className={`w-full h-full object-cover filter contrast-125 transition-transform duration-700 ${isPlaying ? 'scale-105' : 'scale-100'}`}
             />
           ) : (
-            <div className="flex flex-col items-center justify-center text-cyan-500 text-center p-4">
+            <div className="flex flex-col items-center justify-center text-center p-4" style={{ color: 'var(--color-accent)' }}>
               <Disc size={64} className="animate-spin-slow mb-2" />
-              <span className="text-xs uppercase">{media.title}</span>
+              <span className="text-xs uppercase tracking-widest">{media.title}</span>
             </div>
           )}
-          {/* Cyan Vector Scanlines */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-400/5 to-transparent pointer-events-none" />
         </div>
 
-        {/* Details & Telemetry Controls */}
+        {/* Tactical Info & HUD Controls */}
         <div className="flex-1 flex flex-col justify-between h-72 py-1">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="px-2 py-0.5 bg-cyan-950 border border-cyan-500/50 text-cyan-400 font-bold text-xs">
-                NODE: {media.entityId ? media.entityId.replace('media_player.', '').toUpperCase() : 'TRANSMITTER'}
+              <span
+                className="px-2 py-0.5 text-[10px] tracking-widest uppercase border"
+                style={{
+                  backgroundColor: 'var(--theme-accent-soft)',
+                  borderColor: 'var(--color-accent)',
+                  color: 'var(--color-accent)',
+                }}
+              >
+                TARGET: {media.entityId ? media.entityId.replace('media_player.', '').toUpperCase() : 'MAIN_MODULE'}
               </span>
-              <span className="text-xs text-amber-400 font-bold">
-                SIGNAL: {isPlaying ? '● LIVE STREAMING' : '○ STANDBY'}
+              <span className={`text-xs ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
+                FREQ: {isPlaying ? 'STREAMING_ONLINE' : 'STREAM_STANDBY'}
               </span>
             </div>
 
-            <h1 className="text-3xl font-black text-white tracking-wide truncate">
+            <h1 className={`text-3xl font-black tracking-wider line-clamp-1 ${isLight ? 'text-slate-900' : 'text-white'}`}>
               {media.title}
             </h1>
-            <p className="text-lg text-cyan-300 font-bold mt-1 truncate">
-              &gt; {media.artist}
+            <p className="text-lg font-bold mt-1 tracking-wide truncate" style={{ color: 'var(--color-accent)' }}>
+              {media.artist}
             </p>
             {media.album && (
-              <p className="text-xs text-cyan-600 mt-0.5 truncate">
+              <p className={`text-xs mt-0.5 truncate ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
                 ARCHIVE: {media.album}
               </p>
             )}
           </div>
 
-          {/* Equalizer Spectrum */}
-          <div className="flex items-end space-x-1 h-5 my-2">
-            {[4, 12, 8, 16, 20, 10, 18, 14, 8, 16, 20, 12, 6, 14, 18, 10, 16].map((lvl, idx) => (
-              <span
-                key={idx}
-                className="flex-1 bg-cyan-400 transition-all duration-200"
-                style={{
-                  height: isPlaying ? `${Math.max(3, (lvl + (idx % 3) * 3))}px` : '3px',
-                  opacity: 0.8 + (idx % 2) * 0.2,
-                }}
-              />
-            ))}
-          </div>
-
-          {/* Scrubber */}
+          {/* Tactical Scrub Line */}
           <div className="my-2">
             <div
               onClick={handleScrub}
-              title="Seek Position"
-              className="w-full h-3 bg-cyan-950/60 border border-cyan-500/40 cursor-pointer relative flex items-center p-0.5"
+              title="Click to seek"
+              className={`w-full h-3 border cursor-pointer relative flex items-center p-0.5 ${
+                isLight ? 'bg-cyan-100/60 border-cyan-400/50' : 'bg-black/60 border-cyan-500/40'
+              }`}
             >
               <div
-                className="h-full bg-cyan-400 shadow-[0_0_10px_#00f0ff] transition-[width] duration-300 ease-linear"
-                style={{ width: `${progressPercent}%` }}
+                className="h-full transition-[width] duration-300 ease-linear"
+                style={{
+                  width: `${progressPercent}%`,
+                  backgroundColor: 'var(--color-accent)',
+                  boxShadow: '0 0 10px var(--color-glow)',
+                }}
               />
             </div>
-            <div className="flex justify-between items-center text-xs text-cyan-400 mt-1">
-              <span>{formatSeconds(livePosition)}</span>
+            <div className={`flex justify-between items-center text-xs font-mono mt-1 ${isLight ? 'text-slate-600' : 'text-cyan-300'}`}>
+              <span style={{ color: 'var(--color-accent)' }}>{formatSeconds(livePosition)}</span>
               <span>{formatSeconds(media.duration)}</span>
             </div>
           </div>
 
-          {/* Controls & Volume */}
-          <div className="flex items-center justify-between pt-2 border-t border-cyan-500/30">
-            <div className="flex items-center space-x-2">
+          {/* Buttons & Output Level */}
+          <div className={`flex items-center justify-between pt-2 border-t ${
+            isLight ? 'border-cyan-300/40' : 'border-cyan-500/30'
+          }`}>
+            <div className="flex items-center space-x-3">
               <button
                 onClick={() => mediaControl('prev')}
-                className="px-3 py-1.5 bg-cyan-950/60 border border-cyan-500/50 text-cyan-300 hover:bg-cyan-900 text-xs"
+                className={`px-3 py-1.5 border text-xs tracking-wider transition-colors ${
+                  isLight
+                    ? 'bg-cyan-100/80 border-cyan-400/60 text-slate-900 hover:bg-cyan-200/80'
+                    : 'bg-cyan-950/40 border-cyan-500/40 text-cyan-300 hover:bg-cyan-900/50'
+                }`}
               >
-                [&lt;&lt; PREV]
+                &lt;&lt; PREV
               </button>
+
               <button
                 onClick={() => mediaControl('toggle')}
-                className="px-5 py-1.5 bg-cyan-500 text-black font-black border border-cyan-400 hover:bg-cyan-400 text-xs shadow-[0_0_15px_rgba(0,240,255,0.4)] flex items-center space-x-1.5"
+                className="px-5 py-1.5 border text-black font-black text-xs tracking-widest transition-transform hover:scale-105 active:scale-95"
+                style={{
+                  backgroundColor: 'var(--color-accent)',
+                  borderColor: 'var(--color-accent)',
+                  boxShadow: '0 0 15px var(--color-glow)',
+                }}
               >
-                {isPlaying ? <Pause size={14} /> : <Play size={14} />}
-                <span>{isPlaying ? 'PAUSE' : 'PLAY'}</span>
+                {isPlaying ? 'PAUSE [||]' : 'EXECUTE [▶]'}
               </button>
+
               <button
                 onClick={() => mediaControl('next')}
-                className="px-3 py-1.5 bg-cyan-950/60 border border-cyan-500/50 text-cyan-300 hover:bg-cyan-900 text-xs"
+                className={`px-3 py-1.5 border text-xs tracking-wider transition-colors ${
+                  isLight
+                    ? 'bg-cyan-100/80 border-cyan-400/60 text-slate-900 hover:bg-cyan-200/80'
+                    : 'bg-cyan-950/40 border-cyan-500/40 text-cyan-300 hover:bg-cyan-900/50'
+                }`}
               >
-                [NEXT &gt;&gt;]
+                NEXT &gt;&gt;
               </button>
             </div>
 
             <div className="flex items-center space-x-2 text-xs">
-              <Volume2 size={15} className="text-cyan-400" />
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={volume}
-                onChange={(e) => mediaControl('volume', Number(e.target.value))}
-                className="w-20 h-1 bg-cyan-950 accent-cyan-400 cursor-pointer"
-              />
-              <span className="text-cyan-300 w-8 text-right">{volume}%</span>
+              <Volume2 size={16} style={{ color: 'var(--color-accent)' }} />
+              <span className="font-bold">{volume}%</span>
             </div>
           </div>
         </div>

@@ -10,13 +10,19 @@ export const EinkAmbientMode: React.FC = () => {
 
   return (
     <div className="relative w-full h-full bg-[#f5f2eb] overflow-hidden flex flex-col justify-between p-10 font-serif select-none">
-      {/* Background Photo Framed as Plate */}
+      {/* Background Photo Framed as Curatorial Plate with Correct Aspect Ratio */}
       <div className="absolute inset-0 z-0 flex items-center justify-center bg-[#f5f2eb] p-6">
-        <div className="w-full h-full border-4 border-stone-800 p-2 bg-white shadow-[6px_6px_0px_#1c1917]">
+        <div className="w-full h-full border-4 border-stone-800 p-4 bg-[#fdfbf7] shadow-[6px_6px_0px_#1c1917] flex items-center justify-center relative overflow-hidden">
+          <div
+            className="absolute inset-0 bg-cover bg-center filter blur-2xl opacity-10 scale-110 grayscale pointer-events-none"
+            style={{ backgroundImage: `url(${currentPhoto.url})` }}
+          />
           <img
+            key={currentPhoto.url}
             src={currentPhoto.url}
             alt={currentPhoto.title}
-            className="w-full h-full object-cover filter contrast-105"
+            className="relative z-0 max-w-full max-h-full object-contain border-2 border-stone-400 shadow-sm filter contrast-105"
+            style={{ aspectRatio: currentPhoto.aspectRatio }}
           />
         </div>
       </div>

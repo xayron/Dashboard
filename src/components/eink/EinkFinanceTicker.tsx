@@ -2,11 +2,20 @@ import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
 
 export const EinkFinanceTicker: React.FC = () => {
-  const { finance } = useDashboard();
+  const { finance, colorMode } = useDashboard();
+  const isLight = colorMode === 'light';
 
   return (
-    <div className="w-full bg-[#ede8df] border-t-2 border-stone-800 py-2 px-8 flex items-center justify-between text-xs font-serif text-[#1c1917] select-none z-20">
-      <div className="font-bold uppercase tracking-widest text-xs shrink-0 pr-4 border-r-2 border-stone-400">
+    <div
+      className={`w-full border-t-2 py-2 px-8 flex items-center justify-between text-xs font-serif select-none z-20 ${
+        isLight
+          ? 'bg-[#ede8df] border-stone-800 text-[#1c1917]'
+          : 'bg-[#292524] border-stone-600 text-[#fafaf9]'
+      }`}
+    >
+      <div className={`font-bold uppercase tracking-widest text-xs shrink-0 pr-4 border-r-2 ${
+        isLight ? 'border-stone-400 text-stone-800' : 'border-stone-600 text-stone-200'
+      }`}>
         Exchange Quotes:
       </div>
 
@@ -15,7 +24,7 @@ export const EinkFinanceTicker: React.FC = () => {
           const isUp = item.change >= 0;
           return (
             <div key={item.id} className="flex items-center space-x-2 shrink-0">
-              <span className="font-bold text-stone-700">{item.symbol}:</span>
+              <span className={`font-bold ${isLight ? 'text-stone-700' : 'text-stone-300'}`}>{item.symbol}:</span>
               <span className="font-mono">{item.price}</span>
               <span className="font-mono text-[11px] font-bold">
                 {isUp ? '+' : ''}{item.changePercent.toFixed(2)}%

@@ -3,11 +3,23 @@ import { useDashboard } from '../../state/DashboardContext';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
 export const BrutalistFinanceTicker: React.FC = () => {
-  const { finance } = useDashboard();
+  const { finance, colorMode } = useDashboard();
+  const isLight = colorMode === 'light';
 
   return (
-    <div className="w-full bg-black border-t-4 border-white py-2 px-6 flex items-center justify-between text-xs font-mono font-bold select-none shadow-[0_-4px_0px_#000] z-20">
-      <div className="flex items-center space-x-2 shrink-0 pr-4 border-r-2 border-white/40 text-yellow-400 font-black">
+    <div
+      className={`w-full border-t-4 py-2 px-6 flex items-center justify-between text-xs font-mono font-bold select-none z-20 ${
+        isLight
+          ? 'bg-white border-black text-black shadow-[0_-4px_0px_#000]'
+          : 'bg-black border-white text-white shadow-[0_-4px_0px_#fff]'
+      }`}
+    >
+      <div
+        className={`flex items-center space-x-2 shrink-0 pr-4 border-r-2 font-black ${
+          isLight ? 'border-black/30' : 'border-white/40'
+        }`}
+        style={{ color: 'var(--color-accent, #facc15)' }}
+      >
         <span>MARKETS:</span>
       </div>
 
@@ -17,13 +29,15 @@ export const BrutalistFinanceTicker: React.FC = () => {
           return (
             <div
               key={item.id}
-              className="flex items-center space-x-2 shrink-0 px-2 py-0.5 bg-neutral-900 border border-white/30"
+              className={`flex items-center space-x-2 shrink-0 px-2 py-0.5 border ${
+                isLight ? 'bg-slate-100 border-black' : 'bg-neutral-900 border-white/30'
+              }`}
             >
-              <span className="font-black text-white">{item.symbol}:</span>
-              <span className="font-bold text-neutral-200">{item.price}</span>
+              <span className={`font-black ${isLight ? 'text-black' : 'text-white'}`}>{item.symbol}:</span>
+              <span className={`font-bold ${isLight ? 'text-slate-700' : 'text-neutral-200'}`}>{item.price}</span>
               <span
                 className={`font-black flex items-center text-[11px] ${
-                  isUp ? 'text-lime-400' : 'text-red-400'
+                  isUp ? (isLight ? 'text-emerald-700' : 'text-lime-400') : (isLight ? 'text-red-700' : 'text-red-400')
                 }`}
               >
                 {isUp ? <TrendingUp size={11} className="mr-0.5" /> : <TrendingDown size={11} className="mr-0.5" />}

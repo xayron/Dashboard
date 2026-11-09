@@ -11,13 +11,19 @@ export const ObsidianAmbientMode: React.FC = () => {
 
   return (
     <div className="relative w-full h-full bg-[#050507] overflow-hidden flex flex-col justify-between p-10 font-sans select-none">
-      {/* Background Photo Framed as Cold Facet Plate */}
+      {/* Cold Facet Plate with True Aspect Ratio */}
       <div className="absolute inset-0 z-0 flex items-center justify-center bg-[#050507] p-8">
-        <div className="w-full h-full border border-white/[0.14] p-2 bg-[#08080c] shadow-2xl relative">
+        <div className="w-full h-full border border-white/[0.14] p-4 bg-[#08080c] shadow-2xl relative flex items-center justify-center overflow-hidden">
+          <div
+            className="absolute inset-0 bg-cover bg-center filter blur-3xl opacity-20 scale-110 pointer-events-none"
+            style={{ backgroundImage: `url(${currentPhoto.url})` }}
+          />
           <img
+            key={currentPhoto.url}
             src={currentPhoto.url}
             alt={currentPhoto.title}
-            className="w-full h-full object-cover filter contrast-105"
+            className="relative z-0 max-w-full max-h-full object-contain filter contrast-105 shadow-2xl"
+            style={{ aspectRatio: currentPhoto.aspectRatio }}
           />
           {/* Facet Edge Light Reflection */}
           <div className="absolute inset-0 border border-white/[0.08] pointer-events-none" />

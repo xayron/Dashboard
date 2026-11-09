@@ -10,13 +10,19 @@ export const NeumorphicAmbientMode: React.FC = () => {
 
   return (
     <div className="relative w-full h-full bg-[#1a1d24] overflow-hidden flex flex-col justify-between p-10 select-none">
-      {/* Background Photo Framed as Plate */}
+      {/* Background Photo Framed in Tactile Neumorphic Well */}
       <div className="absolute inset-0 z-0 p-8 flex items-center justify-center bg-[#1a1d24]">
-        <div className="w-full h-full rounded-3xl overflow-hidden p-3 bg-[#1a1d24] shadow-[8px_8px_20px_#101217,-8px_-8px_20px_#242831]">
+        <div className="w-full h-full rounded-3xl overflow-hidden p-4 bg-[#1a1d24] shadow-[8px_8px_20px_#101217,-8px_-8px_20px_#242831] flex items-center justify-center relative">
+          <div
+            className="absolute inset-0 bg-cover bg-center filter blur-3xl opacity-25 scale-110 pointer-events-none"
+            style={{ backgroundImage: `url(${currentPhoto.url})` }}
+          />
           <img
+            key={currentPhoto.url}
             src={currentPhoto.url}
             alt={currentPhoto.title}
-            className="w-full h-full object-cover rounded-2xl"
+            className="relative z-0 max-w-full max-h-full object-contain rounded-2xl shadow-lg"
+            style={{ aspectRatio: currentPhoto.aspectRatio }}
           />
         </div>
       </div>

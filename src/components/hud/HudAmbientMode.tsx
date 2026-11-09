@@ -10,16 +10,33 @@ export const HudAmbientMode: React.FC = () => {
 
   return (
     <div className="relative w-full h-full bg-[#030712] overflow-hidden flex flex-col justify-between p-8 font-mono select-none">
-      {/* Background Photo with Tactical Scanline Overlay */}
-      <div className="absolute inset-0 z-0 bg-black">
-        <img
-          src={currentPhoto.url}
-          alt={currentPhoto.title}
-          className="w-full h-full object-cover opacity-85 filter contrast-110"
+      {/* Tactical Ambient Backdrop */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <div
+          className="w-full h-full bg-cover bg-center filter blur-2xl opacity-25 scale-110"
+          style={{ backgroundImage: `url(${currentPhoto.url})` }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#030712] via-transparent to-[#030712]/60" />
         {/* Subtle grid pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#00f0ff08_1px,transparent_1px),linear-gradient(to_bottom,#00f0ff08_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#00f0ff08_1px,transparent_1px),linear-gradient(to_bottom,#00f0ff08_1px,transparent_1px)] bg-[size:4rem_4rem]" />
+      </div>
+
+      {/* Center Tactical Targeting Reticle with True Aspect Ratio */}
+      <div className="absolute inset-0 z-0 flex items-center justify-center p-8">
+        <div className="relative z-0 max-w-[88vw] max-h-[82vh] border border-cyan-500/40 p-2 bg-[#020617]/80 shadow-[0_0_30px_rgba(0,240,255,0.15)] flex items-center justify-center">
+          {/* 4 Tech Corner Brackets */}
+          <span className="absolute -top-[2px] -left-[2px] w-3 h-3 border-t-2 border-l-2 border-cyan-400" />
+          <span className="absolute -top-[2px] -right-[2px] w-3 h-3 border-t-2 border-r-2 border-cyan-400" />
+          <span className="absolute -bottom-[2px] -left-[2px] w-3 h-3 border-b-2 border-l-2 border-cyan-400" />
+          <span className="absolute -bottom-[2px] -right-[2px] w-3 h-3 border-b-2 border-r-2 border-cyan-400" />
+          <img
+            key={currentPhoto.url}
+            src={currentPhoto.url}
+            alt={currentPhoto.title}
+            className="max-w-full max-h-[78vh] object-contain filter contrast-105"
+            style={{ aspectRatio: currentPhoto.aspectRatio }}
+          />
+        </div>
       </div>
 
       {/* Top Bar: Tactical Telemetry */}

@@ -11,13 +11,20 @@ export const CivicAmbientMode: React.FC = () => {
 
   return (
     <div className="relative w-full h-full bg-[#f1f5f9] overflow-hidden flex flex-col justify-between p-10 font-sans select-none">
-      {/* Background Photo Framed as Exhibition Plate */}
+      {/* Exhibition Plate Frame with Correct Aspect Ratio */}
       <div className="absolute inset-0 z-0 flex items-center justify-center bg-[#f1f5f9] p-8">
-        <div className="w-full h-full border-2 border-slate-300 p-2.5 bg-white shadow-xl rounded-2xl relative">
+        <div className="w-full h-full border-2 border-slate-300 p-4 bg-white shadow-xl rounded-2xl relative flex items-center justify-center overflow-hidden">
+          {/* Subtle archival paper wash in the matting */}
+          <div
+            className="absolute inset-0 bg-cover bg-center filter blur-3xl opacity-15 scale-110 pointer-events-none"
+            style={{ backgroundImage: `url(${currentPhoto.url})` }}
+          />
           <img
+            key={currentPhoto.url}
             src={currentPhoto.url}
             alt={currentPhoto.title}
-            className="w-full h-full object-cover rounded-xl filter contrast-105"
+            className="relative z-0 max-w-full max-h-full object-contain rounded-xl filter contrast-105 shadow-md border border-slate-200"
+            style={{ aspectRatio: currentPhoto.aspectRatio }}
           />
         </div>
       </div>

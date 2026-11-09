@@ -1,15 +1,18 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
 import { BrutalistBox } from './BrutalistBox';
-import { Flame, Flag, Trophy, Timer, MapPin } from 'lucide-react';
+import { Flame, MapPin } from 'lucide-react';
 
 export const BrutalistRaceWeekendMode: React.FC = () => {
-  const { f1 } = useDashboard();
+  const { f1, colorMode } = useDashboard();
+  const isLight = colorMode === 'light';
 
   return (
-    <div className="w-full h-full p-6 flex flex-col justify-between overflow-hidden bg-[#111111] text-white select-none">
+    <div className={`w-full h-full p-6 flex flex-col justify-between overflow-hidden bg-transparent select-none ${isLight ? 'text-black' : 'text-white'}`}>
       {/* Top Banner */}
-      <div className="p-4 bg-red-600 text-white border-4 border-black shadow-[5px_5px_0px_#fff] flex items-center justify-between mb-4">
+      <div className={`p-4 bg-red-600 text-white border-4 border-black flex items-center justify-between mb-4 ${
+        isLight ? 'shadow-[5px_5px_0px_#000]' : 'shadow-[5px_5px_0px_#fff]'
+      }`}>
         <div className="flex items-center space-x-3">
           <div className="p-2 bg-black text-yellow-400">
             <Flame size={24} />
@@ -27,7 +30,9 @@ export const BrutalistRaceWeekendMode: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-black text-yellow-400 px-4 py-2 border-2 border-white shadow-[3px_3px_0px_#000] text-right">
+        <div className={`bg-black text-yellow-400 px-4 py-2 border-2 border-white text-right ${
+          isLight ? 'shadow-[3px_3px_0px_#000]' : 'shadow-[3px_3px_0px_#000]'
+        }`}>
           <span className="text-[10px] font-black uppercase tracking-wider block text-white">NEXT SESSION</span>
           <span className="text-sm font-black text-yellow-300">{f1.nextSession.name}</span>
           <span className="text-xs font-mono font-bold block text-red-400">{f1.nextSession.countdownFormatted}</span>
@@ -53,9 +58,15 @@ export const BrutalistRaceWeekendMode: React.FC = () => {
                     key={key}
                     className={`p-3 border-2 flex items-center justify-between ${
                       isNext
-                        ? 'bg-yellow-400 text-black border-black shadow-[4px_4px_0px_#fff] font-black'
-                        : 'bg-neutral-900 text-white border-white/40 shadow-[2px_2px_0px_#fff]'
+                        ? 'text-black border-black font-black'
+                        : isLight
+                          ? 'bg-neutral-100 text-black border-black shadow-[2px_2px_0px_#000]'
+                          : 'bg-neutral-900 text-white border-white/40 shadow-[2px_2px_0px_#fff]'
                     }`}
+                    style={isNext ? {
+                      backgroundColor: 'var(--color-accent, #facc15)',
+                      boxShadow: isLight ? '4px 4px 0px #000' : '4px 4px 0px #fff'
+                    } : undefined}
                   >
                     <div>
                       <span className="text-xs font-black uppercase tracking-wider block">{s.name}</span>
@@ -77,17 +88,23 @@ export const BrutalistRaceWeekendMode: React.FC = () => {
             title="WORLD CHAMPIONSHIP STANDINGS"
             badge="TOP DRIVERS"
             badgeColor="bg-cyan-400 text-black"
-            shadowColor="shadow-[5px_5px_0px_#00f0ff]"
+            shadowColor={isLight ? 'shadow-[5px_5px_0px_#000]' : 'shadow-[5px_5px_0px_#00f0ff]'}
             className="h-full"
           >
             <div className="space-y-2 overflow-y-auto max-h-[50vh] pr-1">
               {f1.standings.map((driver) => (
                 <div
                   key={driver.number}
-                  className="p-2.5 bg-neutral-900 border-2 border-white/60 shadow-[3px_3px_0px_#fff] flex items-center justify-between text-xs"
+                  className={`p-2.5 border-2 flex items-center justify-between text-xs ${
+                    isLight
+                      ? 'bg-neutral-100 border-black shadow-[3px_3px_0px_#000] text-black'
+                      : 'bg-neutral-900 border-white/60 shadow-[3px_3px_0px_#fff] text-white'
+                  }`}
                 >
                   <div className="flex items-center space-x-3">
-                    <span className="w-6 h-6 bg-white text-black font-black flex items-center justify-center text-xs">
+                    <span className={`w-6 h-6 font-black flex items-center justify-center text-xs ${
+                      isLight ? 'bg-black text-white' : 'bg-white text-black'
+                    }`}>
                       P{driver.position}
                     </span>
                     <span
@@ -95,11 +112,11 @@ export const BrutalistRaceWeekendMode: React.FC = () => {
                       style={{ backgroundColor: driver.teamColor || '#ff0000' }}
                     />
                     <div>
-                      <span className="font-black text-sm text-white uppercase">{driver.driver}</span>
-                      <span className="text-[10px] text-neutral-400 uppercase ml-2">({driver.team})</span>
+                      <span className="font-black text-sm uppercase">{driver.driver}</span>
+                      <span className={`text-[10px] uppercase ml-2 ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>({driver.team})</span>
                     </div>
                   </div>
-                  <div className="font-mono font-black text-sm text-yellow-400">
+                  <div className="font-mono font-black text-sm" style={{ color: 'var(--color-accent)' }}>
                     {driver.points} PTS
                   </div>
                 </div>

@@ -3,7 +3,8 @@ import { useDashboard } from '../../state/DashboardContext';
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
 
 export const MinimalEveningMode: React.FC = () => {
-  const { media, livePosition, mediaControl } = useDashboard();
+  const { media, livePosition, mediaControl, colorMode } = useDashboard();
+  const isLight = colorMode === 'light';
 
   const isPlaying = media.state === 'playing';
   const volume = media.volume ?? 68;
@@ -26,10 +27,12 @@ export const MinimalEveningMode: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-full p-16 flex flex-col justify-center items-center bg-[#09090b] text-neutral-100 select-none">
+    <div className={`w-full h-full p-16 flex flex-col justify-center items-center bg-transparent select-none ${isLight ? 'text-neutral-900' : 'text-neutral-100'}`}>
       <div className="w-full max-w-3xl flex items-center space-x-14">
         {/* Album Artwork */}
-        <div className="w-72 h-72 rounded-2xl overflow-hidden shadow-2xl bg-neutral-900 shrink-0 border border-white/10">
+        <div className={`w-72 h-72 rounded-2xl overflow-hidden shrink-0 border ${
+          isLight ? 'bg-neutral-100 border-neutral-200 shadow-xl' : 'bg-neutral-900 border-white/10 shadow-2xl'
+        }`}>
           {media.entityPicture ? (
             <img
               src={media.entityPicture}
@@ -37,7 +40,7 @@ export const MinimalEveningMode: React.FC = () => {
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-neutral-600">
+            <div className={`w-full h-full flex items-center justify-center ${isLight ? 'text-neutral-400' : 'text-neutral-600'}`}>
               No Cover
             </div>
           )}
@@ -46,17 +49,17 @@ export const MinimalEveningMode: React.FC = () => {
         {/* Metadata & Controls */}
         <div className="flex-1 flex flex-col justify-between h-72 py-2">
           <div>
-            <span className="text-[11px] font-mono tracking-widest uppercase text-neutral-500 block mb-2">
+            <span className={`text-[11px] font-mono tracking-widest uppercase block mb-2 ${isLight ? 'text-neutral-500' : 'text-neutral-500'}`}>
               {media.entityId ? media.entityId.replace('media_player.', '') : 'Audio Out'}
             </span>
-            <h1 className="text-3xl font-light text-white tracking-tight line-clamp-1">
+            <h1 className={`text-3xl font-light tracking-tight line-clamp-1 ${isLight ? 'text-neutral-900' : 'text-white'}`}>
               {media.title}
             </h1>
-            <p className="text-base font-light text-neutral-400 mt-1 truncate">
+            <p className={`text-base font-light mt-1 truncate ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>
               {media.artist}
             </p>
             {media.album && (
-              <p className="text-xs font-light text-neutral-600 mt-0.5 truncate">
+              <p className={`text-xs font-light mt-0.5 truncate ${isLight ? 'text-neutral-400' : 'text-neutral-600'}`}>
                 {media.album}
               </p>
             )}
@@ -67,56 +70,50 @@ export const MinimalEveningMode: React.FC = () => {
             <div
               onClick={handleScrub}
               title="Click to seek"
-              className="w-full h-1 bg-neutral-800 rounded-full cursor-pointer relative flex items-center group py-2"
+              className={`w-full h-1 rounded-full cursor-pointer relative flex items-center group py-2 ${
+                isLight ? 'bg-neutral-200' : 'bg-neutral-800'
+              }`}
             >
               <div
-                className="h-1 bg-white rounded-full transition-[width] duration-300 ease-linear"
-                style={{ width: `${progressPercent}%` }}
+                className="h-1 rounded-full transition-[width] duration-300 ease-linear"
+                style={{ width: `${progressPercent}%`, backgroundColor: 'var(--color-accent)' }}
               />
             </div>
-            <div className="flex justify-between items-center text-[11px] font-mono text-neutral-500 mt-1">
-              <span>{formatSeconds(livePosition)}</span>
+            <div className={`flex justify-between items-center text-xs font-mono mt-1 ${isLight ? 'text-neutral-500' : 'text-neutral-500'}`}>
+              <span style={{ color: 'var(--color-accent)' }}>{formatSeconds(livePosition)}</span>
               <span>{formatSeconds(media.duration)}</span>
             </div>
           </div>
 
-          {/* Playback Controls & Volume */}
-          <div className="flex items-center justify-between pt-2">
-            <div className="flex items-center space-x-6 text-neutral-400">
+          {/* Controls & Volume */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-6">
               <button
                 onClick={() => mediaControl('prev')}
-                className="hover:text-white transition-colors"
-                title="Previous track"
+                className={`transition-colors ${isLight ? 'text-neutral-500 hover:text-neutral-900' : 'text-neutral-400 hover:text-white'}`}
               >
-                <SkipBack size={18} />
+                <SkipBack size={20} />
               </button>
+
               <button
                 onClick={() => mediaControl('toggle')}
-                className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-md"
-                title={isPlaying ? 'Pause' : 'Play'}
+                className="w-12 h-12 rounded-full flex items-center justify-center transition-transform hover:scale-105 active:scale-95 shadow-md"
+                style={{ backgroundColor: 'var(--color-accent)', color: '#ffffff' }}
               >
-                {isPlaying ? <Pause size={20} /> : <Play size={20} className="ml-0.5" />}
+                {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-0.5" />}
               </button>
+
               <button
                 onClick={() => mediaControl('next')}
-                className="hover:text-white transition-colors"
-                title="Next track"
+                className={`transition-colors ${isLight ? 'text-neutral-500 hover:text-neutral-900' : 'text-neutral-400 hover:text-white'}`}
               >
-                <SkipForward size={18} />
+                <SkipForward size={20} />
               </button>
             </div>
 
-            <div className="flex items-center space-x-2 text-neutral-500">
+            <div className={`flex items-center space-x-2 text-xs font-mono ${isLight ? 'text-neutral-500' : 'text-neutral-500'}`}>
               <Volume2 size={16} />
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={volume}
-                onChange={(e) => mediaControl('volume', Number(e.target.value))}
-                className="w-20 h-1 bg-neutral-800 appearance-none accent-white cursor-pointer"
-              />
-              <span className="text-[11px] font-mono text-neutral-400 w-7 text-right">{volume}%</span>
+              <span>{volume}%</span>
             </div>
           </div>
         </div>

@@ -16,7 +16,8 @@ import { WeatherWidget } from '../common/WeatherWidget';
 import { AudioBanner } from '../common/AudioBanner';
 
 export const RaceWeekendMode: React.FC = () => {
-  const { f1, media } = useDashboard();
+  const { f1, media, colorMode } = useDashboard();
+  const isLight = colorMode === 'light';
 
   const sessionsList = [
     { key: 'fp1', label: 'Practice 1', data: f1.sessions.fp1 },
@@ -29,36 +30,42 @@ export const RaceWeekendMode: React.FC = () => {
   ].filter(s => s.data !== undefined);
 
   return (
-    <div className="relative w-full h-full p-8 flex flex-col justify-between overflow-hidden bg-gradient-to-br from-black via-zinc-950 to-red-950/30 select-none">
+    <div className={`relative w-full h-full p-8 flex flex-col justify-between overflow-hidden select-none ${
+      isLight ? 'bg-transparent text-slate-900' : 'bg-gradient-to-br from-black via-zinc-950 to-red-950/30 text-white'
+    }`}>
       {/* Background carbon-fiber & red glow styling */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-600/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-red-900/10 rounded-full blur-[100px] pointer-events-none" />
 
       {/* 1. TOP HEADER: RACE NAME, CIRCUIT & LIVE CLOCK */}
-      <div className="relative z-10 flex items-start justify-between pb-4 border-b border-white/10">
+      <div className={`relative z-10 flex items-start justify-between pb-4 border-b ${
+        isLight ? 'border-black/[0.08]' : 'border-white/10'
+      }`}>
         <div className="flex items-center space-x-4">
           <div className="p-3 rounded-2xl bg-red-600 text-white shadow-lg shadow-red-600/40">
             <Flame size={28} className="animate-pulse" />
           </div>
           <div>
             <div className="flex items-center space-x-3">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-widest bg-red-600/20 text-red-400 border border-red-500/30">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-widest bg-red-600/20 text-red-600 border border-red-500/30">
                 Formula 1 • Round {f1.activeRound} of {f1.totalRounds}
               </span>
-              <span className="text-xs text-gray-400 flex items-center">
-                <MapPin size={12} className="mr-1 text-red-400" />
+              <span className={`text-xs flex items-center ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
+                <MapPin size={12} className="mr-1 text-red-500" />
                 {f1.location}, {f1.country}
               </span>
             </div>
-            <h1 className="text-3xl font-extrabold font-display text-white tracking-tight mt-0.5">
+            <h1 className={`text-3xl font-extrabold font-display tracking-tight mt-0.5 ${
+              isLight ? 'text-slate-900' : 'text-white'
+            }`}>
               {f1.raceName}
             </h1>
-            <p className="text-sm font-medium text-gray-300">{f1.circuitName}</p>
+            <p className={`text-sm font-medium ${isLight ? 'text-slate-600' : 'text-gray-300'}`}>{f1.circuitName}</p>
           </div>
         </div>
 
         <div className="flex items-center space-x-4">
-          <div className="glass-panel px-5 py-2.5 rounded-2xl border border-white/10">
+          <div className="glass-panel px-5 py-2.5 rounded-2xl border" style={{ borderColor: 'var(--color-panel-border)' }}>
             <ClockWidget size="compact" showSeconds={true} />
           </div>
         </div>

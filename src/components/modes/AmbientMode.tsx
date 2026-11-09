@@ -42,28 +42,33 @@ export const AmbientMode: React.FC = () => {
           <div className="absolute inset-0 bg-black/30" />
         </div>
       ) : (
-        /* Landscape Mode: Subtle dark gradient over native photo */
-        <div className="absolute inset-0 z-0 pointer-events-none">
+        /* Landscape Mode: Blurred ambient backdrop and subtle gradient */
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+          <div
+            className="w-full h-full bg-cover bg-center transform scale-110 filter blur-[35px] brightness-[0.35] contrast-110"
+            style={{ backgroundImage: `url(${url})` }}
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 z-10" />
         </div>
       )}
 
-      {/* 2. CENTER STAGE IMAGE RENDERING */}
-      <div className="absolute inset-0 z-0 flex items-center justify-center">
+      {/* 2. CENTER STAGE IMAGE RENDERING (True Aspect Ratio, No Stretching/Cropping) */}
+      <div className="absolute inset-0 z-0 flex items-center justify-center p-8">
         {isLandscape ? (
           <img
             key={url}
             src={url}
             alt={title}
-            className="w-full h-full object-cover transition-opacity duration-1000 ease-in-out"
-            style={{ objectPosition: '50% 35%' }}
+            className="max-h-full max-w-full object-contain rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.7)] border border-white/10 transition-opacity duration-1000 ease-in-out"
+            style={{ aspectRatio: currentPhoto.aspectRatio }}
           />
         ) : isStandard ? (
           <img
             key={url}
             src={url}
             alt={title}
-            className="max-h-full max-w-[85vw] object-contain shadow-2xl rounded-lg transition-opacity duration-1000 ease-in-out"
+            className="max-h-full max-w-[85vw] object-contain shadow-2xl rounded-2xl border border-white/10 transition-opacity duration-1000 ease-in-out"
+            style={{ aspectRatio: currentPhoto.aspectRatio }}
           />
         ) : (
           /* Portrait: Center Stage uncropped photo */
@@ -73,6 +78,7 @@ export const AmbientMode: React.FC = () => {
               src={url}
               alt={title}
               className="h-full w-auto max-w-full object-contain rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/10 transition-opacity duration-1000 ease-in-out"
+              style={{ aspectRatio: currentPhoto.aspectRatio }}
             />
           </div>
         )}

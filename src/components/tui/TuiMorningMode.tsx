@@ -3,7 +3,8 @@ import { useDashboard } from '../../state/DashboardContext';
 import { TuiBox } from './TuiBox';
 
 export const TuiMorningMode: React.FC = () => {
-  const { now, weather, aqi, events, tasks, toggleTask, f1, finance } = useDashboard();
+  const { now, weather, aqi, events, tasks, toggleTask, f1, finance, colorMode } = useDashboard();
+  const isLight = colorMode === 'light';
 
   const hours = String(now.getHours()).padStart(2, '0');
   const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -23,7 +24,9 @@ export const TuiMorningMode: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-full p-6 flex flex-col justify-between overflow-hidden bg-transparent font-mono text-gray-200 select-none">
+    <div className={`w-full h-full p-6 flex flex-col justify-between overflow-hidden bg-transparent font-mono select-none ${
+      isLight ? 'text-slate-800' : 'text-gray-200'
+    }`}>
       {/* 3-Column 1080p Grid */}
       <div className="grid grid-cols-12 gap-5 flex-1 min-h-0">
         {/* Left Column: Clock & Terminal Weather (Cols 1-4) */}
@@ -31,7 +34,9 @@ export const TuiMorningMode: React.FC = () => {
           {/* Big ASCII Clock Box */}
           <TuiBox title="SYSTEM_CLOCK" badge="IST UTC+5:30">
             <div className="flex flex-col items-center justify-center py-4">
-              <div className="text-6xl font-extrabold text-white tracking-wider flex items-baseline">
+              <div className={`text-6xl font-extrabold tracking-wider flex items-baseline ${
+                isLight ? 'text-slate-900' : 'text-white'
+              }`}>
                 <span>{hours}:{minutes}</span>
                 <span
                   className="text-2xl ml-2 animate-pulse font-mono-numbers"
@@ -46,7 +51,7 @@ export const TuiMorningMode: React.FC = () => {
               >
                 {dateFormatted}
               </div>
-              <div className="text-[11px] text-gray-400 mt-1">
+              <div className={`text-[11px] mt-1 ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
                 SUNRISE: {weather.sunrise} | SUNSET: {weather.sunset}
               </div>
             </div>
@@ -55,39 +60,43 @@ export const TuiMorningMode: React.FC = () => {
           {/* ASCII Weather Station */}
           <TuiBox title="METEOROLOGICAL_TELEMETRY" badge="OPEN-METEO" className="flex-1">
             <div className="space-y-3 pt-1 text-xs">
-              <div className="flex items-center justify-between pb-2 border-b border-gray-800">
-                <span className="text-gray-400">TEMPERATURE:</span>
-                <span className="text-xl font-bold text-white">{weather.temperature}°C ({weather.apparentTemperature}°C FEELS)</span>
+              <div className={`flex items-center justify-between pb-2 border-b ${
+                isLight ? 'border-slate-200' : 'border-gray-800'
+              }`}>
+                <span className={isLight ? 'text-slate-500' : 'text-gray-400'}>TEMPERATURE:</span>
+                <span className={`text-xl font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                  {weather.temperature}°C ({weather.apparentTemperature}°C FEELS)
+                </span>
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-gray-400">SKY_CONDITION:</span>
+                <span className={isLight ? 'text-slate-500' : 'text-gray-400'}>SKY_CONDITION:</span>
                 <span className="font-bold uppercase" style={{ color: 'var(--color-accent)' }}>
                   {weather.condition}
                 </span>
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-gray-400">PRECIP_PROB:</span>
-                <span className="text-blue-400 font-bold">{weather.rainProbability}%</span>
+                <span className={isLight ? 'text-slate-500' : 'text-gray-400'}>PRECIP_PROB:</span>
+                <span className="text-blue-500 font-bold">{weather.rainProbability}%</span>
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-gray-400">WIND_VELOCITY:</span>
-                <span className="text-gray-200">{weather.windSpeed} KM/H</span>
+                <span className={isLight ? 'text-slate-500' : 'text-gray-400'}>WIND_VELOCITY:</span>
+                <span className={isLight ? 'text-slate-800' : 'text-gray-200'}>{weather.windSpeed} KM/H</span>
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-gray-400">UV_RADIATION:</span>
-                <span className="text-amber-400 font-bold">{weather.uvIndex} (INDEX)</span>
+                <span className={isLight ? 'text-slate-500' : 'text-gray-400'}>UV_RADIATION:</span>
+                <span className="text-amber-500 font-bold">{weather.uvIndex} (INDEX)</span>
               </div>
 
-              <div className="pt-2 border-t border-gray-800">
+              <div className={`pt-2 border-t ${isLight ? 'border-slate-200' : 'border-gray-800'}`}>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-gray-400">AIR_QUALITY (AQI):</span>
-                  <span className="font-bold text-amber-400">{aqi.usAqi} [{aqi.label.toUpperCase()}]</span>
+                  <span className={isLight ? 'text-slate-500' : 'text-gray-400'}>AIR_QUALITY (AQI):</span>
+                  <span className="font-bold text-amber-500">{aqi.usAqi} [{aqi.label.toUpperCase()}]</span>
                 </div>
-                <div className="text-[11px] text-amber-500 tracking-wider font-mono">
+                <div className="text-[11px] text-amber-600 tracking-wider font-mono">
                   {aqiBar(aqi.usAqi)} PM2.5: {aqi.pm25} | PM10: {aqi.pm10}
                 </div>
               </div>
@@ -111,11 +120,11 @@ export const TuiMorningMode: React.FC = () => {
                 >
                   <div className="flex items-center justify-between font-bold" style={{ color: 'var(--color-accent)' }}>
                     <span>[{evt.startTime} - {evt.endTime}]</span>
-                    <span className="text-[10px] text-gray-400 uppercase">#{idx + 1}</span>
+                    <span className={`text-[10px] uppercase ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>#{idx + 1}</span>
                   </div>
-                  <div className="text-white font-semibold mt-0.5">{evt.title}</div>
+                  <div className={`font-semibold mt-0.5 ${isLight ? 'text-slate-900' : 'text-white'}`}>{evt.title}</div>
                   {evt.location && (
-                    <div className="text-[10px] text-gray-400 mt-0.5">LOC: {evt.location}</div>
+                    <div className={`text-[10px] mt-0.5 ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>LOC: {evt.location}</div>
                   )}
                 </div>
               ))}
@@ -130,16 +139,17 @@ export const TuiMorningMode: React.FC = () => {
                   key={task.id}
                   onClick={() => toggleTask(task.id)}
                   className={`p-1.5 cursor-pointer border transition-colors flex items-center space-x-2 ${
-                    task.completed ? 'border-gray-800 text-gray-500 bg-black/40' : 'text-white'
+                    task.completed
+                      ? (isLight ? 'border-slate-200 text-slate-400 bg-slate-100' : 'border-gray-800 text-gray-500 bg-black/40')
+                      : (isLight ? 'text-slate-900 bg-black/[0.02]' : 'text-white bg-black/30')
                   }`}
                   style={task.completed ? undefined : {
                     borderColor: 'var(--theme-accent-soft)',
-                    backgroundColor: 'rgba(0,0,0,0.3)',
                   }}
                 >
                   <span
                     className="font-bold"
-                    style={{ color: task.completed ? '#6b7280' : 'var(--color-accent)' }}
+                    style={{ color: task.completed ? '#94a3b8' : 'var(--color-accent)' }}
                   >
                     {task.completed ? '[X]' : '[ ]'}
                   </span>
@@ -147,7 +157,7 @@ export const TuiMorningMode: React.FC = () => {
                     {task.title}
                   </span>
                   {task.priority === 'high' && (
-                    <span className="text-[10px] text-red-400 font-bold uppercase">[HIGH]</span>
+                    <span className="text-[10px] text-red-500 font-bold uppercase">[HIGH]</span>
                   )}
                 </div>
               ))}
@@ -163,14 +173,19 @@ export const TuiMorningMode: React.FC = () => {
               {finance.map((item) => {
                 const isPos = item.change >= 0;
                 return (
-                  <div key={item.id} className="p-2 border border-gray-800 bg-white/5 flex items-center justify-between">
+                  <div
+                    key={item.id}
+                    className={`p-2 border flex items-center justify-between ${
+                      isLight ? 'border-slate-200 bg-black/[0.02]' : 'border-gray-800 bg-white/5'
+                    }`}
+                  >
                     <div>
-                      <div className="text-gray-400 text-[10px] font-bold">{item.name}</div>
-                      <div className="text-white font-extrabold text-sm">{item.price}</div>
+                      <div className={`text-[10px] font-bold ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>{item.name}</div>
+                      <div className={`font-extrabold text-sm ${isLight ? 'text-slate-900' : 'text-white'}`}>{item.price}</div>
                     </div>
-                    <div className={`text-right font-bold ${isPos ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    <div className={`text-right font-bold ${isPos ? 'text-emerald-500' : 'text-rose-500'}`}>
                       <div>{isPos ? '+' : ''}{item.changePercent.toFixed(2)}% {isPos ? '▲' : '▼'}</div>
-                      <div className="text-[10px] text-gray-500">{isPos ? '+' : ''}{item.change}</div>
+                      <div className={`text-[10px] ${isLight ? 'text-slate-500' : 'text-gray-500'}`}>{isPos ? '+' : ''}{item.change}</div>
                     </div>
                   </div>
                 );
@@ -181,13 +196,13 @@ export const TuiMorningMode: React.FC = () => {
           {/* F1 Radar Box */}
           <TuiBox title="F1_TELEMETRY_RADAR" badge={`RD ${f1.activeRound}/${f1.totalRounds}`}>
             <div className="space-y-2 text-xs">
-              <div className="text-red-400 font-bold text-sm truncate">{f1.raceName}</div>
-              <div className="text-gray-400 text-[11px]">{f1.circuitName} ({f1.country})</div>
+              <div className="text-red-500 font-bold text-sm truncate">{f1.raceName}</div>
+              <div className={`text-[11px] ${isLight ? 'text-slate-600' : 'text-gray-400'}`}>{f1.circuitName} ({f1.country})</div>
 
-              <div className="p-2 bg-red-950/20 border border-red-500/40 mt-2">
-                <div className="text-[10px] text-gray-400 uppercase">NEXT_SESSION: {f1.nextSession.name}</div>
-                <div className="text-white font-bold">{f1.nextSession.istTimeFormatted}</div>
-                <div className="text-red-400 font-extrabold text-lg mt-1">
+              <div className={`p-2 border mt-2 ${isLight ? 'bg-red-50 border-red-200' : 'bg-red-950/20 border-red-500/40'}`}>
+                <div className={`text-[10px] uppercase ${isLight ? 'text-slate-600' : 'text-gray-400'}`}>NEXT_SESSION: {f1.nextSession.name}</div>
+                <div className={`font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>{f1.nextSession.istTimeFormatted}</div>
+                <div className="text-red-500 font-extrabold text-lg mt-1">
                   T-MINUS: {f1.nextSession.countdownFormatted}
                 </div>
               </div>
