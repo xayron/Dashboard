@@ -1,10 +1,21 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { Gauge } from 'lucide-react';
+import { Gauge, Calendar, CloudSun } from 'lucide-react';
+import { AudioBanner } from '../common/AudioBanner';
 
 export const RetrowaveRaceWeekendMode: React.FC = () => {
-  const { f1, colorMode } = useDashboard();
+  const { f1, media, weather, colorMode } = useDashboard();
   const isLight = colorMode === 'light';
+
+  const sessionsList = [
+    { key: 'fp1', label: 'Practice 1', data: f1.sessions.fp1 },
+    { key: 'fp2', label: 'Practice 2', data: f1.sessions.fp2 },
+    { key: 'fp3', label: 'Practice 3', data: f1.sessions.fp3 },
+    { key: 'sprintQualifying', label: 'Sprint Shootout', data: f1.sessions.sprintQualifying },
+    { key: 'sprint', label: 'Sprint Race', data: f1.sessions.sprint },
+    { key: 'qualifying', label: 'Qualifying', data: f1.sessions.qualifying },
+    { key: 'race', label: 'Grand Prix (Race)', data: f1.sessions.race },
+  ].filter(s => s.data !== undefined);
 
   return (
     <div className={`relative w-full h-full p-6 flex flex-col justify-between overflow-hidden bg-transparent select-none ${
@@ -21,7 +32,7 @@ export const RetrowaveRaceWeekendMode: React.FC = () => {
         }}
       />
 
-      {/* Top Banner */}
+      {/* 1. TOP BANNER */}
       <div className={`relative z-10 p-4 rounded-2xl border-2 flex items-center justify-between mb-4 ${
         isLight
           ? 'bg-pink-50/90 border-pink-400 shadow-[0_0_25px_rgba(236,72,153,0.18)] text-slate-900'
@@ -64,10 +75,90 @@ export const RetrowaveRaceWeekendMode: React.FC = () => {
         </div>
       </div>
 
-      {/* Grid: Sessions & Leaderboard */}
+      {/* 2. MAIN 3-COLUMN GRID */}
       <div className="relative z-10 grid grid-cols-12 gap-5 flex-1 min-h-0">
-        {/* Sessions */}
-        <div className="col-span-5 flex flex-col">
+        {/* Left Column (5 cols): Hero Countdown & Circuit Telemetry */}
+        <div className="col-span-5 flex flex-col space-y-4">
+          {/* Hero Countdown Card */}
+          <div
+            className={`p-4 rounded-2xl border-2 flex-1 flex flex-col justify-between ${
+              isLight
+                ? 'bg-pink-50/90 border-pink-400 shadow-[0_0_20px_rgba(236,72,153,0.15)]'
+                : 'bg-[#1e0736]/90 border-pink-500 shadow-[0_0_25px_rgba(255,0,127,0.25)]'
+            }`}
+            style={{ borderColor: 'var(--color-accent)' }}
+          >
+            <div>
+              <div className="flex items-center justify-between border-b pb-2">
+                <span className={`text-[10px] font-black uppercase tracking-wider ${isLight ? 'text-pink-800' : 'text-amber-300'}`}>
+                  NEXT CHECKPOINT COUNTDOWN
+                </span>
+                <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded border ${
+                  isLight ? 'bg-pink-200 text-pink-900 border-pink-400' : 'bg-pink-950 text-rose-300 border-pink-500'
+                }`}>
+                  LIVE IN IST
+                </span>
+              </div>
+              <h2 className={`text-2xl font-black italic tracking-wide mt-2 ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                {f1.nextSession.name}
+              </h2>
+              <p className={`text-xs font-mono font-bold mt-1 flex items-center ${isLight ? 'text-slate-600' : 'text-pink-300'}`}>
+                <Calendar size={13} className="mr-1.5 text-rose-500" />
+                {f1.nextSession.istTimeFormatted}
+              </p>
+            </div>
+
+            {/* Big Neon Countdown */}
+            <div className={`my-3 p-4 rounded-xl border-2 text-center ${
+              isLight ? 'bg-white/80 border-pink-300 shadow-sm' : 'bg-black/60 border-pink-500/50'
+            }`}>
+              <div className={`text-[10px] uppercase font-black tracking-widest ${isLight ? 'text-pink-700' : 'text-amber-300'}`}>
+                TIME TO GREEN LIGHT
+              </div>
+              <div className="text-3xl font-black font-mono mt-1 text-rose-500 tracking-wider animate-pulse drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]">
+                {f1.nextSession.countdownFormatted}
+              </div>
+            </div>
+
+            {/* Quick Circuit Specs */}
+            <div className="grid grid-cols-3 gap-2 text-xs">
+              <div className={`p-2 rounded-xl border ${isLight ? 'bg-white/70 border-pink-200' : 'bg-black/40 border-pink-500/30'}`}>
+                <span className={`block text-[9px] uppercase font-bold ${isLight ? 'text-pink-800' : 'text-amber-300'}`}>Laps</span>
+                <span className="font-mono font-black text-sm">50 LAPS</span>
+              </div>
+              <div className={`p-2 rounded-xl border ${isLight ? 'bg-white/70 border-pink-200' : 'bg-black/40 border-pink-500/30'}`}>
+                <span className={`block text-[9px] uppercase font-bold ${isLight ? 'text-pink-800' : 'text-amber-300'}`}>Length</span>
+                <span className="font-mono font-black text-sm">6.201 KM</span>
+              </div>
+              <div className={`p-2 rounded-xl border ${isLight ? 'bg-white/70 border-pink-200' : 'bg-black/40 border-pink-500/30'}`}>
+                <span className={`block text-[9px] uppercase font-bold ${isLight ? 'text-pink-800' : 'text-amber-300'}`}>DRS Boost</span>
+                <span className="font-mono font-black text-sm text-rose-500">2 ZONES</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Track Weather Card */}
+          <div
+            className={`p-3 rounded-2xl border-2 flex items-center justify-between text-xs ${
+              isLight ? 'bg-pink-50/90 border-pink-300' : 'bg-[#1e0736]/90 border-pink-500/40'
+            }`}
+          >
+            <div className="flex items-center space-x-2.5">
+              <CloudSun size={20} className="text-amber-400" />
+              <div>
+                <span className="font-mono font-black text-sm block">{weather.temperature}°C {weather.condition}</span>
+                <span className={`text-[10px] font-bold uppercase ${isLight ? 'text-pink-700' : 'text-pink-300/80'}`}>CIRCUIT CONDITIONS</span>
+              </div>
+            </div>
+            <div className="text-right font-mono text-[11px] font-bold">
+              <div>HUM: {weather.humidity}%</div>
+              <div className="text-rose-500">WIND: {weather.windSpeed} KM/H</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Center Column (4 cols): Highway Checkpoints */}
+        <div className="col-span-4 flex flex-col">
           <div
             className={`p-4 rounded-2xl border-2 h-full flex flex-col ${
               isLight
@@ -81,13 +172,12 @@ export const RetrowaveRaceWeekendMode: React.FC = () => {
             }`}>
               HIGHWAY CHECKPOINTS (IST)
             </span>
-            <div className="space-y-3">
-              {Object.entries(f1.sessions).map(([key, s]) => {
-                if (!s) return null;
-                const isNext = f1.nextSession.name.toLowerCase().includes(s.name.toLowerCase());
+            <div className="space-y-2.5 overflow-y-auto max-h-[56vh] pr-1">
+              {sessionsList.map((s) => {
+                const isNext = f1.nextSession.name.toLowerCase().includes(s.label.toLowerCase());
                 return (
                   <div
-                    key={key}
+                    key={s.key}
                     className={`p-2.5 rounded-xl border flex items-center justify-between ${
                       isNext
                         ? isLight
@@ -99,8 +189,8 @@ export const RetrowaveRaceWeekendMode: React.FC = () => {
                     }`}
                   >
                     <div>
-                      <span className="text-xs font-black uppercase block">{s.name}</span>
-                      <span className={`text-[11px] font-mono ${isLight ? 'text-slate-600' : 'text-pink-300/80'}`}>{s.istTime}</span>
+                      <span className="text-xs font-black uppercase block">{s.label}</span>
+                      <span className={`text-[11px] font-mono ${isLight ? 'text-slate-600' : 'text-pink-300/80'}`}>{s.data?.istTime}</span>
                     </div>
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase ${
                       isNext
@@ -109,7 +199,7 @@ export const RetrowaveRaceWeekendMode: React.FC = () => {
                           ? 'bg-pink-100 text-pink-900 border-pink-300'
                           : 'bg-black/40 text-pink-300 border-pink-500/40'
                     }`}>
-                      {s.status}
+                      {s.data?.status}
                     </span>
                   </div>
                 );
@@ -118,8 +208,8 @@ export const RetrowaveRaceWeekendMode: React.FC = () => {
           </div>
         </div>
 
-        {/* Driver Leaderboard */}
-        <div className="col-span-7 flex flex-col">
+        {/* Right Column (3 cols): Speedway Standings */}
+        <div className="col-span-3 flex flex-col">
           <div
             className={`p-4 rounded-2xl border-2 h-full flex flex-col ${
               isLight
@@ -133,26 +223,30 @@ export const RetrowaveRaceWeekendMode: React.FC = () => {
             }`}>
               SPEEDWAY STANDINGS // TOP PILOTS
             </span>
-            <div className="space-y-2 overflow-y-auto max-h-[50vh] pr-1">
+            <div className="space-y-2 overflow-y-auto max-h-[56vh] pr-1">
               {f1.standings.map((driver) => (
                 <div
-                  key={driver.number}
+                  key={driver.driverCode}
                   className={`p-2.5 rounded-xl border flex items-center justify-between text-xs ${
-                    isLight ? 'bg-white/80 border-pink-200 text-slate-900' : 'bg-[#120320] border-pink-500/25 text-pink-100'
+                    isLight
+                      ? 'bg-white/80 border-pink-200 text-slate-900'
+                      : 'bg-[#120320] border-pink-500/25 text-pink-100'
                   }`}
                 >
-                  <div className="flex items-center space-x-3">
-                    <span className={`w-5 font-black ${isLight ? 'text-pink-800' : 'text-amber-300'}`}>
-                      P{driver.position}
+                  <div className="flex items-center space-x-2.5 truncate">
+                    <span className={`w-4 font-mono font-black ${isLight ? 'text-pink-700' : 'text-amber-300'}`}>
+                      #{driver.position}
                     </span>
                     <span
-                      className="w-1.5 h-4 rounded-full"
+                      className="w-1.5 h-4 rounded-full shrink-0"
                       style={{ backgroundColor: driver.teamColor || '#ff007f' }}
                     />
-                    <span className="font-black uppercase">{driver.driver}</span>
-                    <span className={`text-[10px] uppercase ${isLight ? 'text-slate-600' : 'text-pink-300/70'}`}>({driver.team})</span>
+                    <div className="truncate">
+                      <span className={`font-black uppercase block truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{driver.driver}</span>
+                      <span className={`text-[10px] block truncate ${isLight ? 'text-pink-700' : 'text-pink-300/70'}`}>({driver.team})</span>
+                    </div>
                   </div>
-                  <span className="font-mono font-black" style={{ color: 'var(--color-accent)' }}>
+                  <span className="font-mono font-black shrink-0 ml-1" style={{ color: 'var(--color-accent)' }}>
                     {driver.points} PTS
                   </span>
                 </div>
@@ -160,6 +254,22 @@ export const RetrowaveRaceWeekendMode: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* 3. BOTTOM BAR */}
+      <div className={`relative z-10 flex items-center justify-between pt-2 border-t text-xs font-bold ${
+        isLight ? 'border-pink-300 text-pink-800' : 'border-pink-500/30 text-pink-300/80'
+      }`}>
+        <div className="flex items-center space-x-2">
+          <span className="w-2 h-2 rounded-full bg-pink-500 animate-pulse" />
+          <span>SPEEDWAY_TELEMETRY: ONLINE</span>
+        </div>
+
+        {media.state === 'playing' && (
+          <div>
+            <AudioBanner compact={true} />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -3,7 +3,7 @@ import { useDashboard } from '../../state/DashboardContext';
 import { TuiBox } from './TuiBox';
 
 export const TuiRaceWeekendMode: React.FC = () => {
-  const { f1, media, colorMode } = useDashboard();
+  const { f1, media, weather, colorMode } = useDashboard();
   const isLight = colorMode === 'light';
 
   const sessionsList = [
@@ -78,6 +78,23 @@ export const TuiRaceWeekendMode: React.FC = () => {
                   <div className={`text-[10px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>DRS ZONES</div>
                   <div className="text-red-500 font-bold">2 ZONES</div>
                 </div>
+              </div>
+            </div>
+          </TuiBox>
+
+          <TuiBox
+            title="TRACK_METEO"
+            badge="CONDITIONS"
+            badgeColor="text-cyan-400"
+          >
+            <div className={`flex items-center justify-between py-1 text-xs ${isLight ? 'text-slate-800' : 'text-gray-200'}`}>
+              <div>
+                <span className="font-bold text-red-500">{weather.temperature}°C {weather.condition.toUpperCase()}</span>
+                <span className={`block text-[10px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>AMBIENT_SURFACE_TEMP</span>
+              </div>
+              <div className="text-right text-[11px] font-mono">
+                <div>HUMIDITY: {weather.humidity}%</div>
+                <div className="text-red-500">WIND_SPEED: {weather.windSpeed} KM/H</div>
               </div>
             </div>
           </TuiBox>
