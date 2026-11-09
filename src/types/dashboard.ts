@@ -1,6 +1,19 @@
-export type DashboardMode = 'race' | 'evening' | 'morning' | 'ambient';
+export type DashboardMode = 'race' | 'evening' | 'morning' | 'ambient' | 'news';
 export type UIStyle = 'modern' | 'tui' | 'brutalist' | 'minimal' | 'hud' | 'eink' | 'retrowave' | 'neumorphic' | 'obsidian' | 'civic';
 export type ColorMode = 'dark' | 'light';
+
+export type NewsCategory = 'All' | 'Top Stories' | 'World' | 'Tech' | 'Business' | 'Science';
+
+export interface NewsItem {
+  id: string;
+  title: string;
+  source: string;
+  time: string;
+  category: NewsCategory;
+  summary?: string;
+  url?: string;
+  isBreaking?: boolean;
+}
 
 export interface HAConnectionConfig {
   haUrl: string;
@@ -166,6 +179,17 @@ export interface F1CircuitTelemetry {
   tyreAllocation: string;
 }
 
+export interface F1NewsItem {
+  id: string;
+  title: string;
+  link: string;
+  pubDate: string;
+  timeAgo?: string;
+  source: string;
+  snippet?: string;
+  thumbnail?: string;
+}
+
 export type F1WidgetSize = 'compact' | 'normal';
 
 export type F1WidgetId =
@@ -175,7 +199,8 @@ export type F1WidgetId =
   | 'qualifying'
   | 'pitstop'
   | 'upcomingRaces'
-  | 'circuitTelemetry';
+  | 'circuitTelemetry'
+  | 'news';
 
 export interface F1Data {
   isRaceWeekend: boolean;
@@ -216,6 +241,7 @@ export interface F1Data {
   titleBattle?: F1TitleBattle;
   upcomingRaces?: F1UpcomingRace[];
   circuitTelemetry?: F1CircuitTelemetry;
+  news?: F1NewsItem[];
 }
 
 export interface FinanceItem {

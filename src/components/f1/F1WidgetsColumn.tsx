@@ -19,6 +19,8 @@ import {
   ChevronUp,
   ChevronDown,
   GripVertical,
+  Newspaper,
+  ExternalLink,
 } from 'lucide-react';
 import { BrutalistBox } from '../brutalist/BrutalistBox';
 import { HudBox } from '../hud/HudBox';
@@ -82,6 +84,13 @@ export const F1_AVAILABLE_WIDGETS: F1WidgetDef[] = [
     badge: 'TECH DATA',
     description: 'Full throttle %, gear changes per lap, speed traps, and pit delta.',
     icon: Gauge,
+  },
+  {
+    id: 'news',
+    name: 'F1 News & Paddock Wire',
+    badge: 'LIVE WIRE',
+    description: 'Latest breaking F1 headlines, paddock reports, and driver news.',
+    icon: Newspaper,
   },
 ];
 
@@ -1256,6 +1265,187 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
     );
   };
 
+  // 8. F1 NEWS & PADDOCK WIRE WIDGET
+  const renderNewsWidget = (size: F1WidgetSize) => {
+    const news = f1.news || [];
+    if (news.length === 0) return null;
+    const isCompact = size === 'compact';
+    const displayNews = isCompact ? news.slice(0, 2) : news.slice(0, 4);
+
+    if (uiStyle === 'tui') {
+      return (
+        <TuiBox
+          key="news"
+          title={isCompact ? 'F1_WIRE' : 'F1_PADDOCK_WIRE'}
+          badge="LIVE"
+          badgeColor="text-amber-400"
+          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+        >
+          <div className="space-y-1.5 text-xs py-0.5 flex flex-col justify-between h-full font-mono">
+            {displayNews.map((item: any, idx: number) => (
+              <a
+                key={item.id || idx}
+                href={item.link}
+                target="_blank"
+                rel="noreferrer"
+                className="group block space-y-0.5 hover:text-amber-300 transition-colors"
+              >
+                <div className="flex items-center space-x-1.5 text-[9px] opacity-75">
+                  <span className="text-amber-400 font-bold">[{item.source.toUpperCase()}]</span>
+                  <span>{item.timeAgo}</span>
+                </div>
+                <div className="line-clamp-2 font-bold group-hover:underline leading-tight">
+                  {item.title}
+                </div>
+              </a>
+            ))}
+          </div>
+        </TuiBox>
+      );
+    }
+
+    if (uiStyle === 'brutalist') {
+      return (
+        <BrutalistBox
+          key="news"
+          title={isCompact ? 'F1 WIRE' : 'F1 PADDOCK NEWS'}
+          badge={isCompact ? 'WIRE' : 'BREAKING'}
+          badgeColor="bg-red-600 text-white"
+          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+        >
+          <div className="space-y-2 py-0.5 flex flex-col justify-between h-full">
+            {displayNews.map((item: any, idx: number) => (
+              <a
+                key={item.id || idx}
+                href={item.link}
+                target="_blank"
+                rel="noreferrer"
+                className={`block p-1.5 border-2 border-black transition-transform hover:-translate-y-0.5 ${
+                  isLight ? 'bg-neutral-100 shadow-[1px_1px_0px_#000]' : 'bg-neutral-900 shadow-[1px_1px_0px_#fff]'
+                }`}
+              >
+                <div className="flex items-center justify-between text-[8px] font-black uppercase tracking-wider mb-0.5 opacity-80">
+                  <span className="text-red-500 font-black">{item.source}</span>
+                  <span className="font-mono">{item.timeAgo}</span>
+                </div>
+                <div className="text-[11px] font-black leading-snug line-clamp-2 hover:underline">
+                  {item.title}
+                </div>
+                {!isCompact && item.snippet && (
+                  <p className="text-[9px] opacity-75 line-clamp-1 mt-0.5">{item.snippet}</p>
+                )}
+              </a>
+            ))}
+          </div>
+        </BrutalistBox>
+      );
+    }
+
+    if (uiStyle === 'hud') {
+      return (
+        <HudBox
+          key="news"
+          title={isCompact ? 'PADDOCK_FEED' : 'F1_PADDOCK_NEWS_FEED'}
+          code="LIVE_WIRE"
+          glowColor="cyan"
+          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+        >
+          <div className="space-y-1.5 py-0.5 flex flex-col justify-between h-full font-mono">
+            {displayNews.map((item: any, idx: number) => (
+              <a
+                key={item.id || idx}
+                href={item.link}
+                target="_blank"
+                rel="noreferrer"
+                className="group block p-1.5 rounded border border-cyan-500/20 bg-cyan-950/20 hover:border-cyan-400/50 transition-colors"
+              >
+                <div className="flex items-center justify-between text-[8px] text-cyan-400 mb-0.5">
+                  <span className="font-bold">[{item.source}]</span>
+                  <span className="opacity-75">{item.timeAgo}</span>
+                </div>
+                <div className="text-[10px] text-slate-200 group-hover:text-cyan-200 line-clamp-2 font-bold leading-tight">
+                  {item.title}
+                </div>
+              </a>
+            ))}
+          </div>
+        </HudBox>
+      );
+    }
+
+    // Modern Glass / Default Theme (supports Minimal, Retrowave, Neumorphic, Obsidian, Civic)
+    return (
+      <div key="news" className={`border ${getCardClass(size)}`}>
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
+            <Newspaper size={12} className="text-red-500 shrink-0" />
+            <span className="truncate">{isCompact ? 'Paddock Wire' : 'F1 PADDOCK NEWS & WIRE'}</span>
+          </span>
+          <div className="flex items-center space-x-1 shrink-0">
+            {renderSizeToggle('news')}
+            {!isCompact && (
+              <span className="text-[9px] font-mono font-bold text-red-500 bg-red-500/10 px-1.5 py-0.2 rounded border border-red-500/20">
+                LIVE
+              </span>
+            )}
+          </div>
+        </div>
+
+        {isCompact ? (
+          <div className="py-1 flex-1 flex flex-col justify-between space-y-1.5">
+            {displayNews.map((item: any, idx: number) => (
+              <a
+                key={item.id || idx}
+                href={item.link}
+                target="_blank"
+                rel="noreferrer"
+                className={`p-1.5 rounded-lg border block hover:opacity-100 transition-opacity ${getInnerClass()}`}
+              >
+                <div className="flex items-center justify-between text-[8px] opacity-75 mb-0.5">
+                  <span className="font-bold text-red-500 truncate mr-1">{item.source}</span>
+                  <span className="font-mono shrink-0">{item.timeAgo}</span>
+                </div>
+                <div className="text-[10px] font-bold leading-tight line-clamp-2 hover:underline">
+                  {item.title}
+                </div>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-1.5 text-xs">
+            {displayNews.map((item: any, idx: number) => (
+              <a
+                key={item.id || idx}
+                href={item.link}
+                target="_blank"
+                rel="noreferrer"
+                className={`p-2 rounded-xl border flex flex-col justify-between group hover:opacity-100 transition-all ${getInnerClass()}`}
+              >
+                <div className="flex items-center justify-between text-[9px] mb-1">
+                  <div className="flex items-center space-x-1.5">
+                    <span className="font-bold text-red-500 bg-red-500/10 px-1.5 py-0.2 rounded text-[8px] uppercase tracking-wider">
+                      {item.source}
+                    </span>
+                    <span className="opacity-60 font-mono text-[9px]">{item.timeAgo}</span>
+                  </div>
+                  <ExternalLink size={10} className="opacity-40 group-hover:opacity-100 transition-opacity text-current shrink-0" />
+                </div>
+                <div className="font-bold text-[11px] leading-snug group-hover:text-blue-500 transition-colors line-clamp-2">
+                  {item.title}
+                </div>
+                {item.snippet && (
+                  <p className="text-[9px] opacity-70 line-clamp-1 mt-1 leading-normal">
+                    {item.snippet}
+                  </p>
+                )}
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const renderWidgetInTheme = (id: F1WidgetId) => {
     const size = f1WidgetSizes[id] || 'normal';
     switch (id) {
@@ -1273,6 +1463,8 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
         return renderUpcomingRacesWidget(size);
       case 'circuitTelemetry':
         return renderCircuitTelemetryWidget(size);
+      case 'news':
+        return renderNewsWidget(size);
       default:
         return null;
     }

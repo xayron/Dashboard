@@ -14,6 +14,8 @@ import type {
   TodoTask,
   UIStyle,
   WeatherData,
+  NewsItem,
+  NewsCategory,
 } from '../types/dashboard';
 import { haService } from '../services/homeAssistant';
 import { fetchWeatherData, getFallbackWeatherAndAQI } from '../services/weatherService';
@@ -21,6 +23,9 @@ import { getF1Data, getFallbackF1Data } from '../services/f1Service';
 import { getFinanceData } from '../services/financeService';
 import { photoService } from '../services/photoService';
 import { getCalendarEvents, getTodoTasks } from '../services/calendarService';
+import { fetchNews, getFallbackNews } from '../services/newsService';
+import { remoteSyncService } from '../services/remoteSyncService';
+import type { DashboardStateSnapshot } from '../types/remote';
 
 import { THEMES, type ThemeId, type ThemeDefinition } from '../types/theme';
 
@@ -100,6 +105,7 @@ export type SettingsLayout = 'drawer' | 'modal';
 
 export const DEFAULT_F1_WIDGETS: F1WidgetId[] = [
   'countdown',
+  'news',
   'podium',
   'titleBattle',
   'pitstop',
@@ -114,6 +120,7 @@ export const DEFAULT_F1_WIDGET_SIZES: Record<F1WidgetId, F1WidgetSize> = {
   pitstop: 'normal',
   upcomingRaces: 'normal',
   circuitTelemetry: 'normal',
+  news: 'normal',
 };
 
 interface DashboardContextType {
@@ -164,6 +171,15 @@ interface DashboardContextType {
   f1WidgetSizes: Record<F1WidgetId, F1WidgetSize>;
   setF1WidgetSize: (id: F1WidgetId, size: F1WidgetSize) => void;
   setAllF1WidgetSizes: (size: F1WidgetSize) => void;
+  connectedRemotesCount: number;
+  isPairingModalOpen: boolean;
+  setIsPairingModalOpen: (open: boolean) => void;
+  news: NewsItem[];
+  newsCategory: NewsCategory;
+  setNewsCategory: (cat: NewsCategory) => void;
+  isNewsOpen: boolean;
+  setIsNewsOpen: (open: boolean) => void;
+  refreshNews: () => Promise<void>;
 }
 
 const DashboardContext = createContext<DashboardContextType | null>(null);
@@ -274,6 +290,8 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const [isKioskBarVisible, setIsKioskBarVisible] = useState<boolean>(true);
+  const [isPairingModalOpen, setIsPairingModalOpen] = useState<boolean>(false);
+  const [connectedRemotesCount, setConnectedRemotesCount] = useState<number>(0);
 
   // F1 Custom Widgets state
   const [f1ActiveWidgets, setF1ActiveWidgetsState] = useState<F1WidgetId[]>(() => {
@@ -354,6 +372,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       pitstop: size,
       upcomingRaces: size,
       circuitTelemetry: size,
+      news: size,
     };
     setF1WidgetSizesState(next);
     try {
@@ -409,6 +428,16 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [tasks, setTasks] = useState<TodoTask[]>([]);
   const [systemHealth, setSystemHealth] = useState<SystemHealth>(() => haService.parseSystemHealth());
 
+  // News headlines state
+  const [news, setNews] = useState<NewsItem[]>(() => getFallbackNews());
+  const [newsCategory, setNewsCategory] = useState<NewsCategory>('All');
+  const [isNewsOpen, setIsNewsOpen] = useState<boolean>(false);
+
+  const refreshNews = async () => {
+    const data = await fetchNews();
+    setNews(data);
+  };
+
   // Photo carousel state (15-second rotation)
   const [currentPhoto, setCurrentPhoto] = useState<PhotoItem>(() => photoService.getCurrentPhoto());
   const [photoProgress, setPhotoProgress] = useState<number>(0);
@@ -439,6 +468,8 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setIsKioskBarVisible(prev => !prev);
       } else if (e.key === 's' || e.key === 'S') {
         setIsSettingsOpen(prev => !prev);
+      } else if (e.key === 'n' || e.key === 'N') {
+        setManualOverrideMode(prev => prev === 'news' ? null : 'news');
       } else if (e.key === 't' || e.key === 'T') {
         toggleUiStyle();
       } else if (e.key === 'd' || e.key === 'D') {
@@ -606,20 +637,28 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
     };
 
+    const loadNews = async () => {
+      const data = await fetchNews();
+      setNews(data);
+    };
+
     loadWeather();
     loadF1();
     loadFinance();
     loadCalendarAndTasks();
     loadPhotos();
+    loadNews();
 
     const weatherTimer = setInterval(loadWeather, 15 * 60 * 1000);
     const f1Timer = setInterval(loadF1, 10 * 60 * 1000);
     const financeTimer = setInterval(loadFinance, 60 * 1000);
+    const newsTimer = setInterval(loadNews, 15 * 60 * 1000);
 
     return () => {
       clearInterval(weatherTimer);
       clearInterval(f1Timer);
       clearInterval(financeTimer);
+      clearInterval(newsTimer);
     };
   }, [isRaceWeekendSimulated]);
 
@@ -687,6 +726,127 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setIsKioskBarVisible(prev => !prev);
   };
 
+  // Remote Synchronization Hub Integration
+  useEffect(() => {
+    remoteSyncService.connect();
+    const unsubCount = remoteSyncService.onRemotesCountChange(setConnectedRemotesCount);
+    const unsubCmd = remoteSyncService.onCommand((cmd) => {
+      switch (cmd.type) {
+        case 'SET_MODE':
+          setManualOverrideMode(cmd.mode);
+          break;
+        case 'SET_RACE_SIMULATION':
+          setIsRaceWeekendSimulated(cmd.enabled);
+          break;
+        case 'MEDIA_CONTROL':
+          mediaControl(cmd.action, cmd.value);
+          break;
+        case 'SET_THEME':
+          setTheme(cmd.theme);
+          break;
+        case 'SET_UI_STYLE':
+          setUiStyle(cmd.style);
+          break;
+        case 'SET_COLOR_MODE':
+          setColorMode(cmd.mode);
+          break;
+        case 'TOGGLE_F1_WIDGET':
+          toggleF1Widget(cmd.id);
+          break;
+        case 'TOGGLE_TASK':
+          toggleTask(cmd.id);
+          break;
+        case 'ADD_TASK':
+          if (cmd.text && cmd.text.trim()) {
+            setTasks(prev => [{ id: `task-${Date.now()}`, title: cmd.text.trim(), completed: false, priority: 'medium' }, ...prev]);
+          }
+          break;
+        case 'TOGGLE_KIOSK_BAR':
+          setIsKioskBarVisible(v => !v);
+          break;
+        case 'TOGGLE_SETTINGS':
+          setIsSettingsOpen(v => (cmd.open !== undefined ? cmd.open : !v));
+          break;
+        case 'SYSTEM_COMMAND':
+          if (cmd.command === 'reload') {
+            window.location.reload();
+          }
+          break;
+      }
+    });
+
+    return () => {
+      unsubCount();
+      unsubCmd();
+    };
+  }, []);
+
+  // Broadcast state changes to the WebSocket Hub
+  useEffect(() => {
+    remoteSyncService.broadcastState({
+      activeMode,
+      autoCalculatedMode,
+      manualOverrideMode,
+      isRaceWeekendSimulated,
+      theme,
+      uiStyle,
+      colorMode,
+      settingsLayout,
+      isKioskBarVisible,
+      isSettingsOpen,
+      f1ActiveWidgets,
+      media: {
+        title: media.title,
+        artist: media.artist,
+        album: media.album,
+        entityId: media.entityId || '',
+        state: media.state,
+        volume: (media.volume || 0) / 100,
+        position: livePosition,
+        duration: media.duration,
+        entityPicture: media.entityPicture,
+      },
+      weather: {
+        temperature: weather.temperature,
+        condition: weather.condition,
+        humidity: weather.humidity,
+        windSpeed: weather.windSpeed,
+        highTemp: weather.highTemp,
+        lowTemp: weather.lowTemp,
+        rainProbability: weather.rainProbability,
+      },
+      tasks: tasks.map(t => ({ id: t.id, title: t.title, completed: t.completed, priority: t.priority })),
+      systemHealth: {
+        haConnected: systemHealth.haStatus === 'connected',
+        haStatus: systemHealth.haStatus,
+        networkLatencyMs: systemHealth.networkLatencyMs,
+        lastHeartbeat: new Date().toISOString(),
+      },
+    });
+  }, [
+    activeMode,
+    autoCalculatedMode,
+    manualOverrideMode,
+    isRaceWeekendSimulated,
+    theme,
+    uiStyle,
+    colorMode,
+    settingsLayout,
+    isKioskBarVisible,
+    isSettingsOpen,
+    f1ActiveWidgets,
+    media.title,
+    media.artist,
+    media.album,
+    media.state,
+    media.volume,
+    media.entityPicture,
+    weather.temperature,
+    weather.condition,
+    tasks,
+    systemHealth.haStatus,
+  ]);
+
   return (
     <DashboardContext.Provider
       value={{
@@ -736,6 +896,15 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         f1WidgetSizes,
         setF1WidgetSize,
         setAllF1WidgetSizes,
+        connectedRemotesCount,
+        isPairingModalOpen,
+        setIsPairingModalOpen,
+        news,
+        newsCategory,
+        setNewsCategory,
+        isNewsOpen,
+        setIsNewsOpen,
+        refreshNews,
       }}
     >
       {children}

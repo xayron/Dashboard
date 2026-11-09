@@ -10,6 +10,7 @@ import type {
   F1TitleBattle,
   F1UpcomingRace,
   F1CircuitTelemetry,
+  F1NewsItem,
 } from '../types/dashboard';
 
 const JOLPICA_BASE = 'https://api.jolpi.ca/ergast/f1';
@@ -194,6 +195,130 @@ const FALLBACK_UPCOMING_RACES: F1UpcomingRace[] = [
     countdown: '124d',
   },
 ];
+
+export const FALLBACK_F1_NEWS: F1NewsItem[] = [
+  {
+    id: 'f1-news-1',
+    title: 'How the Racing Bulls pendulum is swinging back towards Lawson',
+    link: 'https://www.autosport.com/f1/news/how-the-racing-bulls-pendulum-is-swinging-back-towards-lawson/10873320/',
+    pubDate: '2026-11-09T11:54:39Z',
+    timeAgo: '12h ago',
+    source: 'Autosport',
+    snippet: 'Liam Lawson continues to strengthen his case for 2026 with consistent points finishes and aggressive racecraft across the Americas.',
+  },
+  {
+    id: 'f1-news-2',
+    title: 'Oscar Piastri and Mark Webber mutually terminate management agreement',
+    link: 'https://www.autosport.com/f1/news/oscar-piastri-splits-from-mark-webber-management/10873258/',
+    pubDate: '2026-11-09T08:43:40Z',
+    timeAgo: '15h ago',
+    source: 'Autosport',
+    snippet: 'The McLaren star and former Red Bull winner conclude their long-standing partnership on amicable terms after securing multiple GP victories.',
+  },
+  {
+    id: 'f1-news-3',
+    title: 'FIA boss planning to end age limits for motorsport governing office holders',
+    link: 'https://www.bbc.co.uk/sport/formula1/articles/cr9dz7w1xgxvo',
+    pubDate: '2026-11-09T15:20:35Z',
+    timeAgo: '8h ago',
+    source: 'BBC Sport',
+    snippet: 'FIA president Mohammed Ben Sulayem is planning constitutional amendments to remove the 75-year age ceiling for key leadership positions.',
+  },
+  {
+    id: 'f1-news-4',
+    title: 'Norris sparkles in Sao Paulo despite dramatic pre-race firework mishap',
+    link: 'https://www.bbc.co.uk/sport/formula1/articles/c6gr8e822kzqo',
+    pubDate: '2026-11-08T23:44:53Z',
+    timeAgo: '1d ago',
+    source: 'BBC Sport',
+    snippet: 'Lando Norris delivers a wet-weather clinic at Interlagos to claim victory as Mercedes mathematically secure the constructors title.',
+  },
+  {
+    id: 'f1-news-5',
+    title: 'Hamilton insists Ferrari tensions with Leclerc are resolved: "We\'ve squashed it"',
+    link: 'https://www.autosport.com/f1/news/lewis-hamilton-insists-ferrari-tensions-with-charles-leclerc-are-over-weve-squashed-it/10872775/',
+    pubDate: '2026-11-07T21:48:47Z',
+    timeAgo: '2d ago',
+    source: 'Motorsport.com',
+    snippet: 'Lewis Hamilton reveals he and future teammate Charles Leclerc cleared the air personally without needing Fred Vasseur to intervene.',
+  },
+];
+
+const cleanHtmlText = (text?: string): string => {
+  if (!text) return '';
+  return text
+    .replace(/<[^>]*>?/gm, '')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
+const formatTimeAgo = (dateStr?: string): string => {
+  if (!dateStr) return 'Recently';
+  try {
+    const cleanDate = dateStr.includes('T') ? dateStr : dateStr.replace(' ', 'T') + (dateStr.includes('Z') ? '' : 'Z');
+    const d = new Date(cleanDate);
+    const diffMs = Date.now() - d.getTime();
+    if (isNaN(diffMs)) return 'Recently';
+    const diffMin = Math.round(diffMs / 60000);
+    if (diffMin < 1) return 'Just now';
+    if (diffMin < 60) return `${diffMin}m ago`;
+    const diffHours = Math.floor(diffMin / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays}d ago`;
+  } catch {
+    return 'Recently';
+  }
+};
+
+export const fetchF1News = async (): Promise<F1NewsItem[]> => {
+  const feeds = [
+    {
+      source: 'Autosport',
+      url: 'https://api.rss2json.com/v1/api.json?rss_url=https://www.autosport.com/rss/f1/news/',
+    },
+    {
+      source: 'BBC Sport',
+      url: 'https://api.rss2json.com/v1/api.json?rss_url=https://feeds.bbci.co.uk/sport/formula1/rss.xml',
+    },
+  ];
+
+  for (const feed of feeds) {
+    try {
+      const res = await fetch(feed.url);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.status === 'ok' && Array.isArray(data.items) && data.items.length > 0) {
+          const parsed = data.items.slice(0, 8).map((item: any, idx: number) => {
+            const rawSnippet = cleanHtmlText(item.description || item.content);
+            const snippet = rawSnippet.replace(/Keep reading.*/i, '').trim();
+            return {
+              id: item.guid || `${feed.source}-${idx}-${Date.now()}`,
+              title: cleanHtmlText(item.title),
+              link: item.link || 'https://www.autosport.com/f1',
+              pubDate: item.pubDate,
+              timeAgo: formatTimeAgo(item.pubDate),
+              source: feed.source,
+              snippet: snippet.length > 120 ? `${snippet.slice(0, 120)}…` : snippet,
+              thumbnail: item.thumbnail || item.enclosure?.link,
+            };
+          });
+          if (parsed.length > 0) return parsed;
+        }
+      }
+    } catch (e) {
+      console.warn(`[F1 News] Could not fetch ${feed.source} feed:`, e);
+    }
+  }
+
+  return FALLBACK_F1_NEWS;
+};
 
 export const CIRCUIT_TELEMETRY: Record<string, F1CircuitTelemetry> = {
   vegas: {
@@ -438,7 +563,17 @@ const fetchLastRacePodium = async (): Promise<F1LastRacePodium | undefined> => {
 
 export const getF1Data = async (forceRaceWeekendSim: boolean = false): Promise<F1Data> => {
   try {
-    const [nextRes, lastRes, driverStandings, constructorStandings, lastRace, qualifyingResult, pitStopRecord, upcomingRaces] = await Promise.all([
+    const [
+      nextRes,
+      lastRes,
+      driverStandings,
+      constructorStandings,
+      lastRace,
+      qualifyingResult,
+      pitStopRecord,
+      upcomingRaces,
+      news,
+    ] = await Promise.all([
       fetch(`${JOLPICA_BASE}/current/next.json`),
       fetch(`${JOLPICA_BASE}/current/last.json`),
       fetchLiveStandings(),
@@ -447,6 +582,7 @@ export const getF1Data = async (forceRaceWeekendSim: boolean = false): Promise<F
       fetchLastQualifying(),
       fetchLastPitStops(),
       fetchUpcomingRaces(21),
+      fetchF1News(),
     ]);
 
     let targetRace: any = null;
@@ -471,7 +607,8 @@ export const getF1Data = async (forceRaceWeekendSim: boolean = false): Promise<F
         lastRace,
         qualifyingResult,
         pitStopRecord,
-        upcomingRaces
+        upcomingRaces,
+        news
       );
     }
 
@@ -484,6 +621,7 @@ export const getF1Data = async (forceRaceWeekendSim: boolean = false): Promise<F
       qualifyingResult,
       pitStopRecord,
       upcomingRaces,
+      news,
       titleBattle: computeTitleBattle(driverStandings, constructorStandings, 21, 24),
     };
   } catch (err) {
@@ -502,6 +640,7 @@ const parseJolpicaRace = (
   qualifyingResult: F1QualifyingResult = FALLBACK_QUALIFYING,
   pitStopRecord: F1PitStopRecord = FALLBACK_PITSTOP,
   upcomingRaces: F1UpcomingRace[] = FALLBACK_UPCOMING_RACES,
+  news: F1NewsItem[] = FALLBACK_F1_NEWS,
 ): F1Data => {
   const fp1Info = formatToIST(race.FirstPractice?.date, race.FirstPractice?.time);
   const fp2Info = race.SecondPractice ? formatToIST(race.SecondPractice.date, race.SecondPractice.time) : undefined;
@@ -651,6 +790,7 @@ const parseJolpicaRace = (
     titleBattle: computeTitleBattle(liveStandings, constructorStandings, activeRound, 24),
     upcomingRaces,
     circuitTelemetry: CIRCUIT_TELEMETRY[circuitId] || CIRCUIT_TELEMETRY.default,
+    news,
   };
 };
 
@@ -725,5 +865,6 @@ export const getFallbackF1Data = (forceRaceWeekendSim: boolean = false): F1Data 
     titleBattle: computeTitleBattle(FALLBACK_STANDINGS, FALLBACK_CONSTRUCTORS, 21, 24),
     upcomingRaces: FALLBACK_UPCOMING_RACES,
     circuitTelemetry: CIRCUIT_TELEMETRY.vegas,
+    news: FALLBACK_F1_NEWS,
   };
 };
