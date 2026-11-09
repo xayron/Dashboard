@@ -295,9 +295,9 @@ const DashboardContent: React.FC = () => {
       case 'neumorphic':
         return { backgroundColor: '#1a1d24' };
       case 'obsidian':
-        return { backgroundColor: '#08080a' };
+        return { backgroundColor: '#050507' };
       case 'civic':
-        return { backgroundColor: '#070b14' };
+        return { backgroundColor: '#f1f5f9' };
       case 'modern':
       default:
         return { backgroundColor: 'var(--color-bg-base, #030712)' };

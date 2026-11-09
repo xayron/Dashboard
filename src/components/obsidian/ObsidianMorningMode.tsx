@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { ShieldCheck, CheckCircle2, CircleDashed, Terminal, Activity, ArrowUpRight, ArrowDownRight, Clock, Wind, Droplets, Sun, Radio, Compass } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, CircleDashed, Terminal, Activity, ArrowUpRight, ArrowDownRight, Clock, Wind, Droplets, Sun, Radio, Compass, Lock, Hash } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
 
 export const ObsidianMorningMode: React.FC = () => {
@@ -18,22 +18,32 @@ export const ObsidianMorningMode: React.FC = () => {
   }).toUpperCase();
 
   return (
-    <div className="w-full h-full p-6 flex flex-col justify-between overflow-hidden bg-[#08080a] text-[#eef0f3] select-none font-sans">
+    <div className="w-full h-full p-6 flex flex-col justify-between overflow-hidden bg-[#050507] text-[#eef0f3] select-none font-sans relative">
+      {/* Obsidian Crystal Glow Effect */}
+      <div
+        className="absolute top-0 inset-x-0 h-64 pointer-events-none opacity-25 z-0"
+        style={{
+          background: 'radial-gradient(ellipse at 50% 0%, rgba(95,212,155,0.2), transparent 70%)',
+        }}
+      />
+
       {/* Top Evidence Rail */}
-      <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/[0.12]">
+      <div className="relative z-10 flex items-center justify-between mb-4 pb-3 border-b border-white/[0.12]">
         <div className="flex items-center space-x-3">
-          <div className="p-2 bg-[#15151b] border border-white/[0.12] text-[#5fd49b]">
-            <Terminal size={18} />
+          <div className="p-2 bg-[#101017] border border-white/[0.18] text-[#5fd49b] shadow-[0_0_15px_rgba(95,212,155,0.2)]">
+            <Lock size={18} />
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h1 className="text-lg font-bold tracking-tight text-[#eef0f3]">OPERATIONS CHRONO // MORNING RUNTIME</h1>
-              <span className="px-2 py-0.5 text-[10px] font-mono bg-[#5fd49b]/10 border border-[#5fd49b]/30 text-[#5fd49b]">
+              <h1 className="text-lg font-bold font-mono tracking-widest text-[#eef0f3]">
+                OBSIDIAN INTELLIGENCE // GOVERNED AIR-GAP
+              </h1>
+              <span className="px-2 py-0.5 text-[10px] font-mono bg-[#5fd49b]/10 border border-[#5fd49b]/40 text-[#5fd49b]">
                 RECEIPT://VERIFIED
               </span>
             </div>
             <p className="text-xs font-mono text-[#9a9da6] mt-0.5">
-              AIR-GAP NODE 04 • SOLAR WINDOW: DAWN {weather.sunrise} // DUSK {weather.sunset}
+              HSM NODE 01 • PROOF HASH: SHA256//B74C..9E1A • SOLAR DAWN {weather.sunrise} // DUSK {weather.sunset}
             </p>
           </div>
         </div>
@@ -42,62 +52,62 @@ export const ObsidianMorningMode: React.FC = () => {
       </div>
 
       {/* 3-Column 1080p Grid */}
-      <div className="grid grid-cols-12 gap-5 flex-1 min-h-0">
+      <div className="relative z-10 grid grid-cols-12 gap-5 flex-1 min-h-0">
         {/* Left Column: Chrono & Atmospheric Sensors (Cols 1-4) */}
         <div className="col-span-4 flex flex-col space-y-4">
           {/* Chrono Facet Card */}
-          <div className="p-5 bg-[#15151b] border border-white/[0.12] relative overflow-hidden flex flex-col justify-between">
+          <div className="p-5 bg-[#0f0f15] border border-white/[0.14] relative overflow-hidden flex flex-col justify-between shadow-lg">
             <div className="flex items-center justify-between border-b border-white/[0.08] pb-2 text-xs font-mono text-[#9a9da6]">
               <span className="flex items-center space-x-1.5 text-[#eef0f3]">
                 <Clock size={13} className="text-[#5fd49b]" />
-                <span className="font-bold tracking-wider">CHRONO TELEMETRY</span>
+                <span className="font-bold tracking-wider">[01] CHRONO TELEMETRY</span>
               </span>
-              <span className="text-[10px] text-[#5fd49b] bg-[#5fd49b]/10 px-1.5 py-0.5 border border-[#5fd49b]/30">
-                PTP//SYNC
+              <span className="text-[10px] text-[#5fd49b] bg-[#5fd49b]/10 px-2 py-0.5 border border-[#5fd49b]/30">
+                PTP//ATOMIC
               </span>
             </div>
 
             <div className="py-4 text-center">
               <div className="text-6xl font-mono font-bold tracking-tight text-[#eef0f3] flex items-baseline justify-center">
                 <span>{hours}:{minutes}</span>
-                <span className="text-2xl text-[#9a9da6] font-mono ml-2">:{seconds}</span>
+                <span className="text-2xl text-[#5fd49b] font-mono ml-2">:{seconds}</span>
               </div>
-              <div className="text-xs font-mono text-[#9a9da6] mt-2 tracking-wider">
+              <div className="text-xs font-mono text-[#9a9da6] mt-2 tracking-widest">
                 {dateFormatted} • TIMEZONE: IST (UTC+5:30)
               </div>
             </div>
 
             <div className="pt-2 border-t border-white/[0.08] flex items-center justify-between text-[11px] font-mono text-[#9a9da6]">
-              <span>HASH: 8F2A..91D0</span>
-              <span className="text-[#5fd49b]">PROOF ACCEPTED</span>
+              <span className="text-[#54565e]">HASH: 8F2A..91D0</span>
+              <span className="text-[#5fd49b] font-bold">AIR-GAP PROVEN</span>
             </div>
           </div>
 
           {/* Atmospheric Sensors Facet Card */}
-          <div className="p-5 bg-[#15151b] border border-white/[0.12] flex-1 flex flex-col justify-between">
+          <div className="p-5 bg-[#0f0f15] border border-white/[0.14] flex-1 flex flex-col justify-between shadow-lg">
             <div className="flex items-center justify-between border-b border-white/[0.08] pb-2 text-xs font-mono text-[#9a9da6]">
               <span className="flex items-center space-x-1.5 text-[#eef0f3]">
                 <Activity size={13} className="text-[#5fd49b]" />
-                <span className="font-bold tracking-wider">ATMOSPHERIC SENSORS</span>
+                <span className="font-bold tracking-wider">[02] ATMOSPHERIC SENSORS</span>
               </span>
               <span className="text-[10px] text-[#9a9da6]">IMD METEOROLOGY</span>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 my-2">
-              <div className="p-3 bg-[#0e0e12] border border-white/[0.08]">
-                <span className="text-[10px] font-mono text-[#9a9da6] uppercase block">Ambient Temp</span>
-                <div className="text-3xl font-mono font-bold text-[#eef0f3] mt-0.5">
+            <div className="grid grid-cols-2 gap-3 my-2 font-mono">
+              <div className="p-3 bg-[#08080c] border border-white/[0.08]">
+                <span className="text-[10px] text-[#9a9da6] uppercase block">Ambient Temp</span>
+                <div className="text-3xl font-bold text-[#eef0f3] mt-0.5">
                   {weather.temperature}°C
                 </div>
                 <span className="text-[11px] text-[#9a9da6] block mt-0.5">Feels {weather.apparentTemperature}°C</span>
               </div>
 
-              <div className="p-3 bg-[#0e0e12] border border-white/[0.08]">
-                <span className="text-[10px] font-mono text-[#9a9da6] uppercase block">Air Quality Index</span>
-                <div className="text-3xl font-mono font-bold text-[#5fd49b] mt-0.5">
+              <div className="p-3 bg-[#08080c] border border-white/[0.08]">
+                <span className="text-[10px] text-[#9a9da6] uppercase block">Air Quality Index</span>
+                <div className="text-3xl font-bold text-[#5fd49b] mt-0.5">
                   {aqi.usAqi}
                 </div>
-                <span className="text-[11px] text-[#5fd49b] block mt-0.5">{aqi.label.toUpperCase()}</span>
+                <span className="text-[11px] text-[#5fd49b] block mt-0.5 uppercase">{aqi.label}</span>
               </div>
             </div>
 
@@ -121,11 +131,11 @@ export const ObsidianMorningMode: React.FC = () => {
         {/* Center Column: Engagements & Governed Directives (Cols 5-8) */}
         <div className="col-span-4 flex flex-col space-y-4">
           {/* Action Rail: Calendar Engagements */}
-          <div className="p-5 bg-[#15151b] border border-white/[0.12] flex-1 flex flex-col justify-between">
+          <div className="p-5 bg-[#0f0f15] border border-white/[0.14] flex-1 flex flex-col justify-between shadow-lg">
             <div className="flex items-center justify-between border-b border-white/[0.08] pb-2 text-xs font-mono text-[#9a9da6]">
               <span className="flex items-center space-x-1.5 text-[#eef0f3]">
                 <Terminal size={13} className="text-[#5fd49b]" />
-                <span className="font-bold tracking-wider">SCHEDULED ENGAGEMENTS</span>
+                <span className="font-bold tracking-wider">[03] SCHEDULED ENGAGEMENTS</span>
               </span>
               <span className="text-[10px] text-[#9a9da6]">{events.length} QUEUED</span>
             </div>
@@ -137,7 +147,7 @@ export const ObsidianMorningMode: React.FC = () => {
                 events.map((ev) => (
                   <div
                     key={ev.id}
-                    className="p-2.5 bg-[#0e0e12] border border-white/[0.08] hover:border-white/[0.2] transition-colors flex items-center justify-between"
+                    className="p-2.5 bg-[#08080c] border border-white/[0.08] hover:border-white/[0.25] transition-colors flex items-center justify-between"
                   >
                     <div className="min-w-0 pr-2">
                       <div className="text-xs font-bold text-[#eef0f3] truncate">{ev.title}</div>
@@ -161,11 +171,11 @@ export const ObsidianMorningMode: React.FC = () => {
           </div>
 
           {/* Governed Directives (Tasks) */}
-          <div className="p-5 bg-[#15151b] border border-white/[0.12] flex-1 flex flex-col justify-between">
+          <div className="p-5 bg-[#0f0f15] border border-white/[0.14] flex-1 flex flex-col justify-between shadow-lg">
             <div className="flex items-center justify-between border-b border-white/[0.08] pb-2 text-xs font-mono text-[#9a9da6]">
               <span className="flex items-center space-x-1.5 text-[#eef0f3]">
                 <ShieldCheck size={13} className="text-[#5fd49b]" />
-                <span className="font-bold tracking-wider">GOVERNED DIRECTIVES</span>
+                <span className="font-bold tracking-wider">[04] GOVERNED DIRECTIVES</span>
               </span>
               <span className="text-[10px] text-[#e3b341] bg-[#e3b341]/10 px-1.5 py-0.5 border border-[#e3b341]/30">
                 ACTION REQUIRED
@@ -177,10 +187,10 @@ export const ObsidianMorningMode: React.FC = () => {
                 <div
                   key={task.id}
                   onClick={() => toggleTask(task.id)}
-                  className={`p-2.5 bg-[#0e0e12] border transition-all cursor-pointer flex items-center justify-between ${
+                  className={`p-2.5 bg-[#08080c] border transition-all cursor-pointer flex items-center justify-between ${
                     task.completed
                       ? 'border-white/[0.04] opacity-50'
-                      : 'border-white/[0.12] hover:border-white/[0.3]'
+                      : 'border-white/[0.14] hover:border-[#5fd49b]/50'
                   }`}
                 >
                   <div className="flex items-center space-x-2.5 min-w-0 pr-2">
@@ -212,11 +222,11 @@ export const ObsidianMorningMode: React.FC = () => {
         {/* Right Column: Capital Markets & Motorsport Radar (Cols 9-12) */}
         <div className="col-span-4 flex flex-col space-y-4">
           {/* Capital Markets Telemetry */}
-          <div className="p-5 bg-[#15151b] border border-white/[0.12] flex-1 flex flex-col justify-between">
+          <div className="p-5 bg-[#0f0f15] border border-white/[0.14] flex-1 flex flex-col justify-between shadow-lg">
             <div className="flex items-center justify-between border-b border-white/[0.08] pb-2 text-xs font-mono text-[#9a9da6]">
               <span className="flex items-center space-x-1.5 text-[#eef0f3]">
                 <Activity size={13} className="text-[#5fd49b]" />
-                <span className="font-bold tracking-wider">CAPITAL TELEMETRY</span>
+                <span className="font-bold tracking-wider">[05] CAPITAL TELEMETRY</span>
               </span>
               <span className="text-[10px] text-[#5fd49b]">LIVE FEED</span>
             </div>
@@ -227,7 +237,7 @@ export const ObsidianMorningMode: React.FC = () => {
                 return (
                   <div
                     key={item.id}
-                    className="p-3 bg-[#0e0e12] border border-white/[0.08] flex flex-col justify-between"
+                    className="p-3 bg-[#08080c] border border-white/[0.08] flex flex-col justify-between"
                   >
                     <div className="flex items-center justify-between text-[11px]">
                       <span className="text-[#9a9da6] font-bold">{item.symbol}</span>
@@ -251,11 +261,11 @@ export const ObsidianMorningMode: React.FC = () => {
           </div>
 
           {/* Motorsport Radar / F1 Telemetry */}
-          <div className="p-5 bg-[#15151b] border border-white/[0.12] flex flex-col justify-between">
+          <div className="p-5 bg-[#0f0f15] border border-white/[0.14] flex flex-col justify-between shadow-lg">
             <div className="flex items-center justify-between border-b border-white/[0.08] pb-2 text-xs font-mono text-[#9a9da6]">
               <span className="flex items-center space-x-1.5 text-[#eef0f3]">
                 <Compass size={13} className="text-[#e3b341]" />
-                <span className="font-bold tracking-wider">MOTORSPORT APEX</span>
+                <span className="font-bold tracking-wider">[06] MOTORSPORT APEX</span>
               </span>
               <span className="text-[10px] text-[#e3b341] bg-[#e3b341]/10 px-1.5 py-0.5 border border-[#e3b341]/30">
                 ROUND {f1.activeRound}
@@ -268,7 +278,7 @@ export const ObsidianMorningMode: React.FC = () => {
                 <p className="text-xs text-[#9a9da6] truncate mt-0.5">{f1.circuitName}</p>
               </div>
 
-              <div className="p-3 bg-[#0e0e12] border border-white/[0.08] flex items-center justify-between">
+              <div className="p-3 bg-[#08080c] border border-white/[0.08] flex items-center justify-between">
                 <div>
                   <span className="text-[10px] text-[#54565e] uppercase block">Target Session</span>
                   <span className="text-xs font-bold text-[#eef0f3]">{f1.nextSession.name}</span>
