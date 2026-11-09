@@ -156,14 +156,14 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       .filter((w): w is F1WidgetDef => Boolean(w));
   }, [f1ActiveWidgets]);
 
-  // Style Tokens per visual theme - small cards strictly fixed at 148px height
+  // Style Tokens per visual theme - small cards strictly fixed at 130px height, large cards full height (row-span-2)
   const getCardClass = (size: F1WidgetSize = 'normal') => {
     const pad =
       size === 'compact'
-        ? 'p-2.5 h-[148px] max-h-[148px] min-h-[148px] overflow-hidden flex flex-col justify-between'
+        ? 'p-2.5 h-[130px] max-h-[130px] min-h-[130px] overflow-hidden flex flex-col justify-between'
         : size === 'large'
-        ? 'p-3.5 min-h-[220px]'
-        : 'p-3.5';
+        ? 'p-3.5 h-full flex flex-col justify-between min-h-[460px]'
+        : 'p-3.5 h-full flex flex-col justify-between min-h-[130px]';
 
     if (uiStyle === 'minimal') {
       return `${pad} ${
@@ -898,7 +898,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
         </div>
 
         {isCompact ? (
-          <div className="space-y-1.5 py-1 flex-1 flex flex-col justify-between">
+          <div className="space-y-1.5 py-0.5 flex-1 flex flex-col justify-between">
             <div className="space-y-0.5">
               <div className="flex items-center justify-between text-[11px] font-bold">
                 <span className="truncate" style={{ color: battle.leaderColor }}>P1 {battle.leader}</span>
@@ -913,8 +913,9 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
               <div className="bg-emerald-500 h-full" style={{ width: `${Math.min(95, Math.max(5, (battle.leaderPoints / (battle.leaderPoints + battle.contenderPoints)) * 100))}%` }} />
               <div className="bg-rose-500 h-full flex-1" />
             </div>
-            <div className="flex items-center justify-between text-[8px] font-mono opacity-75">
+            <div className="flex items-center justify-between text-[8px] font-mono opacity-80 pt-0.5 border-t border-black/10 dark:border-white/10">
               <span className="text-emerald-500 font-bold">+{battle.pointsGap} PTS GAP</span>
+              <span>WCC: {battle.teamLeader?.split(' ')[0]} (+{battle.teamPointsGap || 32}p)</span>
               <span>{battle.roundsRemaining} RDS LEFT</span>
             </div>
           </div>
@@ -1047,10 +1048,14 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
   };
 
   // 5. PIT STOP WIDGET
+  // 5. DHL FASTEST PIT STOP WIDGET
   const renderPitStopWidget = (size: F1WidgetSize) => {
     const pit = f1.pitStopRecord;
     if (!pit) return null;
     const isCompact = size === 'compact';
+    const numDuration = parseFloat(pit.duration) || 2.1;
+    const stationaryEst = (numDuration > 5 ? numDuration * 0.09 : numDuration).toFixed(2);
+    const laneEst = (numDuration > 5 ? numDuration * 0.91 : numDuration + 19.4).toFixed(1);
 
     if (uiStyle === 'tui') {
       return (
@@ -1061,10 +1066,21 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           badgeColor="text-yellow-400"
           className={isCompact ? 'h-full flex flex-col justify-between' : ''}
         >
-          <div className="text-xs space-y-1 py-0.5 flex flex-col justify-between h-full font-mono">
-            <div className="text-amber-400 font-bold truncate">{pit.duration} RECORD</div>
-            <div className="font-bold truncate">{pit.driver}</div>
-            <div className="text-[9px] text-gray-400 truncate">{pit.team} • LAP {pit.lap}</div>
+          <div className="text-xs space-y-1.5 py-0.5 flex flex-col justify-between h-full font-mono">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="font-bold text-white truncate">{pit.driver}</div>
+                <div className="text-[9px] text-gray-400 truncate">{pit.team} • LAP {pit.lap}</div>
+              </div>
+              <div className="text-right shrink-0">
+                <span className="text-amber-400 font-bold block">{pit.duration}</span>
+                <span className="text-[8px] text-yellow-500 uppercase">DHL RECORD</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-1 text-[8px] pt-1 border-t border-gray-800">
+              <div><span className="opacity-60">STOP:</span> ~{stationaryEst}s</div>
+              <div><span className="opacity-60">LANE:</span> ~{laneEst}s</div>
+            </div>
           </div>
         </TuiBox>
       );
@@ -1079,12 +1095,20 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           badgeColor="bg-yellow-400 text-black"
           className={isCompact ? 'h-full flex flex-col justify-between' : ''}
         >
-          <div className="py-0.5 text-xs space-y-1 flex flex-col justify-between h-full font-black">
+          <div className="py-0.5 text-xs space-y-1.5 flex flex-col justify-between h-full font-black">
             <div className="flex items-center justify-between">
-              <span className="truncate">{pit.driver}</span>
-              <span className="font-mono bg-black text-yellow-300 px-1 text-xs shrink-0">{pit.duration}</span>
+              <div className="truncate mr-1">
+                <span className="truncate block">{pit.driver}</span>
+                <span className="text-[9px] opacity-75 font-mono truncate block">{pit.team} • L{pit.lap}</span>
+              </div>
+              <span className="font-mono bg-black text-yellow-300 px-1.5 py-0.5 text-xs shrink-0 shadow-[1px_1px_0px_#000]">
+                {pit.duration}
+              </span>
             </div>
-            <div className="text-[9px] opacity-75 font-mono truncate">{pit.team} • LAP {pit.lap}</div>
+            <div className="grid grid-cols-2 gap-1 text-[8px] font-mono pt-1 border-t-2 border-black">
+              <div>STOP: ~{stationaryEst}s</div>
+              <div>LANE: ~{laneEst}s</div>
+            </div>
           </div>
         </BrutalistBox>
       );
@@ -1105,10 +1129,10 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
         </div>
 
         {isCompact ? (
-          <div className="py-1 flex-1 flex flex-col justify-between space-y-1">
+          <div className="py-0.5 flex-1 flex flex-col justify-between space-y-1">
             <div className="flex items-center justify-between">
-              <div className="truncate">
-                <span className="font-bold text-xs block truncate">{pit.driver}</span>
+              <div className="truncate mr-2">
+                <span className="font-bold text-xs block truncate leading-tight">{pit.driver}</span>
                 <span className="text-[9px] opacity-70 block truncate">{pit.team}</span>
               </div>
               <div className="text-right shrink-0">
@@ -1116,21 +1140,52 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                 <span className="text-[8px] font-mono opacity-70 block">Lap {pit.lap}</span>
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="flex items-center justify-between text-xs py-1">
-            <div className="flex items-center space-x-2.5">
-              <div className="p-1.5 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                <Wrench size={13} />
+            {/* Rich Telemetry Row to fill gaps completely */}
+            <div className="grid grid-cols-3 gap-1 text-[8px] font-mono pt-1 border-t border-black/10 dark:border-white/10 text-center">
+              <div className={`p-0.5 rounded ${getInnerClass()}`}>
+                <span className="opacity-60 block text-[7px]">STOP</span>
+                <span className="font-bold text-amber-500">~{stationaryEst}s</span>
               </div>
-              <div>
-                <span className="font-bold text-[11px]">{pit.driver} • {pit.team}</span>
-                <span className="text-[9px] block opacity-70">Official DHL Pit Record</span>
+              <div className={`p-0.5 rounded ${getInnerClass()}`}>
+                <span className="opacity-60 block text-[7px]">LANE</span>
+                <span className="font-bold">~{laneEst}s</span>
+              </div>
+              <div className={`p-0.5 rounded ${getInnerClass()}`}>
+                <span className="opacity-60 block text-[7px]">AWARD</span>
+                <span className="font-bold text-yellow-400">DHL #1</span>
               </div>
             </div>
-            <div className="text-right">
-              <span className="text-sm font-extrabold font-mono text-amber-500 block leading-tight">{pit.duration}</span>
-              <span className="text-[8px] font-mono opacity-70">Lap {pit.lap}</span>
+          </div>
+        ) : (
+          <div className="flex-1 flex flex-col justify-between py-1 space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2.5 truncate">
+                <div className="p-1.5 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0">
+                  <Wrench size={13} />
+                </div>
+                <div className="truncate">
+                  <span className="font-bold text-[11px] block truncate">{pit.driver} • {pit.team}</span>
+                  <span className="text-[9px] block opacity-70">Official DHL Pit Record</span>
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                <span className="text-sm font-extrabold font-mono text-amber-500 block leading-tight">{pit.duration}</span>
+                <span className="text-[8px] font-mono opacity-70">Lap {pit.lap} • {pit.raceName}</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-1.5 text-[9px] font-mono text-center">
+              <div className={`p-1 rounded-lg border ${getInnerClass()}`}>
+                <span className="text-[7px] uppercase block opacity-60">Stationary Stop</span>
+                <span className="font-bold text-amber-400">~{stationaryEst}s</span>
+              </div>
+              <div className={`p-1 rounded-lg border ${getInnerClass()}`}>
+                <span className="text-[7px] uppercase block opacity-60">Pit Lane Delta</span>
+                <span className="font-bold text-slate-300">~{laneEst}s</span>
+              </div>
+              <div className={`p-1 rounded-lg border ${getInnerClass()}`}>
+                <span className="text-[7px] uppercase block opacity-60">Award Rank</span>
+                <span className="font-bold text-yellow-400">DHL Season Best</span>
+              </div>
             </div>
           </div>
         )}
@@ -1307,9 +1362,9 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
     if (news.length === 0) return null;
     const isCompact = size === 'compact';
     const isLarge = size === 'large';
-    const displayNews = isCompact ? news.slice(0, 2) : isLarge ? news.slice(0, 6) : news.slice(0, 4);
+    const displayNews = isCompact ? news.slice(0, 2) : isLarge ? news.slice(0, 8) : news.slice(0, 4);
     const leadStory = news[0];
-    const wireStories = news.slice(1, 6);
+    const wireStories = news.slice(1, 8);
 
     if (uiStyle === 'tui') {
       return (
@@ -1318,10 +1373,10 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           title={isCompact ? 'F1_WIRE' : isLarge ? 'F1_BREAKING_NEWS_&_WIRE' : 'F1_PADDOCK_WIRE'}
           badge="LIVE"
           badgeColor="text-amber-400"
-          className={isCompact ? 'h-[148px] max-h-[148px] min-h-[148px] overflow-hidden flex flex-col justify-between' : ''}
+          className={isCompact ? 'h-full flex flex-col justify-between' : isLarge ? 'h-full flex flex-col justify-between min-h-[460px]' : ''}
         >
           {isLarge ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs py-0.5 font-mono">
+            <div className="space-y-2 text-xs py-0.5 font-mono flex-1 flex flex-col justify-between">
               {leadStory && (
                 <a
                   href={leadStory.link}
@@ -1334,21 +1389,24 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                       <span className="text-amber-400 font-bold">[{leadStory.source.toUpperCase()}]</span>
                       <span>{leadStory.timeAgo}</span>
                     </div>
-                    <div className="font-bold text-sm leading-snug group-hover:text-amber-300">
+                    <div className="font-bold text-xs leading-snug group-hover:text-amber-300">
                       {leadStory.title}
                     </div>
                     {leadStory.snippet && (
-                      <p className="text-[10px] opacity-75 mt-1.5 line-clamp-3 leading-normal">
+                      <p className="text-[10px] opacity-75 mt-1 line-clamp-2 leading-normal">
                         {leadStory.snippet}
                       </p>
                     )}
                   </div>
-                  <div className="text-[9px] text-amber-400 font-bold mt-2 pt-1 border-t border-amber-500/20">
+                  <div className="text-[9px] text-amber-400 font-bold mt-1.5 pt-1 border-t border-amber-500/20">
                     &gt;&gt; READ_FULL_DISPATCH
                   </div>
                 </a>
               )}
-              <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+              <div className="space-y-1.5 overflow-y-auto flex-1 pr-0.5">
+                <div className="text-[8px] font-bold text-gray-400 uppercase pb-0.5 border-b border-amber-500/20">
+                  Latest Paddock Dispatches ({wireStories.length})
+                </div>
                 {wireStories.map((item: any, idx: number) => (
                   <a
                     key={item.id || idx}
@@ -1400,16 +1458,16 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           title={isCompact ? 'F1 WIRE' : isLarge ? 'F1 BREAKING NEWS & PADDOCK WIRE' : 'F1 PADDOCK NEWS'}
           badge={isCompact ? 'WIRE' : 'BREAKING'}
           badgeColor="bg-red-600 text-white"
-          className={isCompact ? 'h-[148px] max-h-[148px] min-h-[148px] overflow-hidden flex flex-col justify-between' : ''}
+          className={isCompact ? 'h-full flex flex-col justify-between' : isLarge ? 'h-full flex flex-col justify-between min-h-[460px]' : ''}
         >
           {isLarge ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 py-0.5">
+            <div className="space-y-2 py-0.5 flex-1 flex flex-col justify-between">
               {leadStory && (
                 <a
                   href={leadStory.link}
                   target="_blank"
                   rel="noreferrer"
-                  className={`p-3 border-2 border-black flex flex-col justify-between ${
+                  className={`p-2.5 border-2 border-black flex flex-col justify-between ${
                     isLight ? 'bg-amber-100 shadow-[2px_2px_0px_#000]' : 'bg-neutral-900 text-white shadow-[2px_2px_0px_#fff]'
                   }`}
                 >
@@ -1418,19 +1476,22 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                       <span className="text-red-600 font-black">★ LEAD • {leadStory.source}</span>
                       <span className="font-mono">{leadStory.timeAgo}</span>
                     </div>
-                    <div className="text-sm font-black leading-snug hover:underline">
+                    <div className="text-xs font-black leading-snug hover:underline">
                       {leadStory.title}
                     </div>
                     {leadStory.snippet && (
-                      <p className="text-[10px] font-medium opacity-80 mt-1 line-clamp-3">{leadStory.snippet}</p>
+                      <p className="text-[10px] font-medium opacity-80 mt-1 line-clamp-2">{leadStory.snippet}</p>
                     )}
                   </div>
-                  <div className="text-[9px] font-black uppercase tracking-wider text-red-600 mt-2 pt-1 border-t-2 border-black">
+                  <div className="text-[9px] font-black uppercase tracking-wider text-red-600 mt-1.5 pt-1 border-t-2 border-black">
                     FULL ARTICLE &gt;&gt;
                   </div>
                 </a>
               )}
-              <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+              <div className="space-y-1.5 overflow-y-auto flex-1 pr-0.5">
+                <div className="text-[9px] font-black uppercase tracking-wider opacity-75 pb-0.5 border-b-2 border-black">
+                  Paddock Wire ({wireStories.length})
+                </div>
                 {wireStories.map((item: any, idx: number) => (
                   <a
                     key={item.id || idx}
@@ -1489,37 +1550,40 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           title={isCompact ? 'PADDOCK_FEED' : isLarge ? 'F1_PADDOCK_FEED_&_HEADLINES' : 'F1_PADDOCK_NEWS_FEED'}
           code="LIVE_WIRE"
           glowColor="cyan"
-          className={isCompact ? 'h-[148px] max-h-[148px] min-h-[148px] overflow-hidden flex flex-col justify-between' : ''}
+          className={isCompact ? 'h-full flex flex-col justify-between' : isLarge ? 'h-full flex flex-col justify-between min-h-[460px]' : ''}
         >
           {isLarge ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 py-0.5 font-mono">
+            <div className="space-y-2 py-0.5 font-mono flex-1 flex flex-col justify-between">
               {leadStory && (
                 <a
                   href={leadStory.link}
                   target="_blank"
                   rel="noreferrer"
-                  className="p-2.5 rounded border border-cyan-500/30 bg-cyan-950/20 hover:border-cyan-400/60 transition-colors flex flex-col justify-between group"
+                  className="p-2 rounded border border-cyan-500/30 bg-cyan-950/20 hover:border-cyan-400/60 transition-colors flex flex-col justify-between group"
                 >
                   <div>
-                    <div className="flex items-center justify-between text-[8px] text-cyan-400 mb-1">
+                    <div className="flex items-center justify-between text-[8px] text-cyan-400 mb-0.5">
                       <span className="font-bold">★ LEAD_WIRE • {leadStory.source}</span>
                       <span className="opacity-75">{leadStory.timeAgo}</span>
                     </div>
-                    <div className="text-xs font-bold text-white group-hover:text-cyan-200 line-clamp-3 leading-snug">
+                    <div className="text-xs font-bold text-white group-hover:text-cyan-200 line-clamp-2 leading-snug">
                       {leadStory.title}
                     </div>
                     {leadStory.snippet && (
-                      <p className="text-[9px] text-slate-300 mt-1.5 line-clamp-3 leading-normal">
+                      <p className="text-[9px] text-slate-300 mt-1 line-clamp-2 leading-normal">
                         {leadStory.snippet}
                       </p>
                     )}
                   </div>
-                  <div className="text-[8px] text-cyan-400 font-bold mt-2 pt-1 border-t border-cyan-500/20">
+                  <div className="text-[8px] text-cyan-400 font-bold mt-1 pt-0.5 border-t border-cyan-500/20">
                     &gt;&gt; OPEN_DISPATCH
                   </div>
                 </a>
               )}
-              <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+              <div className="space-y-1 overflow-y-auto flex-1 pr-0.5">
+                <div className="text-[8px] font-bold text-cyan-400 uppercase pb-0.5 border-b border-cyan-500/20">
+                  // PADDOCK_DISPATCHES ({wireStories.length})
+                </div>
                 {wireStories.map((item: any, idx: number) => (
                   <a
                     key={item.id || idx}
@@ -1570,7 +1634,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
             <Newspaper size={12} className="text-red-500 shrink-0" />
-            <span className="truncate">{isCompact ? 'Paddock Wire' : isLarge ? 'F1 PADDOCK NEWS & WIRE (BREAKING)' : 'F1 PADDOCK NEWS & WIRE'}</span>
+            <span className="truncate">{isCompact ? 'Paddock Wire' : isLarge ? 'F1 PADDOCK NEWS & WIRE (DEEP FEED)' : 'F1 PADDOCK NEWS & WIRE'}</span>
           </span>
           <div className="flex items-center space-x-1 shrink-0">
             {renderSizeToggle('news')}
@@ -1603,42 +1667,42 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
             ))}
           </div>
         ) : isLarge ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-            {/* Left Column: Featured Lead Story Card */}
+          <div className="space-y-2 py-0.5 flex-1 flex flex-col justify-between">
+            {/* Top: Featured Lead Story Card */}
             {leadStory && (
               <a
                 href={leadStory.link}
                 target="_blank"
                 rel="noreferrer"
-                className={`p-3 rounded-xl border flex flex-col justify-between group hover:opacity-100 transition-all ${getInnerClass()}`}
+                className={`p-2.5 rounded-xl border flex flex-col justify-between group hover:opacity-100 transition-all ${getInnerClass()}`}
               >
                 <div>
-                  <div className="flex items-center justify-between text-[9px] mb-1.5">
+                  <div className="flex items-center justify-between text-[9px] mb-1">
                     <span className="font-bold text-red-500 bg-red-500/10 px-2 py-0.5 rounded text-[8px] uppercase tracking-wider">
                       ★ LEAD STORY • {leadStory.source}
                     </span>
                     <span className="opacity-60 font-mono text-[9px]">{leadStory.timeAgo}</span>
                   </div>
-                  <h4 className="font-extrabold text-sm leading-snug group-hover:text-blue-500 transition-colors line-clamp-3">
+                  <h4 className="font-extrabold text-xs leading-snug group-hover:text-blue-500 transition-colors line-clamp-2">
                     {leadStory.title}
                   </h4>
                   {leadStory.snippet && (
-                    <p className="text-[11px] opacity-75 line-clamp-3 mt-1.5 leading-relaxed">
+                    <p className="text-[10px] opacity-75 line-clamp-2 mt-1 leading-relaxed">
                       {leadStory.snippet}
                     </p>
                   )}
                 </div>
-                <div className="flex items-center space-x-1 text-[10px] text-blue-500 font-bold mt-2.5 pt-1.5 border-t border-black/10 dark:border-white/10">
+                <div className="flex items-center space-x-1 text-[9px] text-blue-500 font-bold mt-1.5 pt-1 border-t border-black/10 dark:border-white/10">
                   <span>Read Full Coverage</span>
-                  <ExternalLink size={11} />
+                  <ExternalLink size={10} />
                 </div>
               </a>
             )}
 
-            {/* Right Column: Paddock Wire Feed */}
-            <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+            {/* Bottom: Vertical Paddock Wire Feed */}
+            <div className="space-y-1.5 overflow-y-auto flex-1 pr-0.5">
               <div className="text-[9px] font-bold uppercase tracking-wider text-gray-400 pb-0.5 border-b border-black/10 dark:border-white/10">
-                Latest Paddock Dispatches
+                Paddock Wire Feed ({wireStories.length} Stories)
               </div>
               {wireStories.map((item: any, idx: number) => (
                 <a
@@ -1698,6 +1762,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       </div>
     );
   };
+
   // 9. WEEKEND SCHEDULE WIDGET
   const renderScheduleWidget = (size: F1WidgetSize) => {
     const isCompact = size === 'compact';
@@ -1718,32 +1783,36 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       return (
         <TuiBox
           key="schedule"
-          title={isCompact ? 'SCHEDULE' : isLarge ? 'WEEKEND_SCHEDULE_&_TELEMETRY' : 'WEEKEND_SCHEDULE_IST'}
+          title={isCompact ? 'SCHEDULE' : isLarge ? 'WEEKEND_TIMETABLE_DEEP' : 'WEEKEND_SCHEDULE_IST'}
           badge="IST SYNC"
           badgeColor="text-red-400"
-          className={isCompact ? 'h-[148px] max-h-[148px] min-h-[148px] overflow-hidden flex flex-col justify-between' : ''}
+          className={isCompact ? 'h-full flex flex-col justify-between' : isLarge ? 'h-full flex flex-col justify-between min-h-[460px]' : ''}
         >
           {isLarge ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs py-0.5 font-mono">
-              <div className="p-2 border border-red-500/30 bg-red-950/20 space-y-2 flex flex-col justify-between">
-                <div>
-                  <div className="text-[9px] text-red-400 uppercase font-bold">&gt;&gt; NEXT ON TRACK</div>
-                  <div className="text-sm font-black text-white truncate mt-0.5">{f1.nextSession?.name?.toUpperCase()}</div>
-                  <div className="text-[10px] text-gray-300 mt-0.5">{f1.nextSession?.istTimeFormatted}</div>
+            <div className="space-y-2 text-xs py-0.5 font-mono flex-1 flex flex-col justify-between">
+              <div className="p-2 border border-red-500/30 bg-red-950/20 space-y-1.5">
+                <div className="flex items-center justify-between text-[9px] text-red-400 font-bold">
+                  <span>&gt;&gt; NEXT SESSION</span>
+                  <span className="animate-pulse">LIVE SYNC</span>
                 </div>
-                <div className="p-2 border border-red-500/50 bg-black/60 text-center">
-                  <div className="text-[8px] uppercase tracking-wider text-red-400">T-MINUS COUNTDOWN</div>
-                  <div className="text-base font-black text-red-500 font-mono tracking-wider animate-pulse">
+                <div className="text-sm font-black text-white truncate">{f1.nextSession?.name?.toUpperCase()}</div>
+                <div className="text-[10px] text-gray-300 font-mono">{f1.nextSession?.istTimeFormatted}</div>
+                <div className="p-1.5 border border-red-500/50 bg-black/60 text-center my-1">
+                  <span className="text-[8px] text-red-400 block">T-MINUS COUNTDOWN</span>
+                  <span className="text-base font-black text-red-500 font-mono tracking-widest animate-pulse">
                     T-{f1.nextSession?.countdownFormatted}
-                  </div>
+                  </span>
                 </div>
-                <div className="grid grid-cols-2 gap-1 text-[9px] pt-1 border-t border-red-500/20">
-                  <div><span className="opacity-60">RECORD:</span> <span className="font-bold truncate block text-amber-400">{f1.circuitLapRecord?.lapTime || '1:35.490'}</span></div>
-                  <div><span className="opacity-60">HOLDER:</span> <span className="font-bold truncate block">{f1.circuitLapRecord?.driver || 'Record'} ({f1.circuitLapRecord?.year || '2024'})</span></div>
+                <div className="flex items-center justify-between text-[9px] pt-1 border-t border-red-500/20 text-gray-300">
+                  <span>RECORD: <b className="text-amber-400">{f1.circuitLapRecord?.lapTime || '1:35.490'}</b></span>
+                  <span>{f1.circuitLapRecord?.driver} ({f1.circuitLapRecord?.year})</span>
                 </div>
               </div>
 
-              <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
+              <div className="space-y-1 overflow-y-auto flex-1 pr-0.5">
+                <div className="text-[9px] font-bold text-gray-400 pb-0.5 border-b border-red-500/20 uppercase">
+                  Complete Session Timetable ({sList.length})
+                </div>
                 {sList.map((s) => (
                   <div key={s.key} className="p-1.5 border border-red-500/20 flex items-center justify-between text-[11px]">
                     <span className="truncate">{s.label}</span>
@@ -1770,29 +1839,31 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       return (
         <BrutalistBox
           key="schedule"
-          title={isCompact ? 'SCHEDULE' : isLarge ? 'WEEKEND SCHEDULE & SESSION TELEMETRY' : 'WEEKEND SCHEDULE (IST)'}
+          title={isCompact ? 'SCHEDULE' : isLarge ? 'WEEKEND TIMETABLE & TELEMETRY' : 'WEEKEND SCHEDULE (IST)'}
           badge={isCompact ? 'IST' : 'OFFICIAL TIMETABLE'}
           badgeColor="bg-red-600 text-white"
-          className={isCompact ? 'h-[148px] max-h-[148px] min-h-[148px] overflow-hidden flex flex-col justify-between' : ''}
+          className={isCompact ? 'h-full flex flex-col justify-between' : isLarge ? 'h-full flex flex-col justify-between min-h-[460px]' : ''}
         >
           {isLarge ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 py-0.5">
-              <div className={`p-2.5 border-2 border-black space-y-2 flex flex-col justify-between ${isLight ? 'bg-amber-100' : 'bg-neutral-900'}`}>
-                <div>
-                  <div className="text-[9px] font-black uppercase tracking-wider opacity-75">NEXT ON TRACK</div>
-                  <div className="text-sm font-black uppercase truncate mt-0.5">{f1.nextSession?.name}</div>
-                  <div className="text-[10px] font-mono font-bold text-red-600 mt-0.5">{f1.nextSession?.istTimeFormatted}</div>
-                </div>
-                <div className="p-2 border-2 border-black bg-amber-400 text-black text-center shadow-[2px_2px_0px_#000]">
+            <div className="space-y-2 py-0.5 flex-1 flex flex-col justify-between">
+              <div className={`p-2.5 border-2 border-black space-y-1.5 ${isLight ? 'bg-amber-100' : 'bg-neutral-900'}`}>
+                <div className="text-[9px] font-black uppercase tracking-wider opacity-75">NEXT ON TRACK</div>
+                <div className="text-sm font-black uppercase truncate">{f1.nextSession?.name}</div>
+                <div className="text-[10px] font-mono font-bold text-red-600">{f1.nextSession?.istTimeFormatted}</div>
+                <div className="p-1.5 border-2 border-black bg-amber-400 text-black text-center shadow-[2px_2px_0px_#000]">
                   <div className="text-[8px] font-black uppercase tracking-widest">T-MINUS COUNTDOWN</div>
                   <div className="text-base font-black font-mono tracking-wider">T-{f1.nextSession?.countdownFormatted}</div>
                 </div>
-                <div className="grid grid-cols-2 gap-1 text-[9px] font-black pt-1 border-t-2 border-black">
-                  <div>RECORD: {f1.circuitLapRecord?.lapTime || '1:35.490'}</div>
-                  <div>HOLDER: {f1.circuitLapRecord?.driver || 'Record'} ({f1.circuitLapRecord?.year || '2024'})</div>
+                <div className="flex items-center justify-between text-[9px] font-black pt-1 border-t-2 border-black">
+                  <span>RECORD: {f1.circuitLapRecord?.lapTime || '1:35.490'}</span>
+                  <span>{f1.circuitLapRecord?.driver} ({f1.circuitLapRecord?.year})</span>
                 </div>
               </div>
-              <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+
+              <div className="space-y-1.5 overflow-y-auto flex-1 pr-0.5">
+                <div className="text-[9px] font-black uppercase tracking-wider opacity-75 pb-0.5 border-b-2 border-black">
+                  All Weekend Sessions ({sList.length})
+                </div>
                 {sList.map((s) => (
                   <div
                     key={s.key}
@@ -1829,31 +1900,33 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       return (
         <HudBox
           key="schedule"
-          title={isCompact ? 'SCHEDULE' : isLarge ? 'SESSION_TIMETABLE_&_TELEMETRY' : 'SESSION_TIMETABLE_IST'}
+          title={isCompact ? 'SCHEDULE' : isLarge ? 'FULL_SESSION_TIMETABLE' : 'SESSION_TIMETABLE_IST'}
           code="IST_SYNC"
           glowColor="cyan"
-          className={isCompact ? 'h-[148px] max-h-[148px] min-h-[148px] overflow-hidden flex flex-col justify-between' : ''}
+          className={isCompact ? 'h-full flex flex-col justify-between' : isLarge ? 'h-full flex flex-col justify-between min-h-[460px]' : ''}
         >
           {isLarge ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 py-0.5 font-mono text-[10px]">
-              <div className="p-2 rounded border border-cyan-500/30 bg-cyan-950/20 space-y-2 flex flex-col justify-between">
-                <div>
-                  <div className="text-[8px] text-cyan-400 uppercase font-bold">&gt;&gt; TARGET SESSION</div>
-                  <div className="text-xs font-bold text-white truncate mt-0.5">{f1.nextSession?.name}</div>
-                  <div className="text-[9px] text-slate-300 mt-0.5">{f1.nextSession?.istTimeFormatted}</div>
-                </div>
-                <div className="p-2 rounded border border-cyan-500/50 bg-black/60 text-center">
+            <div className="space-y-2 py-0.5 font-mono text-[10px] flex-1 flex flex-col justify-between">
+              <div className="p-2 rounded border border-cyan-500/30 bg-cyan-950/20 space-y-1.5">
+                <div className="text-[8px] text-cyan-400 uppercase font-bold">&gt;&gt; TARGET SESSION</div>
+                <div className="text-xs font-bold text-white truncate">{f1.nextSession?.name}</div>
+                <div className="text-[9px] text-slate-300">{f1.nextSession?.istTimeFormatted}</div>
+                <div className="p-1.5 rounded border border-cyan-500/50 bg-black/60 text-center">
                   <div className="text-[8px] uppercase tracking-wider text-cyan-400">T-MINUS COUNTDOWN</div>
                   <div className="text-sm font-bold text-cyan-300 font-mono tracking-wider animate-pulse">
                     T-{f1.nextSession?.countdownFormatted}
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-1 text-[8px] pt-1 border-t border-cyan-500/20 text-slate-300">
-                  <div>RECORD: {f1.circuitLapRecord?.lapTime || '1:35.490'}</div>
-                  <div>HOLDER: {f1.circuitLapRecord?.driver || 'Record'} ({f1.circuitLapRecord?.year || '2024'})</div>
+                <div className="flex items-center justify-between text-[8px] pt-1 border-t border-cyan-500/20 text-slate-300">
+                  <span>RECORD: {f1.circuitLapRecord?.lapTime || '1:35.490'}</span>
+                  <span>{f1.circuitLapRecord?.driver}</span>
                 </div>
               </div>
-              <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
+
+              <div className="space-y-1 overflow-y-auto flex-1 pr-0.5">
+                <div className="text-[8px] font-bold text-cyan-400 pb-0.5 border-b border-cyan-500/20 uppercase">
+                  // FULL_SESSION_TIMETABLE ({sList.length})
+                </div>
                 {sList.map((s) => (
                   <div key={s.key} className="p-1.5 rounded border border-cyan-500/20 flex items-center justify-between">
                     <span className="text-slate-200 truncate">{s.label}</span>
@@ -1881,7 +1954,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
             <Calendar size={12} className="text-red-500 shrink-0" />
-            <span className="truncate">{isCompact ? 'Schedule' : isLarge ? 'WEEKEND SCHEDULE & SESSION TELEMETRY' : 'WEEKEND SCHEDULE (IST)'}</span>
+            <span className="truncate">{isCompact ? 'Schedule' : isLarge ? 'WEEKEND TIMETABLE & TELEMETRY' : 'WEEKEND SCHEDULE (IST)'}</span>
           </span>
           <div className="flex items-center space-x-1 shrink-0">
             {renderSizeToggle('schedule')}
@@ -1899,42 +1972,39 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
             ))}
           </div>
         ) : isLarge ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-            {/* Left Column: Next Session Spotlight */}
-            <div className={`p-3 rounded-xl border flex flex-col justify-between space-y-2.5 ${getInnerClass()}`}>
+          <div className="space-y-2 py-0.5 flex-1 flex flex-col justify-between">
+            {/* Top: Next Session Spotlight Card */}
+            <div className={`p-2.5 rounded-xl border flex flex-col justify-between space-y-1.5 ${getInnerClass()}`}>
               <div>
-                <div className="flex items-center justify-between text-[9px] uppercase font-bold text-red-500 mb-1">
+                <div className="flex items-center justify-between text-[9px] uppercase font-bold text-red-500 mb-0.5">
                   <span>Next On Track</span>
                   <span className="flex items-center space-x-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
                     <span>LIVE SYNC</span>
                   </span>
                 </div>
-                <h4 className="text-sm font-bold truncate leading-tight">{f1.nextSession?.name}</h4>
-                <p className="text-[11px] opacity-70 font-mono mt-0.5">{f1.nextSession?.istTimeFormatted}</p>
+                <h4 className="text-xs font-bold truncate leading-tight">{f1.nextSession?.name}</h4>
+                <p className="text-[10px] opacity-70 font-mono mt-0.5">{f1.nextSession?.istTimeFormatted}</p>
               </div>
 
-              <div className="p-2.5 rounded-xl border border-red-500/30 bg-red-500/10 text-center">
-                <div className="text-[9px] uppercase font-mono font-bold tracking-wider opacity-75">T-Minus Countdown</div>
-                <div className="text-lg font-black font-mono text-red-500 tracking-wider mt-0.5 animate-pulse tabular-nums">
+              <div className="p-2 rounded-xl border border-red-500/30 bg-red-500/10 text-center">
+                <div className="text-[8px] uppercase font-mono font-bold tracking-wider opacity-75">T-Minus Countdown</div>
+                <div className="text-base font-black font-mono text-red-500 tracking-wider mt-0.5 animate-pulse tabular-nums">
                   T-{f1.nextSession?.countdownFormatted}
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 text-[10px] pt-1 border-t border-black/10 dark:border-white/10">
-                <div>
-                  <span className="text-[8px] opacity-60 uppercase block">Lap Record</span>
-                  <span className="font-bold text-amber-500 truncate block">{f1.circuitLapRecord?.lapTime || '1:35.490'}</span>
-                </div>
-                <div>
-                  <span className="text-[8px] opacity-60 uppercase block">Record Holder</span>
-                  <span className="font-bold truncate block">{f1.circuitLapRecord?.driver || 'Record'} ({f1.circuitLapRecord?.year || '2024'})</span>
-                </div>
+              <div className="flex items-center justify-between text-[9px] pt-1 border-t border-black/10 dark:border-white/10">
+                <span className="font-bold text-amber-500">Record: {f1.circuitLapRecord?.lapTime || '1:35.490'}</span>
+                <span className="opacity-70 truncate ml-1">{f1.circuitLapRecord?.driver} ({f1.circuitLapRecord?.year})</span>
               </div>
             </div>
 
-            {/* Right Column: Full Weekend Timetable */}
-            <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+            {/* Bottom: Complete Timetable List */}
+            <div className="space-y-1.5 overflow-y-auto flex-1 pr-0.5">
+              <div className="text-[9px] font-bold uppercase tracking-wider opacity-70 pb-0.5 border-b border-black/10 dark:border-white/10">
+                Weekend Sessions (IST)
+              </div>
               {sList.map((s) => {
                 const isNext = f1.nextSession?.name === s.data?.name;
                 return (
@@ -1959,7 +2029,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                         <span className="text-[9px] opacity-70 font-mono truncate">{s.data?.istTime}</span>
                       </div>
                     </div>
-                    <span className="text-[9px] uppercase font-bold font-mono px-1.5 py-0.5 rounded bg-black/20 text-current shrink-0">
+                    <span className="text-[8px] uppercase font-bold font-mono px-1.5 py-0.5 rounded bg-black/20 text-current shrink-0">
                       {s.data?.status}
                     </span>
                   </div>
@@ -2009,86 +2079,54 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
   const renderStandingsWidget = (size: F1WidgetSize) => {
     const isCompact = size === 'compact';
     const isLarge = size === 'large';
-    const drivers = (f1.standings || []).slice(0, isCompact ? 4 : 10);
+    const drivers = (f1.standings || []).slice(0, isCompact ? 4 : isLarge ? 20 : 10);
     const constructors = (f1.constructorStandings || []).slice(0, isCompact ? 4 : 10);
 
     if (uiStyle === 'tui') {
       return (
         <TuiBox
           key="standings"
-          title={isCompact ? 'STANDINGS' : isLarge ? 'CHAMPIONSHIP_STANDINGS_WDC_&_WCC' : standingsTab === 'drivers' ? 'WDC_STANDINGS' : 'WCC_STANDINGS'}
-          badge={isLarge ? 'WDC • WCC' : standingsTab === 'drivers' ? 'WDC' : 'WCC'}
+          title={isCompact ? 'STANDINGS' : isLarge ? 'FULL_CHAMPIONSHIP_STANDINGS' : standingsTab === 'drivers' ? 'WDC_STANDINGS' : 'WCC_STANDINGS'}
+          badge={standingsTab === 'drivers' ? 'WDC' : 'WCC'}
           badgeColor="text-amber-400"
-          className={isCompact ? 'h-[148px] max-h-[148px] min-h-[148px] overflow-hidden flex flex-col justify-between' : ''}
+          className={isCompact ? 'h-full flex flex-col justify-between' : isLarge ? 'h-full flex flex-col justify-between min-h-[460px]' : ''}
         >
-          {isLarge ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs py-0.5 font-mono">
-              <div className="space-y-1">
-                <div className="flex items-center justify-between pb-1 border-b border-amber-400/30 text-[10px] text-amber-400 font-bold">
-                  <span>&gt;&gt; PILOTS (WDC)</span>
-                  <span>PTS</span>
-                </div>
-                <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
-                  {drivers.map((d: any) => (
-                    <div key={d.driverCode} className="flex items-center justify-between text-[11px]">
-                      <span>P{d.position} {d.driverCode}</span>
-                      <span className="text-amber-400 font-bold">{d.points}P</span>
-                    </div>
-                  ))}
-                </div>
+          <div className="space-y-1 text-xs py-0.5 flex flex-col justify-between h-full font-mono flex-1">
+            <div className="flex items-center justify-between pb-1 border-b border-amber-400/20 text-[10px]">
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => setStandingsTab('drivers')}
+                  className={`hover:underline cursor-pointer ${standingsTab === 'drivers' ? 'text-amber-400 font-bold' : 'text-gray-500'}`}
+                >
+                  [DRIVERS {isLarge ? '(ALL)' : ''}]
+                </button>
+                <button
+                  onClick={() => setStandingsTab('constructors')}
+                  className={`hover:underline cursor-pointer ${standingsTab === 'constructors' ? 'text-amber-400 font-bold' : 'text-gray-500'}`}
+                >
+                  [TEAMS]
+                </button>
               </div>
-
-              <div className="space-y-1">
-                <div className="flex items-center justify-between pb-1 border-b border-amber-400/30 text-[10px] text-amber-400 font-bold">
-                  <span>&gt;&gt; CONSTRUCTORS (WCC)</span>
-                  <span>PTS</span>
-                </div>
-                <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
-                  {constructors.map((c: any) => (
-                    <div key={c.team} className="flex items-center justify-between text-[11px]">
-                      <span className="truncate">P{c.position} {c.team}</span>
-                      <span className="text-amber-400 font-bold">{c.points}P</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <span className="text-gray-400">PTS</span>
             </div>
-          ) : (
-            <div className="space-y-1 text-xs py-0.5 flex flex-col justify-between h-full font-mono">
-              <div className="flex items-center justify-between pb-1 border-b border-amber-400/20 text-[10px]">
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => setStandingsTab('drivers')}
-                    className={`hover:underline cursor-pointer ${standingsTab === 'drivers' ? 'text-amber-400 font-bold' : 'text-gray-500'}`}
-                  >
-                    [DRIVERS]
-                  </button>
-                  <button
-                    onClick={() => setStandingsTab('constructors')}
-                    className={`hover:underline cursor-pointer ${standingsTab === 'constructors' ? 'text-amber-400 font-bold' : 'text-gray-500'}`}
-                  >
-                    [TEAMS]
-                  </button>
-                </div>
-                <span className="text-gray-400">PTS</span>
-              </div>
+            <div className="space-y-1 overflow-y-auto flex-1 pr-0.5">
               {standingsTab === 'drivers' ? (
                 drivers.map((d: any) => (
-                  <div key={d.driverCode} className="flex items-center justify-between">
-                    <span>P{d.position} {d.driverCode}</span>
-                    <span className="text-amber-400 font-bold">{d.points}P</span>
+                  <div key={d.driverCode} className="flex items-center justify-between text-[11px]">
+                    <span className="truncate">P{d.position} {d.driver} ({d.driverCode})</span>
+                    <span className="text-amber-400 font-bold ml-1">{d.points}P</span>
                   </div>
                 ))
               ) : (
                 constructors.map((c: any) => (
-                  <div key={c.team} className="flex items-center justify-between">
+                  <div key={c.team} className="flex items-center justify-between text-[11px]">
                     <span className="truncate">P{c.position} {c.team}</span>
-                    <span className="text-amber-400 font-bold">{c.points}P</span>
+                    <span className="text-amber-400 font-bold ml-1">{c.points}P</span>
                   </div>
                 ))
               )}
             </div>
-          )}
+          </div>
         </TuiBox>
       );
     }
@@ -2097,76 +2135,34 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       return (
         <BrutalistBox
           key="standings"
-          title={isCompact ? 'STANDINGS' : isLarge ? 'CHAMPIONSHIP STANDINGS (WDC & WCC)' : standingsTab === 'drivers' ? 'DRIVER STANDINGS' : 'TEAM STANDINGS'}
-          badge={isLarge ? 'WDC / WCC' : standingsTab === 'drivers' ? 'WDC' : 'WCC'}
+          title={isCompact ? 'STANDINGS' : isLarge ? 'CHAMPIONSHIP STANDINGS (DEEP)' : standingsTab === 'drivers' ? 'DRIVER STANDINGS' : 'TEAM STANDINGS'}
+          badge={standingsTab === 'drivers' ? 'WDC' : 'WCC'}
           badgeColor="bg-amber-400 text-black"
-          className={isCompact ? 'h-[148px] max-h-[148px] min-h-[148px] overflow-hidden flex flex-col justify-between' : ''}
+          className={isCompact ? 'h-full flex flex-col justify-between' : isLarge ? 'h-full flex flex-col justify-between min-h-[460px]' : ''}
         >
-          {isLarge ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 py-0.5">
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between pb-1 border-b-2 border-black text-[10px] font-black uppercase">
-                  <span>Drivers (WDC)</span>
-                  <span className="font-mono">PTS</span>
-                </div>
-                <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
-                  {drivers.map((d: any) => (
-                    <div
-                      key={d.driverCode}
-                      className={`p-1.5 border-2 border-black flex items-center justify-between text-[11px] font-black ${
-                        isLight ? 'bg-neutral-100' : 'bg-neutral-900 text-white'
-                      }`}
-                    >
-                      <span>P{d.position} • {d.driver}</span>
-                      <span className="font-mono text-amber-500">{d.points} PTS</span>
-                    </div>
-                  ))}
-                </div>
+          <div className="space-y-1.5 py-0.5 flex flex-col justify-between h-full flex-1">
+            <div className="flex items-center justify-between pb-1 border-b-2 border-black text-[10px]">
+              <div className="flex space-x-1">
+                <button
+                  onClick={() => setStandingsTab('drivers')}
+                  className={`px-1.5 py-0.5 border border-black font-bold uppercase cursor-pointer ${
+                    standingsTab === 'drivers' ? 'bg-amber-400 text-black' : 'bg-transparent text-gray-600'
+                  }`}
+                >
+                  Drivers {isLarge ? '(Top 20)' : ''}
+                </button>
+                <button
+                  onClick={() => setStandingsTab('constructors')}
+                  className={`px-1.5 py-0.5 border border-black font-bold uppercase cursor-pointer ${
+                    standingsTab === 'constructors' ? 'bg-amber-400 text-black' : 'bg-transparent text-gray-600'
+                  }`}
+                >
+                  Teams
+                </button>
               </div>
-
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between pb-1 border-b-2 border-black text-[10px] font-black uppercase">
-                  <span>Constructors (WCC)</span>
-                  <span className="font-mono">PTS</span>
-                </div>
-                <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
-                  {constructors.map((c: any) => (
-                    <div
-                      key={c.team}
-                      className={`p-1.5 border-2 border-black flex items-center justify-between text-[11px] font-black ${
-                        isLight ? 'bg-neutral-100' : 'bg-neutral-900 text-white'
-                      }`}
-                    >
-                      <span className="truncate">P{c.position} • {c.team}</span>
-                      <span className="font-mono text-amber-500">{c.points} PTS</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <span className="font-mono font-bold">PTS</span>
             </div>
-          ) : (
-            <div className="space-y-1.5 py-0.5 flex flex-col justify-between h-full">
-              <div className="flex items-center justify-between pb-1 border-b-2 border-black text-[10px]">
-                <div className="flex space-x-1">
-                  <button
-                    onClick={() => setStandingsTab('drivers')}
-                    className={`px-1.5 py-0.5 border border-black font-bold uppercase cursor-pointer ${
-                      standingsTab === 'drivers' ? 'bg-amber-400 text-black' : 'bg-transparent text-gray-600'
-                    }`}
-                  >
-                    Drivers
-                  </button>
-                  <button
-                    onClick={() => setStandingsTab('constructors')}
-                    className={`px-1.5 py-0.5 border border-black font-bold uppercase cursor-pointer ${
-                      standingsTab === 'constructors' ? 'bg-amber-400 text-black' : 'bg-transparent text-gray-600'
-                    }`}
-                  >
-                    Teams
-                  </button>
-                </div>
-                <span className="font-mono font-bold">PTS</span>
-              </div>
+            <div className="space-y-1 overflow-y-auto flex-1 pr-0.5">
               {standingsTab === 'drivers' ? (
                 drivers.map((d: any) => (
                   <div
@@ -2175,8 +2171,8 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                       isLight ? 'bg-neutral-100' : 'bg-neutral-900 text-white'
                     }`}
                   >
-                    <span>P{d.position} • {isCompact ? d.driverCode : d.driver}</span>
-                    <span className="font-mono text-amber-500">{d.points} PTS</span>
+                    <span className="truncate">P{d.position} • {d.driver}</span>
+                    <span className="font-mono text-amber-500 shrink-0 ml-1">{d.points} PTS</span>
                   </div>
                 ))
               ) : (
@@ -2188,12 +2184,12 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                     }`}
                   >
                     <span className="truncate">P{c.position} • {c.team}</span>
-                    <span className="font-mono text-amber-500">{c.points} PTS</span>
+                    <span className="font-mono text-amber-500 shrink-0 ml-1">{c.points} PTS</span>
                   </div>
                 ))
               )}
             </div>
-          )}
+          </div>
         </BrutalistBox>
       );
     }
@@ -2202,83 +2198,51 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       return (
         <HudBox
           key="standings"
-          title={isCompact ? 'STANDINGS' : isLarge ? 'CHAMPIONSHIP_STANDINGS_WDC_WCC' : standingsTab === 'drivers' ? 'PILOT_RANKS' : 'CONSTRUCTOR_RANKS'}
-          code={isLarge ? 'WDC/WCC' : standingsTab === 'drivers' ? 'WDC' : 'WCC'}
+          title={isCompact ? 'STANDINGS' : isLarge ? 'FULL_CHAMPIONSHIP_STANDINGS' : standingsTab === 'drivers' ? 'PILOT_RANKS' : 'CONSTRUCTOR_RANKS'}
+          code={standingsTab === 'drivers' ? 'WDC' : 'WCC'}
           glowColor="amber"
-          className={isCompact ? 'h-[148px] max-h-[148px] min-h-[148px] overflow-hidden flex flex-col justify-between' : ''}
+          className={isCompact ? 'h-full flex flex-col justify-between' : isLarge ? 'h-full flex flex-col justify-between min-h-[460px]' : ''}
         >
-          {isLarge ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 py-0.5 font-mono text-[10px]">
-              <div className="space-y-1">
-                <div className="flex items-center justify-between pb-1 border-b border-amber-500/30 text-amber-400 font-bold">
-                  <span>// PILOTS (WDC)</span>
-                  <span>PTS</span>
-                </div>
-                <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
-                  {drivers.map((d: any) => (
-                    <div key={d.driverCode} className="p-1 rounded border border-amber-500/20 flex items-center justify-between">
-                      <span className="text-slate-200 truncate">P{d.position} {d.driverCode}</span>
-                      <span className="text-amber-400 font-bold">{d.points}P</span>
-                    </div>
-                  ))}
-                </div>
+          <div className="space-y-1 py-0.5 flex flex-col justify-between h-full font-mono text-[10px] flex-1">
+            <div className="flex items-center justify-between pb-1 border-b border-amber-500/20">
+              <div className="flex space-x-1">
+                <button
+                  onClick={() => setStandingsTab('drivers')}
+                  className={`px-1 py-0.2 rounded border cursor-pointer ${
+                    standingsTab === 'drivers' ? 'border-amber-400 text-amber-400 bg-amber-500/20' : 'border-transparent text-gray-500'
+                  }`}
+                >
+                  DRV {isLarge ? '(ALL)' : ''}
+                </button>
+                <button
+                  onClick={() => setStandingsTab('constructors')}
+                  className={`px-1 py-0.2 rounded border cursor-pointer ${
+                    standingsTab === 'constructors' ? 'border-amber-400 text-amber-400 bg-amber-500/20' : 'border-transparent text-gray-500'
+                  }`}
+                >
+                  CON
+                </button>
               </div>
-
-              <div className="space-y-1">
-                <div className="flex items-center justify-between pb-1 border-b border-amber-500/30 text-amber-400 font-bold">
-                  <span>// CONSTRUCTORS (WCC)</span>
-                  <span>PTS</span>
-                </div>
-                <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
-                  {constructors.map((c: any) => (
-                    <div key={c.team} className="p-1 rounded border border-amber-500/20 flex items-center justify-between">
-                      <span className="text-slate-200 truncate">P{c.position} {c.team}</span>
-                      <span className="text-amber-400 font-bold">{c.points}P</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <span className="text-amber-400">PTS</span>
             </div>
-          ) : (
-            <div className="space-y-1 py-0.5 flex flex-col justify-between h-full font-mono text-[10px]">
-              <div className="flex items-center justify-between pb-1 border-b border-amber-500/20">
-                <div className="flex space-x-1">
-                  <button
-                    onClick={() => setStandingsTab('drivers')}
-                    className={`px-1 py-0.2 rounded border cursor-pointer ${
-                      standingsTab === 'drivers' ? 'border-amber-400 text-amber-400 bg-amber-500/20' : 'border-transparent text-gray-500'
-                    }`}
-                  >
-                    DRV
-                  </button>
-                  <button
-                    onClick={() => setStandingsTab('constructors')}
-                    className={`px-1 py-0.2 rounded border cursor-pointer ${
-                      standingsTab === 'constructors' ? 'border-amber-400 text-amber-400 bg-amber-500/20' : 'border-transparent text-gray-500'
-                    }`}
-                  >
-                    CON
-                  </button>
-                </div>
-                <span className="text-amber-400">PTS</span>
-              </div>
+            <div className="space-y-1 overflow-y-auto flex-1 pr-0.5">
               {standingsTab === 'drivers' ? (
                 drivers.map((d: any) => (
                   <div key={d.driverCode} className="p-1 rounded border border-amber-500/20 flex items-center justify-between">
-                    <span className="text-slate-200 truncate">P{d.position} {d.driverCode}</span>
-                    <span className="text-amber-400 font-bold">{d.points}P</span>
+                    <span className="text-slate-200 truncate">P{d.position} {d.driverCode} • {d.driver}</span>
+                    <span className="text-amber-400 font-bold shrink-0 ml-1">{d.points}P</span>
                   </div>
                 ))
               ) : (
                 constructors.map((c: any) => (
                   <div key={c.team} className="p-1 rounded border border-amber-500/20 flex items-center justify-between">
                     <span className="text-slate-200 truncate">P{c.position} {c.team}</span>
-                    <span className="text-amber-400 font-bold">{c.points}P</span>
+                    <span className="text-amber-400 font-bold shrink-0 ml-1">{c.points}P</span>
                   </div>
                 ))
               )}
             </div>
-          )}
+          </div>
         </HudBox>
       );
     }
@@ -2293,40 +2257,38 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                 {isCompact
                   ? 'Standings'
                   : isLarge
-                  ? 'CHAMPIONSHIP STANDINGS (WDC & WCC)'
+                  ? 'CHAMPIONSHIP STANDINGS (DEEP)'
                   : standingsTab === 'drivers'
                   ? 'DRIVER STANDINGS'
                   : 'CONSTRUCTOR STANDINGS'}
               </span>
             </span>
 
-            {/* Drivers / Teams Tab Switcher (only for compact and normal modes) */}
-            {!isLarge && (
-              <div className="flex items-center space-x-0.5 p-0.5 rounded-lg border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-[9px]">
-                <button
-                  type="button"
-                  onClick={() => setStandingsTab('drivers')}
-                  className={`px-1.5 py-0.2 rounded font-bold transition-all cursor-pointer ${
-                    standingsTab === 'drivers'
-                      ? 'bg-amber-500 text-black shadow-xs font-extrabold'
-                      : 'text-gray-400 hover:text-current'
-                  }`}
-                >
-                  Drivers
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setStandingsTab('constructors')}
-                  className={`px-1.5 py-0.2 rounded font-bold transition-all cursor-pointer ${
-                    standingsTab === 'constructors'
-                      ? 'bg-amber-500 text-black shadow-xs font-extrabold'
-                      : 'text-gray-400 hover:text-current'
-                  }`}
-                >
-                  Teams
-                </button>
-              </div>
-            )}
+            {/* Drivers / Teams Tab Switcher */}
+            <div className="flex items-center space-x-0.5 p-0.5 rounded-lg border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-[9px]">
+              <button
+                type="button"
+                onClick={() => setStandingsTab('drivers')}
+                className={`px-1.5 py-0.2 rounded font-bold transition-all cursor-pointer ${
+                  standingsTab === 'drivers'
+                    ? 'bg-amber-500 text-black shadow-xs font-extrabold'
+                    : 'text-gray-400 hover:text-current'
+                }`}
+              >
+                Drivers {isLarge ? '(Top 20)' : ''}
+              </button>
+              <button
+                type="button"
+                onClick={() => setStandingsTab('constructors')}
+                className={`px-1.5 py-0.2 rounded font-bold transition-all cursor-pointer ${
+                  standingsTab === 'constructors'
+                    ? 'bg-amber-500 text-black shadow-xs font-extrabold'
+                    : 'text-gray-400 hover:text-current'
+                }`}
+              >
+                Teams
+              </button>
+            </div>
           </div>
 
           <div className="flex items-center space-x-1 shrink-0">
@@ -2361,58 +2323,8 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
               ))
             )}
           </div>
-        ) : isLarge ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-            {/* Left Column: Drivers (WDC) */}
-            <div className="space-y-1">
-              <div className="flex items-center justify-between pb-1 text-[10px] font-bold text-amber-500 uppercase tracking-wider border-b border-black/10 dark:border-white/10">
-                <span>Drivers (WDC)</span>
-                <span className="font-mono text-[9px] opacity-70">PTS</span>
-              </div>
-              <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
-                {drivers.map((d: any) => (
-                  <div key={d.driverCode} className={`p-1.5 rounded-xl border flex items-center justify-between ${getInnerClass()}`}>
-                    <div className="flex items-center space-x-2 truncate">
-                      <span className="font-mono font-bold opacity-60 w-3 text-center text-xs">{d.position}</span>
-                      <div className="w-1.5 h-4 rounded-full shrink-0" style={{ backgroundColor: d.teamColor }} />
-                      <div className="truncate">
-                        <span className="font-bold text-[11px] block truncate">{d.driver}</span>
-                        <span className="text-[9px] opacity-70 truncate block">{d.team}</span>
-                      </div>
-                    </div>
-                    <span className="font-mono font-extrabold text-xs text-amber-500 shrink-0">{d.points} PTS</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Right Column: Constructors (WCC) */}
-            <div className="space-y-1">
-              <div className="flex items-center justify-between pb-1 text-[10px] font-bold text-amber-500 uppercase tracking-wider border-b border-black/10 dark:border-white/10">
-                <span>Constructors (WCC)</span>
-                <span className="font-mono text-[9px] opacity-70">PTS</span>
-              </div>
-              <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
-                {constructors.map((c: any) => (
-                  <div key={c.team} className={`p-1.5 rounded-xl border flex items-center justify-between ${getInnerClass()}`}>
-                    <div className="flex items-center space-x-2.5 truncate">
-                      <span className="font-mono font-bold opacity-60 w-3 text-center text-xs">{c.position}</span>
-                      <div className="w-1.5 h-4 rounded-full shrink-0" style={{ backgroundColor: c.teamColor }} />
-                      <div className="truncate">
-                        <span className="font-bold text-[11px] block truncate">{c.team}</span>
-                        <span className="text-[9px] opacity-70 truncate block">
-                          {c.wins > 0 ? `${c.wins} Win${c.wins > 1 ? 's' : ''}` : '0 Wins'}
-                        </span>
-                      </div>
-                    </div>
-                    <span className="font-mono font-extrabold text-xs text-amber-500 shrink-0">{c.points} PTS</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
         ) : (
-          <div className="space-y-1 text-xs max-h-56 overflow-y-auto pr-1">
+          <div className="space-y-1 text-xs overflow-y-auto pr-0.5 flex-1">
             {standingsTab === 'drivers' ? (
               drivers.map((d: any) => (
                 <div key={d.driverCode} className={`p-1.5 rounded-xl border flex items-center justify-between ${getInnerClass()}`}>
@@ -2520,11 +2432,12 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       </div>
 
       {/* Render Active Widgets in a 12-Column Responsive Grid with HTML5 Drag-and-Drop:
-          - Large (L): col-span-12 lg:col-span-8
-          - Normal (M): col-span-12 sm:col-span-6 lg:col-span-4
-          - Compact (S): col-span-6 md:col-span-4 lg:col-span-2 fixed h-[148px]
+          - Large (L): col-span-12 sm:col-span-6 lg:col-span-4 row-span-2 min-h-[460px] (expands vertically with deep lists/content)
+          - Normal (M): col-span-12 sm:col-span-6 lg:col-span-4 min-h-[130px]
+          - Compact (S): col-span-6 sm:col-span-3 lg:col-span-2 h-[130px] max-h-[130px] min-h-[130px]
+          - grid-flow-dense: auto-fills any gaps left by large or medium widgets so no voids remain
       */}
-      <div className="grid grid-cols-12 gap-3.5 overflow-y-auto pr-1 flex-1 min-h-0 auto-rows-max items-stretch content-start">
+      <div className="grid grid-cols-12 gap-3.5 overflow-y-auto pr-1 flex-1 min-h-0 auto-rows-max items-stretch content-start grid-flow-dense">
         {visibleWidgets.map((w) => {
           const size = f1WidgetSizes[w.id] || 'normal';
           const isCompact = size === 'compact';
@@ -2570,10 +2483,10 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
               }}
               className={`transition-all duration-150 ${
                 isLarge
-                  ? 'col-span-12 lg:col-span-8'
+                  ? 'col-span-12 sm:col-span-6 lg:col-span-4 row-span-2 min-h-[460px]'
                   : isCompact
-                  ? 'col-span-6 md:col-span-4 lg:col-span-2 h-[148px] max-h-[148px] min-h-[148px]'
-                  : 'col-span-12 sm:col-span-6 lg:col-span-4'
+                  ? 'col-span-6 sm:col-span-3 lg:col-span-2 h-[130px] max-h-[130px] min-h-[130px]'
+                  : 'col-span-12 sm:col-span-6 lg:col-span-4 min-h-[130px]'
               } ${
                 gridDraggedId === w.id
                   ? 'opacity-35 scale-[0.98] ring-2 ring-blue-500 rounded-2xl'
