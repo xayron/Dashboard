@@ -2437,7 +2437,27 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           - Compact (S): col-span-6 sm:col-span-3 lg:col-span-2 h-[130px] max-h-[130px] min-h-[130px]
           - grid-flow-dense: auto-fills any gaps left by large or medium widgets so no voids remain
       */}
-      <div className="grid grid-cols-12 gap-3.5 overflow-y-auto pr-1 flex-1 min-h-0 auto-rows-max items-stretch content-start grid-flow-dense">
+      <div
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          if (e.target === e.currentTarget) {
+            const sourceId = (e.dataTransfer.getData('text/plain') as F1WidgetId) || gridDraggedId;
+            if (sourceId) {
+              const fromIdx = f1ActiveWidgets.indexOf(sourceId);
+              if (fromIdx !== -1 && fromIdx !== f1ActiveWidgets.length - 1) {
+                reorderF1Widgets(fromIdx, f1ActiveWidgets.length - 1);
+              }
+            }
+            setGridDraggedId(null);
+            setGridDragOverId(null);
+          }
+        }}
+        className="grid grid-cols-12 gap-3.5 overflow-y-auto pr-1 flex-1 min-h-0 auto-rows-max items-stretch content-start grid-flow-dense"
+      >
         {visibleWidgets.map((w) => {
           const size = f1WidgetSizes[w.id] || 'normal';
           const isCompact = size === 'compact';
