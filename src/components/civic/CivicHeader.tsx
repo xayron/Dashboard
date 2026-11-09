@@ -23,8 +23,11 @@ export const CivicHeader: React.FC = () => {
         <div className="flex items-center space-x-3">
           <div className={`flex items-center space-x-2 border-r pr-4 ${isLight ? 'border-slate-300' : 'border-slate-700'}`}>
             <span
-              className="px-2 py-0.5 text-xs font-black text-slate-950 rounded uppercase tracking-wider"
-              style={{ backgroundColor: 'var(--color-accent, #f97316)' }}
+              className="px-2.5 py-0.5 text-xs font-black rounded uppercase tracking-wider shadow-xs"
+              style={{
+                backgroundColor: 'var(--color-accent, #f97316)',
+                color: 'var(--color-accent-contrast, #ffffff)',
+              }}
             >
               PUBLIC GAZETTE
             </span>
@@ -38,7 +41,7 @@ export const CivicHeader: React.FC = () => {
               isLight ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-emerald-900/60 text-emerald-300 border-emerald-500/50'
             }`}>
               <Newspaper size={13} />
-              <span>EDITION 15.6"</span>
+              <span>KIOSK EDITION</span>
             </span>
             <span className={isLight ? 'text-slate-400' : 'text-slate-500'}>•</span>
             <span

@@ -116,8 +116,11 @@ export const NeumorphicEveningMode: React.FC = () => {
 
               <button
                 onClick={() => mediaControl('toggle')}
-                className="p-4 rounded-2xl text-white transition-transform hover:scale-105 active:scale-95 shadow-md"
-                style={{ backgroundColor: 'var(--color-accent)' }}
+                className="p-4 rounded-2xl transition-transform hover:scale-105 active:scale-95 shadow-md"
+                style={{
+                  backgroundColor: 'var(--color-accent)',
+                  color: 'var(--color-accent-contrast, #ffffff)',
+                }}
               >
                 {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-0.5" />}
               </button>

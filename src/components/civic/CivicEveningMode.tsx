@@ -150,8 +150,11 @@ export const CivicEveningMode: React.FC = () => {
 
               <button
                 onClick={() => mediaControl('toggle')}
-                className="px-6 py-2 rounded-lg text-white font-mono font-black text-xs uppercase transition-transform hover:scale-105 active:scale-95 shadow-md"
-                style={{ backgroundColor: 'var(--color-accent, #f97316)' }}
+                className="px-6 py-2 rounded-lg font-mono font-black text-xs uppercase transition-transform hover:scale-105 active:scale-95 shadow-md"
+                style={{
+                  backgroundColor: 'var(--color-accent, #f97316)',
+                  color: 'var(--color-accent-contrast, #ffffff)',
+                }}
               >
                 {isPlaying ? 'PAUSE ||' : 'PLAY ▶'}
               </button>

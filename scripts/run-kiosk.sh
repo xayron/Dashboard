@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Production Kiosk Launcher Script for 15.6" 1080p Smart Display
+# Production Kiosk Launcher Script for Smart Display
 set -euo pipefail
 
 TARGET_URL="${1:-http://localhost:3000}"
 
-echo "Starting 15.6\" Smart Display Dashboard in Chromium Kiosk mode on ${TARGET_URL}..."
+echo "Starting Smart Display Dashboard in Chromium Kiosk mode on ${TARGET_URL}..."
 
 # Disable screen saver, blanking and DPMS timeout on X11 display
 if command -v xset >/dev/null 2>&1; then

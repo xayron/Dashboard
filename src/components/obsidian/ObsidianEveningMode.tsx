@@ -159,10 +159,11 @@ export const ObsidianEveningMode: React.FC = () => {
 
               <button
                 onClick={() => mediaControl('toggle')}
-                className="px-5 py-1.5 border text-black font-mono font-bold text-xs tracking-wider transition-all"
+                className="px-5 py-1.5 border font-mono font-bold text-xs tracking-wider transition-all"
                 style={{
                   backgroundColor: 'var(--color-accent, #5fd49b)',
                   borderColor: 'var(--color-accent, #5fd49b)',
+                  color: 'var(--color-accent-contrast, #ffffff)',
                   boxShadow: isLight ? 'none' : '0 0 12px var(--color-glow, rgba(95,212,155,0.3))',
                 }}
               >

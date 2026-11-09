@@ -154,9 +154,10 @@ export const RetrowaveEveningMode: React.FC = () => {
 
               <button
                 onClick={() => mediaControl('toggle')}
-                className="px-6 py-1.5 rounded-xl text-black font-black text-xs uppercase transition-transform hover:scale-105 active:scale-95 shadow-lg"
+                className="px-6 py-1.5 rounded-xl font-black text-xs uppercase transition-transform hover:scale-105 active:scale-95 shadow-lg"
                 style={{
                   backgroundColor: 'var(--color-accent, #ff007f)',
+                  color: 'var(--color-accent-contrast, #ffffff)',
                   boxShadow: '0 0 20px var(--color-glow)',
                 }}
               >

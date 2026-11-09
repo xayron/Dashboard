@@ -2,14 +2,14 @@ import React from 'react';
 import {
   Layers,
   Flame,
-  Moon,
-  Sun,
   Camera,
   RotateCcw,
   ChevronRight,
   ChevronLeft,
   Settings,
   X,
+  Moon,
+  Sun,
 } from 'lucide-react';
 import { useDashboard } from '../../state/DashboardContext';
 import type { DashboardMode } from '../../types/dashboard';
@@ -27,8 +27,6 @@ export const KioskControls: React.FC = () => {
     setIsSettingsOpen,
     nextPhoto,
     prevPhoto,
-    colorMode,
-    toggleColorMode,
   } = useDashboard();
 
   if (!isKioskBarVisible) {
@@ -68,9 +66,19 @@ export const KioskControls: React.FC = () => {
             onClick={() => setManualOverrideMode(null)}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 ${
               manualOverrideMode === null
-                ? 'bg-blue-600 text-white shadow-lg ring-1 ring-blue-400'
+                ? 'shadow-md ring-1'
                 : 'text-gray-400 hover:text-white hover:bg-white/5'
             }`}
+            style={
+              manualOverrideMode === null
+                ? {
+                    backgroundColor: 'var(--color-accent-soft, rgba(59, 130, 246, 0.25))',
+                    color: 'var(--color-accent, #3b82f6)',
+                    borderColor: 'var(--color-accent, #3b82f6)',
+                    boxShadow: '0 0 12px var(--color-glow, rgba(59, 130, 246, 0.25))',
+                  }
+                : undefined
+            }
           >
             <RotateCcw size={12} />
             <span>Auto ({autoCalculatedMode})</span>
@@ -85,9 +93,19 @@ export const KioskControls: React.FC = () => {
                 onClick={() => setManualOverrideMode(m.id)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 ${
                   isSelected
-                    ? 'bg-white/20 text-white shadow-md ring-1 ring-white/30'
+                    ? 'shadow-md ring-1'
                     : 'text-gray-400 hover:text-white hover:bg-white/5'
                 }`}
+                style={
+                  isSelected
+                    ? {
+                        backgroundColor: 'var(--color-accent-soft, rgba(59, 130, 246, 0.25))',
+                        color: 'var(--color-accent, #3b82f6)',
+                        borderColor: 'var(--color-accent, #3b82f6)',
+                        boxShadow: '0 0 12px var(--color-glow, rgba(59, 130, 246, 0.25))',
+                      }
+                    : undefined
+                }
               >
                 {m.icon}
                 <span>{m.label}</span>
@@ -129,20 +147,6 @@ export const KioskControls: React.FC = () => {
             <ChevronRight size={16} />
           </button>
         </div>
-
-        {/* Light / Dark Mode Toggle */}
-        <button
-          onClick={toggleColorMode}
-          title={`Switch to ${colorMode === 'dark' ? 'Light' : 'Dark'} Mode (Press 'D')`}
-          className="px-2 py-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all flex items-center space-x-1"
-        >
-          {colorMode === 'dark' ? (
-            <Sun size={15} className="text-amber-400" />
-          ) : (
-            <Moon size={15} className="text-indigo-400" />
-          )}
-          <span className="text-[11px] font-bold uppercase">{colorMode === 'dark' ? 'Light' : 'Dark'}</span>
-        </button>
 
         {/* Settings button */}
         <button

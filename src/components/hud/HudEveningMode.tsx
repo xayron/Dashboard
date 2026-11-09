@@ -145,10 +145,11 @@ export const HudEveningMode: React.FC = () => {
 
               <button
                 onClick={() => mediaControl('toggle')}
-                className="px-5 py-1.5 border text-black font-black text-xs tracking-widest transition-transform hover:scale-105 active:scale-95"
+                className="px-5 py-1.5 border font-black text-xs tracking-widest transition-transform hover:scale-105 active:scale-95"
                 style={{
                   backgroundColor: 'var(--color-accent)',
                   borderColor: 'var(--color-accent)',
+                  color: 'var(--color-accent-contrast, #ffffff)',
                   boxShadow: '0 0 15px var(--color-glow)',
                 }}
               >

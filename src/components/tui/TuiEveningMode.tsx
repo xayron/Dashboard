@@ -174,10 +174,11 @@ export const TuiEveningMode: React.FC = () => {
                 </button>
                 <button
                   onClick={() => mediaControl('toggle')}
-                  className="px-3 py-1 font-bold text-black border transition-all"
+                  className="px-3 py-1 font-bold border transition-all"
                   style={{
                     backgroundColor: 'var(--color-accent)',
                     borderColor: 'var(--color-accent)',
+                    color: 'var(--color-accent-contrast, #ffffff)',
                   }}
                 >
                   [{isPlaying ? 'PAUSE' : 'PLAY'}]

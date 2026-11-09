@@ -128,10 +128,13 @@ export const BrutalistEveningMode: React.FC = () => {
 
               <button
                 onClick={() => mediaControl('toggle')}
-                className={`px-6 py-2 text-black font-black text-sm uppercase border-2 border-black hover:translate-x-0.5 active:translate-y-0.5 ${
+                className={`px-6 py-2 font-black text-sm uppercase border-2 border-black hover:translate-x-0.5 active:translate-y-0.5 ${
                   isLight ? 'shadow-[3px_3px_0px_#000]' : 'shadow-[3px_3px_0px_#fff]'
                 }`}
-                style={{ backgroundColor: 'var(--color-accent, #facc15)' }}
+                style={{
+                  backgroundColor: 'var(--color-accent, #facc15)',
+                  color: 'var(--color-accent-contrast, #000000)',
+                }}
               >
                 {isPlaying ? 'PAUSE ||' : 'PLAY ▶'}
               </button>

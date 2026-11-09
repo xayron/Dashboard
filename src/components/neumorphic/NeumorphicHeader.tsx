@@ -9,7 +9,7 @@ export const NeumorphicHeader: React.FC = () => {
     <header className="w-full bg-transparent text-neutral-300 px-8 py-3 flex items-center justify-between text-xs select-none z-30">
       <div className="flex items-center space-x-3">
         <div className="px-3 py-1 rounded-xl bg-[#1a1d24] shadow-[inset_2px_2px_5px_#101217,inset_-2px_-2px_5px_#242831] font-bold tracking-wider text-[11px] uppercase">
-          TACTILE DISPLAY 15.6
+          TACTILE DISPLAY
         </div>
         <span className="opacity-40 font-medium">/</span>
         <span className="font-semibold uppercase tracking-wider text-[11px]" style={{ color: 'var(--color-accent)' }}>

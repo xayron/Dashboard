@@ -1,4 +1,4 @@
-# Implementation Plan: 15.6" Smart Display Dashboard
+# Implementation Plan: Smart Display Dashboard
 
 This document details the architectural design, software stack, state machine, data pipelines, and phase-by-phase roadmap for building and deploying the custom dynamic dashboard.
 
@@ -26,7 +26,7 @@ This document details the architectural design, software stack, state machine, d
                         │
                         ▼ (Full-screen kiosk output)
 ┌───────────────────────────────────────────────┐
-│     15.6" 1080p Portable Monitor Display      │
+│       1080p Portable Monitor Display          │
 │  - Driven via Chromium Kiosk Mode             │
 │  - Auto-sleep / DPMS controlled via HA Plug   │
 └───────────────────────────────────────────────┘

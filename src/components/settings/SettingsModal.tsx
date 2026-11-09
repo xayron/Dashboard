@@ -96,7 +96,7 @@ export const SettingsModal: React.FC = () => {
           <div className="flex items-center space-x-2.5">
             <h2 className="text-xl font-bold font-display text-white">Dashboard Settings</h2>
             <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 font-mono">
-              15.6" Kiosk Config
+              Smart Display Config
             </span>
           </div>
           <button
@@ -530,7 +530,7 @@ export const SettingsModal: React.FC = () => {
               <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
                 <h4 className="text-sm font-bold text-white mb-1">Kiosk Hardware Specifications</h4>
                 <p className="text-gray-400 leading-relaxed">
-                  Display target: 15.6" Full HD (1920x1080) at 100% DPI scale.
+                  Display target: Full HD (1920x1080) at 100% DPI scale.
                   Auto-sleep: Screen sleeps between 00:00 and 06:00 IST via DPMS or smart plug.
                 </p>
               </div>

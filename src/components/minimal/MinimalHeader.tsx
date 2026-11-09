@@ -9,7 +9,7 @@ export const MinimalHeader: React.FC = () => {
     <header className="w-full px-10 py-3 border-b border-white/10 flex items-center justify-between text-xs text-neutral-400 select-none bg-transparent backdrop-blur-sm z-30">
       <div className="flex items-center space-x-3">
         <span className="font-medium tracking-widest text-[11px] uppercase">
-          Kiosk 15.6
+          Smart Display
         </span>
         <span className="opacity-40">/</span>
         <span className="font-light uppercase tracking-wider" style={{ color: 'var(--color-accent)' }}>

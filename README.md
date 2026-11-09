@@ -1,6 +1,6 @@
-# 15.6" Smart Display Dashboard
+# Smart Display Dashboard
 
-A production-grade, dynamic, context-aware dashboard custom-built for a 15.6" 1080p (1920x1080) portable monitor in Chromium Kiosk Mode.
+A production-grade, dynamic, context-aware dashboard custom-built for a 1080p (1920x1080) portable monitor in Chromium Kiosk Mode.
 
 ---
 

@@ -12,7 +12,7 @@ export const EinkHeader: React.FC = () => {
           <BookOpen size={15} style={{ color: 'var(--color-accent)' }} />
           <span>The Daily Chronicle</span>
         </div>
-        <span className="italic text-stone-600">Edition 15.6 • {activeMode.toUpperCase()} VIEW</span>
+        <span className="italic text-stone-600">Editorial Edition • {activeMode.toUpperCase()} VIEW</span>
       </div>
 
       <div className="flex items-center space-x-5 text-xs font-serif">

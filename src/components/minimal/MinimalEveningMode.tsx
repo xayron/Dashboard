@@ -98,7 +98,7 @@ export const MinimalEveningMode: React.FC = () => {
               <button
                 onClick={() => mediaControl('toggle')}
                 className="w-12 h-12 rounded-full flex items-center justify-center transition-transform hover:scale-105 active:scale-95 shadow-md"
-                style={{ backgroundColor: 'var(--color-accent)', color: '#ffffff' }}
+                style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-accent-contrast, #ffffff)' }}
               >
                 {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-0.5" />}
               </button>

@@ -220,9 +220,10 @@ export const EveningMode: React.FC = () => {
                 </button>
                 <button
                   onClick={() => mediaControl('toggle')}
-                  className="p-4 rounded-full text-white shadow-lg transition-all hover:scale-110 active:scale-95"
+                  className="p-4 rounded-full shadow-lg transition-all hover:scale-110 active:scale-95"
                   style={{
                     backgroundColor: 'var(--color-accent)',
+                    color: 'var(--color-accent-contrast, #ffffff)',
                     boxShadow: '0 4px 15px var(--color-glow)',
                   }}
                   title={isPlaying ? 'Pause' : 'Play'}

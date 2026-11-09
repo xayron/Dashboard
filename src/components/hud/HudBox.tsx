@@ -20,7 +20,7 @@ export const HudBox: React.FC<HudBoxProps> = ({
 
   return (
     <div
-      className={`relative border hud-box p-4 flex flex-col ${
+      className={`relative border w-full hud-box p-4 flex flex-col ${
         isLight ? 'bg-white/95 text-slate-900' : 'bg-[#040814]/90 text-cyan-100'
       } ${className}`}
       style={{

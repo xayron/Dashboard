@@ -52,7 +52,7 @@ export const BrutalistAmbientMode: React.FC = () => {
         <div className="bg-black/95 text-white p-4 border-4 border-white shadow-[6px_6px_0px_#00f0ff] max-w-lg mb-3">
           <div className="flex items-center space-x-2 text-cyan-400 font-black text-xs uppercase mb-1">
             <Camera size={14} />
-            <span>PHOTO SHOWCASE // 15.6&quot;</span>
+            <span>PHOTO SHOWCASE</span>
           </div>
           <h2 className="text-xl font-black uppercase tracking-tight text-white">{currentPhoto.title}</h2>
           {currentPhoto.location && (

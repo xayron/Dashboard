@@ -203,6 +203,12 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     document.documentElement.style.setProperty('--theme-accent', activeColors.accent);
     document.documentElement.style.setProperty('--color-accent', activeColors.accent);
+    const contrastColor = isLight
+      ? '#ffffff'
+      : (theme === 'amber' || theme === 'nordic' || theme === 'emerald' || theme === 'monochrome')
+        ? '#000000'
+        : '#ffffff';
+    document.documentElement.style.setProperty('--color-accent-contrast', contrastColor);
     document.documentElement.style.setProperty('--theme-border', activeColors.border);
     document.documentElement.style.setProperty('--theme-bg', activeColors.bg);
     document.documentElement.style.setProperty('--color-bg-base', activeColors.bg);
