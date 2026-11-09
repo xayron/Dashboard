@@ -156,14 +156,23 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       .filter((w): w is F1WidgetDef => Boolean(w));
   }, [f1ActiveWidgets]);
 
-  // Style Tokens per visual theme - small cards strictly fixed at 130px height, large cards full height (row-span-2)
+  // Unified grid unit: 140px row height, 12-col grid, gap-3 (12px)
+  // S: col-span-3 row-span-1 → 140px tall, quarter-width (3 cols)
+  // M: col-span-6 row-span-1 → 140px tall, half-width   (6 cols) = 2×S side by side
+  // L: col-span-6 row-span-2 → 292px tall (2×140+12px), half-width = 2×M stacked
   const getCardClass = (size: F1WidgetSize = 'normal') => {
+    // Static Tailwind-safe height tokens:
+    //   S / M: h-[140px]  (1 row track)
+    //   L:     h-[292px]  (2 row tracks + 12px gap between them)
+    const h = size === 'large'
+      ? 'h-[292px] min-h-[292px] max-h-[292px]'
+      : 'h-[140px] min-h-[140px] max-h-[140px]';
     const pad =
       size === 'compact'
-        ? 'p-2.5 h-[130px] max-h-[130px] min-h-[130px] overflow-hidden flex flex-col justify-between'
+        ? `p-2.5 ${h} overflow-hidden flex flex-col justify-between`
         : size === 'large'
-        ? 'p-3.5 h-full flex flex-col justify-between min-h-[460px]'
-        : 'p-3.5 h-full flex flex-col justify-between min-h-[130px]';
+        ? `p-3.5 ${h} overflow-hidden flex flex-col justify-between`
+        : `p-3 ${h} overflow-hidden flex flex-col justify-between`;
 
     if (uiStyle === 'minimal') {
       return `${pad} ${
@@ -2432,10 +2441,11 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       </div>
 
       {/* Render Active Widgets in a 12-Column Responsive Grid with HTML5 Drag-and-Drop:
-          - Large (L): col-span-12 sm:col-span-6 lg:col-span-4 row-span-2 min-h-[460px] (expands vertically with deep lists/content)
-          - Normal (M): col-span-12 sm:col-span-6 lg:col-span-4 min-h-[130px]
-          - Compact (S): col-span-6 sm:col-span-3 lg:col-span-2 h-[130px] max-h-[130px] min-h-[130px]
-          - grid-flow-dense: auto-fills any gaps left by large or medium widgets so no voids remain
+          Grid unit = 140px row height, gap-3 (12px)
+          - S (compact): col-span-3 row-span-1  →  140px tall, quarter-row width
+          - M (normal):  col-span-6 row-span-1  →  140px tall, half-row width  = 2×S side by side
+          - L (large):   col-span-6 row-span-2  →  292px tall, half-row width  = 2×M stacked vertically
+          grid-flow-dense fills any gaps automatically
       */}
       <div
         onDragOver={(e) => {
@@ -2456,7 +2466,8 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
             setGridDragOverId(null);
           }
         }}
-        className="grid grid-cols-12 gap-3.5 overflow-y-auto pr-1 flex-1 min-h-0 auto-rows-max items-stretch content-start grid-flow-dense"
+        className="grid grid-cols-12 gap-3 overflow-y-auto pr-1 flex-1 min-h-0 grid-flow-dense"
+        style={{ gridAutoRows: '140px' }}
       >
         {visibleWidgets.map((w) => {
           const size = f1WidgetSizes[w.id] || 'normal';
@@ -2503,13 +2514,13 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
               }}
               className={`transition-all duration-150 ${
                 isLarge
-                  ? 'col-span-12 sm:col-span-6 lg:col-span-4 row-span-2 min-h-[460px]'
+                  ? 'col-span-6 row-span-2'
                   : isCompact
-                  ? 'col-span-6 sm:col-span-3 lg:col-span-2 h-[130px] max-h-[130px] min-h-[130px]'
-                  : 'col-span-12 sm:col-span-6 lg:col-span-4 min-h-[130px]'
+                  ? 'col-span-3 row-span-1'
+                  : 'col-span-6 row-span-1'
               } ${
                 gridDraggedId === w.id
-                  ? 'opacity-35 scale-[0.98] ring-2 ring-blue-500 rounded-2xl'
+                  ? 'opacity-35 scale-[0.98] ring-2 ring-blue-500 rounded-2xl z-20'
                   : gridDragOverId === w.id
                   ? 'ring-2 ring-amber-400 ring-offset-2 scale-[1.01] rounded-2xl z-10'
                   : ''

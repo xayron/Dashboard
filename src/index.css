@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Safelist: grid unit classes built dynamically in F1WidgetsColumn */
+@source inline("h-[140px] min-h-[140px] max-h-[140px] h-[292px] min-h-[292px] max-h-[292px] col-span-3 col-span-6 row-span-1 row-span-2 grid-flow-dense");
+
 @layer base {
   * {
     border-color: var(--color-border-subtle, rgba(255, 255, 255, 0.1));
