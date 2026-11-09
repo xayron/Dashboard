@@ -119,7 +119,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
   // Style Tokens per visual theme
   const getCardClass = (size: F1WidgetSize = 'normal') => {
-    const pad = size === 'compact' ? 'p-2.5' : 'p-3.5';
+    const pad = size === 'compact' ? 'p-2.5 h-full flex flex-col justify-between' : 'p-3.5';
 
     if (uiStyle === 'minimal') {
       return `${pad} ${
@@ -232,23 +232,23 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       return (
         <TuiBox
           key="countdown"
-          title="NEXT_SESSION_COUNTDOWN"
+          title={isCompact ? 'COUNTDOWN' : 'NEXT_SESSION_COUNTDOWN'}
           badge={isCompact ? f1.nextSession.countdownFormatted : 'LIVE IN IST'}
           badgeColor="text-red-500"
-          className="border-red-500/50"
+          className={`border-red-500/50 ${isCompact ? 'h-full flex flex-col justify-between' : ''}`}
         >
-          <div className="py-0.5">
-            <div className="flex items-center justify-between pb-1.5 border-b border-red-500/30">
+          <div className="py-0.5 flex flex-col justify-between h-full">
+            <div className={!isCompact ? 'flex items-center justify-between pb-1.5 border-b border-red-500/30' : 'space-y-1'}>
               <div>
-                <div className={`text-[9px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>TARGET:</div>
-                <div className={`${isCompact ? 'text-sm font-bold' : 'text-base font-black'} mt-0.5 ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                <div className={`text-[8px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>TARGET:</div>
+                <div className="text-xs font-bold truncate mt-0.5">
                   {f1.nextSession.name.toUpperCase()}
                 </div>
-                <div className="text-[11px] text-red-500 mt-0.5 font-bold">&gt;&gt; {f1.nextSession.istTimeFormatted}</div>
+                <div className="text-[10px] text-red-500 mt-0.5 font-mono truncate">&gt;&gt; {f1.nextSession.istTimeFormatted}</div>
               </div>
-              <div className={`px-2.5 py-1 border border-red-500/60 text-center ${isLight ? 'bg-red-50' : 'bg-red-950/20'}`}>
-                <div className="text-[8px] uppercase tracking-wider font-bold opacity-75">T-MINUS</div>
-                <div className={`${isCompact ? 'text-sm' : 'text-base'} font-black text-red-500 tracking-wider animate-pulse`}>
+              <div className={`px-2 py-1 border border-red-500/60 text-center ${isLight ? 'bg-red-50' : 'bg-red-950/20'} ${isCompact ? 'mt-1' : ''}`}>
+                <div className="text-[7px] uppercase tracking-wider font-bold opacity-75">T-MINUS</div>
+                <div className="text-xs font-black text-red-500 tracking-wider animate-pulse font-mono tabular-nums">
                   T-{f1.nextSession.countdownFormatted}
                 </div>
               </div>
@@ -283,28 +283,29 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       return (
         <BrutalistBox
           key="countdown"
-          title="NEXT SESSION COUNTDOWN"
+          title={isCompact ? 'COUNTDOWN' : 'NEXT SESSION COUNTDOWN'}
           badge={isCompact ? f1.nextSession.countdownFormatted : 'LIVE IN IST'}
           badgeColor="bg-red-600 text-white"
+          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
         >
-          <div className="py-0.5">
-            <div className="flex items-center justify-between pb-1.5 border-b-2 border-black">
+          <div className="py-0.5 flex flex-col justify-between h-full">
+            <div className={!isCompact ? 'flex items-center justify-between pb-1.5 border-b-2 border-black' : 'space-y-1'}>
               <div>
-                <div className="text-[9px] font-black uppercase tracking-wider opacity-75">TARGET SESSION</div>
-                <div className={`${isCompact ? 'text-sm' : 'text-base'} font-black uppercase tracking-tight`}>
+                <div className="text-[8px] font-black uppercase tracking-wider opacity-75">TARGET</div>
+                <div className="text-xs font-black uppercase tracking-tight truncate">
                   {f1.nextSession.name}
                 </div>
-                <div className="text-xs font-mono font-bold mt-0.5 flex items-center text-red-500">
-                  <Calendar size={11} className="mr-1" />
+                <div className="text-[10px] font-mono font-bold mt-0.5 flex items-center text-red-500 truncate">
+                  <Calendar size={10} className="mr-1 shrink-0" />
                   {f1.nextSession.istTimeFormatted}
                 </div>
               </div>
               <div
-                className="px-2.5 py-1 border-2 border-black text-center shadow-[2px_2px_0px_#000]"
+                className={`px-2 py-1 border-2 border-black text-center shadow-[1px_1px_0px_#000] ${isCompact ? 'mt-1' : ''}`}
                 style={{ backgroundColor: 'var(--color-accent, #facc15)' }}
               >
-                <div className="text-[8px] font-black uppercase tracking-widest text-black">T-MINUS</div>
-                <div className="text-sm font-black font-mono text-black tracking-wider">
+                <div className="text-[7px] font-black uppercase tracking-widest text-black">T-MINUS</div>
+                <div className="text-xs font-black font-mono text-black tracking-wider tabular-nums">
                   {f1.nextSession.countdownFormatted}
                 </div>
               </div>
@@ -337,20 +338,26 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
     if (uiStyle === 'hud') {
       return (
-        <HudBox key="countdown" title="NEXT_SESSION_COUNTDOWN" code={isCompact ? f1.nextSession.countdownFormatted : 'LIVE_IST'} glowColor="cyan">
-          <div className="py-0.5">
-            <div className="flex items-center justify-between pb-1.5 border-b border-cyan-500/20">
+        <HudBox
+          key="countdown"
+          title={isCompact ? 'COUNTDOWN' : 'NEXT_SESSION_COUNTDOWN'}
+          code={isCompact ? f1.nextSession.countdownFormatted : 'LIVE_IST'}
+          glowColor="cyan"
+          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+        >
+          <div className="py-0.5 flex flex-col justify-between h-full">
+            <div className={!isCompact ? 'flex items-center justify-between pb-1.5 border-b border-cyan-500/20' : 'space-y-1'}>
               <div>
-                <span className="text-[9px] block opacity-75">TARGET_EVENT</span>
-                <span className={`${isCompact ? 'text-sm font-bold' : 'text-base font-black'} tracking-wide`}>{f1.nextSession.name}</span>
-                <span className="text-xs font-mono block mt-0.5 flex items-center" style={{ color: 'var(--color-accent)' }}>
-                  <Calendar size={11} className="mr-1" />
+                <span className="text-[8px] block opacity-75">TARGET</span>
+                <span className="text-xs font-black tracking-wide truncate block">{f1.nextSession.name}</span>
+                <span className="text-[10px] font-mono block mt-0.5 flex items-center truncate" style={{ color: 'var(--color-accent)' }}>
+                  <Calendar size={10} className="mr-1 shrink-0" />
                   {f1.nextSession.istTimeFormatted}
                 </span>
               </div>
-              <div className={`px-2.5 py-1 border text-center ${isLight ? 'bg-cyan-100/60 border-cyan-400' : 'bg-black/60 border-cyan-500/50'}`}>
-                <div className="text-[8px] uppercase tracking-widest opacity-80">T-MINUS</div>
-                <div className="text-sm font-black font-mono tracking-wider text-rose-500 animate-pulse">
+              <div className={`px-2 py-1 border text-center ${isLight ? 'bg-cyan-100/60 border-cyan-400' : 'bg-black/60 border-cyan-500/50'} ${isCompact ? 'mt-1' : ''}`}>
+                <div className="text-[7px] uppercase tracking-widest opacity-80">T-MINUS</div>
+                <div className="text-xs font-black font-mono tracking-wider text-rose-500 animate-pulse tabular-nums">
                   T-{f1.nextSession.countdownFormatted}
                 </div>
               </div>
@@ -385,86 +392,108 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
     return (
       <div key="countdown" className={`border shadow-md relative overflow-hidden ${getCardClass(size)}`}>
         <div className="flex items-center justify-between pb-1.5 border-b border-red-500/10">
-          <div className={`flex items-center space-x-1.5 text-[11px] uppercase font-extrabold tracking-widest ${
+          <div className={`flex items-center space-x-1.5 text-[10px] uppercase font-extrabold tracking-widest ${
             isLight ? 'text-red-600' : 'text-red-400'
           }`}>
-            <Timer size={13} />
-            <span>Next Session Countdown</span>
+            <Timer size={12} />
+            <span className="truncate">{isCompact ? 'Countdown' : 'Next Session Countdown'}</span>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1.5 shrink-0">
             {renderSizeToggle('countdown')}
-            <span className="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase bg-red-600 text-white shadow-sm">
-              LIVE IST
-            </span>
+            {!isCompact && (
+              <span className="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase bg-red-600 text-white shadow-sm">
+                LIVE IST
+              </span>
+            )}
           </div>
         </div>
 
-        <div className="flex items-center justify-between py-2">
-          <div>
-            <h2 className={`${isCompact ? 'text-base font-bold' : 'text-lg font-bold'}`}>
-              {f1.nextSession.name}
-            </h2>
-            <p className="text-xs font-mono mt-0.5 flex items-center opacity-75">
-              <Calendar size={11} className="mr-1 text-red-500" />
-              {f1.nextSession.istTimeFormatted}
-            </p>
+        {isCompact ? (
+          <div className="py-1.5 flex flex-col justify-between flex-1 space-y-1.5">
+            <div>
+              <h2 className="text-xs font-extrabold truncate">
+                {f1.nextSession.name}
+              </h2>
+              <p className="text-[10px] font-mono opacity-75 truncate flex items-center mt-0.5">
+                <Calendar size={10} className="mr-1 text-red-500 shrink-0" />
+                {f1.nextSession.istTimeFormatted}
+              </p>
+            </div>
+            <div className={`p-1.5 rounded-xl border text-center font-mono ${getInnerClass()}`}>
+              <span className="text-[7px] uppercase tracking-wider block opacity-70">T-Minus</span>
+              <span className="text-xs font-black text-red-500 block leading-tight tabular-nums animate-pulse mt-0.5">
+                {f1.nextSession.countdownFormatted}
+              </span>
+            </div>
           </div>
-          <div className={`px-2 py-1 rounded-xl border flex items-center space-x-1 font-mono ${getInnerClass()}`}>
-            {(f1.nextSession.days ?? 0) > 0 && (
-              <>
+        ) : (
+          <>
+            <div className="flex items-center justify-between py-2">
+              <div>
+                <h2 className="text-lg font-bold">
+                  {f1.nextSession.name}
+                </h2>
+                <p className="text-xs font-mono mt-0.5 flex items-center opacity-75">
+                  <Calendar size={11} className="mr-1 text-red-500" />
+                  {f1.nextSession.istTimeFormatted}
+                </p>
+              </div>
+              <div className={`px-2 py-1 rounded-xl border flex items-center space-x-1 font-mono ${getInnerClass()}`}>
+                {(f1.nextSession.days ?? 0) > 0 && (
+                  <>
+                    <div className="text-center min-w-[24px]">
+                      <span className="text-sm font-extrabold block leading-tight tabular-nums">
+                        {String(f1.nextSession.days).padStart(2, '0')}
+                      </span>
+                      <span className="text-[7px] uppercase tracking-wider block opacity-70">Days</span>
+                    </div>
+                    <span className="text-xs text-red-500 font-bold">:</span>
+                  </>
+                )}
                 <div className="text-center min-w-[24px]">
-                  <span className={`${isCompact ? 'text-xs' : 'text-sm'} font-extrabold block leading-tight tabular-nums`}>
-                    {String(f1.nextSession.days).padStart(2, '0')}
+                  <span className="text-sm font-extrabold block leading-tight tabular-nums">
+                    {String(f1.nextSession.hours ?? 0).padStart(2, '0')}
                   </span>
-                  <span className="text-[7px] uppercase tracking-wider block opacity-70">Days</span>
+                  <span className="text-[7px] uppercase tracking-wider block opacity-70">Hrs</span>
                 </div>
                 <span className="text-xs text-red-500 font-bold">:</span>
-              </>
-            )}
-            <div className="text-center min-w-[24px]">
-              <span className={`${isCompact ? 'text-xs' : 'text-sm'} font-extrabold block leading-tight tabular-nums`}>
-                {String(f1.nextSession.hours ?? 0).padStart(2, '0')}
-              </span>
-              <span className="text-[7px] uppercase tracking-wider block opacity-70">Hrs</span>
+                <div className="text-center min-w-[24px]">
+                  <span className="text-sm font-extrabold block leading-tight tabular-nums">
+                    {String(f1.nextSession.mins ?? 0).padStart(2, '0')}
+                  </span>
+                  <span className="text-[7px] uppercase tracking-wider block opacity-70">Min</span>
+                </div>
+                <span className="text-xs text-red-500 font-bold">:</span>
+                <div className="text-center min-w-[24px]">
+                  <span className="text-sm font-extrabold text-red-500 block leading-tight tabular-nums animate-pulse">
+                    {String(f1.nextSession.secs ?? 0).padStart(2, '0')}
+                  </span>
+                  <span className="text-[7px] uppercase tracking-wider block opacity-70">Sec</span>
+                </div>
+              </div>
             </div>
-            <span className="text-xs text-red-500 font-bold">:</span>
-            <div className="text-center min-w-[24px]">
-              <span className={`${isCompact ? 'text-xs' : 'text-sm'} font-extrabold block leading-tight tabular-nums`}>
-                {String(f1.nextSession.mins ?? 0).padStart(2, '0')}
-              </span>
-              <span className="text-[7px] uppercase tracking-wider block opacity-70">Min</span>
-            </div>
-            <span className="text-xs text-red-500 font-bold">:</span>
-            <div className="text-center min-w-[24px]">
-              <span className={`${isCompact ? 'text-xs' : 'text-sm'} font-extrabold text-red-500 block leading-tight tabular-nums animate-pulse`}>
-                {String(f1.nextSession.secs ?? 0).padStart(2, '0')}
-              </span>
-              <span className="text-[7px] uppercase tracking-wider block opacity-70">Sec</span>
-            </div>
-          </div>
-        </div>
 
-        {!isCompact && (
-          <div className={`grid grid-cols-4 gap-1.5 pt-1.5 border-t border-current/10 text-xs`}>
-            <div className={`p-1 rounded-lg text-center ${getInnerClass()}`}>
-              <span className="block text-[8px] uppercase opacity-70">Laps</span>
-              <span className="font-mono font-bold text-xs">50</span>
+            <div className={`grid grid-cols-4 gap-1.5 pt-1.5 border-t border-current/10 text-xs`}>
+              <div className={`p-1 rounded-lg text-center ${getInnerClass()}`}>
+                <span className="block text-[8px] uppercase opacity-70">Laps</span>
+                <span className="font-mono font-bold text-xs">50</span>
+              </div>
+              <div className={`p-1 rounded-lg text-center ${getInnerClass()}`}>
+                <span className="block text-[8px] uppercase opacity-70">Length</span>
+                <span className="font-mono font-bold text-xs">6.2 km</span>
+              </div>
+              <div className={`p-1 rounded-lg text-center ${getInnerClass()}`}>
+                <span className="block text-[8px] uppercase opacity-70">DRS</span>
+                <span className="font-mono font-bold text-red-500 text-xs">2 Zones</span>
+              </div>
+              <div className={`p-1 rounded-lg text-center ${getInnerClass()}`}>
+                <span className="block text-[8px] uppercase opacity-70">Record</span>
+                <span className="font-mono font-bold text-amber-500 text-xs">
+                  {f1.circuitLapRecord?.lapTime || '1:35.4'}
+                </span>
+              </div>
             </div>
-            <div className={`p-1 rounded-lg text-center ${getInnerClass()}`}>
-              <span className="block text-[8px] uppercase opacity-70">Length</span>
-              <span className="font-mono font-bold text-xs">6.2 km</span>
-            </div>
-            <div className={`p-1 rounded-lg text-center ${getInnerClass()}`}>
-              <span className="block text-[8px] uppercase opacity-70">DRS</span>
-              <span className="font-mono font-bold text-red-500 text-xs">2 Zones</span>
-            </div>
-            <div className={`p-1 rounded-lg text-center ${getInnerClass()}`}>
-              <span className="block text-[8px] uppercase opacity-70">Record</span>
-              <span className="font-mono font-bold text-amber-500 text-xs">
-                {f1.circuitLapRecord?.lapTime || '1:35.4'}
-              </span>
-            </div>
-          </div>
+          </>
         )}
       </div>
     );
@@ -477,19 +506,31 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
     if (uiStyle === 'tui') {
       return (
-        <TuiBox key="podium" title="PREV_GP_PODIUM" badge={f1.lastRace.raceName.toUpperCase()} badgeColor="text-amber-400">
-          <div className="text-xs space-y-1">
-            <div className="flex items-center justify-between">
-              <span className="text-amber-400 font-bold">P1: {f1.lastRace.winner.toUpperCase()} ({f1.lastRace.winnerTeam})</span>
-              <span className="text-[10px] text-purple-400 font-mono">FL: {f1.lastRace.fastestLapDriver} [{f1.lastRace.fastestLapTime}]</span>
+        <TuiBox
+          key="podium"
+          title={isCompact ? 'PREV_PODIUM' : 'PREV_GP_PODIUM'}
+          badge={isCompact ? f1.lastRace.winner.split(' ')[0].toUpperCase() : f1.lastRace.raceName.toUpperCase()}
+          badgeColor="text-amber-400"
+          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+        >
+          {isCompact ? (
+            <div className="text-xs space-y-1 py-0.5 flex flex-col justify-between h-full font-mono">
+              <div className="text-amber-400 font-bold truncate">P1: {f1.lastRace.winner.toUpperCase()}</div>
+              <div className="text-[10px] text-gray-400 truncate">P2: {f1.lastRace.p2.split(' ')[0]} • P3: {f1.lastRace.p3.split(' ')[0]}</div>
+              <div className="text-[9px] text-purple-400 truncate">FL: {f1.lastRace.fastestLapTime}</div>
             </div>
-            {!isCompact && (
+          ) : (
+            <div className="text-xs space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-amber-400 font-bold">P1: {f1.lastRace.winner.toUpperCase()} ({f1.lastRace.winnerTeam})</span>
+                <span className="text-[10px] text-purple-400 font-mono">FL: {f1.lastRace.fastestLapDriver} [{f1.lastRace.fastestLapTime}]</span>
+              </div>
               <div className="grid grid-cols-2 gap-2 text-[11px] pt-1 border-t border-gray-800">
                 <span className={isLight ? 'text-slate-600' : 'text-gray-400'}>P2: {f1.lastRace.p2}</span>
                 <span className={isLight ? 'text-slate-600' : 'text-gray-400'}>P3: {f1.lastRace.p3}</span>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </TuiBox>
       );
     }
@@ -498,15 +539,21 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       return (
         <BrutalistBox
           key="podium"
-          title={`PREV GP: ${f1.lastRace.raceName.toUpperCase()}`}
-          badge={`FL: ${f1.lastRace.fastestLapDriver} (${f1.lastRace.fastestLapTime})`}
+          title={isCompact ? 'PREV PODIUM' : `PREV GP: ${f1.lastRace.raceName.toUpperCase()}`}
+          badge={isCompact ? f1.lastRace.fastestLapTime : `FL: ${f1.lastRace.fastestLapDriver} (${f1.lastRace.fastestLapTime})`}
           badgeColor="bg-purple-600 text-white"
+          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
         >
           {isCompact ? (
-            <div className="py-0.5 text-xs font-black flex items-center justify-between">
-              <span className="text-amber-500">🥇 P1: {f1.lastRace.winner}</span>
-              <span>🥈 P2: {f1.lastRace.p2.split(' ')[0]}</span>
-              <span>🥉 P3: {f1.lastRace.p3.split(' ')[0]}</span>
+            <div className="py-1 space-y-1.5 text-xs font-black flex flex-col justify-between h-full">
+              <div className={`p-1 border border-black ${isLight ? 'bg-yellow-300' : 'bg-yellow-400 text-black'}`}>
+                <span className="text-[8px] block opacity-75">🥇 WINNER</span>
+                <div className="truncate text-xs font-black">{f1.lastRace.winner}</div>
+              </div>
+              <div className="flex items-center justify-between text-[10px] font-mono px-0.5">
+                <span className="truncate">🥈 {f1.lastRace.p2.split(' ')[0]}</span>
+                <span className="truncate">🥉 {f1.lastRace.p3.split(' ')[0]}</span>
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-3 gap-1.5 text-xs py-0.5">
@@ -530,44 +577,72 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
     if (uiStyle === 'hud') {
       return (
-        <HudBox key="podium" title="LAST_GP_PODIUM" code={f1.lastRace.raceName.toUpperCase()} glowColor="amber">
-          <div className="space-y-1 text-xs">
-            <div className="flex items-center justify-between text-amber-400 font-bold">
-              <span>P1: {f1.lastRace.winner} ({f1.lastRace.winnerTeam})</span>
-              <span className="text-[10px] text-purple-400 font-mono">FL: {f1.lastRace.fastestLapDriver} [{f1.lastRace.fastestLapTime}]</span>
+        <HudBox
+          key="podium"
+          title={isCompact ? 'PODIUM' : 'LAST_GP_PODIUM'}
+          code={isCompact ? f1.lastRace.winner.split(' ')[0].toUpperCase() : f1.lastRace.raceName.toUpperCase()}
+          glowColor="amber"
+          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+        >
+          {isCompact ? (
+            <div className="space-y-1 text-xs py-0.5 font-mono flex flex-col justify-between h-full">
+              <div className="text-amber-400 font-bold truncate">P1: {f1.lastRace.winner}</div>
+              <div className="text-[10px] text-cyan-300 truncate">P2: {f1.lastRace.p2.split(' ')[0]} • P3: {f1.lastRace.p3.split(' ')[0]}</div>
+              <div className="text-[9px] text-purple-400 truncate">FL: {f1.lastRace.fastestLapTime}</div>
             </div>
-            {!isCompact && (
+          ) : (
+            <div className="space-y-1 text-xs">
+              <div className="flex items-center justify-between text-amber-400 font-bold">
+                <span>P1: {f1.lastRace.winner} ({f1.lastRace.winnerTeam})</span>
+                <span className="text-[10px] text-purple-400 font-mono">FL: {f1.lastRace.fastestLapDriver} [{f1.lastRace.fastestLapTime}]</span>
+              </div>
               <div className="grid grid-cols-2 gap-2 text-[10px] pt-1 border-t border-cyan-500/20">
                 <span className={isLight ? 'text-slate-600' : 'text-gray-400'}>P2: {f1.lastRace.p2}</span>
                 <span className={isLight ? 'text-slate-600' : 'text-gray-400'}>P3: {f1.lastRace.p3}</span>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </HudBox>
       );
     }
 
     return (
       <div key="podium" className={`border ${getCardClass(size)}`}>
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80">
-            <Award size={12} className="text-amber-500" />
-            <span>PREV GP: {f1.lastRace.raceName}</span>
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
+            <Award size={12} className="text-amber-500 shrink-0" />
+            <span className="truncate">{isCompact ? 'Prev Podium' : `PREV GP: ${f1.lastRace.raceName}`}</span>
           </span>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1.5 shrink-0">
             {renderSizeToggle('podium')}
-            <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center space-x-1">
-              <Zap size={9} />
-              <span>FL: {f1.lastRace.fastestLapDriver} ({f1.lastRace.fastestLapTime})</span>
-            </span>
+            {!isCompact && (
+              <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center space-x-1">
+                <Zap size={9} />
+                <span>FL: {f1.lastRace.fastestLapDriver} ({f1.lastRace.fastestLapTime})</span>
+              </span>
+            )}
           </div>
         </div>
 
         {isCompact ? (
-          <div className="flex items-center justify-between text-xs py-0.5">
-            <span className="font-bold text-amber-500 truncate">🥇 {f1.lastRace.winner}</span>
-            <span className="truncate opacity-80">🥈 {f1.lastRace.p2.split(' ')[0]}</span>
-            <span className="truncate opacity-80">🥉 {f1.lastRace.p3.split(' ')[0]}</span>
+          <div className="space-y-1.5 py-1 flex-1 flex flex-col justify-between">
+            <div className={`p-1.5 rounded-xl border flex items-center justify-between ${
+              isLight ? 'bg-amber-50/70 border-amber-200' : 'bg-amber-500/10 border-amber-500/20'
+            }`}>
+              <div className="flex items-center space-x-1.5 min-w-0">
+                <span className="text-amber-500 font-extrabold text-xs">🥇</span>
+                <span className="font-bold text-xs truncate">{f1.lastRace.winner}</span>
+              </div>
+              <span className="text-[8px] opacity-70 font-mono shrink-0">{f1.lastRace.winnerTeam}</span>
+            </div>
+            <div className="flex items-center justify-between text-[10px] font-mono px-0.5 opacity-80">
+              <span className="truncate">🥈 {f1.lastRace.p2.split(' ')[0]}</span>
+              <span className="truncate">🥉 {f1.lastRace.p3.split(' ')[0]}</span>
+            </div>
+            <div className="text-[8px] font-mono text-purple-400 flex items-center space-x-1 px-0.5 truncate">
+              <Zap size={8} className="shrink-0" />
+              <span className="truncate">FL: {f1.lastRace.fastestLapDriver} ({f1.lastRace.fastestLapTime})</span>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-3 gap-2 text-xs">
@@ -608,13 +683,25 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
     if (uiStyle === 'tui') {
       return (
-        <TuiBox key="titleBattle" title="TITLE_FIGHT_TELEMETRY" badge={`GAP +${battle.pointsGap} PTS`} badgeColor="text-emerald-400">
-          <div className="text-xs space-y-1">
-            <div className="flex items-center justify-between">
-              <span className="text-emerald-400 font-bold">P1: {battle.leader} ({battle.leaderPoints} pts)</span>
-              <span className="text-red-400 font-bold">P2: {battle.contender} ({battle.contenderPoints} pts)</span>
+        <TuiBox
+          key="titleBattle"
+          title={isCompact ? 'TITLE_FIGHT' : 'TITLE_FIGHT_TELEMETRY'}
+          badge={`+${battle.pointsGap} PTS`}
+          badgeColor="text-emerald-400"
+          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+        >
+          <div className="text-xs space-y-1 py-0.5 flex flex-col justify-between h-full font-mono">
+            <div className="space-y-0.5">
+              <div className="flex items-center justify-between text-[11px]">
+                <span className="text-emerald-400 font-bold truncate">P1: {battle.leader}</span>
+                <span className="text-gray-400 font-mono text-[10px] shrink-0">{battle.leaderPoints}p</span>
+              </div>
+              <div className="flex items-center justify-between text-[11px]">
+                <span className="text-red-400 font-bold truncate">P2: {battle.contender}</span>
+                <span className="text-gray-400 font-mono text-[10px] shrink-0">{battle.contenderPoints}p</span>
+              </div>
             </div>
-            <div className="w-full bg-gray-900 border border-gray-700 h-2 flex">
+            <div className="w-full bg-gray-900 border border-gray-700 h-1.5 flex mt-1">
               <div className="bg-emerald-500 h-full" style={{ width: `${Math.min(95, Math.max(5, (battle.leaderPoints / (battle.leaderPoints + battle.contenderPoints)) * 100))}%` }} />
               <div className="bg-red-500 h-full flex-1" />
             </div>
@@ -633,16 +720,23 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       return (
         <BrutalistBox
           key="titleBattle"
-          title="CHAMPIONSHIP TITLE FIGHT"
-          badge={`+${battle.pointsGap} PTS GAP`}
+          title={isCompact ? 'TITLE FIGHT' : 'CHAMPIONSHIP TITLE FIGHT'}
+          badge={`+${battle.pointsGap} PTS`}
           badgeColor="bg-black text-yellow-300"
+          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
         >
-          <div className="py-0.5 text-xs space-y-1">
-            <div className="flex items-center justify-between font-black">
-              <span style={{ color: battle.leaderColor }}>P1 {battle.leader} ({battle.leaderPoints})</span>
-              <span style={{ color: battle.contenderColor }}>P2 {battle.contender} ({battle.contenderPoints})</span>
+          <div className="py-0.5 text-xs space-y-1 flex flex-col justify-between h-full">
+            <div className="space-y-0.5 font-black">
+              <div className="flex items-center justify-between">
+                <span className="truncate" style={{ color: battle.leaderColor }}>P1 {battle.leader}</span>
+                <span className="font-mono text-[10px]">{battle.leaderPoints}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="truncate" style={{ color: battle.contenderColor }}>P2 {battle.contender}</span>
+                <span className="font-mono text-[10px]">{battle.contenderPoints}</span>
+              </div>
             </div>
-            <div className="w-full border-2 border-black h-2.5 bg-neutral-200 overflow-hidden flex">
+            <div className="w-full border-2 border-black h-2 bg-neutral-200 overflow-hidden flex my-0.5">
               <div className="h-full bg-emerald-400" style={{ width: `${Math.min(95, Math.max(5, (battle.leaderPoints / (battle.leaderPoints + battle.contenderPoints)) * 100))}%` }} />
               <div className="h-full bg-rose-500 flex-1" />
             </div>
@@ -659,13 +753,25 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
     if (uiStyle === 'hud') {
       return (
-        <HudBox key="titleBattle" title="WDC_TITLE_BATTLE_INDEX" code={`GAP_${battle.pointsGap}PTS`} glowColor="cyan">
-          <div className="text-xs space-y-1 py-0.5">
-            <div className="flex items-center justify-between font-mono">
-              <span className="font-bold text-cyan-300">P1 {battle.leader}: {battle.leaderPoints} PTS</span>
-              <span className="font-bold text-rose-400">P2 {battle.contender}: {battle.contenderPoints} PTS</span>
+        <HudBox
+          key="titleBattle"
+          title={isCompact ? 'TITLE_GAP' : 'WDC_TITLE_BATTLE_INDEX'}
+          code={`+${battle.pointsGap}PTS`}
+          glowColor="cyan"
+          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+        >
+          <div className="text-xs space-y-1 py-0.5 font-mono flex flex-col justify-between h-full">
+            <div className="space-y-0.5">
+              <div className="flex items-center justify-between text-[11px]">
+                <span className="font-bold text-cyan-300 truncate">P1: {battle.leader}</span>
+                <span className="text-[10px] opacity-75">{battle.leaderPoints}p</span>
+              </div>
+              <div className="flex items-center justify-between text-[11px]">
+                <span className="font-bold text-rose-400 truncate">P2: {battle.contender}</span>
+                <span className="text-[10px] opacity-75">{battle.contenderPoints}p</span>
+              </div>
             </div>
-            <div className="w-full bg-black/60 border border-cyan-500/40 h-2 flex">
+            <div className="w-full bg-black/60 border border-cyan-500/40 h-1.5 flex my-0.5">
               <div className="bg-cyan-400 h-full shadow-[0_0_8px_#06b6d4]" style={{ width: `${Math.min(95, Math.max(5, (battle.leaderPoints / (battle.leaderPoints + battle.contenderPoints)) * 100))}%` }} />
               <div className="bg-rose-500 h-full flex-1" />
             </div>
@@ -682,32 +788,57 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
     return (
       <div key="titleBattle" className={`border ${getCardClass(size)}`}>
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80">
-            <Trophy size={12} className="text-emerald-500" />
-            <span>TITLE BATTLE (P1 VS P2)</span>
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
+            <Trophy size={12} className="text-emerald-500 shrink-0" />
+            <span className="truncate">{isCompact ? 'Title Battle' : 'TITLE BATTLE (P1 VS P2)'}</span>
           </span>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 shrink-0">
             {renderSizeToggle('titleBattle')}
-            <span className="text-[9px] font-mono px-1.5 py-0.2 rounded font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-              +{battle.pointsGap} PTS GAP
-            </span>
+            {!isCompact && (
+              <span className="text-[9px] font-mono px-1.5 py-0.2 rounded font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                +{battle.pointsGap} PTS GAP
+              </span>
+            )}
           </div>
         </div>
 
-        <div className="flex items-center justify-between text-xs font-bold mb-1">
-          <span className="truncate" style={{ color: battle.leaderColor }}>{battle.leader} ({battle.leaderPoints} pts)</span>
-          <span className="truncate text-right" style={{ color: battle.contenderColor }}>{battle.contender} ({battle.contenderPoints} pts)</span>
-        </div>
-        <div className={`w-full h-2 rounded-full overflow-hidden flex border ${isLight ? 'border-slate-300 bg-slate-200' : 'border-white/10 bg-black/40'}`}>
-          <div className="bg-emerald-500 h-full" style={{ width: `${Math.min(95, Math.max(5, (battle.leaderPoints / (battle.leaderPoints + battle.contenderPoints)) * 100))}%` }} />
-          <div className="bg-rose-500 h-full flex-1" />
-        </div>
-        {!isCompact && (
-          <div className="flex items-center justify-between text-[10px] font-mono mt-1 opacity-75">
-            <span>WCC: {battle.teamLeader} +{battle.teamPointsGap} over {battle.teamContender}</span>
-            <span>{battle.roundsRemaining} rounds left</span>
+        {isCompact ? (
+          <div className="space-y-1.5 py-1 flex-1 flex flex-col justify-between">
+            <div className="space-y-0.5">
+              <div className="flex items-center justify-between text-[11px] font-bold">
+                <span className="truncate" style={{ color: battle.leaderColor }}>P1 {battle.leader}</span>
+                <span className="font-mono text-[9px] opacity-80 shrink-0">{battle.leaderPoints}p</span>
+              </div>
+              <div className="flex items-center justify-between text-[11px] font-bold">
+                <span className="truncate" style={{ color: battle.contenderColor }}>P2 {battle.contender}</span>
+                <span className="font-mono text-[9px] opacity-80 shrink-0">{battle.contenderPoints}p</span>
+              </div>
+            </div>
+            <div className={`w-full h-1.5 rounded-full overflow-hidden flex border ${isLight ? 'border-slate-300 bg-slate-200' : 'border-white/10 bg-black/40'}`}>
+              <div className="bg-emerald-500 h-full" style={{ width: `${Math.min(95, Math.max(5, (battle.leaderPoints / (battle.leaderPoints + battle.contenderPoints)) * 100))}%` }} />
+              <div className="bg-rose-500 h-full flex-1" />
+            </div>
+            <div className="flex items-center justify-between text-[8px] font-mono opacity-75">
+              <span className="text-emerald-500 font-bold">+{battle.pointsGap} PTS GAP</span>
+              <span>{battle.roundsRemaining} RDS LEFT</span>
+            </div>
           </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between text-xs font-bold mb-1">
+              <span className="truncate" style={{ color: battle.leaderColor }}>{battle.leader} ({battle.leaderPoints} pts)</span>
+              <span className="truncate text-right" style={{ color: battle.contenderColor }}>{battle.contender} ({battle.contenderPoints} pts)</span>
+            </div>
+            <div className={`w-full h-2 rounded-full overflow-hidden flex border ${isLight ? 'border-slate-300 bg-slate-200' : 'border-white/10 bg-black/40'}`}>
+              <div className="bg-emerald-500 h-full" style={{ width: `${Math.min(95, Math.max(5, (battle.leaderPoints / (battle.leaderPoints + battle.contenderPoints)) * 100))}%` }} />
+              <div className="bg-rose-500 h-full flex-1" />
+            </div>
+            <div className="flex items-center justify-between text-[10px] font-mono mt-1 opacity-75">
+              <span>WCC: {battle.teamLeader} +{battle.teamPointsGap} over {battle.teamContender}</span>
+              <span>{battle.roundsRemaining} rounds left</span>
+            </div>
+          </>
         )}
       </div>
     );
@@ -721,17 +852,23 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
     if (uiStyle === 'tui') {
       return (
-        <TuiBox key="qualifying" title="PREV_QUALIFYING_GRID" badge="POLE POSITION" badgeColor="text-yellow-400">
-          <div className="text-xs space-y-1">
-            <div className="flex items-center justify-between text-yellow-400 font-bold">
-              <span>POLE: {quali.poleDriver.toUpperCase()} ({quali.poleTeam})</span>
-              <span className="font-mono">{quali.poleTime}</span>
-            </div>
-            {!isCompact && (
+        <TuiBox
+          key="qualifying"
+          title={isCompact ? 'QUALIFYING' : 'PREV_QUALIFYING_GRID'}
+          badge="POLE"
+          badgeColor="text-yellow-400"
+          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+        >
+          <div className="text-xs space-y-1 py-0.5 flex flex-col justify-between h-full font-mono">
+            <div className="text-yellow-400 font-bold truncate">POLE: {quali.poleDriver.toUpperCase()}</div>
+            <div className="text-gray-400 font-mono text-[10px]">{quali.poleTime} • {quali.poleTeam}</div>
+            {!isCompact ? (
               <div className="grid grid-cols-2 gap-2 text-[10px] pt-1 border-t border-gray-800 text-gray-400">
                 <span>P2: {quali.p2Driver} [{quali.p2Time}]</span>
                 <span>P3: {quali.p3Driver} [{quali.p3Time}]</span>
               </div>
+            ) : (
+              <div className="text-[9px] text-gray-500 truncate">P2: {quali.p2Driver}</div>
             )}
           </div>
         </TuiBox>
@@ -740,17 +877,26 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
     if (uiStyle === 'brutalist') {
       return (
-        <BrutalistBox key="qualifying" title="QUALIFYING SHOOTOUT" badge="FRONT ROW" badgeColor="bg-yellow-400 text-black">
-          <div className="py-0.5 text-xs space-y-1">
-            <div className="flex items-center justify-between font-black">
-              <span className="text-amber-500">POLE: {quali.poleDriver} ({quali.poleTeam})</span>
-              <span className="font-mono bg-black text-yellow-300 px-1">{quali.poleTime}</span>
+        <BrutalistBox
+          key="qualifying"
+          title={isCompact ? 'QUALIFYING' : 'QUALIFYING SHOOTOUT'}
+          badge="POLE"
+          badgeColor="bg-yellow-400 text-black"
+          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+        >
+          <div className="py-0.5 text-xs space-y-1 flex flex-col justify-between h-full font-black">
+            <div className="flex items-center justify-between">
+              <span className="text-amber-500 truncate">POLE: {quali.poleDriver}</span>
+              <span className="font-mono bg-black text-yellow-300 px-1 text-[10px] shrink-0">{quali.poleTime}</span>
             </div>
-            {!isCompact && (
+            <div className="text-[9px] opacity-75 font-mono truncate">{quali.poleTeam}</div>
+            {!isCompact ? (
               <div className="grid grid-cols-2 gap-2 text-[10px] font-mono pt-1 border-t-2 border-black">
                 <span>P2: {quali.p2Driver} ({quali.p2Time})</span>
                 <span>P3: {quali.p3Driver} ({quali.p3Time})</span>
               </div>
+            ) : (
+              <div className="text-[9px] font-mono opacity-80 truncate">P2: {quali.p2Driver}</div>
             )}
           </div>
         </BrutalistBox>
@@ -759,27 +905,48 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
     return (
       <div key="qualifying" className={`border ${getCardClass(size)}`}>
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80">
-            <Zap size={12} className="text-amber-500" />
-            <span>QUALIFYING: {quali.raceName}</span>
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
+            <Zap size={12} className="text-amber-500 shrink-0" />
+            <span className="truncate">{isCompact ? 'Qualifying' : `QUALIFYING: ${quali.raceName}`}</span>
           </span>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 shrink-0">
             {renderSizeToggle('qualifying')}
-            <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">
-              POLE: {quali.poleTime}
-            </span>
+            {!isCompact && (
+              <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                POLE: {quali.poleTime}
+              </span>
+            )}
           </div>
         </div>
-        <div className="flex items-center justify-between text-xs font-bold mb-1">
-          <span className="text-amber-500">🏆 1st: {quali.poleDriver} ({quali.poleTeam})</span>
-          <span className="font-mono text-[11px] text-amber-400">{quali.poleTime}</span>
-        </div>
-        {!isCompact && (
-          <div className="grid grid-cols-2 gap-2 text-[10px] font-mono opacity-80 pt-1 border-t border-current/10">
-            <span>2nd: {quali.p2Driver} ({quali.p2Time})</span>
-            <span>3rd: {quali.p3Driver} ({quali.p3Time})</span>
+
+        {isCompact ? (
+          <div className="space-y-1.5 py-1 flex-1 flex flex-col justify-between">
+            <div className={`p-1.5 rounded-xl border flex items-center justify-between ${
+              isLight ? 'bg-amber-50/70 border-amber-200' : 'bg-amber-500/10 border-amber-500/20'
+            }`}>
+              <div className="truncate">
+                <span className="text-[7px] font-bold uppercase block text-amber-500">POLE POSITION</span>
+                <span className="font-bold text-xs truncate block">{quali.poleDriver}</span>
+                <span className="text-[8px] opacity-70 truncate block">{quali.poleTeam}</span>
+              </div>
+              <span className="font-mono font-extrabold text-xs text-amber-400 shrink-0">{quali.poleTime}</span>
+            </div>
+            <div className="text-[9px] font-mono opacity-80 truncate">
+              P2: {quali.p2Driver} • P3: {quali.p3Driver}
+            </div>
           </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between text-xs font-bold mb-1">
+              <span className="text-amber-500">🏆 1st: {quali.poleDriver} ({quali.poleTeam})</span>
+              <span className="font-mono text-[11px] text-amber-400">{quali.poleTime}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-[10px] font-mono opacity-80 pt-1 border-t border-current/10">
+              <span>2nd: {quali.p2Driver} ({quali.p2Time})</span>
+              <span>3rd: {quali.p3Driver} ({quali.p3Time})</span>
+            </div>
+          </>
         )}
       </div>
     );
@@ -793,10 +960,17 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
     if (uiStyle === 'tui') {
       return (
-        <TuiBox key="pitstop" title="DHL_FASTEST_PITSTOP" badge={pit.duration} badgeColor="text-yellow-400">
-          <div className="text-xs flex items-center justify-between">
-            <span className="font-bold">{pit.driver} • {pit.team}</span>
-            <span className="text-[10px] text-gray-400">LAP {pit.lap} • RECORD</span>
+        <TuiBox
+          key="pitstop"
+          title={isCompact ? 'FASTEST_PIT' : 'DHL_FASTEST_PITSTOP'}
+          badge={pit.duration}
+          badgeColor="text-yellow-400"
+          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+        >
+          <div className="text-xs space-y-1 py-0.5 flex flex-col justify-between h-full font-mono">
+            <div className="text-amber-400 font-bold truncate">{pit.duration} RECORD</div>
+            <div className="font-bold truncate">{pit.driver}</div>
+            <div className="text-[9px] text-gray-400 truncate">{pit.team} • LAP {pit.lap}</div>
           </div>
         </TuiBox>
       );
@@ -804,35 +978,68 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
     if (uiStyle === 'brutalist') {
       return (
-        <BrutalistBox key="pitstop" title="FASTEST PIT STOP AWARD" badge={pit.duration} badgeColor="bg-yellow-400 text-black">
-          <div className="py-0.5 text-xs flex items-center justify-between font-black">
-            <span>{pit.driver} • {pit.team}</span>
-            <span className="font-mono bg-black text-white px-1.5 py-0.5">LAP {pit.lap}</span>
+        <BrutalistBox
+          key="pitstop"
+          title={isCompact ? 'FASTEST PIT' : 'FASTEST PIT STOP AWARD'}
+          badge={pit.duration}
+          badgeColor="bg-yellow-400 text-black"
+          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+        >
+          <div className="py-0.5 text-xs space-y-1 flex flex-col justify-between h-full font-black">
+            <div className="flex items-center justify-between">
+              <span className="truncate">{pit.driver}</span>
+              <span className="font-mono bg-black text-yellow-300 px-1 text-xs shrink-0">{pit.duration}</span>
+            </div>
+            <div className="text-[9px] opacity-75 font-mono truncate">{pit.team} • LAP {pit.lap}</div>
           </div>
         </BrutalistBox>
       );
     }
 
     return (
-      <div key="pitstop" className={`border flex items-center justify-between text-xs ${getCardClass(size)}`}>
-        <div className="flex items-center space-x-2.5">
-          <div className="p-1.5 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
-            <Wrench size={13} />
-          </div>
-          <div>
-            <span className="text-[9px] uppercase font-bold block opacity-70">
-              DHL FASTEST PIT STOP ({pit.raceName})
+      <div key="pitstop" className={`border ${getCardClass(size)}`}>
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center space-x-1.5 opacity-80 truncate">
+            <Wrench size={12} className="text-amber-400 shrink-0" />
+            <span className="text-[10px] uppercase font-bold tracking-wider truncate">
+              {isCompact ? 'Fastest Pit' : `DHL FASTEST PIT STOP (${pit.raceName})`}
             </span>
-            <span className="font-bold text-[11px]">{pit.driver} • {pit.team}</span>
+          </div>
+          <div className="flex items-center space-x-1 shrink-0">
+            {renderSizeToggle('pitstop')}
           </div>
         </div>
-        <div className="flex items-center space-x-2">
-          {renderSizeToggle('pitstop')}
-          <div className="text-right">
-            <span className="text-sm font-extrabold font-mono text-amber-500 block leading-tight">{pit.duration}</span>
-            <span className="text-[8px] font-mono opacity-70">Lap {pit.lap}</span>
+
+        {isCompact ? (
+          <div className="py-1 flex-1 flex flex-col justify-between space-y-1">
+            <div className="flex items-center justify-between">
+              <div className="truncate">
+                <span className="font-bold text-xs block truncate">{pit.driver}</span>
+                <span className="text-[9px] opacity-70 block truncate">{pit.team}</span>
+              </div>
+              <div className="text-right shrink-0">
+                <span className="text-sm font-black font-mono text-amber-500 block leading-tight">{pit.duration}</span>
+                <span className="text-[8px] font-mono opacity-70 block">Lap {pit.lap}</span>
+              </div>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="flex items-center justify-between text-xs py-1">
+            <div className="flex items-center space-x-2.5">
+              <div className="p-1.5 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                <Wrench size={13} />
+              </div>
+              <div>
+                <span className="font-bold text-[11px]">{pit.driver} • {pit.team}</span>
+                <span className="text-[9px] block opacity-70">Official DHL Pit Record</span>
+              </div>
+            </div>
+            <div className="text-right">
+              <span className="text-sm font-extrabold font-mono text-amber-500 block leading-tight">{pit.duration}</span>
+              <span className="text-[8px] font-mono opacity-70">Lap {pit.lap}</span>
+            </div>
+          </div>
+        )}
       </div>
     );
   };
@@ -846,12 +1053,18 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
     if (uiStyle === 'tui') {
       return (
-        <TuiBox key="upcomingRaces" title="SEASON_CALENDAR_UPCOMING" badge="NEXT ROUNDS" badgeColor="text-cyan-400">
-          <div className="space-y-1 text-xs">
+        <TuiBox
+          key="upcomingRaces"
+          title={isCompact ? 'NEXT_GP' : 'SEASON_CALENDAR_UPCOMING'}
+          badge="CALENDAR"
+          badgeColor="text-cyan-400"
+          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+        >
+          <div className="space-y-1 text-xs py-0.5 flex flex-col justify-between h-full font-mono">
             {displayRaces.map((r) => (
-              <div key={r.round} className="flex items-center justify-between font-mono text-[11px]">
-                <span>R{r.round}: {r.raceName.toUpperCase()}</span>
-                <span className="text-cyan-400 font-bold">{r.countdown} [{r.istDate.split('•')[0]}]</span>
+              <div key={r.round} className="space-y-0.5">
+                <div className="truncate font-bold">R{r.round}: {r.raceName.toUpperCase()}</div>
+                <div className="text-cyan-400 text-[10px] truncate">{r.countdown} [{r.istDate.split('•')[0]}]</div>
               </div>
             ))}
           </div>
@@ -861,29 +1074,42 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
     return (
       <div key="upcomingRaces" className={`border ${getCardClass(size)}`}>
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80">
-            <Flag size={12} className="text-cyan-400" />
-            <span>UPCOMING GRAND PRIX</span>
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
+            <Flag size={12} className="text-cyan-400 shrink-0" />
+            <span className="truncate">{isCompact ? 'Next GP' : 'UPCOMING GRAND PRIX'}</span>
           </span>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 shrink-0">
             {renderSizeToggle('upcomingRaces')}
-            <span className="text-[9px] font-mono font-bold opacity-75">2026 CALENDAR</span>
+            {!isCompact && <span className="text-[9px] font-mono font-bold opacity-75">2026 CALENDAR</span>}
           </div>
         </div>
-        <div className="space-y-1 text-xs">
-          {displayRaces.map((r) => (
-            <div key={r.round} className={`p-1.5 rounded-xl border flex items-center justify-between ${getInnerClass()}`}>
-              <div>
-                <span className="font-bold text-[11px]">R{r.round} • {r.raceName}</span>
-                <p className="text-[9px] opacity-75">{r.istDate}</p>
-              </div>
-              <span className="text-xs font-mono font-bold text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded border border-cyan-500/20">
-                in {r.countdown}
+
+        {isCompact ? (
+          <div className="py-1 flex-1 flex flex-col justify-between space-y-1">
+            <div className="font-bold text-xs truncate">R{displayRaces[0].round} • {displayRaces[0].raceName}</div>
+            <div className="text-[9px] opacity-75 font-mono truncate">{displayRaces[0].istDate}</div>
+            <div className="mt-0.5">
+              <span className="text-[9px] font-mono font-bold text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded border border-cyan-500/20 inline-block">
+                in {displayRaces[0].countdown}
               </span>
             </div>
-          ))}
-        </div>
+          </div>
+        ) : (
+          <div className="space-y-1 text-xs">
+            {displayRaces.map((r) => (
+              <div key={r.round} className={`p-1.5 rounded-xl border flex items-center justify-between ${getInnerClass()}`}>
+                <div>
+                  <span className="font-bold text-[11px]">R{r.round} • {r.raceName}</span>
+                  <p className="text-[9px] opacity-75">{r.istDate}</p>
+                </div>
+                <span className="text-xs font-mono font-bold text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded border border-cyan-500/20">
+                  in {r.countdown}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     );
   };
@@ -896,22 +1122,28 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
     if (uiStyle === 'tui') {
       return (
-        <TuiBox key="circuitTelemetry" title="CIRCUIT_TECH_TELEMETRY" badge="SPEC SHEET" badgeColor="text-cyan-400">
-          <div className="grid grid-cols-4 gap-1 text-[10px] font-mono text-center">
+        <TuiBox
+          key="circuitTelemetry"
+          title={isCompact ? 'CIRCUIT_TECH' : 'CIRCUIT_TECH_TELEMETRY'}
+          badge="SPECS"
+          badgeColor="text-cyan-400"
+          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+        >
+          <div className={`grid ${isCompact ? 'grid-cols-2 gap-1 text-[9px]' : 'grid-cols-4 gap-1 text-[10px]'} font-mono text-center`}>
             <div className="p-1 border border-gray-800">
-              <div className="text-[8px] text-gray-500">THROTTLE</div>
+              <div className="text-[7px] text-gray-500">THROTTLE</div>
               <div className="font-bold text-cyan-400">{tel.fullThrottlePercent}%</div>
             </div>
             <div className="p-1 border border-gray-800">
-              <div className="text-[8px] text-gray-500">SHIFTS</div>
+              <div className="text-[7px] text-gray-500">SPEED</div>
+              <div className="font-bold text-red-400">{tel.topSpeedKmh}k</div>
+            </div>
+            <div className="p-1 border border-gray-800">
+              <div className="text-[7px] text-gray-500">SHIFTS</div>
               <div className="font-bold">{tel.gearShiftsPerLap}</div>
             </div>
             <div className="p-1 border border-gray-800">
-              <div className="text-[8px] text-gray-500">SPEED</div>
-              <div className="font-bold text-red-400">{tel.topSpeedKmh} KM/H</div>
-            </div>
-            <div className="p-1 border border-gray-800">
-              <div className="text-[8px] text-gray-500">PIT LOSS</div>
+              <div className="text-[7px] text-gray-500">PIT LOSS</div>
               <div className="font-bold text-amber-400">{tel.pitLaneLossSec}s</div>
             </div>
           </div>
@@ -921,34 +1153,56 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
     return (
       <div key="circuitTelemetry" className={`border ${getCardClass(size)}`}>
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80">
-            <Gauge size={12} className="text-cyan-400" />
-            <span>CIRCUIT TECHNICAL SPECS</span>
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
+            <Gauge size={12} className="text-cyan-400 shrink-0" />
+            <span className="truncate">{isCompact ? 'Circuit Tech' : 'CIRCUIT TECHNICAL SPECS'}</span>
           </span>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 shrink-0">
             {renderSizeToggle('circuitTelemetry')}
-            <span className="text-[9px] font-mono opacity-70">{tel.tyreAllocation}</span>
+            {!isCompact && <span className="text-[9px] font-mono opacity-70">{tel.tyreAllocation}</span>}
           </div>
         </div>
-        <div className="grid grid-cols-4 gap-1.5 text-xs text-center font-mono">
-          <div className={`p-1 rounded-xl border ${getInnerClass()}`}>
-            <span className="text-[7px] uppercase block opacity-70">Throttle</span>
-            <span className="font-bold text-cyan-400">{tel.fullThrottlePercent}%</span>
+
+        {isCompact ? (
+          <div className="grid grid-cols-2 gap-1 text-center font-mono py-1 flex-1 items-center">
+            <div className={`p-1 rounded-lg border ${getInnerClass()}`}>
+              <span className="text-[7px] uppercase block opacity-70">Throttle</span>
+              <span className="font-bold text-xs text-cyan-400">{tel.fullThrottlePercent}%</span>
+            </div>
+            <div className={`p-1 rounded-lg border ${getInnerClass()}`}>
+              <span className="text-[7px] uppercase block opacity-70">Speed</span>
+              <span className="font-bold text-xs text-red-400">{tel.topSpeedKmh}k</span>
+            </div>
+            <div className={`p-1 rounded-lg border ${getInnerClass()}`}>
+              <span className="text-[7px] uppercase block opacity-70">Shifts</span>
+              <span className="font-bold text-xs">{tel.gearShiftsPerLap}</span>
+            </div>
+            <div className={`p-1 rounded-lg border ${getInnerClass()}`}>
+              <span className="text-[7px] uppercase block opacity-70">Pit Loss</span>
+              <span className="font-bold text-xs text-amber-400">{tel.pitLaneLossSec}s</span>
+            </div>
           </div>
-          <div className={`p-1 rounded-xl border ${getInnerClass()}`}>
-            <span className="text-[7px] uppercase block opacity-70">Shifts</span>
-            <span className="font-bold">{tel.gearShiftsPerLap}</span>
+        ) : (
+          <div className="grid grid-cols-4 gap-1.5 text-xs text-center font-mono">
+            <div className={`p-1 rounded-xl border ${getInnerClass()}`}>
+              <span className="text-[7px] uppercase block opacity-70">Throttle</span>
+              <span className="font-bold text-cyan-400">{tel.fullThrottlePercent}%</span>
+            </div>
+            <div className={`p-1 rounded-xl border ${getInnerClass()}`}>
+              <span className="text-[7px] uppercase block opacity-70">Shifts</span>
+              <span className="font-bold">{tel.gearShiftsPerLap}</span>
+            </div>
+            <div className={`p-1 rounded-xl border ${getInnerClass()}`}>
+              <span className="text-[7px] uppercase block opacity-70">Max Speed</span>
+              <span className="font-bold text-red-400">{tel.topSpeedKmh} km/h</span>
+            </div>
+            <div className={`p-1 rounded-xl border ${getInnerClass()}`}>
+              <span className="text-[7px] uppercase block opacity-70">Pit Delta</span>
+              <span className="font-bold text-amber-400">{tel.pitLaneLossSec}s</span>
+            </div>
           </div>
-          <div className={`p-1 rounded-xl border ${getInnerClass()}`}>
-            <span className="text-[7px] uppercase block opacity-70">Max Speed</span>
-            <span className="font-bold text-red-400">{tel.topSpeedKmh} km/h</span>
-          </div>
-          <div className={`p-1 rounded-xl border ${getInnerClass()}`}>
-            <span className="text-[7px] uppercase block opacity-70">Pit Delta</span>
-            <span className="font-bold text-amber-400">{tel.pitLaneLossSec}s</span>
-          </div>
-        </div>
+        )}
       </div>
     );
   };
@@ -1016,9 +1270,20 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
         </div>
       </div>
 
-      {/* Render Active Widgets */}
-      <div className="space-y-2.5 overflow-y-auto pr-0.5 flex-1 min-h-0">
-        {visibleWidgets.map((w) => renderWidgetInTheme(w.id))}
+      {/* Render Active Widgets in a 2-Column Responsive Grid (Compact widgets share a row as squarish cards, Normal widgets take full width) */}
+      <div className="grid grid-cols-2 gap-2.5 overflow-y-auto pr-0.5 flex-1 min-h-0 auto-rows-max items-stretch content-start">
+        {visibleWidgets.map((w) => {
+          const size = f1WidgetSizes[w.id] || 'normal';
+          const isCompact = size === 'compact';
+          return (
+            <div
+              key={w.id}
+              className={`${isCompact ? 'col-span-1 h-full' : 'col-span-2'}`}
+            >
+              {renderWidgetInTheme(w.id)}
+            </div>
+          );
+        })}
       </div>
 
       {/* Interactive Widget Selector & Manual Sizing Popover / Modal */}
