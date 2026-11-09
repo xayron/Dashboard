@@ -124,6 +124,15 @@ export const isVerticalMediumWidget = (id?: F1WidgetId, size: F1WidgetSize = 'no
   return size === 'normal' && id !== undefined && VERTICAL_MEDIUM_WIDGETS.includes(id);
 };
 
+// Widgets that retain 3 columns in compact mode to display full session names / driver leaderboard / headlines.
+// All other widgets (countdown, podium, titleBattle, qualifying, pitstop, upcomingRaces, circuitTelemetry)
+// format in an ultra-compact 2-column footprint (col-span-2 row-span-1) in compact mode.
+export const COMPACT_3COL_WIDGETS: F1WidgetId[] = ['schedule', 'standings', 'news'];
+
+export const isNarrowCompactWidget = (id?: F1WidgetId, size: F1WidgetSize = 'compact') => {
+  return size === 'compact' && id !== undefined && !COMPACT_3COL_WIDGETS.includes(id);
+};
+
 interface F1WidgetsColumnProps {
   uiStyle?: UIStyle;
   isLight?: boolean;
@@ -171,26 +180,32 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
   }, [f1ActiveWidgets]);
 
   // Unified grid unit: 140px row height, 12-col grid, gap-3 (12px)
-  // S: col-span-3 row-span-1 → 140px tall, quarter-width (3 cols)
+  // S (compact):
+  //    - Narrow (countdown, podium, titleBattle, qualifying, pitstop, upcomingRaces, circuitTelemetry):
+  //        col-span-2 row-span-1 → 140px tall, sixth-width (2 cols) = ultra-compact glanceable tile
+  //    - Standard (schedule, standings, news):
+  //        col-span-3 row-span-1 → 140px tall, quarter-width (3 cols) = fits list rows cleanly
   // Horizontal M (countdown, podium, titleBattle, circuitTelemetry, pitstop, qualifying):
-  //    col-span-6 row-span-1 → 140px tall, half-width (6 cols) = 2×S side by side
+  //    col-span-6 row-span-1 → 140px tall, half-width (6 cols) = 3×S (2-col) or 2×S (3-col)
   // Vertical M (standings, schedule, news, upcomingRaces):
   //    col-span-3 row-span-2 → 292px tall, quarter-width (3 cols) = 2×S stacked vertically
-  // L: col-span-6 row-span-2 → 292px tall (2×140+12px), half-width = 2×M stacked (or 4×S)
+  // L: col-span-6 row-span-2 → 292px tall (2×140+12px), half-width = 2×M stacked (or 6×S 2-col)
   const getCardClass = (size: F1WidgetSize = 'normal', widgetId?: F1WidgetId) => {
     const isTall = size === 'large' || isVerticalMediumWidget(widgetId, size);
+    const isUltraCompact = size === 'compact' && isNarrowCompactWidget(widgetId, size);
     // Static Tailwind-safe height tokens:
     //   1 row track:  h-[140px]
     //   2 row tracks: h-[292px]
     const h = isTall
       ? 'h-[292px] min-h-[292px] max-h-[292px]'
       : 'h-[140px] min-h-[140px] max-h-[140px]';
-    const pad =
-      size === 'compact'
-        ? `p-2.5 ${h} overflow-hidden flex flex-col justify-between`
-        : isTall
-        ? `p-3.5 ${h} overflow-hidden flex flex-col justify-between`
-        : `p-3 ${h} overflow-hidden flex flex-col justify-between`;
+    const pad = isUltraCompact
+      ? `p-2 ${h} overflow-hidden flex flex-col justify-between`
+      : size === 'compact'
+      ? `p-2.5 ${h} overflow-hidden flex flex-col justify-between`
+      : isTall
+      ? `p-3.5 ${h} overflow-hidden flex flex-col justify-between`
+      : `p-3 ${h} overflow-hidden flex flex-col justify-between`;
 
     if (uiStyle === 'minimal') {
       return `${pad} ${
@@ -941,9 +956,8 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
               <div className="bg-rose-500 h-full flex-1" />
             </div>
             <div className="flex items-center justify-between text-[8px] font-mono opacity-80 pt-0.5 border-t border-black/10 dark:border-white/10">
-              <span className="text-emerald-500 font-bold">+{battle.pointsGap} PTS GAP</span>
-              <span>WCC: {battle.teamLeader?.split(' ')[0]} (+{battle.teamPointsGap || 32}p)</span>
-              <span>{battle.roundsRemaining} RDS LEFT</span>
+              <span className="text-emerald-500 font-bold truncate mr-1">+{battle.pointsGap} PTS GAP</span>
+              <span className="shrink-0">{battle.roundsRemaining} RDS LEFT</span>
             </div>
           </div>
         ) : (
@@ -2493,6 +2507,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           const isCompact = size === 'compact';
           const isLarge = size === 'large';
           const isVerticalMedium = !isCompact && !isLarge && VERTICAL_MEDIUM_WIDGETS.includes(w.id);
+          const isNarrowCompact = isCompact && !COMPACT_3COL_WIDGETS.includes(w.id);
           return (
             <div
               key={w.id}
@@ -2535,6 +2550,8 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
               className={`transition-all duration-150 ${
                 isLarge
                   ? 'col-span-6 row-span-2'
+                  : isNarrowCompact
+                  ? 'col-span-2 row-span-1'
                   : isCompact
                   ? 'col-span-3 row-span-1'
                   : isVerticalMedium
