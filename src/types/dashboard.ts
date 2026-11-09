@@ -191,7 +191,7 @@ export interface F1NewsItem {
   thumbnail?: string;
 }
 
-export type F1WidgetSize = 'compact' | 'normal';
+export type F1WidgetSize = 'compact' | 'normal' | 'large';
 
 export type F1WidgetId =
   | 'countdown'

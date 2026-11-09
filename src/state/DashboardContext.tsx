@@ -404,13 +404,13 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const setAllF1WidgetSizes = (size: F1WidgetSize) => {
     const next: Record<F1WidgetId, F1WidgetSize> = {
-      countdown: size,
-      podium: size,
-      titleBattle: size,
-      qualifying: size,
-      pitstop: size,
-      upcomingRaces: size,
-      circuitTelemetry: size,
+      countdown: size === 'large' ? 'normal' : size,
+      podium: size === 'large' ? 'normal' : size,
+      titleBattle: size === 'large' ? 'normal' : size,
+      qualifying: size === 'large' ? 'normal' : size,
+      pitstop: size === 'large' ? 'normal' : size,
+      upcomingRaces: size === 'large' ? 'normal' : size,
+      circuitTelemetry: size === 'large' ? 'normal' : size,
       news: size,
       schedule: size,
       standings: size,

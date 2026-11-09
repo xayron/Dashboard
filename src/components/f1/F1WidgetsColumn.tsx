@@ -108,6 +108,8 @@ export const F1_AVAILABLE_WIDGETS: F1WidgetDef[] = [
   },
 ];
 
+export const WIDGETS_WITH_LARGE: F1WidgetId[] = ['schedule', 'standings', 'news'];
+
 interface F1WidgetsColumnProps {
   uiStyle?: UIStyle;
   isLight?: boolean;
@@ -140,7 +142,12 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
+  const [gridDraggedId, setGridDraggedId] = useState<F1WidgetId | null>(null);
+  const [gridDragOverId, setGridDragOverId] = useState<F1WidgetId | null>(null);
   const [standingsTab, setStandingsTab] = useState<'drivers' | 'constructors'>('drivers');
+
+  const getSupportedSizes = (id: F1WidgetId): F1WidgetSize[] =>
+    WIDGETS_WITH_LARGE.includes(id) ? ['compact', 'normal', 'large'] : ['compact', 'normal'];
 
   // Map f1ActiveWidgets in exact user-defined order
   const visibleWidgets = React.useMemo(() => {
@@ -149,9 +156,14 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       .filter((w): w is F1WidgetDef => Boolean(w));
   }, [f1ActiveWidgets]);
 
-  // Style Tokens per visual theme
+  // Style Tokens per visual theme - small cards strictly fixed at 148px height
   const getCardClass = (size: F1WidgetSize = 'normal') => {
-    const pad = size === 'compact' ? 'p-2.5 h-full flex flex-col justify-between' : 'p-3.5';
+    const pad =
+      size === 'compact'
+        ? 'p-2.5 h-[148px] max-h-[148px] min-h-[148px] overflow-hidden flex flex-col justify-between'
+        : size === 'large'
+        ? 'p-3.5 min-h-[220px]'
+        : 'p-3.5';
 
     if (uiStyle === 'minimal') {
       return `${pad} ${
@@ -229,15 +241,24 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
   const fontClass = uiStyle === 'tui' || uiStyle === 'hud' ? 'font-mono' : uiStyle === 'eink' ? 'font-serif' : 'font-sans';
 
-  // Helper controls (Move Up/Down reordering + Size toggles) inside each widget card header
+  // Helper controls (Drag handle + Move Up/Down reordering + Size toggles) inside each widget card header
   const renderCardControls = (widgetId: F1WidgetId) => {
     const currentSize = f1WidgetSizes[widgetId] || 'normal';
     const index = f1ActiveWidgets.indexOf(widgetId);
     const canMoveUp = index > 0;
     const canMoveDown = index !== -1 && index < f1ActiveWidgets.length - 1;
+    const supportedSizes = getSupportedSizes(widgetId);
 
     return (
       <div className="flex items-center space-x-1 opacity-70 hover:opacity-100 transition-opacity">
+        {/* Drag Handle Grip */}
+        <span
+          title="Drag card in grid to rearrange"
+          className="cursor-grab active:cursor-grabbing p-0.5 rounded text-current/60 hover:text-current hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+        >
+          <GripVertical size={11} />
+        </span>
+
         {/* Reorder Arrows */}
         <div className="flex items-center space-x-0.5 bg-black/10 dark:bg-white/10 p-0.5 rounded">
           <button
@@ -270,9 +291,9 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           </button>
         </div>
 
-        {/* Size Toggles [ S | M ] */}
+        {/* Size Toggles [ S | M | L ] */}
         <div className="flex items-center space-x-0.5 bg-black/10 dark:bg-white/10 p-0.5 rounded">
-          {(['compact', 'normal'] as F1WidgetSize[]).map((sz) => (
+          {supportedSizes.map((sz) => (
             <button
               key={sz}
               type="button"
@@ -287,7 +308,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                   : 'hover:bg-black/20 dark:hover:bg-white/20 text-current'
               }`}
             >
-              {sz === 'compact' ? 'S' : 'M'}
+              {sz === 'compact' ? 'S' : sz === 'normal' ? 'M' : 'L'}
             </button>
           ))}
         </div>
@@ -1285,36 +1306,89 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
     const news = f1.news || [];
     if (news.length === 0) return null;
     const isCompact = size === 'compact';
-    const displayNews = isCompact ? news.slice(0, 2) : news.slice(0, 4);
+    const isLarge = size === 'large';
+    const displayNews = isCompact ? news.slice(0, 2) : isLarge ? news.slice(0, 6) : news.slice(0, 4);
+    const leadStory = news[0];
+    const wireStories = news.slice(1, 6);
 
     if (uiStyle === 'tui') {
       return (
         <TuiBox
           key="news"
-          title={isCompact ? 'F1_WIRE' : 'F1_PADDOCK_WIRE'}
+          title={isCompact ? 'F1_WIRE' : isLarge ? 'F1_BREAKING_NEWS_&_WIRE' : 'F1_PADDOCK_WIRE'}
           badge="LIVE"
           badgeColor="text-amber-400"
-          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+          className={isCompact ? 'h-[148px] max-h-[148px] min-h-[148px] overflow-hidden flex flex-col justify-between' : ''}
         >
-          <div className="space-y-1.5 text-xs py-0.5 flex flex-col justify-between h-full font-mono">
-            {displayNews.map((item: any, idx: number) => (
-              <a
-                key={item.id || idx}
-                href={item.link}
-                target="_blank"
-                rel="noreferrer"
-                className="group block space-y-0.5 hover:text-amber-300 transition-colors"
-              >
-                <div className="flex items-center space-x-1.5 text-[9px] opacity-75">
-                  <span className="text-amber-400 font-bold">[{item.source.toUpperCase()}]</span>
-                  <span>{item.timeAgo}</span>
-                </div>
-                <div className="line-clamp-2 font-bold group-hover:underline leading-tight">
-                  {item.title}
-                </div>
-              </a>
-            ))}
-          </div>
+          {isLarge ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs py-0.5 font-mono">
+              {leadStory && (
+                <a
+                  href={leadStory.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="p-2 border border-amber-500/30 bg-amber-950/20 hover:border-amber-400 flex flex-col justify-between block group"
+                >
+                  <div>
+                    <div className="flex items-center justify-between text-[9px] opacity-75 mb-1">
+                      <span className="text-amber-400 font-bold">[{leadStory.source.toUpperCase()}]</span>
+                      <span>{leadStory.timeAgo}</span>
+                    </div>
+                    <div className="font-bold text-sm leading-snug group-hover:text-amber-300">
+                      {leadStory.title}
+                    </div>
+                    {leadStory.snippet && (
+                      <p className="text-[10px] opacity-75 mt-1.5 line-clamp-3 leading-normal">
+                        {leadStory.snippet}
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-[9px] text-amber-400 font-bold mt-2 pt-1 border-t border-amber-500/20">
+                    &gt;&gt; READ_FULL_DISPATCH
+                  </div>
+                </a>
+              )}
+              <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                {wireStories.map((item: any, idx: number) => (
+                  <a
+                    key={item.id || idx}
+                    href={item.link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="p-1.5 border border-amber-500/20 block hover:border-amber-400 transition-colors"
+                  >
+                    <div className="flex items-center space-x-1.5 text-[9px] opacity-75">
+                      <span className="text-amber-400 font-bold">[{item.source.toUpperCase()}]</span>
+                      <span>{item.timeAgo}</span>
+                    </div>
+                    <div className="line-clamp-2 font-bold leading-tight mt-0.5">
+                      {item.title}
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-1.5 text-xs py-0.5 flex flex-col justify-between h-full font-mono">
+              {displayNews.map((item: any, idx: number) => (
+                <a
+                  key={item.id || idx}
+                  href={item.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group block space-y-0.5 hover:text-amber-300 transition-colors"
+                >
+                  <div className="flex items-center space-x-1.5 text-[9px] opacity-75">
+                    <span className="text-amber-400 font-bold">[{item.source.toUpperCase()}]</span>
+                    <span>{item.timeAgo}</span>
+                  </div>
+                  <div className="line-clamp-2 font-bold group-hover:underline leading-tight">
+                    {item.title}
+                  </div>
+                </a>
+              ))}
+            </div>
+          )}
         </TuiBox>
       );
     }
@@ -1323,35 +1397,87 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       return (
         <BrutalistBox
           key="news"
-          title={isCompact ? 'F1 WIRE' : 'F1 PADDOCK NEWS'}
+          title={isCompact ? 'F1 WIRE' : isLarge ? 'F1 BREAKING NEWS & PADDOCK WIRE' : 'F1 PADDOCK NEWS'}
           badge={isCompact ? 'WIRE' : 'BREAKING'}
           badgeColor="bg-red-600 text-white"
-          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+          className={isCompact ? 'h-[148px] max-h-[148px] min-h-[148px] overflow-hidden flex flex-col justify-between' : ''}
         >
-          <div className="space-y-2 py-0.5 flex flex-col justify-between h-full">
-            {displayNews.map((item: any, idx: number) => (
-              <a
-                key={item.id || idx}
-                href={item.link}
-                target="_blank"
-                rel="noreferrer"
-                className={`block p-1.5 border-2 border-black transition-transform hover:-translate-y-0.5 ${
-                  isLight ? 'bg-neutral-100 shadow-[1px_1px_0px_#000]' : 'bg-neutral-900 shadow-[1px_1px_0px_#fff]'
-                }`}
-              >
-                <div className="flex items-center justify-between text-[8px] font-black uppercase tracking-wider mb-0.5 opacity-80">
-                  <span className="text-red-500 font-black">{item.source}</span>
-                  <span className="font-mono">{item.timeAgo}</span>
-                </div>
-                <div className="text-[11px] font-black leading-snug line-clamp-2 hover:underline">
-                  {item.title}
-                </div>
-                {!isCompact && item.snippet && (
-                  <p className="text-[9px] opacity-75 line-clamp-1 mt-0.5">{item.snippet}</p>
-                )}
-              </a>
-            ))}
-          </div>
+          {isLarge ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 py-0.5">
+              {leadStory && (
+                <a
+                  href={leadStory.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={`p-3 border-2 border-black flex flex-col justify-between ${
+                    isLight ? 'bg-amber-100 shadow-[2px_2px_0px_#000]' : 'bg-neutral-900 text-white shadow-[2px_2px_0px_#fff]'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between text-[8px] font-black uppercase tracking-wider mb-1">
+                      <span className="text-red-600 font-black">★ LEAD • {leadStory.source}</span>
+                      <span className="font-mono">{leadStory.timeAgo}</span>
+                    </div>
+                    <div className="text-sm font-black leading-snug hover:underline">
+                      {leadStory.title}
+                    </div>
+                    {leadStory.snippet && (
+                      <p className="text-[10px] font-medium opacity-80 mt-1 line-clamp-3">{leadStory.snippet}</p>
+                    )}
+                  </div>
+                  <div className="text-[9px] font-black uppercase tracking-wider text-red-600 mt-2 pt-1 border-t-2 border-black">
+                    FULL ARTICLE &gt;&gt;
+                  </div>
+                </a>
+              )}
+              <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                {wireStories.map((item: any, idx: number) => (
+                  <a
+                    key={item.id || idx}
+                    href={item.link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={`block p-1.5 border-2 border-black ${
+                      isLight ? 'bg-neutral-100 shadow-[1px_1px_0px_#000]' : 'bg-neutral-900 text-white shadow-[1px_1px_0px_#fff]'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between text-[8px] font-black uppercase tracking-wider mb-0.5 opacity-80">
+                      <span className="text-red-500 font-black">{item.source}</span>
+                      <span className="font-mono">{item.timeAgo}</span>
+                    </div>
+                    <div className="text-[11px] font-black leading-snug line-clamp-2 hover:underline">
+                      {item.title}
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2 py-0.5 flex flex-col justify-between h-full">
+              {displayNews.map((item: any, idx: number) => (
+                <a
+                  key={item.id || idx}
+                  href={item.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={`block p-1.5 border-2 border-black transition-transform hover:-translate-y-0.5 ${
+                    isLight ? 'bg-neutral-100 shadow-[1px_1px_0px_#000]' : 'bg-neutral-900 shadow-[1px_1px_0px_#fff]'
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-[8px] font-black uppercase tracking-wider mb-0.5 opacity-80">
+                    <span className="text-red-500 font-black">{item.source}</span>
+                    <span className="font-mono">{item.timeAgo}</span>
+                  </div>
+                  <div className="text-[11px] font-black leading-snug line-clamp-2 hover:underline">
+                    {item.title}
+                  </div>
+                  {!isCompact && item.snippet && (
+                    <p className="text-[9px] opacity-75 line-clamp-1 mt-0.5">{item.snippet}</p>
+                  )}
+                </a>
+              ))}
+            </div>
+          )}
         </BrutalistBox>
       );
     }
@@ -1360,30 +1486,80 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       return (
         <HudBox
           key="news"
-          title={isCompact ? 'PADDOCK_FEED' : 'F1_PADDOCK_NEWS_FEED'}
+          title={isCompact ? 'PADDOCK_FEED' : isLarge ? 'F1_PADDOCK_FEED_&_HEADLINES' : 'F1_PADDOCK_NEWS_FEED'}
           code="LIVE_WIRE"
           glowColor="cyan"
-          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+          className={isCompact ? 'h-[148px] max-h-[148px] min-h-[148px] overflow-hidden flex flex-col justify-between' : ''}
         >
-          <div className="space-y-1.5 py-0.5 flex flex-col justify-between h-full font-mono">
-            {displayNews.map((item: any, idx: number) => (
-              <a
-                key={item.id || idx}
-                href={item.link}
-                target="_blank"
-                rel="noreferrer"
-                className="group block p-1.5 rounded border border-cyan-500/20 bg-cyan-950/20 hover:border-cyan-400/50 transition-colors"
-              >
-                <div className="flex items-center justify-between text-[8px] text-cyan-400 mb-0.5">
-                  <span className="font-bold">[{item.source}]</span>
-                  <span className="opacity-75">{item.timeAgo}</span>
-                </div>
-                <div className="text-[10px] text-slate-200 group-hover:text-cyan-200 line-clamp-2 font-bold leading-tight">
-                  {item.title}
-                </div>
-              </a>
-            ))}
-          </div>
+          {isLarge ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 py-0.5 font-mono">
+              {leadStory && (
+                <a
+                  href={leadStory.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="p-2.5 rounded border border-cyan-500/30 bg-cyan-950/20 hover:border-cyan-400/60 transition-colors flex flex-col justify-between group"
+                >
+                  <div>
+                    <div className="flex items-center justify-between text-[8px] text-cyan-400 mb-1">
+                      <span className="font-bold">★ LEAD_WIRE • {leadStory.source}</span>
+                      <span className="opacity-75">{leadStory.timeAgo}</span>
+                    </div>
+                    <div className="text-xs font-bold text-white group-hover:text-cyan-200 line-clamp-3 leading-snug">
+                      {leadStory.title}
+                    </div>
+                    {leadStory.snippet && (
+                      <p className="text-[9px] text-slate-300 mt-1.5 line-clamp-3 leading-normal">
+                        {leadStory.snippet}
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-[8px] text-cyan-400 font-bold mt-2 pt-1 border-t border-cyan-500/20">
+                    &gt;&gt; OPEN_DISPATCH
+                  </div>
+                </a>
+              )}
+              <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                {wireStories.map((item: any, idx: number) => (
+                  <a
+                    key={item.id || idx}
+                    href={item.link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group block p-1.5 rounded border border-cyan-500/20 bg-cyan-950/20 hover:border-cyan-400/50 transition-colors"
+                  >
+                    <div className="flex items-center justify-between text-[8px] text-cyan-400 mb-0.5">
+                      <span className="font-bold">[{item.source}]</span>
+                      <span className="opacity-75">{item.timeAgo}</span>
+                    </div>
+                    <div className="text-[10px] text-slate-200 group-hover:text-cyan-200 line-clamp-2 font-bold leading-tight">
+                      {item.title}
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-1.5 py-0.5 flex flex-col justify-between h-full font-mono">
+              {displayNews.map((item: any, idx: number) => (
+                <a
+                  key={item.id || idx}
+                  href={item.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group block p-1.5 rounded border border-cyan-500/20 bg-cyan-950/20 hover:border-cyan-400/50 transition-colors"
+                >
+                  <div className="flex items-center justify-between text-[8px] text-cyan-400 mb-0.5">
+                    <span className="font-bold">[{item.source}]</span>
+                    <span className="opacity-75">{item.timeAgo}</span>
+                  </div>
+                  <div className="text-[10px] text-slate-200 group-hover:text-cyan-200 line-clamp-2 font-bold leading-tight">
+                    {item.title}
+                  </div>
+                </a>
+              ))}
+            </div>
+          )}
         </HudBox>
       );
     }
@@ -1394,7 +1570,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
             <Newspaper size={12} className="text-red-500 shrink-0" />
-            <span className="truncate">{isCompact ? 'Paddock Wire' : 'F1 PADDOCK NEWS & WIRE'}</span>
+            <span className="truncate">{isCompact ? 'Paddock Wire' : isLarge ? 'F1 PADDOCK NEWS & WIRE (BREAKING)' : 'F1 PADDOCK NEWS & WIRE'}</span>
           </span>
           <div className="flex items-center space-x-1 shrink-0">
             {renderSizeToggle('news')}
@@ -1425,6 +1601,68 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                 </div>
               </a>
             ))}
+          </div>
+        ) : isLarge ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            {/* Left Column: Featured Lead Story Card */}
+            {leadStory && (
+              <a
+                href={leadStory.link}
+                target="_blank"
+                rel="noreferrer"
+                className={`p-3 rounded-xl border flex flex-col justify-between group hover:opacity-100 transition-all ${getInnerClass()}`}
+              >
+                <div>
+                  <div className="flex items-center justify-between text-[9px] mb-1.5">
+                    <span className="font-bold text-red-500 bg-red-500/10 px-2 py-0.5 rounded text-[8px] uppercase tracking-wider">
+                      ★ LEAD STORY • {leadStory.source}
+                    </span>
+                    <span className="opacity-60 font-mono text-[9px]">{leadStory.timeAgo}</span>
+                  </div>
+                  <h4 className="font-extrabold text-sm leading-snug group-hover:text-blue-500 transition-colors line-clamp-3">
+                    {leadStory.title}
+                  </h4>
+                  {leadStory.snippet && (
+                    <p className="text-[11px] opacity-75 line-clamp-3 mt-1.5 leading-relaxed">
+                      {leadStory.snippet}
+                    </p>
+                  )}
+                </div>
+                <div className="flex items-center space-x-1 text-[10px] text-blue-500 font-bold mt-2.5 pt-1.5 border-t border-black/10 dark:border-white/10">
+                  <span>Read Full Coverage</span>
+                  <ExternalLink size={11} />
+                </div>
+              </a>
+            )}
+
+            {/* Right Column: Paddock Wire Feed */}
+            <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+              <div className="text-[9px] font-bold uppercase tracking-wider text-gray-400 pb-0.5 border-b border-black/10 dark:border-white/10">
+                Latest Paddock Dispatches
+              </div>
+              {wireStories.map((item: any, idx: number) => (
+                <a
+                  key={item.id || idx}
+                  href={item.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={`p-2 rounded-xl border flex flex-col justify-between group hover:opacity-100 transition-all ${getInnerClass()}`}
+                >
+                  <div className="flex items-center justify-between text-[9px] mb-1">
+                    <div className="flex items-center space-x-1.5">
+                      <span className="font-bold text-red-500 bg-red-500/10 px-1.5 py-0.2 rounded text-[8px] uppercase tracking-wider">
+                        {item.source}
+                      </span>
+                      <span className="opacity-60 font-mono text-[9px]">{item.timeAgo}</span>
+                    </div>
+                    <ExternalLink size={10} className="opacity-40 group-hover:opacity-100 transition-opacity text-current shrink-0" />
+                  </div>
+                  <div className="font-bold text-[11px] leading-snug group-hover:text-blue-500 transition-colors line-clamp-2">
+                    {item.title}
+                  </div>
+                </a>
+              ))}
+            </div>
           </div>
         ) : (
           <div className="space-y-1.5 text-xs">
@@ -1460,10 +1698,10 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       </div>
     );
   };
-
   // 9. WEEKEND SCHEDULE WIDGET
   const renderScheduleWidget = (size: F1WidgetSize) => {
     const isCompact = size === 'compact';
+    const isLarge = size === 'large';
     const sList = [
       { key: 'fp1', label: 'Practice 1', data: f1.sessions?.fp1 },
       { key: 'fp2', label: 'Practice 2', data: f1.sessions?.fp2 },
@@ -1480,19 +1718,50 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       return (
         <TuiBox
           key="schedule"
-          title={isCompact ? 'SCHEDULE' : 'WEEKEND_SCHEDULE_IST'}
-          badge="IST"
+          title={isCompact ? 'SCHEDULE' : isLarge ? 'WEEKEND_SCHEDULE_&_TELEMETRY' : 'WEEKEND_SCHEDULE_IST'}
+          badge="IST SYNC"
           badgeColor="text-red-400"
-          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+          className={isCompact ? 'h-[148px] max-h-[148px] min-h-[148px] overflow-hidden flex flex-col justify-between' : ''}
         >
-          <div className="space-y-1 text-xs py-0.5 flex flex-col justify-between h-full font-mono">
-            {displaySessions.map((s) => (
-              <div key={s.key} className="flex items-center justify-between">
-                <span className="truncate">{s.label}</span>
-                <span className="text-red-400 font-bold ml-1 shrink-0">{s.data?.istTime.split('•')[1] || s.data?.istTime}</span>
+          {isLarge ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs py-0.5 font-mono">
+              <div className="p-2 border border-red-500/30 bg-red-950/20 space-y-2 flex flex-col justify-between">
+                <div>
+                  <div className="text-[9px] text-red-400 uppercase font-bold">&gt;&gt; NEXT ON TRACK</div>
+                  <div className="text-sm font-black text-white truncate mt-0.5">{f1.nextSession?.name?.toUpperCase()}</div>
+                  <div className="text-[10px] text-gray-300 mt-0.5">{f1.nextSession?.istTimeFormatted}</div>
+                </div>
+                <div className="p-2 border border-red-500/50 bg-black/60 text-center">
+                  <div className="text-[8px] uppercase tracking-wider text-red-400">T-MINUS COUNTDOWN</div>
+                  <div className="text-base font-black text-red-500 font-mono tracking-wider animate-pulse">
+                    T-{f1.nextSession?.countdownFormatted}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-1 text-[9px] pt-1 border-t border-red-500/20">
+                  <div><span className="opacity-60">RECORD:</span> <span className="font-bold truncate block text-amber-400">{f1.circuitLapRecord?.lapTime || '1:35.490'}</span></div>
+                  <div><span className="opacity-60">HOLDER:</span> <span className="font-bold truncate block">{f1.circuitLapRecord?.driver || 'Record'} ({f1.circuitLapRecord?.year || '2024'})</span></div>
+                </div>
               </div>
-            ))}
-          </div>
+
+              <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
+                {sList.map((s) => (
+                  <div key={s.key} className="p-1.5 border border-red-500/20 flex items-center justify-between text-[11px]">
+                    <span className="truncate">{s.label}</span>
+                    <span className="text-red-400 font-bold ml-1 font-mono shrink-0">{s.data?.istTime.split('•')[1] || s.data?.istTime}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-1 text-xs py-0.5 flex flex-col justify-between h-full font-mono">
+              {displaySessions.map((s) => (
+                <div key={s.key} className="flex items-center justify-between">
+                  <span className="truncate">{s.label}</span>
+                  <span className="text-red-400 font-bold ml-1 shrink-0">{s.data?.istTime.split('•')[1] || s.data?.istTime}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </TuiBox>
       );
     }
@@ -1501,24 +1770,57 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       return (
         <BrutalistBox
           key="schedule"
-          title={isCompact ? 'SCHEDULE' : 'WEEKEND SCHEDULE (IST)'}
-          badge={isCompact ? 'IST' : 'OFFICIAL'}
+          title={isCompact ? 'SCHEDULE' : isLarge ? 'WEEKEND SCHEDULE & SESSION TELEMETRY' : 'WEEKEND SCHEDULE (IST)'}
+          badge={isCompact ? 'IST' : 'OFFICIAL TIMETABLE'}
           badgeColor="bg-red-600 text-white"
-          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+          className={isCompact ? 'h-[148px] max-h-[148px] min-h-[148px] overflow-hidden flex flex-col justify-between' : ''}
         >
-          <div className="space-y-1.5 py-0.5 flex flex-col justify-between h-full">
-            {displaySessions.map((s) => (
-              <div
-                key={s.key}
-                className={`p-1.5 border-2 border-black flex items-center justify-between text-[11px] font-bold ${
-                  isLight ? 'bg-neutral-100' : 'bg-neutral-900 text-white'
-                }`}
-              >
-                <span className="truncate">{s.label}</span>
-                <span className="font-mono text-red-500 ml-1 shrink-0">{s.data?.istTime.split('•')[1] || s.data?.istTime}</span>
+          {isLarge ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 py-0.5">
+              <div className={`p-2.5 border-2 border-black space-y-2 flex flex-col justify-between ${isLight ? 'bg-amber-100' : 'bg-neutral-900'}`}>
+                <div>
+                  <div className="text-[9px] font-black uppercase tracking-wider opacity-75">NEXT ON TRACK</div>
+                  <div className="text-sm font-black uppercase truncate mt-0.5">{f1.nextSession?.name}</div>
+                  <div className="text-[10px] font-mono font-bold text-red-600 mt-0.5">{f1.nextSession?.istTimeFormatted}</div>
+                </div>
+                <div className="p-2 border-2 border-black bg-amber-400 text-black text-center shadow-[2px_2px_0px_#000]">
+                  <div className="text-[8px] font-black uppercase tracking-widest">T-MINUS COUNTDOWN</div>
+                  <div className="text-base font-black font-mono tracking-wider">T-{f1.nextSession?.countdownFormatted}</div>
+                </div>
+                <div className="grid grid-cols-2 gap-1 text-[9px] font-black pt-1 border-t-2 border-black">
+                  <div>RECORD: {f1.circuitLapRecord?.lapTime || '1:35.490'}</div>
+                  <div>HOLDER: {f1.circuitLapRecord?.driver || 'Record'} ({f1.circuitLapRecord?.year || '2024'})</div>
+                </div>
               </div>
-            ))}
-          </div>
+              <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                {sList.map((s) => (
+                  <div
+                    key={s.key}
+                    className={`p-1.5 border-2 border-black flex items-center justify-between text-[11px] font-black ${
+                      isLight ? 'bg-neutral-100' : 'bg-neutral-900 text-white'
+                    }`}
+                  >
+                    <span className="truncate">{s.label}</span>
+                    <span className="font-mono text-red-500 ml-1 shrink-0">{s.data?.istTime.split('•')[1] || s.data?.istTime}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-1.5 py-0.5 flex flex-col justify-between h-full">
+              {displaySessions.map((s) => (
+                <div
+                  key={s.key}
+                  className={`p-1.5 border-2 border-black flex items-center justify-between text-[11px] font-bold ${
+                    isLight ? 'bg-neutral-100' : 'bg-neutral-900 text-white'
+                  }`}
+                >
+                  <span className="truncate">{s.label}</span>
+                  <span className="font-mono text-red-500 ml-1 shrink-0">{s.data?.istTime.split('•')[1] || s.data?.istTime}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </BrutalistBox>
       );
     }
@@ -1527,19 +1829,49 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       return (
         <HudBox
           key="schedule"
-          title={isCompact ? 'SCHEDULE' : 'SESSION_TIMETABLE_IST'}
+          title={isCompact ? 'SCHEDULE' : isLarge ? 'SESSION_TIMETABLE_&_TELEMETRY' : 'SESSION_TIMETABLE_IST'}
           code="IST_SYNC"
           glowColor="cyan"
-          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+          className={isCompact ? 'h-[148px] max-h-[148px] min-h-[148px] overflow-hidden flex flex-col justify-between' : ''}
         >
-          <div className="space-y-1 py-0.5 flex flex-col justify-between h-full font-mono text-[10px]">
-            {displaySessions.map((s) => (
-              <div key={s.key} className="p-1 rounded border border-cyan-500/20 flex items-center justify-between">
-                <span className="text-slate-200 truncate">{s.label}</span>
-                <span className="text-cyan-400 font-bold ml-1 shrink-0">{s.data?.istTime.split('•')[1] || s.data?.istTime}</span>
+          {isLarge ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 py-0.5 font-mono text-[10px]">
+              <div className="p-2 rounded border border-cyan-500/30 bg-cyan-950/20 space-y-2 flex flex-col justify-between">
+                <div>
+                  <div className="text-[8px] text-cyan-400 uppercase font-bold">&gt;&gt; TARGET SESSION</div>
+                  <div className="text-xs font-bold text-white truncate mt-0.5">{f1.nextSession?.name}</div>
+                  <div className="text-[9px] text-slate-300 mt-0.5">{f1.nextSession?.istTimeFormatted}</div>
+                </div>
+                <div className="p-2 rounded border border-cyan-500/50 bg-black/60 text-center">
+                  <div className="text-[8px] uppercase tracking-wider text-cyan-400">T-MINUS COUNTDOWN</div>
+                  <div className="text-sm font-bold text-cyan-300 font-mono tracking-wider animate-pulse">
+                    T-{f1.nextSession?.countdownFormatted}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-1 text-[8px] pt-1 border-t border-cyan-500/20 text-slate-300">
+                  <div>RECORD: {f1.circuitLapRecord?.lapTime || '1:35.490'}</div>
+                  <div>HOLDER: {f1.circuitLapRecord?.driver || 'Record'} ({f1.circuitLapRecord?.year || '2024'})</div>
+                </div>
               </div>
-            ))}
-          </div>
+              <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
+                {sList.map((s) => (
+                  <div key={s.key} className="p-1.5 rounded border border-cyan-500/20 flex items-center justify-between">
+                    <span className="text-slate-200 truncate">{s.label}</span>
+                    <span className="text-cyan-400 font-bold ml-1 shrink-0">{s.data?.istTime.split('•')[1] || s.data?.istTime}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-1 py-0.5 flex flex-col justify-between h-full font-mono text-[10px]">
+              {displaySessions.map((s) => (
+                <div key={s.key} className="p-1 rounded border border-cyan-500/20 flex items-center justify-between">
+                  <span className="text-slate-200 truncate">{s.label}</span>
+                  <span className="text-cyan-400 font-bold ml-1 shrink-0">{s.data?.istTime.split('•')[1] || s.data?.istTime}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </HudBox>
       );
     }
@@ -1549,7 +1881,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
             <Calendar size={12} className="text-red-500 shrink-0" />
-            <span className="truncate">{isCompact ? 'Schedule' : 'WEEKEND SCHEDULE (IST)'}</span>
+            <span className="truncate">{isCompact ? 'Schedule' : isLarge ? 'WEEKEND SCHEDULE & SESSION TELEMETRY' : 'WEEKEND SCHEDULE (IST)'}</span>
           </span>
           <div className="flex items-center space-x-1 shrink-0">
             {renderSizeToggle('schedule')}
@@ -1565,6 +1897,75 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                 <span className="font-mono font-bold text-red-500 shrink-0">{s.data?.istTime.split('•')[1] || s.data?.istTime}</span>
               </div>
             ))}
+          </div>
+        ) : isLarge ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            {/* Left Column: Next Session Spotlight */}
+            <div className={`p-3 rounded-xl border flex flex-col justify-between space-y-2.5 ${getInnerClass()}`}>
+              <div>
+                <div className="flex items-center justify-between text-[9px] uppercase font-bold text-red-500 mb-1">
+                  <span>Next On Track</span>
+                  <span className="flex items-center space-x-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                    <span>LIVE SYNC</span>
+                  </span>
+                </div>
+                <h4 className="text-sm font-bold truncate leading-tight">{f1.nextSession?.name}</h4>
+                <p className="text-[11px] opacity-70 font-mono mt-0.5">{f1.nextSession?.istTimeFormatted}</p>
+              </div>
+
+              <div className="p-2.5 rounded-xl border border-red-500/30 bg-red-500/10 text-center">
+                <div className="text-[9px] uppercase font-mono font-bold tracking-wider opacity-75">T-Minus Countdown</div>
+                <div className="text-lg font-black font-mono text-red-500 tracking-wider mt-0.5 animate-pulse tabular-nums">
+                  T-{f1.nextSession?.countdownFormatted}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-[10px] pt-1 border-t border-black/10 dark:border-white/10">
+                <div>
+                  <span className="text-[8px] opacity-60 uppercase block">Lap Record</span>
+                  <span className="font-bold text-amber-500 truncate block">{f1.circuitLapRecord?.lapTime || '1:35.490'}</span>
+                </div>
+                <div>
+                  <span className="text-[8px] opacity-60 uppercase block">Record Holder</span>
+                  <span className="font-bold truncate block">{f1.circuitLapRecord?.driver || 'Record'} ({f1.circuitLapRecord?.year || '2024'})</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Full Weekend Timetable */}
+            <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+              {sList.map((s) => {
+                const isNext = f1.nextSession?.name === s.data?.name;
+                return (
+                  <div
+                    key={s.key}
+                    className={`p-2 rounded-xl border flex items-center justify-between transition-all ${
+                      isNext ? 'border-red-500 ring-1 ring-red-500/40 bg-red-500/10' : getInnerClass()
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2 truncate">
+                      <div
+                        className={`w-2 h-2 rounded-full shrink-0 ${
+                          s.data?.status === 'live'
+                            ? 'bg-red-500 animate-ping'
+                            : s.data?.status === 'completed'
+                            ? 'bg-gray-400'
+                            : 'bg-emerald-500'
+                        }`}
+                      />
+                      <div className="truncate">
+                        <span className="font-bold text-[11px] block truncate">{s.label}</span>
+                        <span className="text-[9px] opacity-70 font-mono truncate">{s.data?.istTime}</span>
+                      </div>
+                    </div>
+                    <span className="text-[9px] uppercase font-bold font-mono px-1.5 py-0.5 rounded bg-black/20 text-current shrink-0">
+                      {s.data?.status}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         ) : (
           <div className="space-y-1.5 text-xs max-h-56 overflow-y-auto pr-1">
@@ -1607,6 +2008,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
   // 10. STANDINGS WIDGET
   const renderStandingsWidget = (size: F1WidgetSize) => {
     const isCompact = size === 'compact';
+    const isLarge = size === 'large';
     const drivers = (f1.standings || []).slice(0, isCompact ? 4 : 10);
     const constructors = (f1.constructorStandings || []).slice(0, isCompact ? 4 : 10);
 
@@ -1614,45 +2016,79 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       return (
         <TuiBox
           key="standings"
-          title={isCompact ? 'STANDINGS' : standingsTab === 'drivers' ? 'WDC_STANDINGS' : 'WCC_STANDINGS'}
-          badge={standingsTab === 'drivers' ? 'WDC' : 'WCC'}
+          title={isCompact ? 'STANDINGS' : isLarge ? 'CHAMPIONSHIP_STANDINGS_WDC_&_WCC' : standingsTab === 'drivers' ? 'WDC_STANDINGS' : 'WCC_STANDINGS'}
+          badge={isLarge ? 'WDC • WCC' : standingsTab === 'drivers' ? 'WDC' : 'WCC'}
           badgeColor="text-amber-400"
-          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+          className={isCompact ? 'h-[148px] max-h-[148px] min-h-[148px] overflow-hidden flex flex-col justify-between' : ''}
         >
-          <div className="space-y-1 text-xs py-0.5 flex flex-col justify-between h-full font-mono">
-            <div className="flex items-center justify-between pb-1 border-b border-amber-400/20 text-[10px]">
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => setStandingsTab('drivers')}
-                  className={`hover:underline cursor-pointer ${standingsTab === 'drivers' ? 'text-amber-400 font-bold' : 'text-gray-500'}`}
-                >
-                  [DRIVERS]
-                </button>
-                <button
-                  onClick={() => setStandingsTab('constructors')}
-                  className={`hover:underline cursor-pointer ${standingsTab === 'constructors' ? 'text-amber-400 font-bold' : 'text-gray-500'}`}
-                >
-                  [TEAMS]
-                </button>
+          {isLarge ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs py-0.5 font-mono">
+              <div className="space-y-1">
+                <div className="flex items-center justify-between pb-1 border-b border-amber-400/30 text-[10px] text-amber-400 font-bold">
+                  <span>&gt;&gt; PILOTS (WDC)</span>
+                  <span>PTS</span>
+                </div>
+                <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
+                  {drivers.map((d: any) => (
+                    <div key={d.driverCode} className="flex items-center justify-between text-[11px]">
+                      <span>P{d.position} {d.driverCode}</span>
+                      <span className="text-amber-400 font-bold">{d.points}P</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <span className="text-gray-400">PTS</span>
+
+              <div className="space-y-1">
+                <div className="flex items-center justify-between pb-1 border-b border-amber-400/30 text-[10px] text-amber-400 font-bold">
+                  <span>&gt;&gt; CONSTRUCTORS (WCC)</span>
+                  <span>PTS</span>
+                </div>
+                <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
+                  {constructors.map((c: any) => (
+                    <div key={c.team} className="flex items-center justify-between text-[11px]">
+                      <span className="truncate">P{c.position} {c.team}</span>
+                      <span className="text-amber-400 font-bold">{c.points}P</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-            {standingsTab === 'drivers' ? (
-              drivers.map((d: any) => (
-                <div key={d.driverCode} className="flex items-center justify-between">
-                  <span>P{d.position} {d.driverCode}</span>
-                  <span className="text-amber-400 font-bold">{d.points}P</span>
+          ) : (
+            <div className="space-y-1 text-xs py-0.5 flex flex-col justify-between h-full font-mono">
+              <div className="flex items-center justify-between pb-1 border-b border-amber-400/20 text-[10px]">
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => setStandingsTab('drivers')}
+                    className={`hover:underline cursor-pointer ${standingsTab === 'drivers' ? 'text-amber-400 font-bold' : 'text-gray-500'}`}
+                  >
+                    [DRIVERS]
+                  </button>
+                  <button
+                    onClick={() => setStandingsTab('constructors')}
+                    className={`hover:underline cursor-pointer ${standingsTab === 'constructors' ? 'text-amber-400 font-bold' : 'text-gray-500'}`}
+                  >
+                    [TEAMS]
+                  </button>
                 </div>
-              ))
-            ) : (
-              constructors.map((c: any) => (
-                <div key={c.team} className="flex items-center justify-between">
-                  <span className="truncate">P{c.position} {c.team}</span>
-                  <span className="text-amber-400 font-bold">{c.points}P</span>
-                </div>
-              ))
-            )}
-          </div>
+                <span className="text-gray-400">PTS</span>
+              </div>
+              {standingsTab === 'drivers' ? (
+                drivers.map((d: any) => (
+                  <div key={d.driverCode} className="flex items-center justify-between">
+                    <span>P{d.position} {d.driverCode}</span>
+                    <span className="text-amber-400 font-bold">{d.points}P</span>
+                  </div>
+                ))
+              ) : (
+                constructors.map((c: any) => (
+                  <div key={c.team} className="flex items-center justify-between">
+                    <span className="truncate">P{c.position} {c.team}</span>
+                    <span className="text-amber-400 font-bold">{c.points}P</span>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </TuiBox>
       );
     }
@@ -1661,59 +2097,103 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       return (
         <BrutalistBox
           key="standings"
-          title={isCompact ? 'STANDINGS' : standingsTab === 'drivers' ? 'DRIVER STANDINGS' : 'TEAM STANDINGS'}
-          badge={standingsTab === 'drivers' ? 'WDC' : 'WCC'}
+          title={isCompact ? 'STANDINGS' : isLarge ? 'CHAMPIONSHIP STANDINGS (WDC & WCC)' : standingsTab === 'drivers' ? 'DRIVER STANDINGS' : 'TEAM STANDINGS'}
+          badge={isLarge ? 'WDC / WCC' : standingsTab === 'drivers' ? 'WDC' : 'WCC'}
           badgeColor="bg-amber-400 text-black"
-          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+          className={isCompact ? 'h-[148px] max-h-[148px] min-h-[148px] overflow-hidden flex flex-col justify-between' : ''}
         >
-          <div className="space-y-1.5 py-0.5 flex flex-col justify-between h-full">
-            <div className="flex items-center justify-between pb-1 border-b-2 border-black text-[10px]">
-              <div className="flex space-x-1">
-                <button
-                  onClick={() => setStandingsTab('drivers')}
-                  className={`px-1.5 py-0.5 border border-black font-bold uppercase cursor-pointer ${
-                    standingsTab === 'drivers' ? 'bg-amber-400 text-black' : 'bg-transparent text-gray-600'
-                  }`}
-                >
-                  Drivers
-                </button>
-                <button
-                  onClick={() => setStandingsTab('constructors')}
-                  className={`px-1.5 py-0.5 border border-black font-bold uppercase cursor-pointer ${
-                    standingsTab === 'constructors' ? 'bg-amber-400 text-black' : 'bg-transparent text-gray-600'
-                  }`}
-                >
-                  Teams
-                </button>
+          {isLarge ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 py-0.5">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between pb-1 border-b-2 border-black text-[10px] font-black uppercase">
+                  <span>Drivers (WDC)</span>
+                  <span className="font-mono">PTS</span>
+                </div>
+                <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                  {drivers.map((d: any) => (
+                    <div
+                      key={d.driverCode}
+                      className={`p-1.5 border-2 border-black flex items-center justify-between text-[11px] font-black ${
+                        isLight ? 'bg-neutral-100' : 'bg-neutral-900 text-white'
+                      }`}
+                    >
+                      <span>P{d.position} • {d.driver}</span>
+                      <span className="font-mono text-amber-500">{d.points} PTS</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <span className="font-mono font-bold">PTS</span>
+
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between pb-1 border-b-2 border-black text-[10px] font-black uppercase">
+                  <span>Constructors (WCC)</span>
+                  <span className="font-mono">PTS</span>
+                </div>
+                <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                  {constructors.map((c: any) => (
+                    <div
+                      key={c.team}
+                      className={`p-1.5 border-2 border-black flex items-center justify-between text-[11px] font-black ${
+                        isLight ? 'bg-neutral-100' : 'bg-neutral-900 text-white'
+                      }`}
+                    >
+                      <span className="truncate">P{c.position} • {c.team}</span>
+                      <span className="font-mono text-amber-500">{c.points} PTS</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-            {standingsTab === 'drivers' ? (
-              drivers.map((d: any) => (
-                <div
-                  key={d.driverCode}
-                  className={`p-1.5 border-2 border-black flex items-center justify-between text-[11px] font-black ${
-                    isLight ? 'bg-neutral-100' : 'bg-neutral-900 text-white'
-                  }`}
-                >
-                  <span>P{d.position} • {isCompact ? d.driverCode : d.driver}</span>
-                  <span className="font-mono text-amber-500">{d.points} PTS</span>
+          ) : (
+            <div className="space-y-1.5 py-0.5 flex flex-col justify-between h-full">
+              <div className="flex items-center justify-between pb-1 border-b-2 border-black text-[10px]">
+                <div className="flex space-x-1">
+                  <button
+                    onClick={() => setStandingsTab('drivers')}
+                    className={`px-1.5 py-0.5 border border-black font-bold uppercase cursor-pointer ${
+                      standingsTab === 'drivers' ? 'bg-amber-400 text-black' : 'bg-transparent text-gray-600'
+                    }`}
+                  >
+                    Drivers
+                  </button>
+                  <button
+                    onClick={() => setStandingsTab('constructors')}
+                    className={`px-1.5 py-0.5 border border-black font-bold uppercase cursor-pointer ${
+                      standingsTab === 'constructors' ? 'bg-amber-400 text-black' : 'bg-transparent text-gray-600'
+                    }`}
+                  >
+                    Teams
+                  </button>
                 </div>
-              ))
-            ) : (
-              constructors.map((c: any) => (
-                <div
-                  key={c.team}
-                  className={`p-1.5 border-2 border-black flex items-center justify-between text-[11px] font-black ${
-                    isLight ? 'bg-neutral-100' : 'bg-neutral-900 text-white'
-                  }`}
-                >
-                  <span className="truncate">P{c.position} • {c.team}</span>
-                  <span className="font-mono text-amber-500">{c.points} PTS</span>
-                </div>
-              ))
-            )}
-          </div>
+                <span className="font-mono font-bold">PTS</span>
+              </div>
+              {standingsTab === 'drivers' ? (
+                drivers.map((d: any) => (
+                  <div
+                    key={d.driverCode}
+                    className={`p-1.5 border-2 border-black flex items-center justify-between text-[11px] font-black ${
+                      isLight ? 'bg-neutral-100' : 'bg-neutral-900 text-white'
+                    }`}
+                  >
+                    <span>P{d.position} • {isCompact ? d.driverCode : d.driver}</span>
+                    <span className="font-mono text-amber-500">{d.points} PTS</span>
+                  </div>
+                ))
+              ) : (
+                constructors.map((c: any) => (
+                  <div
+                    key={c.team}
+                    className={`p-1.5 border-2 border-black flex items-center justify-between text-[11px] font-black ${
+                      isLight ? 'bg-neutral-100' : 'bg-neutral-900 text-white'
+                    }`}
+                  >
+                    <span className="truncate">P{c.position} • {c.team}</span>
+                    <span className="font-mono text-amber-500">{c.points} PTS</span>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </BrutalistBox>
       );
     }
@@ -1722,49 +2202,83 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
       return (
         <HudBox
           key="standings"
-          title={isCompact ? 'STANDINGS' : standingsTab === 'drivers' ? 'PILOT_RANKS' : 'CONSTRUCTOR_RANKS'}
-          code={standingsTab === 'drivers' ? 'WDC' : 'WCC'}
+          title={isCompact ? 'STANDINGS' : isLarge ? 'CHAMPIONSHIP_STANDINGS_WDC_WCC' : standingsTab === 'drivers' ? 'PILOT_RANKS' : 'CONSTRUCTOR_RANKS'}
+          code={isLarge ? 'WDC/WCC' : standingsTab === 'drivers' ? 'WDC' : 'WCC'}
           glowColor="amber"
-          className={isCompact ? 'h-full flex flex-col justify-between' : ''}
+          className={isCompact ? 'h-[148px] max-h-[148px] min-h-[148px] overflow-hidden flex flex-col justify-between' : ''}
         >
-          <div className="space-y-1 py-0.5 flex flex-col justify-between h-full font-mono text-[10px]">
-            <div className="flex items-center justify-between pb-1 border-b border-amber-500/20">
-              <div className="flex space-x-1">
-                <button
-                  onClick={() => setStandingsTab('drivers')}
-                  className={`px-1 py-0.2 rounded border cursor-pointer ${
-                    standingsTab === 'drivers' ? 'border-amber-400 text-amber-400 bg-amber-500/20' : 'border-transparent text-gray-500'
-                  }`}
-                >
-                  DRV
-                </button>
-                <button
-                  onClick={() => setStandingsTab('constructors')}
-                  className={`px-1 py-0.2 rounded border cursor-pointer ${
-                    standingsTab === 'constructors' ? 'border-amber-400 text-amber-400 bg-amber-500/20' : 'border-transparent text-gray-500'
-                  }`}
-                >
-                  CON
-                </button>
+          {isLarge ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 py-0.5 font-mono text-[10px]">
+              <div className="space-y-1">
+                <div className="flex items-center justify-between pb-1 border-b border-amber-500/30 text-amber-400 font-bold">
+                  <span>// PILOTS (WDC)</span>
+                  <span>PTS</span>
+                </div>
+                <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
+                  {drivers.map((d: any) => (
+                    <div key={d.driverCode} className="p-1 rounded border border-amber-500/20 flex items-center justify-between">
+                      <span className="text-slate-200 truncate">P{d.position} {d.driverCode}</span>
+                      <span className="text-amber-400 font-bold">{d.points}P</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <span className="text-amber-400">PTS</span>
+
+              <div className="space-y-1">
+                <div className="flex items-center justify-between pb-1 border-b border-amber-500/30 text-amber-400 font-bold">
+                  <span>// CONSTRUCTORS (WCC)</span>
+                  <span>PTS</span>
+                </div>
+                <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
+                  {constructors.map((c: any) => (
+                    <div key={c.team} className="p-1 rounded border border-amber-500/20 flex items-center justify-between">
+                      <span className="text-slate-200 truncate">P{c.position} {c.team}</span>
+                      <span className="text-amber-400 font-bold">{c.points}P</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-            {standingsTab === 'drivers' ? (
-              drivers.map((d: any) => (
-                <div key={d.driverCode} className="p-1 rounded border border-amber-500/20 flex items-center justify-between">
-                  <span className="text-slate-200 truncate">P{d.position} {d.driverCode}</span>
-                  <span className="text-amber-400 font-bold">{d.points}P</span>
+          ) : (
+            <div className="space-y-1 py-0.5 flex flex-col justify-between h-full font-mono text-[10px]">
+              <div className="flex items-center justify-between pb-1 border-b border-amber-500/20">
+                <div className="flex space-x-1">
+                  <button
+                    onClick={() => setStandingsTab('drivers')}
+                    className={`px-1 py-0.2 rounded border cursor-pointer ${
+                      standingsTab === 'drivers' ? 'border-amber-400 text-amber-400 bg-amber-500/20' : 'border-transparent text-gray-500'
+                    }`}
+                  >
+                    DRV
+                  </button>
+                  <button
+                    onClick={() => setStandingsTab('constructors')}
+                    className={`px-1 py-0.2 rounded border cursor-pointer ${
+                      standingsTab === 'constructors' ? 'border-amber-400 text-amber-400 bg-amber-500/20' : 'border-transparent text-gray-500'
+                    }`}
+                  >
+                    CON
+                  </button>
                 </div>
-              ))
-            ) : (
-              constructors.map((c: any) => (
-                <div key={c.team} className="p-1 rounded border border-amber-500/20 flex items-center justify-between">
-                  <span className="text-slate-200 truncate">P{c.position} {c.team}</span>
-                  <span className="text-amber-400 font-bold">{c.points}P</span>
-                </div>
-              ))
-            )}
-          </div>
+                <span className="text-amber-400">PTS</span>
+              </div>
+              {standingsTab === 'drivers' ? (
+                drivers.map((d: any) => (
+                  <div key={d.driverCode} className="p-1 rounded border border-amber-500/20 flex items-center justify-between">
+                    <span className="text-slate-200 truncate">P{d.position} {d.driverCode}</span>
+                    <span className="text-amber-400 font-bold">{d.points}P</span>
+                  </div>
+                ))
+              ) : (
+                constructors.map((c: any) => (
+                  <div key={c.team} className="p-1 rounded border border-amber-500/20 flex items-center justify-between">
+                    <span className="text-slate-200 truncate">P{c.position} {c.team}</span>
+                    <span className="text-amber-400 font-bold">{c.points}P</span>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </HudBox>
       );
     }
@@ -1775,33 +2289,44 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           <div className="flex items-center space-x-2 truncate">
             <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
               <Trophy size={12} className="text-amber-500 shrink-0" />
-              <span className="truncate">{isCompact ? 'Standings' : standingsTab === 'drivers' ? 'DRIVER STANDINGS' : 'CONSTRUCTOR STANDINGS'}</span>
+              <span className="truncate">
+                {isCompact
+                  ? 'Standings'
+                  : isLarge
+                  ? 'CHAMPIONSHIP STANDINGS (WDC & WCC)'
+                  : standingsTab === 'drivers'
+                  ? 'DRIVER STANDINGS'
+                  : 'CONSTRUCTOR STANDINGS'}
+              </span>
             </span>
-            {/* Drivers / Teams Tab Switcher */}
-            <div className="flex items-center space-x-0.5 p-0.5 rounded-lg border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-[9px]">
-              <button
-                type="button"
-                onClick={() => setStandingsTab('drivers')}
-                className={`px-1.5 py-0.2 rounded font-bold transition-all cursor-pointer ${
-                  standingsTab === 'drivers'
-                    ? 'bg-amber-500 text-black shadow-xs font-extrabold'
-                    : 'text-gray-400 hover:text-current'
-                }`}
-              >
-                Drivers
-              </button>
-              <button
-                type="button"
-                onClick={() => setStandingsTab('constructors')}
-                className={`px-1.5 py-0.2 rounded font-bold transition-all cursor-pointer ${
-                  standingsTab === 'constructors'
-                    ? 'bg-amber-500 text-black shadow-xs font-extrabold'
-                    : 'text-gray-400 hover:text-current'
-                }`}
-              >
-                Teams
-              </button>
-            </div>
+
+            {/* Drivers / Teams Tab Switcher (only for compact and normal modes) */}
+            {!isLarge && (
+              <div className="flex items-center space-x-0.5 p-0.5 rounded-lg border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-[9px]">
+                <button
+                  type="button"
+                  onClick={() => setStandingsTab('drivers')}
+                  className={`px-1.5 py-0.2 rounded font-bold transition-all cursor-pointer ${
+                    standingsTab === 'drivers'
+                      ? 'bg-amber-500 text-black shadow-xs font-extrabold'
+                      : 'text-gray-400 hover:text-current'
+                  }`}
+                >
+                  Drivers
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStandingsTab('constructors')}
+                  className={`px-1.5 py-0.2 rounded font-bold transition-all cursor-pointer ${
+                    standingsTab === 'constructors'
+                      ? 'bg-amber-500 text-black shadow-xs font-extrabold'
+                      : 'text-gray-400 hover:text-current'
+                  }`}
+                >
+                  Teams
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center space-x-1 shrink-0">
@@ -1835,6 +2360,56 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                 </div>
               ))
             )}
+          </div>
+        ) : isLarge ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            {/* Left Column: Drivers (WDC) */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between pb-1 text-[10px] font-bold text-amber-500 uppercase tracking-wider border-b border-black/10 dark:border-white/10">
+                <span>Drivers (WDC)</span>
+                <span className="font-mono text-[9px] opacity-70">PTS</span>
+              </div>
+              <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
+                {drivers.map((d: any) => (
+                  <div key={d.driverCode} className={`p-1.5 rounded-xl border flex items-center justify-between ${getInnerClass()}`}>
+                    <div className="flex items-center space-x-2 truncate">
+                      <span className="font-mono font-bold opacity-60 w-3 text-center text-xs">{d.position}</span>
+                      <div className="w-1.5 h-4 rounded-full shrink-0" style={{ backgroundColor: d.teamColor }} />
+                      <div className="truncate">
+                        <span className="font-bold text-[11px] block truncate">{d.driver}</span>
+                        <span className="text-[9px] opacity-70 truncate block">{d.team}</span>
+                      </div>
+                    </div>
+                    <span className="font-mono font-extrabold text-xs text-amber-500 shrink-0">{d.points} PTS</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right Column: Constructors (WCC) */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between pb-1 text-[10px] font-bold text-amber-500 uppercase tracking-wider border-b border-black/10 dark:border-white/10">
+                <span>Constructors (WCC)</span>
+                <span className="font-mono text-[9px] opacity-70">PTS</span>
+              </div>
+              <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
+                {constructors.map((c: any) => (
+                  <div key={c.team} className={`p-1.5 rounded-xl border flex items-center justify-between ${getInnerClass()}`}>
+                    <div className="flex items-center space-x-2.5 truncate">
+                      <span className="font-mono font-bold opacity-60 w-3 text-center text-xs">{c.position}</span>
+                      <div className="w-1.5 h-4 rounded-full shrink-0" style={{ backgroundColor: c.teamColor }} />
+                      <div className="truncate">
+                        <span className="font-bold text-[11px] block truncate">{c.team}</span>
+                        <span className="text-[9px] opacity-70 truncate block">
+                          {c.wins > 0 ? `${c.wins} Win${c.wins > 1 ? 's' : ''}` : '0 Wins'}
+                        </span>
+                      </div>
+                    </div>
+                    <span className="font-mono font-extrabold text-xs text-amber-500 shrink-0">{c.points} PTS</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         ) : (
           <div className="space-y-1 text-xs max-h-56 overflow-y-auto pr-1">
@@ -1916,7 +2491,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
         <div className="flex items-center space-x-1.5">
           {/* Quick Global Size Presets */}
           <div className="flex items-center space-x-0.5 mr-1 bg-black/10 dark:bg-white/10 p-0.5 rounded-lg">
-            {(['compact', 'normal'] as F1WidgetSize[]).map((sz) => (
+            {(['compact', 'normal', 'large'] as F1WidgetSize[]).map((sz) => (
               <button
                 key={sz}
                 type="button"
@@ -1924,7 +2499,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                 onClick={() => setAllF1WidgetSizes(sz)}
                 className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold hover:bg-black/15 dark:hover:bg-white/15 transition-colors cursor-pointer"
               >
-                {sz === 'compact' ? 'S' : 'M'}
+                {sz === 'compact' ? 'S' : sz === 'normal' ? 'M' : 'L'}
               </button>
             ))}
           </div>
@@ -1944,21 +2519,67 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
         </div>
       </div>
 
-      {/* Render Active Widgets in a 12-Column Responsive Grid:
-          - Normal (M): col-span-12 md:col-span-6 lg:col-span-4 (3 cards per row on 1080p display)
-          - Compact (S): col-span-6 md:col-span-4 lg:col-span-2 (6 cards per row, or 2 compact match 1 normal card width)
+      {/* Render Active Widgets in a 12-Column Responsive Grid with HTML5 Drag-and-Drop:
+          - Large (L): col-span-12 lg:col-span-8
+          - Normal (M): col-span-12 sm:col-span-6 lg:col-span-4
+          - Compact (S): col-span-6 md:col-span-4 lg:col-span-2 fixed h-[148px]
       */}
       <div className="grid grid-cols-12 gap-3.5 overflow-y-auto pr-1 flex-1 min-h-0 auto-rows-max items-stretch content-start">
         {visibleWidgets.map((w) => {
           const size = f1WidgetSizes[w.id] || 'normal';
           const isCompact = size === 'compact';
+          const isLarge = size === 'large';
           return (
             <div
               key={w.id}
-              className={`${
-                isCompact
-                  ? 'col-span-6 md:col-span-4 lg:col-span-2 h-full'
-                  : 'col-span-12 md:col-span-6 lg:col-span-4'
+              draggable
+              onDragStart={(e) => {
+                e.dataTransfer.setData('text/plain', w.id);
+                e.dataTransfer.effectAllowed = 'move';
+                setGridDraggedId(w.id);
+              }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                if (gridDragOverId !== w.id) {
+                  setGridDragOverId(w.id);
+                }
+              }}
+              onDragLeave={(e) => {
+                if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+                if (gridDragOverId === w.id) {
+                  setGridDragOverId(null);
+                }
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                const sourceId = (e.dataTransfer.getData('text/plain') as F1WidgetId) || gridDraggedId;
+                if (sourceId && sourceId !== w.id) {
+                  const fromIdx = f1ActiveWidgets.indexOf(sourceId);
+                  const toIdx = f1ActiveWidgets.indexOf(w.id);
+                  if (fromIdx !== -1 && toIdx !== -1) {
+                    reorderF1Widgets(fromIdx, toIdx);
+                  }
+                }
+                setGridDraggedId(null);
+                setGridDragOverId(null);
+              }}
+              onDragEnd={() => {
+                setGridDraggedId(null);
+                setGridDragOverId(null);
+              }}
+              className={`transition-all duration-150 ${
+                isLarge
+                  ? 'col-span-12 lg:col-span-8'
+                  : isCompact
+                  ? 'col-span-6 md:col-span-4 lg:col-span-2 h-[148px] max-h-[148px] min-h-[148px]'
+                  : 'col-span-12 sm:col-span-6 lg:col-span-4'
+              } ${
+                gridDraggedId === w.id
+                  ? 'opacity-35 scale-[0.98] ring-2 ring-blue-500 rounded-2xl'
+                  : gridDragOverId === w.id
+                  ? 'ring-2 ring-amber-400 ring-offset-2 scale-[1.01] rounded-2xl z-10'
+                  : ''
               }`}
             >
               {renderWidgetInTheme(w.id)}
@@ -1991,13 +2612,13 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                 <span className="text-[10px] text-gray-400">Scale all widgets simultaneously</span>
               </div>
               <div className="flex items-center space-x-1">
-                {(['compact', 'normal'] as F1WidgetSize[]).map((sz) => (
+                {(['compact', 'normal', 'large'] as F1WidgetSize[]).map((sz) => (
                   <button
                     key={sz}
                     onClick={() => setAllF1WidgetSizes(sz)}
                     className="px-2.5 py-1 text-[10px] font-mono font-bold rounded-lg border border-white/20 hover:bg-white/20 transition-all cursor-pointer"
                   >
-                    {sz === 'compact' ? 'S (Compact)' : 'M (Normal)'}
+                    {sz === 'compact' ? 'S (Compact)' : sz === 'normal' ? 'M (Normal)' : 'L (Large)'}
                   </button>
                 ))}
               </div>
@@ -2081,7 +2702,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
                       {/* Individual Widget Size Picker */}
                       <div className="flex items-center space-x-0.5 bg-black/40 p-0.5 rounded-lg border border-white/15">
-                        {(['compact', 'normal'] as F1WidgetSize[]).map((sz) => {
+                        {getSupportedSizes(widget.id).map((sz) => {
                           const isSzActive = currentSize === sz;
                           return (
                             <button
@@ -2093,7 +2714,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                                 isSzActive ? 'bg-blue-600 text-white shadow-xs' : 'text-gray-400 hover:text-white'
                               }`}
                             >
-                              {sz === 'compact' ? 'S' : 'M'}
+                              {sz === 'compact' ? 'S' : sz === 'normal' ? 'M' : 'L'}
                             </button>
                           );
                         })}

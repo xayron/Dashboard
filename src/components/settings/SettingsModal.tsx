@@ -1954,8 +1954,10 @@ export const SettingsModal: React.FC = () => {
                                               </div>
                                             )}
 
-                                            {/* Size Toggles [ S | M ] */}
-                                            {(['compact', 'normal'] as F1WidgetSize[]).map((sz) => {
+                                            {/* Size Toggles [ S | M | L ] */}
+                                            {((w.id === 'schedule' || w.id === 'standings' || w.id === 'news'
+                                              ? ['compact', 'normal', 'large']
+                                              : ['compact', 'normal']) as F1WidgetSize[]).map((sz) => {
                                               const isSzActive = currentSize === sz;
                                               return (
                                                 <button
@@ -1972,7 +1974,7 @@ export const SettingsModal: React.FC = () => {
                                                       : 'bg-current/10 opacity-60 hover:opacity-100'
                                                   }`}
                                                 >
-                                                  {sz === 'compact' ? 'S' : 'M'}
+                                                  {sz === 'compact' ? 'S' : sz === 'normal' ? 'M' : 'L'}
                                                 </button>
                                               );
                                             })}
