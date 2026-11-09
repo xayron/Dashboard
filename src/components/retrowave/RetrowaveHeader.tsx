@@ -1,9 +1,9 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { Sparkles, Radio, Zap, Sun, Moon } from 'lucide-react';
+import { Sparkles, Radio, Zap, Sun, Moon, Settings } from 'lucide-react';
 
 export const RetrowaveHeader: React.FC = () => {
-  const { systemHealth, activeMode, weather, colorMode, toggleColorMode } = useDashboard();
+  const { systemHealth, activeMode, weather, colorMode, toggleColorMode, setIsSettingsOpen } = useDashboard();
 
   return (
     <header
@@ -60,6 +60,19 @@ export const RetrowaveHeader: React.FC = () => {
         >
           {colorMode === 'dark' ? <Sun size={11} /> : <Moon size={11} />}
           <span>{colorMode.toUpperCase()}</span>
+        </button>
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          title="Settings (Press 'S')"
+          aria-label="Settings"
+          className="p-1 rounded-full border cursor-pointer hover:brightness-125 transition-all shadow-[0_0_10px_rgba(255,0,127,0.3)]"
+          style={{
+            borderColor: 'var(--color-accent)',
+            backgroundColor: 'var(--theme-accent-soft)',
+            color: 'var(--color-accent)',
+          }}
+        >
+          <Settings size={12} />
         </button>
       </div>
     </header>

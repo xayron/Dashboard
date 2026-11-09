@@ -1,9 +1,9 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Settings } from 'lucide-react';
 
 export const MinimalHeader: React.FC = () => {
-  const { systemHealth, activeMode, weather, colorMode, toggleColorMode } = useDashboard();
+  const { systemHealth, activeMode, weather, colorMode, toggleColorMode, setIsSettingsOpen } = useDashboard();
 
   return (
     <header className="w-full px-10 py-3 border-b border-white/10 flex items-center justify-between text-xs text-neutral-400 select-none bg-transparent backdrop-blur-sm z-30">
@@ -31,6 +31,15 @@ export const MinimalHeader: React.FC = () => {
         >
           {colorMode === 'dark' ? <Sun size={12} /> : <Moon size={12} />}
           <span className="uppercase text-[10px]">{colorMode}</span>
+        </button>
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          title="Settings (Press 'S')"
+          aria-label="Settings"
+          className="cursor-pointer hover:opacity-100 opacity-70 transition-opacity"
+          style={{ color: 'var(--color-accent)' }}
+        >
+          <Settings size={13} />
         </button>
       </div>
     </header>

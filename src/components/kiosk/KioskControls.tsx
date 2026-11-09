@@ -6,7 +6,6 @@ import {
   RotateCcw,
   ChevronRight,
   ChevronLeft,
-  Settings,
   X,
   Moon,
   Sun,
@@ -24,7 +23,6 @@ export const KioskControls: React.FC = () => {
     setIsRaceWeekendSimulated,
     isKioskBarVisible,
     toggleKioskBar,
-    setIsSettingsOpen,
     nextPhoto,
     prevPhoto,
   } = useDashboard();
@@ -147,15 +145,6 @@ export const KioskControls: React.FC = () => {
             <ChevronRight size={16} />
           </button>
         </div>
-
-        {/* Settings button */}
-        <button
-          onClick={() => setIsSettingsOpen(true)}
-          title="Settings: Styles, Themes, HA, Weather, Photos (Press 'S')"
-          className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all"
-        >
-          <Settings size={16} />
-        </button>
 
         {/* Dismiss Kiosk Bar */}
         <button

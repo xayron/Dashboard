@@ -1,9 +1,9 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { BookOpen, Sun, Moon } from 'lucide-react';
+import { BookOpen, Sun, Moon, Settings } from 'lucide-react';
 
 export const EinkHeader: React.FC = () => {
-  const { systemHealth, activeMode, weather, colorMode, toggleColorMode } = useDashboard();
+  const { systemHealth, activeMode, weather, colorMode, toggleColorMode, setIsSettingsOpen } = useDashboard();
 
   return (
     <header className="w-full bg-[#ede8df] text-[#1c1917] px-8 py-2.5 border-b-2 border-stone-800 flex items-center justify-between text-xs font-serif select-none z-30">
@@ -29,6 +29,15 @@ export const EinkHeader: React.FC = () => {
         >
           {colorMode === 'dark' ? <Moon size={10} /> : <Sun size={10} />}
           <span>{colorMode === 'dark' ? 'DARK INK' : 'LIGHT INK'}</span>
+        </button>
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          title="Settings (Press 'S')"
+          aria-label="Settings"
+          className="p-1 border border-stone-800 cursor-pointer hover:bg-stone-300 transition-colors"
+          style={{ borderColor: 'var(--color-accent)', color: 'var(--color-accent)' }}
+        >
+          <Settings size={12} />
         </button>
       </div>
     </header>

@@ -6,7 +6,8 @@ import { WeatherWidget } from '../common/WeatherWidget';
 import { AudioBanner } from '../common/AudioBanner';
 
 export const AmbientMode: React.FC = () => {
-  const { currentPhoto, photoProgress, nextPhoto, prevPhoto, media } = useDashboard();
+  const { currentPhoto, photoProgress, nextPhoto, prevPhoto, media, colorMode } = useDashboard();
+  const isLight = colorMode === 'light';
   const { orientation, url, title, location, credit } = currentPhoto;
 
   const isPortrait = orientation === 'portrait';
@@ -14,41 +15,59 @@ export const AmbientMode: React.FC = () => {
   const isLandscape = orientation === 'landscape';
 
   return (
-    <div className="relative w-full h-full flex flex-col justify-between overflow-hidden bg-black select-none">
+    <div className={`relative w-full h-full flex flex-col justify-between overflow-hidden select-none transition-colors duration-300 ${
+      isLight ? 'bg-slate-100 text-slate-900' : 'bg-black text-white'
+    }`}>
       {/* 1. BACKGROUND / WINGS RENDERING ENGINE */}
       {isPortrait ? (
         /* Portrait Mode: Dual-Blur Wings Backdrop */
         <div className="absolute inset-0 z-0 flex pointer-events-none overflow-hidden">
           {/* Left Wing (blurred, darkened) */}
           <div
-            className="w-1/2 h-full bg-cover bg-center transform scale-110 filter blur-[40px] brightness-[0.38] contrast-125"
+            className={`w-1/2 h-full bg-cover bg-center transform scale-110 filter blur-[40px] ${
+              isLight ? 'brightness-[0.8] contrast-105 opacity-30' : 'brightness-[0.38] contrast-125'
+            }`}
             style={{ backgroundImage: `url(${url})` }}
           />
           {/* Right Wing (blurred, darkened, slightly mirrored) */}
           <div
-            className="w-1/2 h-full bg-cover bg-center transform scale-110 -scale-x-100 filter blur-[40px] brightness-[0.38] contrast-125"
+            className={`w-1/2 h-full bg-cover bg-center transform scale-110 -scale-x-100 filter blur-[40px] ${
+              isLight ? 'brightness-[0.8] contrast-105 opacity-30' : 'brightness-[0.38] contrast-125'
+            }`}
             style={{ backgroundImage: `url(${url})` }}
           />
           {/* Subtle vignette gradient */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40" />
+          <div className={`absolute inset-0 ${
+            isLight
+              ? 'bg-gradient-to-t from-slate-100/80 via-transparent to-slate-100/50'
+              : 'bg-gradient-to-t from-black/60 via-transparent to-black/40'
+          }`} />
         </div>
       ) : isStandard ? (
         /* Standard / Squarish Mode: Mild blur backdrop */
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
           <div
-            className="w-full h-full bg-cover bg-center transform scale-105 filter blur-[30px] brightness-[0.4]"
+            className={`w-full h-full bg-cover bg-center transform scale-105 filter blur-[30px] ${
+              isLight ? 'brightness-[0.8] opacity-35' : 'brightness-[0.4]'
+            }`}
             style={{ backgroundImage: `url(${url})` }}
           />
-          <div className="absolute inset-0 bg-black/30" />
+          <div className={`absolute inset-0 ${isLight ? 'bg-white/30' : 'bg-black/30'}`} />
         </div>
       ) : (
         /* Landscape Mode: Blurred ambient backdrop and subtle gradient */
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
           <div
-            className="w-full h-full bg-cover bg-center transform scale-110 filter blur-[35px] brightness-[0.35] contrast-110"
+            className={`w-full h-full bg-cover bg-center transform scale-110 filter blur-[35px] ${
+              isLight ? 'brightness-[0.8] contrast-105 opacity-35' : 'brightness-[0.35] contrast-110'
+            }`}
             style={{ backgroundImage: `url(${url})` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 z-10" />
+          <div className={`absolute inset-0 z-10 ${
+            isLight
+              ? 'bg-gradient-to-t from-slate-100/80 via-transparent to-slate-100/40'
+              : 'bg-gradient-to-t from-black/60 via-transparent to-black/30'
+          }`} />
         </div>
       )}
 
@@ -59,7 +78,11 @@ export const AmbientMode: React.FC = () => {
             key={url}
             src={url}
             alt={title}
-            className="max-h-full max-w-full object-contain rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.7)] border border-white/10 transition-opacity duration-1000 ease-in-out"
+            className={`max-h-full max-w-full object-contain rounded-2xl border transition-opacity duration-1000 ease-in-out ${
+              isLight
+                ? 'shadow-[0_15px_40px_rgba(0,0,0,0.12)] border-black/10'
+                : 'shadow-[0_20px_50px_rgba(0,0,0,0.7)] border-white/10'
+            }`}
             style={{ aspectRatio: currentPhoto.aspectRatio }}
           />
         ) : isStandard ? (
@@ -67,7 +90,11 @@ export const AmbientMode: React.FC = () => {
             key={url}
             src={url}
             alt={title}
-            className="max-h-full max-w-[85vw] object-contain shadow-2xl rounded-2xl border border-white/10 transition-opacity duration-1000 ease-in-out"
+            className={`max-h-full max-w-[85vw] object-contain rounded-2xl border transition-opacity duration-1000 ease-in-out ${
+              isLight
+                ? 'shadow-[0_15px_40px_rgba(0,0,0,0.12)] border-black/10'
+                : 'shadow-2xl border-white/10'
+            }`}
             style={{ aspectRatio: currentPhoto.aspectRatio }}
           />
         ) : (
@@ -77,7 +104,11 @@ export const AmbientMode: React.FC = () => {
               key={url}
               src={url}
               alt={title}
-              className="h-full w-auto max-w-full object-contain rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/10 transition-opacity duration-1000 ease-in-out"
+              className={`h-full w-auto max-w-full object-contain rounded-2xl border transition-opacity duration-1000 ease-in-out ${
+                isLight
+                  ? 'shadow-[0_15px_40px_rgba(0,0,0,0.12)] border-black/10'
+                  : 'shadow-[0_20px_50px_rgba(0,0,0,0.8)] border-white/10'
+              }`}
               style={{ aspectRatio: currentPhoto.aspectRatio }}
             />
           </div>
@@ -95,7 +126,7 @@ export const AmbientMode: React.FC = () => {
         <div className="relative z-10 w-full h-full flex justify-between p-10 pointer-events-none">
           {/* Left Blurred Sideband: Shifted Clock & Audio Banner */}
           <div className="w-[28%] flex flex-col justify-between pointer-events-auto">
-            <div className="glass-panel p-6 rounded-3xl shadow-2xl border border-white/15">
+            <div className="glass-panel p-6 rounded-3xl shadow-2xl">
               <ClockWidget size="normal" showSeconds={true} showDate={true} />
             </div>
 
@@ -113,16 +144,16 @@ export const AmbientMode: React.FC = () => {
             </div>
 
             {/* Photo Metadata in right wing */}
-            <div className="mt-auto glass-panel p-4 rounded-2xl border border-white/10 text-right w-full">
-              <h3 className="text-sm font-bold text-white truncate">{title}</h3>
+            <div className="mt-auto glass-panel p-4 rounded-2xl text-right w-full">
+              <h3 className={`text-sm font-bold truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{title}</h3>
               {location && (
-                <p className="text-xs text-gray-300 flex items-center justify-end mt-0.5">
-                  <MapPin size={11} className="mr-1 text-emerald-400" />
+                <p className={`text-xs flex items-center justify-end mt-0.5 ${isLight ? 'text-slate-600' : 'text-gray-300'}`}>
+                  <MapPin size={11} className="mr-1" style={{ color: 'var(--color-accent)' }} />
                   {location}
                 </p>
               )}
               {credit && (
-                <p className="text-[10px] text-gray-400 mt-1 flex items-center justify-end">
+                <p className={`text-[10px] mt-1 flex items-center justify-end ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
                   <Camera size={10} className="mr-1" />
                   Photo by {credit}
                 </p>
@@ -135,7 +166,7 @@ export const AmbientMode: React.FC = () => {
         <div className="relative z-10 w-full h-full flex flex-col justify-between p-10 pointer-events-none">
           {/* Top Section */}
           <div className="flex justify-between items-start">
-            <div className="glass-panel p-6 rounded-3xl shadow-2xl border border-white/15 pointer-events-auto max-w-md">
+            <div className="glass-panel p-6 rounded-3xl shadow-2xl pointer-events-auto max-w-md">
               <ClockWidget size="normal" showSeconds={true} showDate={true} />
             </div>
 
@@ -147,17 +178,17 @@ export const AmbientMode: React.FC = () => {
           {/* Bottom Section */}
           <div className="flex justify-between items-end">
             {/* Photo Metadata */}
-            <div className="glass-panel px-4 py-2.5 rounded-2xl border border-white/15 text-left pointer-events-auto max-w-md">
-              <h3 className="text-sm font-bold text-white truncate">{title}</h3>
-              <div className="flex items-center space-x-3 text-xs text-gray-300 mt-0.5">
+            <div className="glass-panel px-4 py-2.5 rounded-2xl text-left pointer-events-auto max-w-md">
+              <h3 className={`text-sm font-bold truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{title}</h3>
+              <div className={`flex items-center space-x-3 text-xs mt-0.5 ${isLight ? 'text-slate-600' : 'text-gray-300'}`}>
                 {location && (
                   <span className="flex items-center">
-                    <MapPin size={12} className="mr-1 text-emerald-400" />
+                    <MapPin size={12} className="mr-1" style={{ color: 'var(--color-accent)' }} />
                     {location}
                   </span>
                 )}
                 {credit && (
-                  <span className="text-gray-400 text-[11px] flex items-center">
+                  <span className={`text-[11px] flex items-center ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
                     <Camera size={11} className="mr-1" />
                     {credit}
                   </span>
@@ -181,7 +212,11 @@ export const AmbientMode: React.FC = () => {
         <button
           onClick={prevPhoto}
           title="Previous Photo"
-          className="absolute left-4 bottom-6 p-2.5 rounded-full bg-black/40 hover:bg-black/70 text-white/70 hover:text-white backdrop-blur-md transition-all border border-white/10"
+          className={`absolute left-4 bottom-6 p-2.5 rounded-full backdrop-blur-md transition-all border ${
+            isLight
+              ? 'bg-white/70 hover:bg-white text-slate-800 border-black/10 shadow-md'
+              : 'bg-black/40 hover:bg-black/70 text-white/70 hover:text-white border-white/10'
+          }`}
         >
           <ChevronLeft size={20} />
         </button>
@@ -189,16 +224,24 @@ export const AmbientMode: React.FC = () => {
         <button
           onClick={nextPhoto}
           title="Next Photo"
-          className="absolute right-4 bottom-6 p-2.5 rounded-full bg-black/40 hover:bg-black/70 text-white/70 hover:text-white backdrop-blur-md transition-all border border-white/10"
+          className={`absolute right-4 bottom-6 p-2.5 rounded-full backdrop-blur-md transition-all border ${
+            isLight
+              ? 'bg-white/70 hover:bg-white text-slate-800 border-black/10 shadow-md'
+              : 'bg-black/40 hover:bg-black/70 text-white/70 hover:text-white border-white/10'
+          }`}
         >
           <ChevronRight size={20} />
         </button>
 
         {/* 15-Second Progress Line at very bottom */}
-        <div className="w-full h-1 bg-white/10 overflow-hidden">
+        <div className={`w-full h-1 overflow-hidden ${isLight ? 'bg-black/10' : 'bg-white/10'}`}>
           <div
-            className="h-full bg-blue-500 transition-all duration-100 ease-linear shadow-[0_0_8px_rgba(59,130,246,0.8)]"
-            style={{ width: `${photoProgress}%` }}
+            className="h-full transition-all duration-100 ease-linear"
+            style={{
+              width: `${photoProgress}%`,
+              backgroundColor: 'var(--color-accent)',
+              boxShadow: isLight ? 'none' : '0 0 8px var(--color-glow)',
+            }}
           />
         </div>
       </div>

@@ -1,9 +1,9 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { Crosshair, Cpu, Wifi, Activity, Sun, Moon } from 'lucide-react';
+import { Crosshair, Cpu, Wifi, Activity, Sun, Moon, Settings } from 'lucide-react';
 
 export const HudHeader: React.FC = () => {
-  const { systemHealth, activeMode, weather, colorMode, toggleColorMode } = useDashboard();
+  const { systemHealth, activeMode, weather, colorMode, toggleColorMode, setIsSettingsOpen } = useDashboard();
 
   return (
     <header
@@ -63,6 +63,19 @@ export const HudHeader: React.FC = () => {
         >
           {colorMode === 'dark' ? <Sun size={11} /> : <Moon size={11} />}
           <span>{colorMode.toUpperCase()}</span>
+        </button>
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          title="Settings (Press 'S')"
+          aria-label="Settings"
+          className="p-1 border text-[10px] cursor-pointer hover:brightness-125 transition-all"
+          style={{
+            backgroundColor: 'var(--theme-accent-soft)',
+            borderColor: 'var(--color-accent)',
+            color: 'var(--color-accent)',
+          }}
+        >
+          <Settings size={12} />
         </button>
       </div>
     </header>

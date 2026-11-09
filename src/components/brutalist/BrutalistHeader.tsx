@@ -1,9 +1,9 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { ShieldAlert, Zap, Radio, Terminal, Sun, Moon } from 'lucide-react';
+import { ShieldAlert, Zap, Radio, Terminal, Sun, Moon, Settings } from 'lucide-react';
 
 export const BrutalistHeader: React.FC = () => {
-  const { systemHealth, activeMode, colorMode, toggleColorMode } = useDashboard();
+  const { systemHealth, activeMode, colorMode, toggleColorMode, setIsSettingsOpen } = useDashboard();
   const isLight = colorMode === 'light';
 
   return (
@@ -73,6 +73,20 @@ export const BrutalistHeader: React.FC = () => {
         >
           {colorMode === 'dark' ? <Sun size={12} className="text-yellow-400" /> : <Moon size={12} className="text-indigo-600" />}
           <span className="text-[10px] uppercase">{colorMode.toUpperCase()}</span>
+        </button>
+
+        {/* Settings Button */}
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          title="Settings (Press 'S')"
+          aria-label="Settings"
+          className={`p-1.5 border-2 cursor-pointer transition-colors ${
+            isLight
+              ? 'bg-black text-white border-black hover:bg-neutral-800 shadow-[2px_2px_0px_#000]'
+              : 'bg-white text-black border-white hover:bg-neutral-200 shadow-[2px_2px_0px_#fff]'
+          }`}
+        >
+          <Settings size={14} />
         </button>
       </div>
     </header>

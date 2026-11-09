@@ -42,7 +42,21 @@ export const SettingsModal: React.FC = () => {
   const [photoSource, setPhotoSource] = useState(photoService.getSource());
   const [customPhotoUrl, setCustomPhotoUrl] = useState('');
 
+  // Close on Escape key press
+  useEffect(() => {
+    if (!isSettingsOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsSettingsOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isSettingsOpen, setIsSettingsOpen]);
+
   if (!isSettingsOpen) return null;
+
+  const isDrawer = settingsLayout === 'drawer';
 
   const handleSaveHA = () => {
     haService.updateConfig(haConfig);
@@ -94,26 +108,76 @@ export const SettingsModal: React.FC = () => {
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-md animate-in fade-in select-none">
-      <div className="w-full max-w-2xl glass-panel rounded-3xl border border-white/15 shadow-2xl overflow-hidden flex flex-col">
-        {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+    <div
+      className={`fixed inset-0 z-50 select-none ${
+        isDrawer
+          ? 'overflow-hidden flex justify-end'
+          : 'flex items-center justify-center p-4 sm:p-6'
+      }`}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Dashboard Settings"
+    >
+      {/* Dimmed Backdrop (Light-dismiss on click) */}
+      <div
+        onClick={() => setIsSettingsOpen(false)}
+        className="fixed inset-0 bg-black/65 backdrop-blur-sm animate-backdrop-in"
+        aria-hidden="true"
+      />
+
+      {/* Settings Container: Right-Side Drawer or Centered Floating Panel */}
+      <div
+        className={`relative z-10 glass-panel border shadow-2xl flex flex-col ${
+          isDrawer
+            ? 'h-full w-full max-w-xl md:max-w-2xl border-l border-y-0 border-r-0 border-white/15 bg-slate-950/95 animate-drawer-in'
+            : 'w-full max-w-2xl rounded-3xl border-white/15 overflow-hidden max-h-[90vh] animate-modal-in'
+        }`}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 shrink-0">
           <div className="flex items-center space-x-2.5">
             <h2 className="text-xl font-bold font-display text-white">Dashboard Settings</h2>
             <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 font-mono">
               Smart Display Config
             </span>
           </div>
-          <button
-            onClick={() => setIsSettingsOpen(false)}
-            className="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-all"
-          >
-            <X size={20} />
-          </button>
+
+          <div className="flex items-center space-x-2">
+            {/* Quick Switch Layout Button (Drawer <-> Floating Modal) */}
+            <button
+              type="button"
+              onClick={toggleSettingsLayout}
+              title={isDrawer ? 'Switch to Floating Modal' : 'Switch to Right Drawer'}
+              aria-label={isDrawer ? 'Switch to Floating Modal' : 'Switch to Right Drawer'}
+              className="px-2.5 py-1.5 rounded-xl text-xs font-semibold text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all flex items-center space-x-1.5"
+            >
+              {isDrawer ? (
+                <>
+                  <AppWindow size={15} className="text-blue-400" />
+                  <span className="hidden sm:inline">Floating Modal</span>
+                </>
+              ) : (
+                <>
+                  <PanelRight size={15} className="text-blue-400" />
+                  <span className="hidden sm:inline">Right Drawer</span>
+                </>
+              )}
+            </button>
+
+            {/* Close Button */}
+            <button
+              onClick={() => setIsSettingsOpen(false)}
+              className="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-all"
+              title="Close Settings (Esc)"
+              aria-label="Close Settings"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         {/* Tabs Bar */}
-        <div className="flex border-b border-white/10 px-6 pt-2 bg-white/5 space-x-2 overflow-x-auto">
+        <div className="flex border-b border-white/10 px-6 pt-2 bg-white/5 space-x-2 overflow-x-auto shrink-0">
           <button
             onClick={() => setActiveTab('themes')}
             className={`px-3.5 py-2 text-xs font-bold rounded-t-xl transition-all flex items-center space-x-1.5 shrink-0 ${
@@ -171,8 +235,8 @@ export const SettingsModal: React.FC = () => {
           </button>
         </div>
 
-        {/* Tab Content */}
-        <div className="p-6 overflow-y-auto max-h-[60vh] space-y-5">
+        {/* Tab Content (Fills remaining height in Drawer mode, capped in Modal mode) */}
+        <div className={`overflow-y-auto p-6 space-y-5 ${isDrawer ? 'flex-1 min-h-0' : 'max-h-[62vh]'}`}>
           {/* THEMES & STYLES TAB */}
           {activeTab === 'themes' && (
             <div className="space-y-6">
@@ -532,6 +596,59 @@ export const SettingsModal: React.FC = () => {
 
           {activeTab === 'display' && (
             <div className="space-y-4 text-xs text-gray-300">
+              {/* PRESENTATION LAYOUT OPTION */}
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-sm font-bold text-white mb-0.5">Settings Presentation Layout</h4>
+                    <p className="text-gray-400 text-xs">
+                      Choose whether settings appears as a side drawer sliding in from the right or a centered floating panel.
+                    </p>
+                  </div>
+                  <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/30 uppercase">
+                    {settingsLayout}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setSettingsLayout('drawer')}
+                    className={`p-3.5 rounded-2xl border text-left transition-all flex items-start space-x-3 ${
+                      settingsLayout === 'drawer'
+                        ? 'bg-blue-600/15 border-blue-500 shadow-lg ring-1 ring-blue-500/50 text-white'
+                        : 'bg-white/5 border-white/10 hover:border-white/20 text-gray-300'
+                    }`}
+                  >
+                    <PanelRight size={20} className={settingsLayout === 'drawer' ? 'text-blue-400 mt-0.5' : 'text-gray-400 mt-0.5'} />
+                    <div>
+                      <div className="text-xs font-bold text-white">Right Drawer (Default)</div>
+                      <div className="text-[11px] text-gray-400 mt-0.5 leading-relaxed">
+                        Full-height side panel anchored to the right edge with smooth slide-in.
+                      </div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setSettingsLayout('modal')}
+                    className={`p-3.5 rounded-2xl border text-left transition-all flex items-start space-x-3 ${
+                      settingsLayout === 'modal'
+                        ? 'bg-blue-600/15 border-blue-500 shadow-lg ring-1 ring-blue-500/50 text-white'
+                        : 'bg-white/5 border-white/10 hover:border-white/20 text-gray-300'
+                    }`}
+                  >
+                    <AppWindow size={20} className={settingsLayout === 'modal' ? 'text-blue-400 mt-0.5' : 'text-gray-400 mt-0.5'} />
+                    <div>
+                      <div className="text-xs font-bold text-white">Floating Panel</div>
+                      <div className="text-[11px] text-gray-400 mt-0.5 leading-relaxed">
+                        Classic centered glass modal dialogue window with backdrop blur.
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
               <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
                 <h4 className="text-sm font-bold text-white mb-1">Kiosk Hardware Specifications</h4>
                 <p className="text-gray-400 leading-relaxed">
