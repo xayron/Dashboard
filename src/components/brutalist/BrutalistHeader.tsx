@@ -1,9 +1,9 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { ShieldAlert, Zap, Radio, Terminal } from 'lucide-react';
+import { ShieldAlert, Zap, Radio, Terminal, Sun, Moon } from 'lucide-react';
 
 export const BrutalistHeader: React.FC = () => {
-  const { systemHealth, activeMode, uiStyle, toggleUiStyle } = useDashboard();
+  const { systemHealth, activeMode, uiStyle, toggleUiStyle, colorMode, toggleColorMode } = useDashboard();
 
   return (
     <header
@@ -32,10 +32,14 @@ export const BrutalistHeader: React.FC = () => {
         <div className="flex items-center space-x-1.5 bg-white px-2 py-0.5 border-2 border-black shadow-[2px_2px_0px_#000]">
           <span>RAM {systemHealth.ramUsage}%</span>
         </div>
-        <div className="flex items-center space-x-1.5 bg-black text-white px-2 py-0.5 border border-black">
-          <Radio size={12} className="text-green-400 animate-pulse" />
-          <span>HA: {systemHealth.haStatus.toUpperCase()}</span>
-        </div>
+        <button
+          onClick={toggleColorMode}
+          title="Toggle Light / Dark Mode"
+          className="flex items-center space-x-1.5 bg-black text-white px-2 py-0.5 border border-black cursor-pointer hover:bg-neutral-800"
+        >
+          {colorMode === 'dark' ? <Sun size={12} className="text-yellow-400" /> : <Moon size={12} className="text-white" />}
+          <span className="text-[10px] uppercase">{colorMode.toUpperCase()}</span>
+        </button>
       </div>
     </header>
   );

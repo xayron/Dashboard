@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState, useMemo } from '
 import type {
   AQIData,
   CalendarEvent,
+  ColorMode,
   DashboardMode,
   F1Data,
   FinanceItem,
@@ -97,6 +98,9 @@ interface DashboardContextType {
   uiStyle: UIStyle;
   setUiStyle: (style: UIStyle) => void;
   toggleUiStyle: () => void;
+  colorMode: ColorMode;
+  setColorMode: (mode: ColorMode) => void;
+  toggleColorMode: () => void;
   theme: ThemeId;
   themeDef: ThemeDefinition;
   setTheme: (theme: ThemeId) => void;
@@ -152,6 +156,25 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setUiStyle(UI_STYLE_ORDER[nextIdx]);
   };
 
+  const [colorMode, setColorModeState] = useState<ColorMode>(() => {
+    try {
+      const saved = localStorage.getItem('dashboard_color_mode') as ColorMode;
+      if (saved === 'light' || saved === 'dark') return saved;
+    } catch (e) {}
+    return 'dark';
+  });
+
+  const setColorMode = (m: ColorMode) => {
+    setColorModeState(m);
+    try {
+      localStorage.setItem('dashboard_color_mode', m);
+    } catch (e) {}
+  };
+
+  const toggleColorMode = () => {
+    setColorMode(colorMode === 'dark' ? 'light' : 'dark');
+  };
+
   const [theme, setThemeState] = useState<ThemeId>(() => {
     try {
       const saved = localStorage.getItem('dashboard_theme') as ThemeId;
@@ -170,23 +193,23 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     document.documentElement.setAttribute('data-style', uiStyle);
+    document.documentElement.setAttribute('data-color-mode', colorMode);
 
-    const isLightStyle = uiStyle === 'eink' || uiStyle === 'civic';
-    document.documentElement.style.colorScheme = isLightStyle ? 'light' : 'dark';
+    const isLight = colorMode === 'light';
+    document.documentElement.style.colorScheme = isLight ? 'light' : 'dark';
 
     const currentThemeDef = THEMES[theme] || THEMES.obsidian;
-    document.documentElement.style.setProperty('--theme-accent', currentThemeDef.colors.accent);
-    document.documentElement.style.setProperty('--theme-border', currentThemeDef.colors.border);
-    document.documentElement.style.setProperty('--theme-bg', currentThemeDef.colors.bg);
+    const activeColors = isLight ? currentThemeDef.lightColors : currentThemeDef.colors;
 
-    if (uiStyle === 'eink') {
-      document.body.style.backgroundColor = '#f5f2eb';
-    } else if (uiStyle === 'civic') {
-      document.body.style.backgroundColor = '#f1f5f9';
-    } else {
-      document.body.style.backgroundColor = currentThemeDef.colors.bg;
-    }
-  }, [theme, uiStyle]);
+    document.documentElement.style.setProperty('--theme-accent', activeColors.accent);
+    document.documentElement.style.setProperty('--color-accent', activeColors.accent);
+    document.documentElement.style.setProperty('--theme-border', activeColors.border);
+    document.documentElement.style.setProperty('--theme-bg', activeColors.bg);
+    document.documentElement.style.setProperty('--color-bg-base', activeColors.bg);
+    document.documentElement.style.setProperty('--color-panel-bg', activeColors.card);
+
+    document.body.style.backgroundColor = activeColors.bg;
+  }, [theme, uiStyle, colorMode]);
 
   const [now, setNow] = useState<Date>(new Date());
   const [manualOverrideMode, setManualOverrideMode] = useState<DashboardMode | null>(null);
@@ -255,6 +278,8 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setIsSettingsOpen(prev => !prev);
       } else if (e.key === 't' || e.key === 'T') {
         toggleUiStyle();
+      } else if (e.key === 'd' || e.key === 'D') {
+        toggleColorMode();
       }
     };
     window.addEventListener('keydown', handleKey);
@@ -505,6 +530,9 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         uiStyle,
         setUiStyle,
         toggleUiStyle,
+        colorMode,
+        setColorMode,
+        toggleColorMode,
         theme,
         themeDef: THEMES[theme] || THEMES.obsidian,
         setTheme,

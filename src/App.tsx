@@ -86,7 +86,8 @@ import { KioskControls } from './components/kiosk/KioskControls';
 import { SettingsModal } from './components/settings/SettingsModal';
 
 const DashboardContent: React.FC = () => {
-  const { activeMode, uiStyle, theme } = useDashboard();
+  const { activeMode, uiStyle, theme, colorMode } = useDashboard();
+  const isLight = colorMode === 'light';
 
   const renderActiveMode = () => {
     switch (uiStyle) {
@@ -277,13 +278,33 @@ const DashboardContent: React.FC = () => {
     }
   };
 
-  // Background styling per design style
+  // Background styling per design style and color mode
   const getBackgroundStyle = () => {
+    if (isLight) {
+      switch (uiStyle) {
+        case 'eink':
+          return { backgroundColor: '#f5f2eb' };
+        case 'neumorphic':
+          return { backgroundColor: '#e2e8f0' };
+        case 'brutalist':
+          return { backgroundColor: '#ffffff' };
+        case 'civic':
+        case 'tui':
+        case 'hud':
+        case 'minimal':
+        case 'retrowave':
+        case 'obsidian':
+        case 'modern':
+        default:
+          return { backgroundColor: 'var(--color-bg-base, #f8fafc)' };
+      }
+    }
+
+    // Dark Mode
     switch (uiStyle) {
       case 'eink':
-        return { backgroundColor: '#f5f2eb' };
+        return { backgroundColor: '#1c1917' };
       case 'civic':
-        return { backgroundColor: '#f1f5f9' };
       case 'tui':
       case 'brutalist':
       case 'minimal':
@@ -307,16 +328,17 @@ const DashboardContent: React.FC = () => {
     <div
       data-theme={theme}
       data-style={uiStyle}
+      data-color-mode={colorMode}
       style={getBackgroundStyle()}
-      className={`relative w-screen h-screen overflow-hidden text-white flex flex-col select-none transition-colors duration-500 ${getFontClass()}`}
+      className={`relative w-screen h-screen overflow-hidden ${
+        isLight ? 'text-slate-900' : 'text-white'
+      } flex flex-col select-none transition-colors duration-500 ${getFontClass()}`}
     >
-      {/* Background ambient radial highlight across dark modes */}
-      {uiStyle !== 'eink' && uiStyle !== 'civic' && (
-        <div
-          className="absolute inset-0 pointer-events-none z-0 transition-all duration-700 opacity-90"
-          style={{ backgroundImage: 'var(--bg-radial)' }}
-        />
-      )}
+      {/* Background ambient radial highlight */}
+      <div
+        className="absolute inset-0 pointer-events-none z-0 transition-all duration-700 opacity-90"
+        style={{ backgroundImage: 'var(--bg-radial)' }}
+      />
 
       {/* Top Status Header */}
       {renderHeader()}

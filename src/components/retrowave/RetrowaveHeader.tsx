@@ -1,13 +1,13 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { Sparkles, Radio, Zap } from 'lucide-react';
+import { Sparkles, Radio, Zap, Sun, Moon } from 'lucide-react';
 
 export const RetrowaveHeader: React.FC = () => {
-  const { systemHealth, activeMode, weather } = useDashboard();
+  const { systemHealth, activeMode, weather, colorMode, toggleColorMode } = useDashboard();
 
   return (
     <header
-      className="w-full bg-[#150424] border-b-2 px-8 py-2.5 flex items-center justify-between text-xs select-none z-30"
+      className="w-full bg-transparent border-b-2 px-8 py-2.5 flex items-center justify-between text-xs select-none z-30"
       style={{
         borderColor: 'var(--color-accent, #ec4899)',
         boxShadow: '0 4px 25px var(--color-glow, rgba(255,0,127,0.35))',
@@ -17,9 +17,9 @@ export const RetrowaveHeader: React.FC = () => {
       <div className="flex items-center space-x-3.5">
         {/* Sliced Neon Sun Icon */}
         <div className="relative w-8 h-8 rounded-full overflow-hidden bg-gradient-to-t from-pink-600 via-rose-500 to-amber-400 p-0.5 flex flex-col justify-between shadow-[0_0_15px_#ff007f]">
-          <div className="w-full h-1 bg-[#150424]/90 mt-2" />
-          <div className="w-full h-1 bg-[#150424]/90" />
-          <div className="w-full h-1 bg-[#150424]/90 mb-1" />
+          <div className="w-full h-1 bg-black/60 mt-2" />
+          <div className="w-full h-1 bg-black/60" />
+          <div className="w-full h-1 bg-black/60 mb-1" />
         </div>
 
         <div>
@@ -48,10 +48,19 @@ export const RetrowaveHeader: React.FC = () => {
         <span className="text-pink-200">CPU {systemHealth.cpuUsage}%</span>
         <span className="text-pink-200">RAM {systemHealth.ramUsage}%</span>
         <span className="text-pink-500">★</span>
-        <span className="text-amber-400 flex items-center drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">
-          <Radio size={12} className="mr-1 animate-pulse" />
-          HA: {systemHealth.haStatus.toUpperCase()}
-        </span>
+        <button
+          onClick={toggleColorMode}
+          title="Toggle Daytime / Night Outrun"
+          className="flex items-center space-x-1 px-2 py-0.5 rounded-full border text-[10px] uppercase cursor-pointer"
+          style={{
+            borderColor: 'var(--color-accent)',
+            backgroundColor: 'var(--theme-accent-soft)',
+            color: 'var(--color-accent)',
+          }}
+        >
+          {colorMode === 'dark' ? <Sun size={11} /> : <Moon size={11} />}
+          <span>{colorMode.toUpperCase()}</span>
+        </button>
       </div>
     </header>
   );

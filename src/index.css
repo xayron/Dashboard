@@ -160,6 +160,309 @@
 }
 
 /* ==========================================================================
+   Light Mode Theme Palettes (Active when data-color-mode="light")
+   ========================================================================== */
+[data-color-mode="light"], [data-color-mode="light"][data-theme="obsidian"] {
+  --color-bg-base: #f8fafc;
+  --color-panel-bg: rgba(255, 255, 255, 0.88);
+  --color-panel-border: rgba(37, 99, 235, 0.18);
+  --color-pill-bg: rgba(37, 99, 235, 0.08);
+  --color-border-subtle: rgba(15, 23, 42, 0.08);
+  --color-accent: #2563eb;
+  --color-accent-soft: rgba(37, 99, 235, 0.12);
+  --color-glow: rgba(37, 99, 235, 0.18);
+  --bg-radial: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.1) 0%, transparent 65%);
+  --theme-accent: var(--color-accent);
+  --theme-accent-soft: var(--color-accent-soft);
+  --theme-glow: var(--color-glow);
+  --theme-bg: var(--color-bg-base);
+  --theme-border: var(--color-border-subtle);
+
+  --scrollbar-track: rgba(241, 245, 249, 0.85);
+  --scrollbar-thumb: rgba(37, 99, 235, 0.4);
+  --scrollbar-thumb-hover: #2563eb;
+  --scrollbar-radius: 9999px;
+  --scrollbar-size: 6px;
+  accent-color: var(--color-accent);
+}
+
+[data-color-mode="light"][data-theme="cyberpunk"] {
+  --color-bg-base: #fdf4ff;
+  --color-panel-bg: rgba(255, 255, 255, 0.9);
+  --color-panel-border: rgba(219, 39, 119, 0.2);
+  --color-pill-bg: rgba(219, 39, 119, 0.08);
+  --color-border-subtle: rgba(219, 39, 119, 0.12);
+  --color-accent: #db2777;
+  --color-accent-soft: rgba(219, 39, 119, 0.14);
+  --color-glow: rgba(219, 39, 119, 0.22);
+  --bg-radial: radial-gradient(circle at 50% 0%, rgba(219, 39, 119, 0.12) 0%, rgba(8, 145, 178, 0.06) 50%, transparent 72%);
+  --theme-accent: var(--color-accent);
+  --theme-accent-soft: var(--color-accent-soft);
+  --theme-glow: var(--color-glow);
+  --theme-bg: var(--color-bg-base);
+  --theme-border: var(--color-border-subtle);
+
+  --scrollbar-track: rgba(253, 244, 255, 0.85);
+  --scrollbar-thumb: rgba(219, 39, 119, 0.45);
+  --scrollbar-thumb-hover: #db2777;
+  accent-color: var(--color-accent);
+}
+
+[data-color-mode="light"][data-theme="amber"] {
+  --color-bg-base: #fffbeb;
+  --color-panel-bg: rgba(255, 255, 255, 0.9);
+  --color-panel-border: rgba(217, 119, 6, 0.2);
+  --color-pill-bg: rgba(217, 119, 6, 0.08);
+  --color-border-subtle: rgba(217, 119, 6, 0.12);
+  --color-accent: #d97706;
+  --color-accent-soft: rgba(217, 119, 6, 0.14);
+  --color-glow: rgba(217, 119, 6, 0.22);
+  --bg-radial: radial-gradient(circle at 50% 0%, rgba(217, 119, 6, 0.1) 0%, transparent 68%);
+  --theme-accent: var(--color-accent);
+  --theme-accent-soft: var(--color-accent-soft);
+  --theme-glow: var(--color-glow);
+  --theme-bg: var(--color-bg-base);
+  --theme-border: var(--color-border-subtle);
+
+  --scrollbar-track: rgba(255, 251, 235, 0.85);
+  --scrollbar-thumb: rgba(217, 119, 6, 0.45);
+  --scrollbar-thumb-hover: #d97706;
+  accent-color: var(--color-accent);
+}
+
+[data-color-mode="light"][data-theme="nordic"] {
+  --color-bg-base: #f0f9ff;
+  --color-panel-bg: rgba(255, 255, 255, 0.9);
+  --color-panel-border: rgba(2, 132, 199, 0.2);
+  --color-pill-bg: rgba(2, 132, 199, 0.08);
+  --color-border-subtle: rgba(2, 132, 199, 0.12);
+  --color-accent: #0284c7;
+  --color-accent-soft: rgba(2, 132, 199, 0.14);
+  --color-glow: rgba(2, 132, 199, 0.22);
+  --bg-radial: radial-gradient(circle at 50% 0%, rgba(2, 132, 199, 0.1) 0%, rgba(14, 165, 233, 0.06) 50%, transparent 70%);
+  --theme-accent: var(--color-accent);
+  --theme-accent-soft: var(--color-accent-soft);
+  --theme-glow: var(--color-glow);
+  --theme-bg: var(--color-bg-base);
+  --theme-border: var(--color-border-subtle);
+
+  --scrollbar-track: rgba(240, 249, 255, 0.85);
+  --scrollbar-thumb: rgba(2, 132, 199, 0.45);
+  --scrollbar-thumb-hover: #0284c7;
+  accent-color: var(--color-accent);
+}
+
+[data-color-mode="light"][data-theme="emerald"] {
+  --color-bg-base: #f0fdf4;
+  --color-panel-bg: rgba(255, 255, 255, 0.9);
+  --color-panel-border: rgba(5, 150, 105, 0.2);
+  --color-pill-bg: rgba(5, 150, 105, 0.08);
+  --color-border-subtle: rgba(5, 150, 105, 0.12);
+  --color-accent: #059669;
+  --color-accent-soft: rgba(5, 150, 105, 0.14);
+  --color-glow: rgba(5, 150, 105, 0.22);
+  --bg-radial: radial-gradient(circle at 50% 0%, rgba(5, 150, 105, 0.1) 0%, transparent 68%);
+  --theme-accent: var(--color-accent);
+  --theme-accent-soft: var(--color-accent-soft);
+  --theme-glow: var(--color-glow);
+  --theme-bg: var(--color-bg-base);
+  --theme-border: var(--color-border-subtle);
+
+  --scrollbar-track: rgba(240, 253, 244, 0.85);
+  --scrollbar-thumb: rgba(5, 150, 105, 0.45);
+  --scrollbar-thumb-hover: #059669;
+  accent-color: var(--color-accent);
+}
+
+[data-color-mode="light"][data-theme="monochrome"] {
+  --color-bg-base: #ffffff;
+  --color-panel-bg: rgba(248, 250, 252, 0.95);
+  --color-panel-border: rgba(15, 23, 42, 0.16);
+  --color-pill-bg: rgba(15, 23, 42, 0.06);
+  --color-border-subtle: rgba(15, 23, 42, 0.12);
+  --color-accent: #0f172a;
+  --color-accent-soft: rgba(15, 23, 42, 0.1);
+  --color-glow: rgba(15, 23, 42, 0.16);
+  --bg-radial: radial-gradient(circle at 50% 0%, rgba(15, 23, 42, 0.05) 0%, transparent 65%);
+  --theme-accent: var(--color-accent);
+  --theme-accent-soft: var(--color-accent-soft);
+  --theme-glow: var(--color-glow);
+  --theme-bg: var(--color-bg-base);
+  --theme-border: var(--color-border-subtle);
+
+  --scrollbar-track: rgba(248, 250, 252, 0.85);
+  --scrollbar-thumb: rgba(15, 23, 42, 0.35);
+  --scrollbar-thumb-hover: #0f172a;
+  accent-color: var(--color-accent);
+}
+
+/* ==========================================================================
+   Light Mode Global Typography & Component Refinements
+   ========================================================================== */
+[data-color-mode="light"] {
+  color: #0f172a;
+}
+
+[data-color-mode="light"] .text-white {
+  color: #0f172a !important;
+}
+
+[data-color-mode="light"] .text-gray-100,
+[data-color-mode="light"] .text-gray-200,
+[data-color-mode="light"] .text-gray-300,
+[data-color-mode="light"] .text-neutral-100,
+[data-color-mode="light"] .text-neutral-200,
+[data-color-mode="light"] .text-cyan-100,
+[data-color-mode="light"] .text-pink-100 {
+  color: #1e293b !important;
+}
+
+[data-color-mode="light"] .text-gray-400,
+[data-color-mode="light"] .text-neutral-400 {
+  color: #64748b !important;
+}
+
+[data-color-mode="light"] .text-gray-500,
+[data-color-mode="light"] .text-neutral-500 {
+  color: #94a3b8 !important;
+}
+
+[data-color-mode="light"] .bg-white\/5,
+[data-color-mode="light"] .bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-color-mode="light"] .border-white\/5,
+[data-color-mode="light"] .border-white\/10,
+[data-color-mode="light"] .border-white\/15,
+[data-color-mode="light"] .border-white\/20,
+[data-color-mode="light"] .border-white\/30,
+[data-color-mode="light"] .border-white\/40 {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-color-mode="light"] .glass-panel {
+  background: var(--color-panel-bg) !important;
+  border-color: var(--color-panel-border) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-color-mode="light"] .glass-pill {
+  background: var(--color-pill-bg) !important;
+  border-color: var(--color-panel-border) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Style Specific Light Mode Overrides */
+[data-color-mode="light"][data-style="hud"] .bg-\[\#040814\]\/90,
+[data-color-mode="light"][data-style="hud"] .bg-\[\#061122\]\/80 {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+}
+
+[data-color-mode="light"][data-style="tui"] {
+  color: #0f172a !important;
+}
+
+[data-color-mode="light"][data-style="brutalist"] .bg-black {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+[data-color-mode="light"][data-style="brutalist"] .border-white {
+  border-color: #000000 !important;
+}
+
+[data-color-mode="light"][data-style="neumorphic"] {
+  background-color: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+[data-color-mode="light"][data-style="neumorphic"] .bg-\[\#1a1d24\] {
+  background-color: #e2e8f0 !important;
+  box-shadow: 5px 5px 12px #cbd5e1, -5px -5px 12px #ffffff !important;
+}
+
+[data-color-mode="light"][data-style="neumorphic"] .shadow-\[inset_2px_2px_5px_\#101217\,inset_-2px_-2px_5px_\#242831\] {
+  box-shadow: inset 2px 2px 5px #cbd5e1, inset -2px -2px 5px #ffffff !important;
+}
+
+[data-color-mode="light"][data-style="obsidian"] .bg-\[\#0f0f15\],
+[data-color-mode="light"][data-style="obsidian"] .bg-\[\#101017\] {
+  background-color: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+  color: #0f172a !important;
+}
+
+[data-color-mode="light"][data-style="retrowave"] .bg-\[\#1d0633\]\/90 {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+  color: #3b0764 !important;
+}
+
+/* Style Specific Dark Mode Overrides for light-native styles */
+[data-color-mode="dark"][data-style="eink"] {
+  background-color: #1c1917 !important;
+  color: #f5f5f4 !important;
+}
+
+[data-color-mode="dark"][data-style="eink"] .bg-\[\#ede8df\] {
+  background-color: #292524 !important;
+  border-color: #57534e !important;
+  color: #fafaf9 !important;
+}
+
+[data-color-mode="dark"][data-style="eink"] .border-stone-800,
+[data-color-mode="dark"][data-style="eink"] .border-stone-300,
+[data-color-mode="dark"][data-style="eink"] .border-stone-400 {
+  border-color: #57534e !important;
+}
+
+[data-color-mode="dark"][data-style="eink"] .text-stone-900,
+[data-color-mode="dark"][data-style="eink"] .text-stone-800,
+[data-color-mode="dark"][data-style="eink"] .text-\[\#1c1917\] {
+  color: #fafaf9 !important;
+}
+
+[data-color-mode="dark"][data-style="eink"] .text-stone-600,
+[data-color-mode="dark"][data-style="eink"] .text-stone-500 {
+  color: #a8a29e !important;
+}
+
+[data-color-mode="dark"][data-style="civic"] {
+  background-color: #090d16 !important;
+  color: #f8fafc !important;
+}
+
+[data-color-mode="dark"][data-style="civic"] .bg-white {
+  background-color: #0f172a !important;
+  border-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+[data-color-mode="dark"][data-style="civic"] .bg-slate-50 {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+[data-color-mode="dark"][data-style="civic"] .text-slate-900,
+[data-color-mode="dark"][data-style="civic"] .text-slate-950,
+[data-color-mode="dark"][data-style="civic"] .text-slate-800 {
+  color: #f8fafc !important;
+}
+
+[data-color-mode="dark"][data-style="civic"] .text-slate-600,
+[data-color-mode="dark"][data-style="civic"] .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+[data-color-mode="dark"][data-style="civic"] .border-slate-300,
+[data-color-mode="dark"][data-style="civic"] .border-slate-200,
+[data-color-mode="dark"][data-style="civic"] .border-slate-100 {
+  border-color: #1e293b !important;
+}
+
+/* ==========================================================================
    UI Style Specific Scrollbar & Theming Overrides
    ========================================================================== */
 [data-style="tui"] {

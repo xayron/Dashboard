@@ -4,6 +4,7 @@ import {
   Server,
   Cloud,
   Moon,
+  Sun,
   Save,
   Check,
   Image as ImageIcon,
@@ -18,7 +19,16 @@ import { photoService } from '../../services/photoService';
 import { THEMES, type ThemeId } from '../../types/theme';
 
 export const SettingsModal: React.FC = () => {
-  const { isSettingsOpen, setIsSettingsOpen, theme, setTheme, uiStyle, setUiStyle } = useDashboard();
+  const {
+    isSettingsOpen,
+    setIsSettingsOpen,
+    theme,
+    setTheme,
+    uiStyle,
+    setUiStyle,
+    colorMode,
+    setColorMode,
+  } = useDashboard();
 
   const [haConfig, setHaConfig] = useState(getSavedHAConfig());
   const [coords, setCoords] = useState<WeatherCoords>(getSavedCoords());
@@ -209,7 +219,47 @@ export const SettingsModal: React.FC = () => {
                 </div>
               </div>
 
-              {/* SECTION 2: COLOR PALETTES */}
+              {/* SECTION 2: INTERFACE COLOR MODE (LIGHT / DARK) */}
+              <div className="pt-4 border-t border-white/10">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10">
+                  <div>
+                    <h3 className="text-sm font-bold text-white flex items-center space-x-2">
+                      {colorMode === 'dark' ? <Moon size={16} className="text-blue-400" /> : <Sun size={16} className="text-amber-400" />}
+                      <span>Interface Mode (Light / Dark)</span>
+                    </h3>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      Toggle Light or Dark mode. Both modes dynamically integrate your chosen theme color palette across all 10 styles.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center space-x-1 p-1 bg-black/40 rounded-xl border border-white/10 shrink-0">
+                    <button
+                      onClick={() => setColorMode('dark')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center space-x-1.5 ${
+                        colorMode === 'dark'
+                          ? 'bg-blue-600 text-white shadow-md'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      <Moon size={13} />
+                      <span>Dark</span>
+                    </button>
+                    <button
+                      onClick={() => setColorMode('light')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center space-x-1.5 ${
+                        colorMode === 'light'
+                          ? 'bg-amber-400 text-black shadow-md font-extrabold'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      <Sun size={13} />
+                      <span>Light</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION 3: COLOR PALETTES */}
               <div className="pt-4 border-t border-white/10">
                 <div className="mb-3">
                   <h3 className="text-sm font-bold text-white mb-1">Color Palette</h3>
@@ -222,6 +272,7 @@ export const SettingsModal: React.FC = () => {
                 {(Object.keys(THEMES) as ThemeId[]).map((tId) => {
                   const t = THEMES[tId];
                   const isSelected = theme === tId;
+                  const activePalette = colorMode === 'light' ? t.lightColors : t.colors;
                   return (
                     <div
                       key={tId}
@@ -233,7 +284,7 @@ export const SettingsModal: React.FC = () => {
                       }`}
                       style={{
                         backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.08)' : undefined,
-                        borderColor: isSelected ? t.colors.accent : undefined,
+                        borderColor: isSelected ? activePalette.accent : undefined,
                       }}
                     >
                       <div>
@@ -242,7 +293,7 @@ export const SettingsModal: React.FC = () => {
                           <h4 className="text-sm font-bold text-white">{t.name}</h4>
                           {/* 3-color palette preview */}
                           <div className="flex space-x-1 items-center">
-                            {t.colors.swatches.map((c, i) => (
+                            {activePalette.swatches.map((c, i) => (
                               <div
                                 key={i}
                                 className="w-3.5 h-3.5 rounded-full border border-black/40 shadow-sm"
@@ -252,7 +303,7 @@ export const SettingsModal: React.FC = () => {
                           </div>
                         </div>
 
-                        <p className="text-[11px] font-semibold" style={{ color: t.colors.accent }}>
+                        <p className="text-[11px] font-semibold" style={{ color: activePalette.accent }}>
                           {t.tagline}
                         </p>
                         <p className="text-[11px] text-gray-400 mt-1 leading-snug">
@@ -266,7 +317,7 @@ export const SettingsModal: React.FC = () => {
                           {tId}
                         </span>
                         {isSelected && (
-                          <span className="flex items-center text-[11px] font-bold" style={{ color: t.colors.accent }}>
+                          <span className="flex items-center text-[11px] font-bold" style={{ color: activePalette.accent }}>
                             <Check size={13} className="mr-1" /> Active
                           </span>
                         )}

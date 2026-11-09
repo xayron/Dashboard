@@ -13,13 +13,15 @@ export const TuiHeader: React.FC = () => {
     toggleUiStyle,
     setIsSettingsOpen,
     now,
+    colorMode,
+    toggleColorMode,
   } = useDashboard();
 
   const timeFormatted = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
   return (
     <header
-      className="w-full bg-black px-6 py-2.5 flex items-center justify-between font-mono text-xs select-none z-40 border-b"
+      className="w-full bg-transparent px-6 py-2.5 flex items-center justify-between font-mono text-xs select-none z-40 border-b"
       style={{
         borderColor: 'var(--color-accent, #10b981)',
         color: 'var(--color-accent, #10b981)',
@@ -89,6 +91,16 @@ export const TuiHeader: React.FC = () => {
         <div className="text-white font-bold bg-white/5 px-2 py-0.5 border border-white/20">
           {timeFormatted} IST
         </div>
+
+        {/* Light / Dark Mode Toggle */}
+        <button
+          onClick={toggleColorMode}
+          title="Toggle Light / Dark Mode (Press 'D')"
+          className="px-2 py-0.5 border text-[10px] font-bold"
+          style={{ borderColor: 'var(--color-accent)', color: 'var(--color-accent)' }}
+        >
+          [{colorMode === 'dark' ? 'DARK' : 'LIGHT'}]
+        </button>
 
         {/* Settings button */}
         <button

@@ -27,6 +27,8 @@ export const KioskControls: React.FC = () => {
     setIsSettingsOpen,
     nextPhoto,
     prevPhoto,
+    colorMode,
+    toggleColorMode,
   } = useDashboard();
 
   if (!isKioskBarVisible) {
@@ -127,6 +129,20 @@ export const KioskControls: React.FC = () => {
             <ChevronRight size={16} />
           </button>
         </div>
+
+        {/* Light / Dark Mode Toggle */}
+        <button
+          onClick={toggleColorMode}
+          title={`Switch to ${colorMode === 'dark' ? 'Light' : 'Dark'} Mode (Press 'D')`}
+          className="px-2 py-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all flex items-center space-x-1"
+        >
+          {colorMode === 'dark' ? (
+            <Sun size={15} className="text-amber-400" />
+          ) : (
+            <Moon size={15} className="text-indigo-400" />
+          )}
+          <span className="text-[11px] font-bold uppercase">{colorMode === 'dark' ? 'Light' : 'Dark'}</span>
+        </button>
 
         {/* Settings button */}
         <button
