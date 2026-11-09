@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useDashboard } from '../../state/DashboardContext';
 import { Gauge, Calendar, CloudSun, Award } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
+import { F1WidgetsColumn } from '../f1/F1WidgetsColumn';
 
 export const RetrowaveRaceWeekendMode: React.FC = () => {
   const { now, f1, media, weather, colorMode } = useDashboard();
@@ -80,115 +81,8 @@ export const RetrowaveRaceWeekendMode: React.FC = () => {
 
       {/* 2. MAIN 3-COLUMN GRID */}
       <div className="relative z-10 grid grid-cols-12 gap-5 flex-1 min-h-0">
-        {/* Left Column (5 cols): Hero Countdown, Circuit Telemetry & Prev Checkpoint */}
-        <div className="col-span-5 flex flex-col space-y-3">
-          {/* Hero Countdown Card (Compact) */}
-          <div
-            className={`p-3.5 rounded-2xl border-2 ${
-              isLight
-                ? 'bg-pink-50/90 border-pink-400 shadow-[0_0_20px_rgba(236,72,153,0.15)]'
-                : 'bg-[#1e0736]/90 border-pink-500 shadow-[0_0_25px_rgba(255,0,127,0.25)]'
-            }`}
-            style={{ borderColor: 'var(--color-accent)' }}
-          >
-            <div className="flex items-center justify-between border-b pb-1.5" style={{ borderColor: isLight ? 'rgba(236,72,153,0.3)' : 'rgba(255,0,127,0.3)' }}>
-              <span className={`text-[10px] font-black uppercase tracking-wider ${isLight ? 'text-pink-800' : 'text-amber-300'}`}>
-                NEXT CHECKPOINT COUNTDOWN
-              </span>
-              <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded border ${
-                isLight ? 'bg-pink-200 text-pink-900 border-pink-400' : 'bg-pink-950 text-rose-300 border-pink-500'
-              }`}>
-                LIVE IN IST
-              </span>
-            </div>
-
-            {/* Horizontal Split */}
-            <div className="flex items-center justify-between py-2">
-              <div>
-                <h2 className={`text-lg font-black italic tracking-wide ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                  {f1.nextSession.name}
-                </h2>
-                <p className={`text-xs font-mono font-bold mt-0.5 flex items-center ${isLight ? 'text-slate-600' : 'text-pink-300'}`}>
-                  <Calendar size={12} className="mr-1.5 text-rose-500" />
-                  {f1.nextSession.istTimeFormatted}
-                </p>
-              </div>
-
-              {/* Compact Neon Countdown */}
-              <div className={`px-3 py-1.5 rounded-xl border-2 text-center ${
-                isLight ? 'bg-white/80 border-pink-300 shadow-sm' : 'bg-black/60 border-pink-500/50'
-              }`}>
-                <div className={`text-[8px] uppercase font-black tracking-wider ${isLight ? 'text-pink-700' : 'text-amber-300'}`}>
-                  TIME REMAINING
-                </div>
-                <div className="text-base font-black font-mono text-rose-500 tracking-wider animate-pulse drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]">
-                  {f1.nextSession.countdownFormatted}
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Circuit Specs */}
-            <div className="grid grid-cols-4 gap-1.5 text-xs pt-1">
-              <div className={`p-1.5 rounded-xl border text-center ${isLight ? 'bg-white/70 border-pink-200' : 'bg-black/40 border-pink-500/30'}`}>
-                <span className={`block text-[8px] uppercase font-bold ${isLight ? 'text-pink-800' : 'text-amber-300'}`}>Laps</span>
-                <span className="font-mono font-black text-xs">50</span>
-              </div>
-              <div className={`p-1.5 rounded-xl border text-center ${isLight ? 'bg-white/70 border-pink-200' : 'bg-black/40 border-pink-500/30'}`}>
-                <span className={`block text-[8px] uppercase font-bold ${isLight ? 'text-pink-800' : 'text-amber-300'}`}>Length</span>
-                <span className="font-mono font-black text-xs">6.2 KM</span>
-              </div>
-              <div className={`p-1.5 rounded-xl border text-center ${isLight ? 'bg-white/70 border-pink-200' : 'bg-black/40 border-pink-500/30'}`}>
-                <span className={`block text-[8px] uppercase font-bold ${isLight ? 'text-pink-800' : 'text-amber-300'}`}>DRS Boost</span>
-                <span className="font-mono font-black text-xs text-rose-500">2 ZONES</span>
-              </div>
-              <div className={`p-1.5 rounded-xl border text-center ${isLight ? 'bg-white/70 border-pink-200' : 'bg-black/40 border-pink-500/30'}`}>
-                <span className={`block text-[8px] uppercase font-bold ${isLight ? 'text-pink-800' : 'text-amber-300'}`}>Record</span>
-                <span className="font-mono font-black text-xs text-amber-400">{f1.circuitLapRecord?.lapTime || '1:35.4'}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Previous Checkpoint Podium Card */}
-          {f1.lastRace && (
-            <div
-              className={`p-2.5 rounded-xl border-2 text-xs ${
-                isLight ? 'bg-pink-50/90 border-pink-300' : 'bg-[#1e0736]/90 border-pink-500/40'
-              }`}
-            >
-              <div className="flex items-center justify-between pb-1 border-b border-pink-500/30 text-[10px] font-black uppercase">
-                <span className="flex items-center space-x-1">
-                  <Award size={12} className="text-amber-400" />
-                  <span>PREV PODIUM: {f1.lastRace.raceName}</span>
-                </span>
-                <span className="text-purple-400">FL: {f1.lastRace.fastestLapDriver} ({f1.lastRace.fastestLapTime})</span>
-              </div>
-              <div className="grid grid-cols-3 gap-1 pt-1 text-[10px]">
-                <div className="truncate"><span className="text-amber-400 font-bold">1st:</span> {f1.lastRace.winner}</div>
-                <div className="truncate"><span className="text-pink-300 font-bold">2nd:</span> {f1.lastRace.p2.split(' ')[0]} {f1.lastRace.p2.split(' ')[1]}</div>
-                <div className="truncate"><span className="text-pink-300 font-bold">3rd:</span> {f1.lastRace.p3.split(' ')[0]} {f1.lastRace.p3.split(' ')[1]}</div>
-              </div>
-            </div>
-          )}
-
-          {/* Track Weather Card */}
-          <div
-            className={`p-2.5 rounded-2xl border-2 flex items-center justify-between text-xs ${
-              isLight ? 'bg-pink-50/90 border-pink-300' : 'bg-[#1e0736]/90 border-pink-500/40'
-            }`}
-          >
-            <div className="flex items-center space-x-2">
-              <CloudSun size={18} className="text-amber-400" />
-              <div>
-                <span className="font-mono font-black text-xs block">{weather.temperature}°C {weather.condition}</span>
-                <span className={`text-[9px] font-bold uppercase ${isLight ? 'text-pink-700' : 'text-pink-300/80'}`}>CIRCUIT CONDITIONS</span>
-              </div>
-            </div>
-            <div className="text-right font-mono text-[10px] font-bold">
-              <div>HUM: {weather.humidity}%</div>
-              <div className="text-rose-500">WIND: {weather.windSpeed} KM/H</div>
-            </div>
-          </div>
-        </div>
+        {/* Left Column (5 cols): Dynamic Configurable F1 Widgets with Auto-Fitting */}
+        <F1WidgetsColumn f1={f1} uiStyle="retrowave" isLight={isLight} className="col-span-5" />
 
         {/* Center Column (4 cols): Highway Checkpoints */}
         <div className="col-span-4 flex flex-col">

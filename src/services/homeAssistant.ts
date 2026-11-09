@@ -69,8 +69,8 @@ export class HomeAssistantService {
 
   // Mock player state
   private mockIndex = 0;
-  private mockPlaying = true;
-  private mockPosition = 112;
+  private mockPlaying = false;
+  private mockPosition = 0;
   private mockVolume = 68;
 
   constructor() {
@@ -221,10 +221,12 @@ export class HomeAssistantService {
   ): void {
     if (action === 'toggle') {
       this.mockPlaying = !this.mockPlaying;
+      if (!this.mockPlaying) this.mockPosition = 0;
     } else if (action === 'play') {
       this.mockPlaying = true;
     } else if (action === 'pause') {
       this.mockPlaying = false;
+      this.mockPosition = 0;
     } else if (action === 'next') {
       this.mockIndex = (this.mockIndex + 1) % MOCK_PLAYLIST.length;
       this.mockPosition = 0;
@@ -264,7 +266,10 @@ export class HomeAssistantService {
 
       let active: any = null;
       if (this.config.preferredMediaPlayer) {
-        active = mediaPlayers.find(p => p.entity_id === this.config.preferredMediaPlayer);
+        const preferred = mediaPlayers.find(p => p.entity_id === this.config.preferredMediaPlayer);
+        if (preferred && preferred.state === 'playing') {
+          active = preferred;
+        }
       }
 
       if (!active) {
@@ -273,48 +278,71 @@ export class HomeAssistantService {
       if (!active) {
         active = mediaPlayers.find(p => p.state === 'playing');
       }
-      if (!active) {
-        active = mediaPlayers.find(p => p.state === 'paused' && (p.attributes?.entity_picture || p.attributes?.media_title));
-      }
-      if (!active) {
-        active = mediaPlayers.find(p => p.attributes?.entity_picture || p.attributes?.media_title);
-      }
-      if (!active && mediaPlayers.length > 0) {
-        active = mediaPlayers[0];
-      }
 
-      if (active && active.attributes) {
-        const attr = active.attributes;
-        const albumArtUrl = this.resolveAlbumArt(attr);
-
-        let positionUpdatedAt = Date.now();
-        if (attr.media_position_updated_at) {
-          const parsed = new Date(attr.media_position_updated_at).getTime();
-          if (!isNaN(parsed)) {
-            positionUpdatedAt = parsed;
-          }
-        }
-
+      // If no media is actively playing in real HA
+      if (!active || active.state !== 'playing') {
+        const fallbackEntityId = this.config.preferredMediaPlayer || mediaPlayers[0]?.entity_id || 'media_player.living_room';
         return {
-          state: (active.state === 'playing' ? 'playing' : active.state === 'paused' ? 'paused' : 'idle'),
-          title: attr.media_title || (active.state === 'playing' ? 'Unknown Track' : 'No Media Playing'),
-          artist: attr.media_artist || attr.app_name || attr.friendly_name || 'Cast Stream',
-          album: attr.media_album_name || '',
-          entityPicture: albumArtUrl,
-          duration: attr.media_duration || 0,
-          position: attr.media_position ?? 0,
-          positionUpdatedAt,
-          volume: Math.round((attr.volume_level ?? 0.5) * 100),
+          state: 'idle',
+          title: '',
+          artist: '',
+          album: '',
+          entityPicture: '',
+          duration: 0,
+          position: 0,
+          positionUpdatedAt: Date.now(),
+          volume: 50,
           accentColor: '#8b5cf6',
-          entityId: active.entity_id,
+          entityId: fallbackEntityId,
         };
       }
+
+      const attr = active.attributes || {};
+      const albumArtUrl = this.resolveAlbumArt(attr);
+
+      let positionUpdatedAt = Date.now();
+      if (attr.media_position_updated_at) {
+        const parsed = new Date(attr.media_position_updated_at).getTime();
+        if (!isNaN(parsed)) {
+          positionUpdatedAt = parsed;
+        }
+      }
+
+      return {
+        state: 'playing',
+        title: attr.media_title || 'Unknown Track',
+        artist: attr.media_artist || attr.app_name || attr.friendly_name || 'Cast Stream',
+        album: attr.media_album_name || '',
+        entityPicture: albumArtUrl,
+        duration: attr.media_duration || 0,
+        position: attr.media_position ?? 0,
+        positionUpdatedAt,
+        volume: Math.round((attr.volume_level ?? 0.5) * 100),
+        accentColor: '#8b5cf6',
+        entityId: active.entity_id,
+      };
     }
 
     // Mock Mode fallback
+    if (!this.mockPlaying) {
+      return {
+        state: 'idle',
+        title: '',
+        artist: '',
+        album: '',
+        entityPicture: '',
+        duration: 0,
+        position: 0,
+        positionUpdatedAt: Date.now(),
+        volume: this.mockVolume,
+        accentColor: '#8b5cf6',
+        entityId: 'media_player.mock_living_room',
+      };
+    }
+
     const currentMock = MOCK_PLAYLIST[this.mockIndex] || MOCK_PLAYLIST[0];
     return {
-      state: this.mockPlaying ? 'playing' : 'paused',
+      state: 'playing',
       title: currentMock.title,
       artist: currentMock.artist,
       album: currentMock.album,

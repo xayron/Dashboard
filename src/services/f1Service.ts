@@ -5,6 +5,11 @@ import type {
   F1LastRacePodium,
   F1CircuitLapRecord,
   F1Session,
+  F1QualifyingResult,
+  F1PitStopRecord,
+  F1TitleBattle,
+  F1UpcomingRace,
+  F1CircuitTelemetry,
 } from '../types/dashboard';
 
 const JOLPICA_BASE = 'https://api.jolpi.ca/ergast/f1';
@@ -139,6 +144,210 @@ const FALLBACK_LAST_RACE: F1LastRacePodium = {
   fastestLapTeam: 'Mercedes',
 };
 
+const FALLBACK_QUALIFYING: F1QualifyingResult = {
+  raceName: 'Brazilian Grand Prix',
+  poleDriver: 'Lando Norris',
+  poleTeam: 'McLaren',
+  poleTime: '1:09.512',
+  p2Driver: 'George Russell',
+  p2Team: 'Mercedes',
+  p2Time: '1:09.685 (+0.173s)',
+  p3Driver: 'Andrea Kimi Antonelli',
+  p3Team: 'Mercedes',
+  p3Time: '1:09.702 (+0.190s)',
+};
+
+const FALLBACK_PITSTOP: F1PitStopRecord = {
+  raceName: 'Brazilian Grand Prix',
+  team: 'Red Bull Racing',
+  driver: 'Max Verstappen',
+  duration: '2.04s',
+  lap: 29,
+};
+
+const FALLBACK_UPCOMING_RACES: F1UpcomingRace[] = [
+  {
+    round: 22,
+    raceName: 'Qatar Grand Prix',
+    circuitName: 'Lusail International Circuit',
+    country: 'Qatar',
+    dateStr: '2026-11-29',
+    istDate: 'Sun, 29 Nov • 22:30 IST',
+    countdown: '19d',
+  },
+  {
+    round: 23,
+    raceName: 'Abu Dhabi Grand Prix',
+    circuitName: 'Yas Marina Circuit',
+    country: 'United Arab Emirates',
+    dateStr: '2026-12-06',
+    istDate: 'Sun, 6 Dec • 18:30 IST',
+    countdown: '26d',
+  },
+  {
+    round: 24,
+    raceName: 'Australian Grand Prix',
+    circuitName: 'Albert Park Circuit',
+    country: 'Australia',
+    dateStr: '2027-03-14',
+    istDate: 'Sun, 14 Mar • 10:30 IST',
+    countdown: '124d',
+  },
+];
+
+export const CIRCUIT_TELEMETRY: Record<string, F1CircuitTelemetry> = {
+  vegas: {
+    fullThrottlePercent: 78,
+    gearShiftsPerLap: 68,
+    topSpeedKmh: 352,
+    pitLaneLossSec: 21.4,
+    tyreAllocation: 'C3 (Hard) • C4 (Med) • C5 (Soft)',
+  },
+  interlagos: {
+    fullThrottlePercent: 70,
+    gearShiftsPerLap: 58,
+    topSpeedKmh: 334,
+    pitLaneLossSec: 20.8,
+    tyreAllocation: 'C2 (Hard) • C3 (Med) • C4 (Soft)',
+  },
+  monza: {
+    fullThrottlePercent: 84,
+    gearShiftsPerLap: 46,
+    topSpeedKmh: 356,
+    pitLaneLossSec: 24.2,
+    tyreAllocation: 'C3 (Hard) • C4 (Med) • C5 (Soft)',
+  },
+  silverstone: {
+    fullThrottlePercent: 72,
+    gearShiftsPerLap: 52,
+    topSpeedKmh: 338,
+    pitLaneLossSec: 20.5,
+    tyreAllocation: 'C1 (Hard) • C2 (Med) • C3 (Soft)',
+  },
+  default: {
+    fullThrottlePercent: 74,
+    gearShiftsPerLap: 62,
+    topSpeedKmh: 342,
+    pitLaneLossSec: 21.5,
+    tyreAllocation: 'C3 (Hard) • C4 (Med) • C5 (Soft)',
+  },
+};
+
+export const computeTitleBattle = (
+  standings: F1DriverStanding[],
+  constructorStandings: F1ConstructorStanding[],
+  activeRound: number = 21,
+  totalRounds: number = 24
+): F1TitleBattle => {
+  const d1 = standings[0] || FALLBACK_STANDINGS[0];
+  const d2 = standings[1] || FALLBACK_STANDINGS[1];
+  const c1 = constructorStandings[0] || FALLBACK_CONSTRUCTORS[0];
+  const c2 = constructorStandings[1] || FALLBACK_CONSTRUCTORS[1];
+  const roundsRemaining = Math.max(0, totalRounds - activeRound);
+  const maxPointsAvailable = roundsRemaining * 26;
+
+  return {
+    leader: d1.driver,
+    leaderTeam: d1.team,
+    leaderPoints: d1.points,
+    leaderColor: d1.teamColor || '#27F4D2',
+    contender: d2.driver,
+    contenderTeam: d2.team,
+    contenderPoints: d2.points,
+    contenderColor: d2.teamColor || '#3671C6',
+    pointsGap: Math.max(0, d1.points - d2.points),
+    roundsRemaining,
+    maxPointsAvailable,
+    teamLeader: c1.team,
+    teamContender: c2.team,
+    teamLeaderPoints: c1.points,
+    teamContenderPoints: c2.points,
+    teamPointsGap: Math.max(0, c1.points - c2.points),
+  };
+};
+
+const fetchLastQualifying = async (): Promise<F1QualifyingResult> => {
+  try {
+    const res = await fetch(`${JOLPICA_BASE}/current/last/qualifying.json`);
+    if (res.ok) {
+      const data = await res.json();
+      const race = data.MRData?.RaceTable?.Races?.[0];
+      const results = race?.QualifyingResults;
+      if (race && Array.isArray(results) && results.length >= 3) {
+        const q1 = results[0];
+        const q2 = results[1];
+        const q3 = results[2];
+        return {
+          raceName: race.raceName,
+          poleDriver: `${q1.Driver.givenName} ${q1.Driver.familyName}`,
+          poleTeam: q1.Constructor?.name || 'Team',
+          poleTime: q1.Q3 || q1.Q2 || q1.Q1 || '1:09.512',
+          p2Driver: `${q2.Driver.givenName} ${q2.Driver.familyName}`,
+          p2Team: q2.Constructor?.name || 'Team',
+          p2Time: q2.Q3 || q2.Q2 || q2.Q1 || '1:09.685',
+          p3Driver: `${q3.Driver.givenName} ${q3.Driver.familyName}`,
+          p3Team: q3.Constructor?.name || 'Team',
+          p3Time: q3.Q3 || q3.Q2 || q3.Q1 || '1:09.702',
+        };
+      }
+    }
+  } catch (e) {}
+  return FALLBACK_QUALIFYING;
+};
+
+const fetchLastPitStops = async (): Promise<F1PitStopRecord> => {
+  try {
+    const res = await fetch(`${JOLPICA_BASE}/current/last/pitstops.json`);
+    if (res.ok) {
+      const data = await res.json();
+      const race = data.MRData?.RaceTable?.Races?.[0];
+      const stops = race?.PitStops;
+      if (race && Array.isArray(stops) && stops.length > 0) {
+        const sorted = [...stops].sort((a: any, b: any) => parseFloat(a.duration || '99') - parseFloat(b.duration || '99'));
+        const fastest = sorted[0];
+        return {
+          raceName: race.raceName,
+          team: 'DHL Fastest Stop',
+          driver: fastest.driverId ? fastest.driverId.toUpperCase() : 'Max Verstappen',
+          duration: `${fastest.duration}s`,
+          lap: Number(fastest.lap) || 29,
+        };
+      }
+    }
+  } catch (e) {}
+  return FALLBACK_PITSTOP;
+};
+
+const fetchUpcomingRaces = async (activeRound: number = 21): Promise<F1UpcomingRace[]> => {
+  try {
+    const res = await fetch(`${JOLPICA_BASE}/current.json`);
+    if (res.ok) {
+      const data = await res.json();
+      const races = data.MRData?.RaceTable?.Races;
+      if (Array.isArray(races)) {
+        const upcoming = races.filter((r: any) => Number(r.round) > activeRound).slice(0, 3);
+        if (upcoming.length > 0) {
+          const now = new Date();
+          return upcoming.map((r: any) => {
+            const { formatted, dateObj } = formatToIST(r.date, r.time);
+            const diffDays = Math.max(1, Math.round((dateObj.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+            return {
+              round: Number(r.round),
+              raceName: r.raceName,
+              circuitName: r.Circuit?.circuitName || 'Circuit',
+              country: r.Circuit?.Location?.country || 'Global',
+              dateStr: r.date,
+              istDate: formatted,
+              countdown: `${diffDays}d`,
+            };
+          });
+        }
+      }
+    }
+  } catch (e) {}
+  return FALLBACK_UPCOMING_RACES;
+};
+
 const fetchLiveStandings = async (): Promise<F1DriverStanding[]> => {
   try {
     const res = await fetch(`${JOLPICA_BASE}/current/driverStandings.json`);
@@ -229,12 +438,15 @@ const fetchLastRacePodium = async (): Promise<F1LastRacePodium | undefined> => {
 
 export const getF1Data = async (forceRaceWeekendSim: boolean = false): Promise<F1Data> => {
   try {
-    const [nextRes, lastRes, driverStandings, constructorStandings, lastRace] = await Promise.all([
+    const [nextRes, lastRes, driverStandings, constructorStandings, lastRace, qualifyingResult, pitStopRecord, upcomingRaces] = await Promise.all([
       fetch(`${JOLPICA_BASE}/current/next.json`),
       fetch(`${JOLPICA_BASE}/current/last.json`),
       fetchLiveStandings(),
       fetchConstructorStandings(),
       fetchLastRacePodium(),
+      fetchLastQualifying(),
+      fetchLastPitStops(),
+      fetchUpcomingRaces(21),
     ]);
 
     let targetRace: any = null;
@@ -251,7 +463,16 @@ export const getF1Data = async (forceRaceWeekendSim: boolean = false): Promise<F
     }
 
     if (targetRace) {
-      return parseJolpicaRace(targetRace, forceRaceWeekendSim, driverStandings, constructorStandings, lastRace);
+      return parseJolpicaRace(
+        targetRace,
+        forceRaceWeekendSim,
+        driverStandings,
+        constructorStandings,
+        lastRace,
+        qualifyingResult,
+        pitStopRecord,
+        upcomingRaces
+      );
     }
 
     const fallback = getFallbackF1Data(forceRaceWeekendSim);
@@ -260,6 +481,10 @@ export const getF1Data = async (forceRaceWeekendSim: boolean = false): Promise<F
       standings: driverStandings,
       constructorStandings,
       lastRace: lastRace || FALLBACK_LAST_RACE,
+      qualifyingResult,
+      pitStopRecord,
+      upcomingRaces,
+      titleBattle: computeTitleBattle(driverStandings, constructorStandings, 21, 24),
     };
   } catch (err) {
     console.warn('Jolpica F1 API failed or offline. Using rich schedule fallback.', err);
@@ -274,6 +499,9 @@ const parseJolpicaRace = (
   liveStandings: F1DriverStanding[] = FALLBACK_STANDINGS,
   constructorStandings: F1ConstructorStanding[] = FALLBACK_CONSTRUCTORS,
   lastRace: F1LastRacePodium = FALLBACK_LAST_RACE,
+  qualifyingResult: F1QualifyingResult = FALLBACK_QUALIFYING,
+  pitStopRecord: F1PitStopRecord = FALLBACK_PITSTOP,
+  upcomingRaces: F1UpcomingRace[] = FALLBACK_UPCOMING_RACES,
 ): F1Data => {
   const fp1Info = formatToIST(race.FirstPractice?.date, race.FirstPractice?.time);
   const fp2Info = race.SecondPractice ? formatToIST(race.SecondPractice.date, race.SecondPractice.time) : undefined;
@@ -370,10 +598,11 @@ const parseJolpicaRace = (
 
   const isWeekend = forceRaceWeekendSim || isDateInRaceWeekend(race.date, now);
   const circuitId = race.Circuit?.circuitId || 'vegas';
+  const activeRound = Number(race.round) || 21;
 
   return {
     isRaceWeekend: isWeekend,
-    activeRound: Number(race.round) || 21,
+    activeRound,
     totalRounds: 24,
     raceName: race.raceName,
     circuitName: race.Circuit.circuitName,
@@ -392,6 +621,11 @@ const parseJolpicaRace = (
     constructorStandings,
     lastRace,
     circuitLapRecord: CIRCUIT_LAP_RECORDS[circuitId] || { lapTime: '1:35.490', driver: 'Charles Leclerc', year: '2023' },
+    qualifyingResult,
+    pitStopRecord,
+    titleBattle: computeTitleBattle(liveStandings, constructorStandings, activeRound, 24),
+    upcomingRaces,
+    circuitTelemetry: CIRCUIT_TELEMETRY[circuitId] || CIRCUIT_TELEMETRY.default,
   };
 };
 
@@ -448,5 +682,10 @@ export const getFallbackF1Data = (forceRaceWeekendSim: boolean = false): F1Data 
     constructorStandings: FALLBACK_CONSTRUCTORS,
     lastRace: FALLBACK_LAST_RACE,
     circuitLapRecord: { lapTime: '1:35.490', driver: 'Charles Leclerc', year: '2023' },
+    qualifyingResult: FALLBACK_QUALIFYING,
+    pitStopRecord: FALLBACK_PITSTOP,
+    titleBattle: computeTitleBattle(FALLBACK_STANDINGS, FALLBACK_CONSTRUCTORS, 21, 24),
+    upcomingRaces: FALLBACK_UPCOMING_RACES,
+    circuitTelemetry: CIRCUIT_TELEMETRY.vegas,
   };
 };

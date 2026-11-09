@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useDashboard } from '../../state/DashboardContext';
 import { Calendar, CloudSun, Award } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
+import { F1WidgetsColumn } from '../f1/F1WidgetsColumn';
 
 export const EinkRaceWeekendMode: React.FC = () => {
   const { now, f1, media, weather, colorMode } = useDashboard();
@@ -51,98 +52,8 @@ export const EinkRaceWeekendMode: React.FC = () => {
 
       {/* 2. MAIN 3-COLUMN GRID */}
       <div className="grid grid-cols-12 gap-6 flex-1 min-h-0">
-        {/* Left Column (5 cols): Hero Countdown, Circuit Specs & Previous GP */}
-        <div className={`col-span-5 flex flex-col justify-between border-r-2 pr-6 ${
-          isLight ? 'border-stone-300' : 'border-stone-700'
-        }`}>
-          {/* Hero Countdown Card (Compact) */}
-          <div className="pb-2.5 border-b mb-2.5" style={{ borderColor: isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)' }}>
-            <div className="flex items-center justify-between border-b pb-1">
-              <span className={`text-[10px] font-mono uppercase tracking-widest ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>
-                Target Session
-              </span>
-              <span className={`text-[10px] font-mono uppercase px-1.5 py-0.5 border ${
-                isLight ? 'border-stone-800 bg-stone-200' : 'border-stone-500 bg-stone-800'
-              }`}>
-                Live in IST
-              </span>
-            </div>
-
-            {/* Horizontal Split */}
-            <div className="flex items-center justify-between py-1.5">
-              <div>
-                <h2 className="text-lg font-bold tracking-tight">{f1.nextSession.name}</h2>
-                <p className={`text-xs font-mono mt-0.5 flex items-center ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>
-                  <Calendar size={12} className="mr-1.5" />
-                  {f1.nextSession.istTimeFormatted}
-                </p>
-              </div>
-
-              {/* Compact Countdown Digits */}
-              <div className={`px-3 py-1.5 border-2 text-center ${
-                isLight ? 'border-stone-800 bg-[#ede8df]' : 'border-stone-600 bg-[#292524]'
-              }`}>
-                <div className={`text-[8px] uppercase font-mono tracking-wider ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>
-                  Time Remaining
-                </div>
-                <div className="text-base font-bold font-mono" style={{ color: 'var(--color-accent)' }}>
-                  {f1.nextSession.countdownFormatted}
-                </div>
-              </div>
-            </div>
-
-            {/* Circuit Specifications */}
-            <div className="grid grid-cols-4 gap-1.5 text-xs pt-1">
-              <div className={`p-1.5 border text-center ${isLight ? 'border-stone-400 bg-[#ede8df]' : 'border-stone-600 bg-[#292524]'}`}>
-                <span className={`block text-[8px] font-mono uppercase ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>Laps</span>
-                <span className="font-mono font-bold text-xs">50</span>
-              </div>
-              <div className={`p-1.5 border text-center ${isLight ? 'border-stone-400 bg-[#ede8df]' : 'border-stone-600 bg-[#292524]'}`}>
-                <span className={`block text-[8px] font-mono uppercase ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>Circuit</span>
-                <span className="font-mono font-bold text-xs">6.2 KM</span>
-              </div>
-              <div className={`p-1.5 border text-center ${isLight ? 'border-stone-400 bg-[#ede8df]' : 'border-stone-600 bg-[#292524]'}`}>
-                <span className={`block text-[8px] font-mono uppercase ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>DRS</span>
-                <span className="font-mono font-bold text-xs" style={{ color: 'var(--color-accent)' }}>2 ZONES</span>
-              </div>
-              <div className={`p-1.5 border text-center ${isLight ? 'border-stone-400 bg-[#ede8df]' : 'border-stone-600 bg-[#292524]'}`}>
-                <span className={`block text-[8px] font-mono uppercase ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>Record</span>
-                <span className="font-mono font-bold text-xs text-amber-500">{f1.circuitLapRecord?.lapTime || '1:35.4'}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Previous Trial Podium Box */}
-          {f1.lastRace && (
-            <div className={`p-2 border mb-2 text-xs font-mono ${
-              isLight ? 'border-stone-400 bg-[#ede8df]' : 'border-stone-600 bg-[#292524]'
-            }`}>
-              <div className="flex items-center justify-between pb-1 border-b border-stone-400/40 text-[10px] uppercase">
-                <span className="font-bold flex items-center space-x-1">
-                  <Award size={12} className="text-amber-500" />
-                  <span>Prev Trial: {f1.lastRace.raceName}</span>
-                </span>
-                <span className="text-purple-400">FL: {f1.lastRace.fastestLapDriver} ({f1.lastRace.fastestLapTime})</span>
-              </div>
-              <div className="grid grid-cols-3 gap-1 pt-1 text-[10px]">
-                <div className="truncate"><span className="font-bold text-amber-500">1st:</span> {f1.lastRace.winner}</div>
-                <div className="truncate"><span className="font-bold">2nd:</span> {f1.lastRace.p2.split(' ')[0]} {f1.lastRace.p2.split(' ')[1]}</div>
-                <div className="truncate"><span className="font-bold">3rd:</span> {f1.lastRace.p3.split(' ')[0]} {f1.lastRace.p3.split(' ')[1]}</div>
-              </div>
-            </div>
-          )}
-
-          {/* Local Weather Conditions */}
-          <div className={`pt-2 border-t-2 flex items-center justify-between text-xs font-mono ${
-            isLight ? 'border-stone-300 text-stone-700' : 'border-stone-700 text-stone-400'
-          }`}>
-            <div className="flex items-center space-x-2">
-              <CloudSun size={16} />
-              <span>{weather.temperature}°C {weather.condition}</span>
-            </div>
-            <span>Wind {weather.windSpeed} km/h • Hum {weather.humidity}%</span>
-          </div>
-        </div>
+        {/* Left Column (5 cols): Dynamic Configurable F1 Widgets with Auto-Fitting */}
+        <F1WidgetsColumn f1={f1} uiStyle="eink" isLight={isLight} className={`col-span-5 border-r-2 pr-6 ${isLight ? 'border-stone-300' : 'border-stone-700'}`} />
 
         {/* Center Column (4 cols): Programme of the Weekend */}
         <div className={`col-span-4 flex flex-col border-r-2 pr-6 ${

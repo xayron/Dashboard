@@ -6,6 +6,8 @@ export const TuiEveningMode: React.FC = () => {
   const isLight = colorMode === 'light';
 
   const isPlaying = media.state === 'playing';
+  if (!isPlaying) return null;
+
   const volume = media.volume ?? 68;
 
   const formatSeconds = (sec: number) => {
@@ -15,8 +17,9 @@ export const TuiEveningMode: React.FC = () => {
     return `${mins}:${String(remainder).padStart(2, '0')}`;
   };
 
-  const duration = media.duration || 1;
-  const progressPercent = Math.min(100, Math.max(0, (livePosition / duration) * 100));
+  const duration = isPlaying ? (media.duration || 0) : 0;
+  const currentPos = isPlaying ? livePosition : 0;
+  const progressPercent = isPlaying && duration > 0 ? Math.min(100, Math.max(0, (currentPos / duration) * 100)) : 0;
   const totalBlocks = 36;
   const filledBlocks = Math.round((progressPercent / 100) * totalBlocks);
   const progressBarAscii = `[${'█'.repeat(filledBlocks)}${'░'.repeat(Math.max(0, totalBlocks - filledBlocks))}]`;

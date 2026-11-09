@@ -84,7 +84,9 @@ export const StatusHeader: React.FC = () => {
         {manualOverrideMode && (
           <button
             onClick={() => setManualOverrideMode(null)}
-            className="text-[11px] text-gray-400 hover:text-white underline px-1 transition-colors"
+            className={`text-[11px] underline px-1 transition-colors ${
+              isLight ? 'text-slate-600 hover:text-slate-900' : 'text-gray-400 hover:text-white'
+            }`}
           >
             Reset to Auto ({autoCalculatedMode})
           </button>
@@ -94,17 +96,25 @@ export const StatusHeader: React.FC = () => {
       {/* Right: HA Status, Latency & Controls */}
       <div className="flex items-center space-x-3">
         {/* Home Assistant Status */}
-        <div className="flex items-center space-x-1.5 text-xs text-gray-300 glass-pill px-3 py-1 rounded-full">
-          <Server size={13} className={systemHealth.haStatus === 'connected' ? 'text-green-400' : 'text-blue-400'} />
+        <div
+          className={`flex items-center space-x-1.5 text-xs glass-pill px-3 py-1 rounded-full ${
+            isLight ? 'text-slate-700' : 'text-gray-300'
+          }`}
+        >
+          <Server size={13} className={systemHealth.haStatus === 'connected' ? 'text-green-500' : isLight ? 'text-blue-600' : 'text-blue-400'} />
           <span className="font-medium">
             HA: {systemHealth.haStatus === 'connected' ? 'Online' : 'Simulated'}
           </span>
-          <span className={`w-2 h-2 rounded-full ${systemHealth.haStatus === 'connected' ? 'bg-green-500 animate-pulse' : 'bg-blue-400'}`} />
+          <span className={`w-2 h-2 rounded-full ${systemHealth.haStatus === 'connected' ? 'bg-green-500 animate-pulse' : isLight ? 'bg-blue-500' : 'bg-blue-400'}`} />
         </div>
 
         {/* Network Latency */}
-        <div className="flex items-center space-x-1 text-xs text-gray-400 glass-pill px-2.5 py-1 rounded-full font-mono-numbers">
-          <Wifi size={13} className="text-gray-400" />
+        <div
+          className={`flex items-center space-x-1 text-xs glass-pill px-2.5 py-1 rounded-full font-mono-numbers ${
+            isLight ? 'text-slate-600' : 'text-gray-400'
+          }`}
+        >
+          <Wifi size={13} className={isLight ? 'text-slate-500' : 'text-gray-400'} />
           <span>{systemHealth.networkLatencyMs}ms</span>
         </div>
 
@@ -113,7 +123,11 @@ export const StatusHeader: React.FC = () => {
           onClick={toggleKioskBar}
           title="Toggle Kiosk Controls (Press 'M')"
           className={`p-2 rounded-xl transition-all border ${
-            isKioskBarVisible ? '' : 'glass-pill text-gray-300 hover:text-white border-transparent'
+            isKioskBarVisible
+              ? ''
+              : isLight
+              ? 'glass-pill text-slate-700 hover:text-slate-900 hover:border-slate-300 border-transparent'
+              : 'glass-pill text-gray-300 hover:text-white border-transparent'
           }`}
           style={isKioskBarVisible ? {
             backgroundColor: 'var(--theme-accent-soft)',
@@ -128,7 +142,11 @@ export const StatusHeader: React.FC = () => {
         <button
           onClick={toggleColorMode}
           title={`Switch to ${isLight ? 'Dark' : 'Light'} Mode (Press 'D')`}
-          className="p-2 rounded-xl glass-pill text-gray-300 hover:text-white transition-all flex items-center justify-center"
+          className={`p-2 rounded-xl glass-pill transition-all flex items-center justify-center ${
+            isLight
+              ? 'text-slate-700 hover:text-slate-900 hover:border-slate-300'
+              : 'text-gray-300 hover:text-white'
+          }`}
         >
           {isLight ? <Moon size={16} className="text-purple-600" /> : <Sun size={16} className="text-amber-400" />}
         </button>
@@ -137,9 +155,14 @@ export const StatusHeader: React.FC = () => {
         <button
           onClick={() => setIsSettingsOpen(true)}
           title="Settings (Press 'S')"
-          className="p-2 rounded-xl glass-pill text-gray-300 hover:text-white hover:border-white/30 transition-all"
+          aria-label="Settings"
+          className={`p-2 rounded-xl glass-pill transition-all cursor-pointer ${
+            isLight
+              ? 'text-slate-700 hover:text-slate-900 hover:bg-black/5 hover:border-slate-300'
+              : 'text-gray-300 hover:text-white hover:border-white/30'
+          }`}
         >
-          <Settings size={16} />
+          <Settings size={16} className={isLight ? 'text-slate-700 hover:text-slate-900' : 'text-gray-300 hover:text-white'} />
         </button>
       </div>
     </header>

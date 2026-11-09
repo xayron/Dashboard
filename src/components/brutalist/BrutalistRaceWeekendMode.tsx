@@ -3,6 +3,7 @@ import { useDashboard } from '../../state/DashboardContext';
 import { BrutalistBox } from './BrutalistBox';
 import { Flame, MapPin, Calendar, Award, Zap, CloudSun } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
+import { F1WidgetsColumn } from '../f1/F1WidgetsColumn';
 
 export const BrutalistRaceWeekendMode: React.FC = () => {
   const { now, f1, media, weather, colorMode } = useDashboard();
@@ -55,112 +56,8 @@ export const BrutalistRaceWeekendMode: React.FC = () => {
 
       {/* 2. MAIN 3-COLUMN GRID */}
       <div className="grid grid-cols-12 gap-5 flex-1 min-h-0">
-        {/* Left Column (5 cols): Next Session Hero, Circuit Telemetry & Previous GP */}
-        <div className="col-span-5 flex flex-col space-y-3">
-          {/* Hero Countdown Box (Compact) */}
-          <BrutalistBox
-            title="NEXT SESSION COUNTDOWN"
-            badge="LIVE IN IST"
-            badgeColor="bg-red-600 text-white"
-          >
-            <div className="py-1">
-              <div className="flex items-center justify-between pb-2 border-b-2 border-black">
-                <div>
-                  <div className={`text-[9px] font-black uppercase tracking-wider ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>
-                    TARGET SESSION
-                  </div>
-                  <div className="text-lg font-black uppercase tracking-tight">
-                    {f1.nextSession.name}
-                  </div>
-                  <div className="text-xs font-mono font-bold mt-0.5 flex items-center text-red-500">
-                    <Calendar size={12} className="mr-1.5" />
-                    {f1.nextSession.istTimeFormatted}
-                  </div>
-                </div>
-
-                {/* Compact Countdown Box */}
-                <div
-                  className={`px-3 py-1.5 border-2 border-black text-center ${
-                    isLight ? 'shadow-[2px_2px_0px_#000]' : 'shadow-[2px_2px_0px_#fff]'
-                  }`}
-                  style={{ backgroundColor: 'var(--color-accent, #facc15)' }}
-                >
-                  <div className="text-[8px] font-black uppercase tracking-widest text-black">
-                    T-MINUS
-                  </div>
-                  <div className="text-base font-black font-mono text-black tracking-wider">
-                    {f1.nextSession.countdownFormatted}
-                  </div>
-                </div>
-              </div>
-
-              {/* Circuit Quick Telemetry */}
-              <div className="grid grid-cols-4 gap-1.5 text-xs pt-2">
-                <div className={`p-1 border-2 border-black text-center ${isLight ? 'bg-neutral-100 shadow-[2px_2px_0px_#000]' : 'bg-neutral-900 shadow-[2px_2px_0px_#fff]'}`}>
-                  <span className={`block text-[8px] font-black uppercase ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>Laps</span>
-                  <span className="font-mono font-black text-xs">50</span>
-                </div>
-                <div className={`p-1 border-2 border-black text-center ${isLight ? 'bg-neutral-100 shadow-[2px_2px_0px_#000]' : 'bg-neutral-900 shadow-[2px_2px_0px_#fff]'}`}>
-                  <span className={`block text-[8px] font-black uppercase ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>Length</span>
-                  <span className="font-mono font-black text-xs">6.2 KM</span>
-                </div>
-                <div className={`p-1 border-2 border-black text-center ${isLight ? 'bg-neutral-100 shadow-[2px_2px_0px_#000]' : 'bg-neutral-900 shadow-[2px_2px_0px_#fff]'}`}>
-                  <span className={`block text-[8px] font-black uppercase ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>DRS</span>
-                  <span className="font-mono font-black text-xs text-red-500">2 ZONES</span>
-                </div>
-                <div className={`p-1 border-2 border-black text-center ${isLight ? 'bg-neutral-100 shadow-[2px_2px_0px_#000]' : 'bg-neutral-900 shadow-[2px_2px_0px_#fff]'}`}>
-                  <span className={`block text-[8px] font-black uppercase ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>Record</span>
-                  <span className="font-mono font-black text-xs text-amber-500">{f1.circuitLapRecord?.lapTime || '1:35.4'}</span>
-                </div>
-              </div>
-            </div>
-          </BrutalistBox>
-
-          {/* Previous GP Podium Card */}
-          {f1.lastRace && (
-            <BrutalistBox
-              title={`PREV GP: ${f1.lastRace.raceName.toUpperCase()}`}
-              badge={`FL: ${f1.lastRace.fastestLapDriver} (${f1.lastRace.fastestLapTime})`}
-              badgeColor="bg-purple-600 text-white"
-            >
-              <div className="grid grid-cols-3 gap-2 text-xs py-0.5">
-                <div className={`p-1.5 border-2 border-black ${isLight ? 'bg-yellow-300 shadow-[2px_2px_0px_#000]' : 'bg-yellow-400 text-black shadow-[2px_2px_0px_#fff]'}`}>
-                  <div className="font-black text-[10px]">🥇 P1 WINNER</div>
-                  <div className="font-black truncate">{f1.lastRace.winner}</div>
-                </div>
-                <div className={`p-1.5 border-2 border-black ${isLight ? 'bg-neutral-100 shadow-[2px_2px_0px_#000]' : 'bg-neutral-900 text-white shadow-[2px_2px_0px_#fff]'}`}>
-                  <div className="font-black text-[10px]">🥈 P2</div>
-                  <div className="font-black truncate">{f1.lastRace.p2.split(' ')[0]} {f1.lastRace.p2.split(' ')[1]}</div>
-                </div>
-                <div className={`p-1.5 border-2 border-black ${isLight ? 'bg-neutral-100 shadow-[2px_2px_0px_#000]' : 'bg-neutral-900 text-white shadow-[2px_2px_0px_#fff]'}`}>
-                  <div className="font-black text-[10px]">🥉 P3</div>
-                  <div className="font-black truncate">{f1.lastRace.p3.split(' ')[0]} {f1.lastRace.p3.split(' ')[1]}</div>
-                </div>
-              </div>
-            </BrutalistBox>
-          )}
-
-          {/* Track Conditions Box */}
-          <BrutalistBox
-            title="TRACK CONDITIONS"
-            badge="LOCAL METEO"
-            badgeColor="bg-cyan-400 text-black"
-          >
-            <div className="flex items-center justify-between py-0.5">
-              <div className="flex items-center space-x-2.5">
-                <CloudSun size={20} className="text-amber-500" />
-                <div>
-                  <div className="font-mono font-black text-sm">{weather.temperature}°C</div>
-                  <div className={`text-[10px] font-black uppercase ${isLight ? 'text-neutral-600' : 'text-neutral-400'}`}>{weather.condition}</div>
-                </div>
-              </div>
-              <div className="text-right font-mono text-[11px] font-bold">
-                <div>HUM: {weather.humidity}%</div>
-                <div className="text-red-500">WIND: {weather.windSpeed} KM/H</div>
-              </div>
-            </div>
-          </BrutalistBox>
-        </div>
+        {/* Left Column (5 cols): Dynamic Configurable F1 Widgets with Auto-Fitting */}
+        <F1WidgetsColumn f1={f1} uiStyle="brutalist" isLight={isLight} className="col-span-5" />
 
         {/* Center Column (4 cols): Weekend Sessions (IST) */}
         <div className="col-span-4 flex flex-col">

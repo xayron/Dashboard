@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDashboard } from '../../state/DashboardContext';
 import { TuiBox } from './TuiBox';
+import { F1WidgetsColumn } from '../f1/F1WidgetsColumn';
 
 export const TuiRaceWeekendMode: React.FC = () => {
   const { f1, media, weather, colorMode } = useDashboard();
@@ -40,89 +41,8 @@ export const TuiRaceWeekendMode: React.FC = () => {
 
       {/* Main 3-Column Grid */}
       <div className="grid grid-cols-12 gap-5 flex-1 my-3.5 min-h-0">
-        {/* Left Col (5 cols): Next Session Hero, Circuit Telemetry & Previous GP */}
-        <div className="col-span-5 flex flex-col space-y-3.5">
-          <TuiBox
-            title="NEXT_SESSION_COUNTDOWN"
-            badge="LIVE IN IST"
-            badgeColor="text-red-500"
-            className="border-red-500/50"
-          >
-            <div className="py-1">
-              <div className="flex items-center justify-between pb-2 border-b border-red-500/30">
-                <div>
-                  <div className={`text-[10px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>TARGET_EVENT:</div>
-                  <div className={`text-lg font-black mt-0.5 ${isLight ? 'text-slate-900' : 'text-white'}`}>{f1.nextSession.name.toUpperCase()}</div>
-                  <div className="text-xs text-red-500 mt-0.5 font-bold">&gt;&gt; {f1.nextSession.istTimeFormatted}</div>
-                </div>
-
-                {/* Compact T-Minus Terminal Box */}
-                <div className={`px-3 py-1.5 border border-red-500/60 text-center ${isLight ? 'bg-red-50' : 'bg-red-950/20'}`}>
-                  <div className={`text-[8px] uppercase tracking-wider font-bold ${isLight ? 'text-slate-600' : 'text-gray-400'}`}>
-                    T-MINUS
-                  </div>
-                  <div className="text-base font-black text-red-500 tracking-wider animate-pulse">
-                    T-{f1.nextSession.countdownFormatted}
-                  </div>
-                </div>
-              </div>
-
-              {/* Circuit Stats Table */}
-              <div className="grid grid-cols-4 gap-1.5 text-[10px] pt-2">
-                <div className={`p-1 border text-center ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-white/5 border-white/10'}`}>
-                  <div className={`text-[8px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>LAPS</div>
-                  <div className={`font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>50 LAPS</div>
-                </div>
-                <div className={`p-1 border text-center ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-white/5 border-white/10'}`}>
-                  <div className={`text-[8px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>CIRCUIT</div>
-                  <div className={`font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>6.201 KM</div>
-                </div>
-                <div className={`p-1 border text-center ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-white/5 border-white/10'}`}>
-                  <div className={`text-[8px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>DRS</div>
-                  <div className="text-red-500 font-bold">2 ZONES</div>
-                </div>
-                <div className={`p-1 border text-center ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-white/5 border-white/10'}`}>
-                  <div className={`text-[8px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>RECORD</div>
-                  <div className="text-amber-500 font-bold">{f1.circuitLapRecord?.lapTime || '1:35.490'}</div>
-                </div>
-              </div>
-            </div>
-          </TuiBox>
-
-          {/* Previous GP Podium Box */}
-          {f1.lastRace && (
-            <TuiBox title="PREV_GP_PODIUM" badge={f1.lastRace.raceName.toUpperCase()} badgeColor="text-amber-400">
-              <div className="text-xs space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-amber-400 font-bold">P1: {f1.lastRace.winner.toUpperCase()} ({f1.lastRace.winnerTeam})</span>
-                  <span className="text-[10px] text-purple-400 font-mono">FL: {f1.lastRace.fastestLapDriver} [{f1.lastRace.fastestLapTime}]</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2 text-[11px] pt-1 border-t border-gray-800">
-                  <span className={isLight ? 'text-slate-600' : 'text-gray-400'}>P2: {f1.lastRace.p2}</span>
-                  <span className={isLight ? 'text-slate-600' : 'text-gray-400'}>P3: {f1.lastRace.p3}</span>
-                </div>
-              </div>
-            </TuiBox>
-          )}
-
-          {/* Track Meteo Box */}
-          <TuiBox
-            title="TRACK_METEO"
-            badge="CONDITIONS"
-            badgeColor="text-cyan-400"
-          >
-            <div className={`flex items-center justify-between py-1 text-xs ${isLight ? 'text-slate-800' : 'text-gray-200'}`}>
-              <div>
-                <span className="font-bold text-red-500">{weather.temperature}°C {weather.condition.toUpperCase()}</span>
-                <span className={`block text-[10px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>AMBIENT_SURFACE_TEMP</span>
-              </div>
-              <div className="text-right text-[11px] font-mono">
-                <div>HUMIDITY: {weather.humidity}%</div>
-                <div className="text-red-500">WIND_SPEED: {weather.windSpeed} KM/H</div>
-              </div>
-            </div>
-          </TuiBox>
-        </div>
+        {/* Left Col (5 cols): Dynamic Configurable F1 Widgets with Auto-Fitting */}
+        <F1WidgetsColumn f1={f1} uiStyle="tui" isLight={isLight} className="col-span-5" />
 
         {/* Center Col (4 cols): Session Schedule in IST */}
         <div className="col-span-4 flex flex-col">

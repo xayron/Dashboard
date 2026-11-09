@@ -15,6 +15,7 @@ import { useDashboard } from '../../state/DashboardContext';
 import { ClockWidget } from '../common/ClockWidget';
 import { WeatherWidget } from '../common/WeatherWidget';
 import { AudioBanner } from '../common/AudioBanner';
+import { F1WidgetsColumn } from '../f1/F1WidgetsColumn';
 
 export const RaceWeekendMode: React.FC = () => {
   const { f1, media, colorMode } = useDashboard();
@@ -85,144 +86,8 @@ export const RaceWeekendMode: React.FC = () => {
 
       {/* 2. MAIN 1080P GRID */}
       <div className="relative z-10 grid grid-cols-12 gap-5 flex-1 my-3.5 min-h-0">
-        {/* Left Column (5 cols): Next Session Hero, Circuit Telemetry & Previous Podium */}
-        <div className="col-span-5 flex flex-col space-y-3.5">
-          {/* Hero Countdown Card (Compact) */}
-          <div className={`glass-panel p-4 rounded-3xl border shadow-xl relative overflow-hidden ${
-            isLight
-              ? 'border-red-200 bg-gradient-to-br from-red-50/90 via-white/80 to-slate-50/90 text-slate-900'
-              : 'border-red-500/30 bg-gradient-to-br from-red-950/40 via-black/60 to-zinc-950/80 text-white'
-          }`}>
-            <div className="flex items-center justify-between pb-2 border-b border-red-500/10">
-              <div className={`flex items-center space-x-2 text-[11px] uppercase font-extrabold tracking-widest ${
-                isLight ? 'text-red-600' : 'text-red-400'
-              }`}>
-                <Timer size={14} />
-                <span>Next Session Countdown</span>
-              </div>
-              <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-red-600 text-white shadow-sm">
-                LIVE IN IST
-              </span>
-            </div>
-
-            {/* Horizontal Split: Session Details Left, Countdown Digits Right */}
-            <div className="flex items-center justify-between py-2.5">
-              <div>
-                <h2 className={`text-lg font-bold font-display ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                  {f1.nextSession.name}
-                </h2>
-                <p className={`text-xs font-mono-numbers mt-0.5 flex items-center ${isLight ? 'text-slate-600' : 'text-gray-300'}`}>
-                  <Calendar size={12} className="mr-1.5 text-red-500" />
-                  {f1.nextSession.istTimeFormatted}
-                </p>
-              </div>
-
-              {/* Compact Countdown Pill */}
-              <div className={`px-3 py-1.5 rounded-2xl border flex items-center space-x-2 font-mono-numbers ${
-                isLight ? 'bg-white/90 border-slate-200 shadow-sm' : 'bg-black/60 border-white/10'
-              }`}>
-                <div className="text-center">
-                  <span className={`text-xl font-extrabold block leading-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                    {f1.nextSession.countdownFormatted.split(' ')[0] || '00'}
-                  </span>
-                  <span className={`text-[8px] uppercase tracking-wider font-semibold block ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
-                    Days/Hrs
-                  </span>
-                </div>
-                <span className="text-base text-red-500 font-bold">:</span>
-                <div className="text-center">
-                  <span className="text-xl font-extrabold text-red-500 block leading-tight">
-                    {f1.nextSession.countdownFormatted.split(' ')[1] || '00m'}
-                  </span>
-                  <span className={`text-[8px] uppercase tracking-wider font-semibold block ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
-                    Mins
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Track Specs & Lap Record */}
-            <div className={`grid grid-cols-4 gap-2 pt-2 border-t text-xs ${
-              isLight ? 'border-slate-200' : 'border-white/10'
-            }`}>
-              <div className={`p-1.5 rounded-xl text-center ${isLight ? 'bg-slate-100 border border-slate-200' : 'bg-white/5'}`}>
-                <span className={`block text-[9px] uppercase ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>Laps</span>
-                <span className={`font-mono-numbers font-bold text-xs ${isLight ? 'text-slate-900' : 'text-white'}`}>50 Laps</span>
-              </div>
-              <div className={`p-1.5 rounded-xl text-center ${isLight ? 'bg-slate-100 border border-slate-200' : 'bg-white/5'}`}>
-                <span className={`block text-[9px] uppercase ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>Length</span>
-                <span className={`font-mono-numbers font-bold text-xs ${isLight ? 'text-slate-900' : 'text-white'}`}>6.201 km</span>
-              </div>
-              <div className={`p-1.5 rounded-xl text-center ${isLight ? 'bg-slate-100 border border-slate-200' : 'bg-white/5'}`}>
-                <span className={`block text-[9px] uppercase ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>DRS</span>
-                <span className="font-mono-numbers font-bold text-red-500 text-xs">2 Zones</span>
-              </div>
-              <div className={`p-1.5 rounded-xl text-center ${isLight ? 'bg-slate-100 border border-slate-200' : 'bg-white/5'}`}>
-                <span className={`block text-[9px] uppercase ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>Lap Record</span>
-                <span className="font-mono-numbers font-bold text-amber-500 text-xs">
-                  {f1.circuitLapRecord?.lapTime || '1:35.490'}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Previous Grand Prix Podium & Fastest Lap Card */}
-          {f1.lastRace && (
-            <div className={`glass-panel p-3.5 rounded-2xl border ${
-              isLight ? 'bg-white/70 border-slate-200 shadow-sm' : 'border-white/10 bg-white/[0.03]'
-            }`}>
-              <div className="flex items-center justify-between mb-2">
-                <span className={`text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 ${
-                  isLight ? 'text-slate-600' : 'text-gray-300'
-                }`}>
-                  <Award size={13} className="text-amber-500" />
-                  <span>PREVIOUS GP PODIUM: {f1.lastRace.raceName}</span>
-                </span>
-                <span className="text-[10px] font-mono px-2 py-0.2 rounded bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center space-x-1">
-                  <Zap size={10} />
-                  <span>FL: {f1.lastRace.fastestLapDriver} ({f1.lastRace.fastestLapTime})</span>
-                </span>
-              </div>
-
-              <div className="grid grid-cols-3 gap-2 text-xs">
-                <div className={`p-2 rounded-xl border flex items-center space-x-2 ${
-                  isLight ? 'bg-amber-50/60 border-amber-200' : 'bg-amber-500/10 border-amber-500/20'
-                }`}>
-                  <span className="text-amber-500 font-extrabold text-xs">🥇 P1</span>
-                  <div className="truncate">
-                    <p className={`font-bold truncate text-[11px] ${isLight ? 'text-slate-900' : 'text-white'}`}>{f1.lastRace.winner}</p>
-                    <p className={`text-[9px] truncate ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>{f1.lastRace.winnerTeam}</p>
-                  </div>
-                </div>
-
-                <div className={`p-2 rounded-xl border flex items-center space-x-2 ${
-                  isLight ? 'bg-slate-50 border-slate-200' : 'bg-white/5 border-white/10'
-                }`}>
-                  <span className="text-slate-400 font-bold text-xs">🥈 P2</span>
-                  <div className="truncate">
-                    <p className={`font-bold truncate text-[11px] ${isLight ? 'text-slate-900' : 'text-white'}`}>{f1.lastRace.p2.split(' ')[0]} {f1.lastRace.p2.split(' ')[1]}</p>
-                    <p className={`text-[9px] truncate ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>{f1.lastRace.p2Team}</p>
-                  </div>
-                </div>
-
-                <div className={`p-2 rounded-xl border flex items-center space-x-2 ${
-                  isLight ? 'bg-amber-900/10 border-amber-800/20' : 'bg-amber-950/20 border-amber-900/30'
-                }`}>
-                  <span className="text-amber-700 font-bold text-xs">🥉 P3</span>
-                  <div className="truncate">
-                    <p className={`font-bold truncate text-[11px] ${isLight ? 'text-slate-900' : 'text-white'}`}>{f1.lastRace.p3.split(' ')[0]} {f1.lastRace.p3.split(' ')[1]}</p>
-                    <p className={`text-[9px] truncate ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>{f1.lastRace.p3Team}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Weather Snapshot for Circuit */}
-          <div className="flex-1 min-h-[120px]">
-            <WeatherWidget layout="compact" className="h-full" />
-          </div>
-        </div>
+        {/* Left Column (5 cols): Dynamic Configurable F1 Widgets with Auto-Fitting */}
+        <F1WidgetsColumn f1={f1} uiStyle="modern" isLight={isLight} className="col-span-5" />
 
         {/* Center Column (4 cols): Session Schedule in IST */}
         <div className={`col-span-4 glass-panel p-5 rounded-3xl border flex flex-col min-h-0 shadow-xl ${

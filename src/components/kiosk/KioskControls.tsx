@@ -25,6 +25,7 @@ export const KioskControls: React.FC = () => {
     toggleKioskBar,
     nextPhoto,
     prevPhoto,
+    media,
   } = useDashboard();
 
   if (!isKioskBarVisible) {
@@ -41,9 +42,13 @@ export const KioskControls: React.FC = () => {
     );
   }
 
+  const isPlaying = media.state === 'playing';
+
   const modes: Array<{ id: DashboardMode; label: string; icon: React.ReactNode }> = [
     { id: 'race', label: 'Race Weekend', icon: <Flame size={14} className="text-red-400" /> },
-    { id: 'evening', label: 'Evening', icon: <Moon size={14} className="text-purple-400" /> },
+    ...(isPlaying
+      ? [{ id: 'evening' as DashboardMode, label: 'Now Playing', icon: <Moon size={14} className="text-purple-400" /> }]
+      : []),
     { id: 'morning', label: 'Morning', icon: <Sun size={14} className="text-amber-400" /> },
     { id: 'ambient', label: 'Ambient', icon: <Camera size={14} className="text-emerald-400" /> },
   ];

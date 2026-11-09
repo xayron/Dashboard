@@ -5,6 +5,7 @@ import type {
   ColorMode,
   DashboardMode,
   F1Data,
+  F1WidgetId,
   FinanceItem,
   MediaPlayerData,
   PhotoItem,
@@ -136,6 +137,11 @@ interface DashboardContextType {
   toggleSettingsLayout: () => void;
   isKioskBarVisible: boolean;
   toggleKioskBar: () => void;
+  f1ActiveWidgets: F1WidgetId[];
+  setF1ActiveWidgets: (widgets: F1WidgetId[]) => void;
+  toggleF1Widget: (id: F1WidgetId) => void;
+  f1AutoFit: boolean;
+  setF1AutoFit: (val: boolean) => void;
 }
 
 const DashboardContext = createContext<DashboardContextType | null>(null);
@@ -247,6 +253,56 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const [isKioskBarVisible, setIsKioskBarVisible] = useState<boolean>(true);
 
+  // F1 Custom Widgets state
+  const DEFAULT_F1_WIDGETS: F1WidgetId[] = [
+    'countdown',
+    'podium',
+    'titleBattle',
+    'pitstop',
+    'qualifying',
+    'trackWeather',
+  ];
+
+  const [f1ActiveWidgets, setF1ActiveWidgetsState] = useState<F1WidgetId[]>(() => {
+    try {
+      const saved = localStorage.getItem('dashboard_f1_active_widgets');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return DEFAULT_F1_WIDGETS;
+  });
+
+  const setF1ActiveWidgets = (widgets: F1WidgetId[]) => {
+    setF1ActiveWidgetsState(widgets);
+    try {
+      localStorage.setItem('dashboard_f1_active_widgets', JSON.stringify(widgets));
+    } catch (e) {}
+  };
+
+  const toggleF1Widget = (id: F1WidgetId) => {
+    const next = f1ActiveWidgets.includes(id)
+      ? f1ActiveWidgets.filter(w => w !== id)
+      : [...f1ActiveWidgets, id];
+    setF1ActiveWidgets(next);
+  };
+
+  const [f1AutoFit, setF1AutoFitState] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('dashboard_f1_autofit');
+      if (saved !== null) return saved === 'true';
+    } catch (e) {}
+    return true; // Default to auto-fitting based on available height
+  });
+
+  const setF1AutoFit = (val: boolean) => {
+    setF1AutoFitState(val);
+    try {
+      localStorage.setItem('dashboard_f1_autofit', String(val));
+    } catch (e) {}
+  };
+
   // Data states
   const initialData = getFallbackWeatherAndAQI();
   const [weather, setWeather] = useState<WeatherData>(initialData.weather);
@@ -341,11 +397,11 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const parsed = haService.parseActiveMediaPlayer();
       setMedia(parsed);
       setLastSync({
-        position: parsed.position,
+        position: parsed.state === 'playing' ? parsed.position : 0,
         localTime: Date.now(),
         state: parsed.state,
       });
-      setLivePosition(parsed.position);
+      setLivePosition(parsed.state === 'playing' ? parsed.position : 0);
       setSystemHealth(haService.parseSystemHealth());
     });
     return () => {
@@ -356,8 +412,8 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Advance livePosition locally every 500ms when playing (avoids waiting for HA push)
   useEffect(() => {
-    if (lastSync.state !== 'playing') {
-      setLivePosition(lastSync.position);
+    if (media.state !== 'playing' || lastSync.state !== 'playing') {
+      setLivePosition(0);
       return;
     }
     const updateTick = () => {
@@ -368,7 +424,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     updateTick();
     const id = setInterval(updateTick, 500);
     return () => clearInterval(id);
-  }, [lastSync, media.duration]);
+  }, [lastSync, media.duration, media.state]);
 
   // Media player control — supports both live Home Assistant & simulated mock mode
   const mediaControl = (
@@ -474,34 +530,27 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
   }, [isRaceWeekendSimulated]);
 
-  // Compute auto calculated mode based on Section 2 State Machine specifications:
+  // Compute auto calculated mode based on State Machine specifications:
   // Priority 1: Race Weekend Mode (Thursday 00:00 through Sunday 23:59 IST of an F1 race week)
-  // Priority 2: Evening / Now-Playing Mode (Speaker state == "playing" OR (Time >= Sunset and Time < 23:00))
+  // Priority 2: Media Playing Mode (Speaker state == "playing" ONLY)
   // Priority 3: Morning Mode (Time >= 06:00 and Time < 12:00)
-  // Priority 4: Ambient Mode (Default idle / afternoon / late night fallback or 5min inactivity)
+  // Priority 4: Ambient Mode (Default idle / afternoon / evening / late night fallback or 5min inactivity)
   const autoCalculatedMode = useMemo<DashboardMode>(() => {
     // Priority 1: Race Weekend
     if (f1.isRaceWeekend || isRaceWeekendSimulated) {
       return 'race';
     }
 
-    // Inactivity timeout: after 5 minutes of no user interaction in the afternoon (12:00 - 17:00), drop to Ambient
-    const currentHours = now.getHours();
-    const currentMinutes = now.getMinutes();
-    const currentTimeStr = `${String(currentHours).padStart(2, '0')}:${String(currentMinutes).padStart(2, '0')}`;
-    const isFiveMinutesIdle = Date.now() - lastUserInteraction > 5 * 60 * 1000;
-
-    // Priority 2: Evening / Now-Playing Mode
-    // Speaker is playing OR Time is between Sunset and 23:00
-    const isPlaying = media.state === 'playing';
-    const isEveningTime = currentTimeStr >= (weather.sunset || '18:00') && currentHours < 23;
-
-    if (isPlaying || isEveningTime) {
+    // Priority 2: Media Playing Mode (ONLY when media is actively playing)
+    if (media.state === 'playing') {
       return 'evening';
     }
 
-    // Priority 3: Morning Mode
-    // Time >= 06:00 and Time < 12:00
+    // Inactivity timeout: after 5 minutes of no user interaction in the afternoon (12:00 - 17:00), drop to Ambient
+    const currentHours = now.getHours();
+    const isFiveMinutesIdle = Date.now() - lastUserInteraction > 5 * 60 * 1000;
+
+    // Priority 3: Morning Mode (Time >= 06:00 and Time < 12:00)
     if (currentHours >= 6 && currentHours < 12) {
       return 'morning';
     }
@@ -513,9 +562,16 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     // Priority 4: Ambient Mode (Default Idle)
     return 'ambient';
-  }, [f1.isRaceWeekend, isRaceWeekendSimulated, media.state, now, weather.sunset, lastUserInteraction]);
+  }, [f1.isRaceWeekend, isRaceWeekendSimulated, media.state, now, lastUserInteraction]);
 
-  const activeMode = manualOverrideMode || autoCalculatedMode;
+  // Remove the media playing page when media is not playing
+  const resolvedManualMode = (manualOverrideMode === 'evening' && media.state !== 'playing')
+    ? null
+    : manualOverrideMode;
+
+  const activeMode = (resolvedManualMode || autoCalculatedMode) === 'evening' && media.state !== 'playing'
+    ? 'ambient'
+    : (resolvedManualMode || autoCalculatedMode);
 
   const nextPhoto = () => {
     setCurrentPhoto(photoService.advance());
@@ -579,6 +635,11 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         toggleSettingsLayout,
         isKioskBarVisible,
         toggleKioskBar,
+        f1ActiveWidgets,
+        setF1ActiveWidgets,
+        toggleF1Widget,
+        f1AutoFit,
+        setF1AutoFit,
       }}
     >
       {children}

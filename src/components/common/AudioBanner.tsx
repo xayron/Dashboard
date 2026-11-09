@@ -18,11 +18,11 @@ export const AudioBanner: React.FC<AudioBannerProps> = ({ className = '', onClic
     setImageError(false);
   }, [media.entityPicture]);
 
-  if (media.state === 'off' || media.state === 'idle') return null;
+  if (media.state !== 'playing') return null;
 
   const isPlaying = media.state === 'playing';
-  const duration = media.duration || 1;
-  const progressPct = Math.min((livePosition / duration) * 100, 100);
+  const duration = media.duration || 0;
+  const progressPct = duration > 0 ? Math.min((livePosition / duration) * 100, 100) : 0;
 
   const fmt = (s: number) => {
     const sec = Math.round(s);

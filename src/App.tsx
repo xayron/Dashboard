@@ -134,13 +134,15 @@ class SettingsErrorBoundary extends React.Component<
 }
 
 const DashboardContent: React.FC = () => {
-  const { activeMode, uiStyle, theme, colorMode } = useDashboard();
+  const { activeMode, uiStyle, theme, colorMode, media } = useDashboard();
   const isLight = colorMode === 'light';
+  const isPlaying = media.state === 'playing';
+  const effectiveMode = (activeMode === 'evening' && !isPlaying) ? 'ambient' : activeMode;
 
   const renderActiveMode = () => {
     switch (uiStyle) {
       case 'tui':
-        switch (activeMode) {
+        switch (effectiveMode) {
           case 'race':
             return <TuiRaceWeekendMode />;
           case 'evening':
@@ -153,7 +155,7 @@ const DashboardContent: React.FC = () => {
         }
 
       case 'brutalist':
-        switch (activeMode) {
+        switch (effectiveMode) {
           case 'race':
             return <BrutalistRaceWeekendMode />;
           case 'evening':
@@ -166,7 +168,7 @@ const DashboardContent: React.FC = () => {
         }
 
       case 'minimal':
-        switch (activeMode) {
+        switch (effectiveMode) {
           case 'race':
             return <MinimalRaceWeekendMode />;
           case 'evening':
@@ -179,7 +181,7 @@ const DashboardContent: React.FC = () => {
         }
 
       case 'hud':
-        switch (activeMode) {
+        switch (effectiveMode) {
           case 'race':
             return <HudRaceWeekendMode />;
           case 'evening':
@@ -192,7 +194,7 @@ const DashboardContent: React.FC = () => {
         }
 
       case 'eink':
-        switch (activeMode) {
+        switch (effectiveMode) {
           case 'race':
             return <EinkRaceWeekendMode />;
           case 'evening':
@@ -205,7 +207,7 @@ const DashboardContent: React.FC = () => {
         }
 
       case 'retrowave':
-        switch (activeMode) {
+        switch (effectiveMode) {
           case 'race':
             return <RetrowaveRaceWeekendMode />;
           case 'evening':
@@ -218,7 +220,7 @@ const DashboardContent: React.FC = () => {
         }
 
       case 'neumorphic':
-        switch (activeMode) {
+        switch (effectiveMode) {
           case 'race':
             return <NeumorphicRaceWeekendMode />;
           case 'evening':
@@ -231,7 +233,7 @@ const DashboardContent: React.FC = () => {
         }
 
       case 'obsidian':
-        switch (activeMode) {
+        switch (effectiveMode) {
           case 'race':
             return <ObsidianRaceWeekendMode />;
           case 'evening':
@@ -244,7 +246,7 @@ const DashboardContent: React.FC = () => {
         }
 
       case 'civic':
-        switch (activeMode) {
+        switch (effectiveMode) {
           case 'race':
             return <CivicRaceWeekendMode />;
           case 'evening':
@@ -258,7 +260,7 @@ const DashboardContent: React.FC = () => {
 
       case 'modern':
       default:
-        switch (activeMode) {
+        switch (effectiveMode) {
           case 'race':
             return <RaceWeekendMode />;
           case 'evening':

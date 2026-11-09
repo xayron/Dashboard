@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useDashboard } from '../../state/DashboardContext';
 import { Calendar, CloudSun, Award } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
+import { F1WidgetsColumn } from '../f1/F1WidgetsColumn';
 
 export const ObsidianRaceWeekendMode: React.FC = () => {
   const { now, f1, media, weather, colorMode } = useDashboard();
@@ -67,110 +68,8 @@ export const ObsidianRaceWeekendMode: React.FC = () => {
 
       {/* 2. MAIN 3-COLUMN GRID */}
       <div className="grid grid-cols-12 gap-6 flex-1 min-h-0">
-        {/* Left Column (5 cols): Hero Countdown, Circuit Telemetry & Previous GP */}
-        <div className="col-span-5 flex flex-col space-y-3">
-          {/* Hero Countdown Card (Compact) */}
-          <div className={`p-4 ${cardClass}`}>
-            <div className={`flex items-center justify-between border-b pb-1.5 ${borderDivider}`}>
-              <span className={`text-[10px] font-mono uppercase tracking-wider ${mutedClass}`}>
-                Target Event Countdown
-              </span>
-              <span
-                className="px-1.5 py-0.5 text-[10px] font-mono border"
-                style={{
-                  backgroundColor: 'var(--theme-accent-soft)',
-                  borderColor: 'var(--color-accent)',
-                  color: 'var(--color-accent)',
-                }}
-              >
-                LIVE IN IST
-              </span>
-            </div>
-
-            {/* Horizontal Split */}
-            <div className="flex items-center justify-between py-2">
-              <div>
-                <h2 className={`text-lg font-bold tracking-tight ${isLight ? 'text-slate-900' : 'text-[#eef0f3]'}`}>
-                  {f1.nextSession.name}
-                </h2>
-                <p className={`text-xs font-mono mt-0.5 flex items-center ${mutedClass}`}>
-                  <Calendar size={12} className="mr-1.5" style={{ color: 'var(--color-accent)' }} />
-                  {f1.nextSession.istTimeFormatted}
-                </p>
-              </div>
-
-              {/* Compact Digits Pill */}
-              <div className={`px-3 py-1.5 ${innerClass} flex items-center space-x-2 font-mono`}>
-                <div className="text-center">
-                  <span className={`text-lg font-bold block leading-tight ${isLight ? 'text-slate-900' : 'text-[#eef0f3]'}`}>
-                    {f1.nextSession.countdownFormatted.split(' ')[0] || '00'}
-                  </span>
-                  <span className={`text-[8px] uppercase tracking-wider block ${mutedClass}`}>Days/Hrs</span>
-                </div>
-                <span className="text-sm font-bold" style={{ color: 'var(--color-accent)' }}>:</span>
-                <div className="text-center">
-                  <span className="text-lg font-bold block leading-tight" style={{ color: 'var(--color-accent)' }}>
-                    {f1.nextSession.countdownFormatted.split(' ')[1] || '00m'}
-                  </span>
-                  <span className={`text-[8px] uppercase tracking-wider block ${mutedClass}`}>Mins</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Circuit Telemetry Grid */}
-            <div className="grid grid-cols-4 gap-1.5 font-mono text-xs pt-1">
-              <div className={`p-1.5 ${innerClass} text-center`}>
-                <span className={`block text-[8px] uppercase ${mutedClass}`}>Laps</span>
-                <span className="font-bold text-xs">50</span>
-              </div>
-              <div className={`p-1.5 ${innerClass} text-center`}>
-                <span className={`block text-[8px] uppercase ${mutedClass}`}>Length</span>
-                <span className="font-bold text-xs">6.2 KM</span>
-              </div>
-              <div className={`p-1.5 ${innerClass} text-center`}>
-                <span className={`block text-[8px] uppercase ${mutedClass}`}>DRS</span>
-                <span className="font-bold text-xs" style={{ color: 'var(--color-accent)' }}>2 ZONES</span>
-              </div>
-              <div className={`p-1.5 ${innerClass} text-center`}>
-                <span className={`block text-[8px] uppercase ${mutedClass}`}>Record</span>
-                <span className="font-bold text-xs text-amber-500">{f1.circuitLapRecord?.lapTime || '1:35.4'}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Previous GP Podium Card */}
-          {f1.lastRace && (
-            <div className={`p-2.5 ${cardClass} text-xs font-mono`}>
-              <div className="flex items-center justify-between pb-1 border-b text-[10px]" style={{ borderColor: isLight ? '#e2e8f0' : 'rgba(255,255,255,0.08)' }}>
-                <span className="flex items-center space-x-1 font-bold">
-                  <Award size={12} className="text-amber-500" />
-                  <span>PREV GP: {f1.lastRace.raceName}</span>
-                </span>
-                <span className="text-purple-400">FL: {f1.lastRace.fastestLapDriver} ({f1.lastRace.fastestLapTime})</span>
-              </div>
-              <div className="grid grid-cols-3 gap-1 pt-1 text-[10px]">
-                <div className="truncate"><span className="text-amber-500 font-bold">1st:</span> {f1.lastRace.winner}</div>
-                <div className="truncate"><span className="text-slate-400">2nd:</span> {f1.lastRace.p2.split(' ')[0]} {f1.lastRace.p2.split(' ')[1]}</div>
-                <div className="truncate"><span className="text-amber-700">3rd:</span> {f1.lastRace.p3.split(' ')[0]} {f1.lastRace.p3.split(' ')[1]}</div>
-              </div>
-            </div>
-          )}
-
-          {/* Track Conditions Card */}
-          <div className={`p-2.5 ${cardClass} flex items-center justify-between text-xs font-mono`}>
-            <div className="flex items-center space-x-2">
-              <CloudSun size={18} style={{ color: 'var(--color-accent)' }} />
-              <div>
-                <span className="font-bold text-xs block">{weather.temperature}°C {weather.condition}</span>
-                <span className={`text-[9px] ${mutedClass}`}>Track Temperature</span>
-              </div>
-            </div>
-            <div className="text-right text-[10px]">
-              <div>Humidity: {weather.humidity}%</div>
-              <div style={{ color: 'var(--color-accent)' }}>Wind: {weather.windSpeed} km/h</div>
-            </div>
-          </div>
-        </div>
+        {/* Left Column (5 cols): Dynamic Configurable F1 Widgets with Auto-Fitting */}
+        <F1WidgetsColumn f1={f1} uiStyle="obsidian" isLight={isLight} className="col-span-5" />
 
         {/* Center Column (4 cols): Weekend Timetable */}
         <div className={`col-span-4 flex flex-col ${cardClass} p-5`}>

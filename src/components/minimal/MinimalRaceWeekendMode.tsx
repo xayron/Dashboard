@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useDashboard } from '../../state/DashboardContext';
 import { Calendar, CloudSun, Award, Zap } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
+import { F1WidgetsColumn } from '../f1/F1WidgetsColumn';
 
 export const MinimalRaceWeekendMode: React.FC = () => {
   const { now, f1, media, weather, colorMode } = useDashboard();
@@ -41,112 +42,8 @@ export const MinimalRaceWeekendMode: React.FC = () => {
 
       {/* 2. MAIN 3-COLUMN GRID */}
       <div className="grid grid-cols-12 gap-7 flex-1 min-h-0 pt-4">
-        {/* Left Column (5 cols): Hero Countdown, Circuit Metrics & Previous GP */}
-        <div className={`col-span-5 flex flex-col justify-between border-r pr-7 ${isLight ? 'border-neutral-200' : 'border-white/10'}`}>
-          {/* Hero Countdown Card (Compact) */}
-          <div className="pb-3 border-b mb-3" style={{ borderColor: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)' }}>
-            <div className="flex items-center justify-between mb-2">
-              <span className={`text-[10px] font-mono uppercase tracking-widest ${isLight ? 'text-neutral-400' : 'text-neutral-500'}`}>
-                Target Session
-              </span>
-              <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full" style={{
-                backgroundColor: 'var(--theme-accent-soft)',
-                color: 'var(--color-accent)',
-              }}>
-                Live in IST
-              </span>
-            </div>
-
-            {/* Horizontal Split: Session Info Left, Clean Digits Right */}
-            <div className="flex items-center justify-between py-1">
-              <div>
-                <h2 className={`text-lg font-light tracking-tight ${isLight ? 'text-neutral-900' : 'text-white'}`}>
-                  {f1.nextSession.name}
-                </h2>
-                <p className={`text-xs font-mono mt-0.5 flex items-center ${isLight ? 'text-neutral-500' : 'text-neutral-400'}`}>
-                  <Calendar size={12} className="mr-1 text-neutral-400" />
-                  {f1.nextSession.istTimeFormatted}
-                </p>
-              </div>
-
-              {/* Clean Digits Pill */}
-              <div className={`px-3 py-1.5 rounded-xl border flex items-center space-x-2 font-mono ${
-                isLight ? 'bg-neutral-50 border-neutral-200' : 'bg-white/[0.02] border-white/10'
-              }`}>
-                <div className="text-center">
-                  <span className={`text-lg font-light block leading-tight ${isLight ? 'text-neutral-900' : 'text-white'}`}>
-                    {f1.nextSession.countdownFormatted.split(' ')[0] || '00'}
-                  </span>
-                  <span className={`text-[8px] uppercase tracking-wider block ${isLight ? 'text-neutral-400' : 'text-neutral-500'}`}>Days/Hrs</span>
-                </div>
-                <span className="text-sm text-neutral-400 font-light">:</span>
-                <div className="text-center">
-                  <span className="text-lg font-light block leading-tight" style={{ color: 'var(--color-accent)' }}>
-                    {f1.nextSession.countdownFormatted.split(' ')[1] || '00m'}
-                  </span>
-                  <span className={`text-[8px] uppercase tracking-wider block ${isLight ? 'text-neutral-400' : 'text-neutral-500'}`}>Mins</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Circuit Specs */}
-            <div className="grid grid-cols-4 gap-1.5 mt-2.5">
-              <div className={`p-1.5 rounded-lg border text-center ${isLight ? 'bg-neutral-50 border-neutral-200' : 'bg-white/[0.02] border-white/5'}`}>
-                <span className={`text-[8px] font-mono uppercase block ${isLight ? 'text-neutral-400' : 'text-neutral-500'}`}>Laps</span>
-                <span className="font-mono text-[11px] font-medium">50 Laps</span>
-              </div>
-              <div className={`p-1.5 rounded-lg border text-center ${isLight ? 'bg-neutral-50 border-neutral-200' : 'bg-white/[0.02] border-white/5'}`}>
-                <span className={`text-[8px] font-mono uppercase block ${isLight ? 'text-neutral-400' : 'text-neutral-500'}`}>Length</span>
-                <span className="font-mono text-[11px] font-medium">6.2 km</span>
-              </div>
-              <div className={`p-1.5 rounded-lg border text-center ${isLight ? 'bg-neutral-50 border-neutral-200' : 'bg-white/[0.02] border-white/5'}`}>
-                <span className={`text-[8px] font-mono uppercase block ${isLight ? 'text-neutral-400' : 'text-neutral-500'}`}>DRS</span>
-                <span className="font-mono text-[11px] font-medium" style={{ color: 'var(--color-accent)' }}>2 Zones</span>
-              </div>
-              <div className={`p-1.5 rounded-lg border text-center ${isLight ? 'bg-neutral-50 border-neutral-200' : 'bg-white/[0.02] border-white/5'}`}>
-                <span className={`text-[8px] font-mono uppercase block ${isLight ? 'text-neutral-400' : 'text-neutral-500'}`}>Record</span>
-                <span className="font-mono text-[11px] font-medium text-amber-500">{f1.circuitLapRecord?.lapTime || '1:35.4'}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Previous GP Podium Card */}
-          {f1.lastRace && (
-            <div className={`p-2.5 rounded-xl border mb-3 text-xs ${
-              isLight ? 'bg-neutral-50 border-neutral-200' : 'bg-white/[0.02] border-white/10'
-            }`}>
-              <div className="flex items-center justify-between mb-1.5">
-                <span className={`text-[10px] uppercase font-mono tracking-widest flex items-center space-x-1 ${
-                  isLight ? 'text-neutral-500' : 'text-neutral-400'
-                }`}>
-                  <Award size={12} className="text-amber-500" />
-                  <span>Prev GP: {f1.lastRace.raceName}</span>
-                </span>
-                <span className="text-[10px] font-mono text-purple-400">FL: {f1.lastRace.fastestLapDriver} ({f1.lastRace.fastestLapTime})</span>
-              </div>
-              <div className="grid grid-cols-3 gap-1.5 font-mono text-[11px]">
-                <div className="truncate">
-                  <span className="text-amber-500 font-medium">1st:</span> {f1.lastRace.winner}
-                </div>
-                <div className="truncate">
-                  <span className="text-neutral-400">2nd:</span> {f1.lastRace.p2.split(' ')[0]} {f1.lastRace.p2.split(' ')[1]}
-                </div>
-                <div className="truncate">
-                  <span className="text-amber-700">3rd:</span> {f1.lastRace.p3.split(' ')[0]} {f1.lastRace.p3.split(' ')[1]}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Track Conditions */}
-          <div className={`pt-2 border-t flex items-center justify-between text-xs ${isLight ? 'border-neutral-200 text-neutral-600' : 'border-white/10 text-neutral-400'}`}>
-            <div className="flex items-center space-x-2">
-              <CloudSun size={15} style={{ color: 'var(--color-accent)' }} />
-              <span className="font-mono">{weather.temperature}°C {weather.condition}</span>
-            </div>
-            <span className="font-mono text-[11px]">Wind {weather.windSpeed} km/h • Hum {weather.humidity}%</span>
-          </div>
-        </div>
+        {/* Left Column (5 cols): Dynamic Configurable F1 Widgets with Auto-Fitting */}
+        <F1WidgetsColumn f1={f1} uiStyle="minimal" isLight={isLight} className={`col-span-5 border-r pr-7 ${isLight ? 'border-neutral-200' : 'border-white/10'}`} />
 
         {/* Center Column (4 cols): Weekend Sessions */}
         <div className={`col-span-4 flex flex-col border-r pr-7 ${isLight ? 'border-neutral-200' : 'border-white/10'}`}>

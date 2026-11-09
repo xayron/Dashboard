@@ -108,6 +108,74 @@ export interface F1CircuitLapRecord {
   year: string;
 }
 
+export interface F1QualifyingResult {
+  raceName: string;
+  poleDriver: string;
+  poleTeam: string;
+  poleTime: string;
+  p2Driver: string;
+  p2Team: string;
+  p2Time: string;
+  p3Driver: string;
+  p3Team: string;
+  p3Time: string;
+}
+
+export interface F1PitStopRecord {
+  raceName: string;
+  team: string;
+  driver: string;
+  duration: string;
+  lap: number;
+}
+
+export interface F1TitleBattle {
+  leader: string;
+  leaderTeam: string;
+  leaderPoints: number;
+  leaderColor: string;
+  contender: string;
+  contenderTeam: string;
+  contenderPoints: number;
+  contenderColor: string;
+  pointsGap: number;
+  roundsRemaining: number;
+  maxPointsAvailable: number;
+  teamLeader: string;
+  teamContender: string;
+  teamLeaderPoints: number;
+  teamContenderPoints: number;
+  teamPointsGap: number;
+}
+
+export interface F1UpcomingRace {
+  round: number;
+  raceName: string;
+  circuitName: string;
+  country: string;
+  dateStr: string;
+  istDate: string;
+  countdown: string;
+}
+
+export interface F1CircuitTelemetry {
+  fullThrottlePercent: number;
+  gearShiftsPerLap: number;
+  topSpeedKmh: number;
+  pitLaneLossSec: number;
+  tyreAllocation: string;
+}
+
+export type F1WidgetId =
+  | 'countdown'
+  | 'podium'
+  | 'titleBattle'
+  | 'qualifying'
+  | 'pitstop'
+  | 'upcomingRaces'
+  | 'circuitTelemetry'
+  | 'trackWeather';
+
 export interface F1Data {
   isRaceWeekend: boolean;
   activeRound: number;
@@ -137,6 +205,11 @@ export interface F1Data {
   constructorStandings?: F1ConstructorStanding[];
   lastRace?: F1LastRacePodium;
   circuitLapRecord?: F1CircuitLapRecord;
+  qualifyingResult?: F1QualifyingResult;
+  pitStopRecord?: F1PitStopRecord;
+  titleBattle?: F1TitleBattle;
+  upcomingRaces?: F1UpcomingRace[];
+  circuitTelemetry?: F1CircuitTelemetry;
 }
 
 export interface FinanceItem {

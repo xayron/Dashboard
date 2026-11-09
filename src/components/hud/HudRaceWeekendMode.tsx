@@ -3,6 +3,7 @@ import { useDashboard } from '../../state/DashboardContext';
 import { HudBox } from './HudBox';
 import { Gauge, Calendar, CloudSun, Award, Zap } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
+import { F1WidgetsColumn } from '../f1/F1WidgetsColumn';
 
 export const HudRaceWeekendMode: React.FC = () => {
   const { now, f1, media, weather, colorMode } = useDashboard();
@@ -64,88 +65,8 @@ export const HudRaceWeekendMode: React.FC = () => {
 
       {/* 2. MAIN 3-COLUMN GRID */}
       <div className="grid grid-cols-12 gap-5 flex-1 min-h-0">
-        {/* Left Column (5 cols): Next Session Hero, Circuit Telemetry & Previous GP */}
-        <div className="col-span-5 flex flex-col space-y-3">
-          <HudBox title="NEXT_SESSION_COUNTDOWN" code="LIVE_IST" glowColor="cyan">
-            <div className="py-1">
-              <div className="flex items-center justify-between pb-2 border-b border-cyan-500/20">
-                <div>
-                  <span className={`text-[9px] block ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>TARGET_EVENT</span>
-                  <span className={`text-lg font-black tracking-wide ${isLight ? 'text-slate-900' : 'text-white'}`}>{f1.nextSession.name}</span>
-                  <span className="text-xs font-mono block mt-0.5 flex items-center" style={{ color: 'var(--color-accent)' }}>
-                    <Calendar size={12} className="mr-1.5" />
-                    {f1.nextSession.istTimeFormatted}
-                  </span>
-                </div>
-
-                {/* Compact T-Minus Display */}
-                <div className={`px-3 py-1.5 border text-center ${
-                  isLight ? 'bg-cyan-100/60 border-cyan-400' : 'bg-black/60 border-cyan-500/50'
-                }`}>
-                  <div className={`text-[8px] uppercase tracking-widest ${isLight ? 'text-slate-600' : 'text-cyan-300'}`}>
-                    T-MINUS
-                  </div>
-                  <div className="text-base font-black font-mono tracking-wider text-rose-500 animate-pulse">
-                    T-{f1.nextSession.countdownFormatted}
-                  </div>
-                </div>
-              </div>
-
-              {/* Circuit Metrics Grid */}
-              <div className="grid grid-cols-4 gap-1.5 text-xs pt-2">
-                <div className={`p-1.5 border text-center ${isLight ? 'bg-white/80 border-cyan-200' : 'bg-black/40 border-cyan-500/20'}`}>
-                  <span className={`block text-[8px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>LAPS</span>
-                  <span className="font-bold text-xs">50</span>
-                </div>
-                <div className={`p-1.5 border text-center ${isLight ? 'bg-white/80 border-cyan-200' : 'bg-black/40 border-cyan-500/20'}`}>
-                  <span className={`block text-[8px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>LENGTH</span>
-                  <span className="font-bold text-xs">6.2 KM</span>
-                </div>
-                <div className={`p-1.5 border text-center ${isLight ? 'bg-white/80 border-cyan-200' : 'bg-black/40 border-cyan-500/20'}`}>
-                  <span className={`block text-[8px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>DRS</span>
-                  <span className="font-bold text-rose-500 text-xs">2 ZONES</span>
-                </div>
-                <div className={`p-1.5 border text-center ${isLight ? 'bg-white/80 border-cyan-200' : 'bg-black/40 border-cyan-500/20'}`}>
-                  <span className={`block text-[8px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>RECORD</span>
-                  <span className="font-bold text-amber-400 text-xs">{f1.circuitLapRecord?.lapTime || '1:35.4'}</span>
-                </div>
-              </div>
-            </div>
-          </HudBox>
-
-          {/* Previous GP Podium Box */}
-          {f1.lastRace && (
-            <HudBox title="LAST_GP_PODIUM" code={f1.lastRace.raceName.toUpperCase()} glowColor="amber">
-              <div className="space-y-1 text-xs">
-                <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-amber-400 font-bold">🥇 P1 {f1.lastRace.winner} ({f1.lastRace.winnerTeam})</span>
-                  <span className="text-[10px] text-purple-400">FL: {f1.lastRace.fastestLapDriver} ({f1.lastRace.fastestLapTime})</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2 text-[10px] pt-1 border-t border-cyan-500/20">
-                  <span className={isLight ? 'text-slate-600' : 'text-gray-400'}>🥈 {f1.lastRace.p2}</span>
-                  <span className={isLight ? 'text-slate-600' : 'text-gray-400'}>🥉 {f1.lastRace.p3}</span>
-                </div>
-              </div>
-            </HudBox>
-          )}
-
-          {/* Circuit Meteo Box */}
-          <HudBox title="CIRCUIT_TELEMETRY" code="METEO" glowColor="cyan">
-            <div className="flex items-center justify-between py-0.5 text-xs">
-              <div className="flex items-center space-x-2">
-                <CloudSun size={18} style={{ color: 'var(--color-accent)' }} />
-                <div>
-                  <div className="font-bold text-sm">{weather.temperature}°C {weather.condition}</div>
-                  <div className={`text-[9px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>AMBIENT CLIMATE</div>
-                </div>
-              </div>
-              <div className="text-right font-mono text-[11px]">
-                <div>HUM: {weather.humidity}%</div>
-                <div style={{ color: 'var(--color-accent)' }}>WIND: {weather.windSpeed} KM/H</div>
-              </div>
-            </div>
-          </HudBox>
-        </div>
+        {/* Left Column (5 cols): Dynamic Configurable F1 Widgets with Auto-Fitting */}
+        <F1WidgetsColumn f1={f1} uiStyle="hud" isLight={isLight} className="col-span-5" />
 
         {/* Center Column (4 cols): Sessions Timeline */}
         <div className="col-span-4 flex flex-col">

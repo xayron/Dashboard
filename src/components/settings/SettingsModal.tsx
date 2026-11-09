@@ -18,14 +18,17 @@ import {
   ChevronsUpDown,
   Sliders,
   Monitor,
+  Flag,
 } from 'lucide-react';
 import { useDashboard, UI_STYLES } from '../../state/DashboardContext';
 import { haService, getSavedHAConfig, saveHAConfig } from '../../services/homeAssistant';
 import { getSavedCoords, saveCoords, type WeatherCoords } from '../../services/weatherService';
 import { photoService } from '../../services/photoService';
 import { THEMES, type ThemeId } from '../../types/theme';
+import { F1_AVAILABLE_WIDGETS } from '../f1/F1WidgetsColumn';
+import type { F1WidgetId } from '../../types/dashboard';
 
-type SectionId = 'themes' | 'ha' | 'weather' | 'photos' | 'display';
+type SectionId = 'themes' | 'ha' | 'weather' | 'photos' | 'display' | 'f1';
 
 export const SettingsModal: React.FC = () => {
   const {
@@ -40,6 +43,11 @@ export const SettingsModal: React.FC = () => {
     settingsLayout,
     setSettingsLayout,
     toggleSettingsLayout,
+    f1ActiveWidgets,
+    setF1ActiveWidgets,
+    toggleF1Widget,
+    f1AutoFit,
+    setF1AutoFit,
   } = useDashboard();
 
   const isLight = colorMode === 'light';
@@ -156,6 +164,7 @@ export const SettingsModal: React.FC = () => {
     weather: false,
     photos: false,
     display: false,
+    f1: false,
   });
 
   // Close on Escape key press
@@ -239,6 +248,7 @@ export const SettingsModal: React.FC = () => {
       weather: nextState,
       photos: nextState,
       display: nextState,
+      f1: nextState,
     });
   };
 
@@ -294,6 +304,14 @@ export const SettingsModal: React.FC = () => {
       keywords: 'photos wallpaper pictures aspect ratio gallery custom url images local storage showcase media background',
     },
     {
+      id: 'f1',
+      title: 'Formula 1 & Race Weekend Widgets',
+      subtitle: 'Select active telemetry/race modules & dynamic vertical auto-fitting',
+      icon: <Flag size={18} className={isLight ? 'text-red-600' : 'text-red-400'} />,
+      badge: `${f1ActiveWidgets.length} Active • ${f1AutoFit ? 'Auto-Fit' : 'Manual'}`,
+      keywords: 'f1 formula 1 race weekend countdown podium title battle championship qualifying shootout pitstop pit stop dhl telemetry circuit track weather grand prix standings',
+    },
+    {
       id: 'display',
       title: 'Display & Hardware Kiosk',
       subtitle: 'Right drawer vs modal layout, hardware specs, and kiosk flags',
@@ -318,7 +336,11 @@ export const SettingsModal: React.FC = () => {
   // Style-Specific Dynamic CSS Resolvers
   const getDrawerClasses = () => {
     if (isTui) {
-      return 'h-full w-full max-w-xl md:max-w-2xl border-l-2 border-[var(--color-accent,#10b981)] bg-black text-[var(--color-accent,#10b981)] rounded-none shadow-[0_0_35px_var(--color-glow,rgba(16,185,129,0.25))] animate-drawer-in';
+      return `h-full w-full max-w-xl md:max-w-2xl border-l-2 rounded-none animate-drawer-in ${
+        isLight
+          ? 'border-[var(--color-accent,#059669)] bg-white text-slate-900 shadow-[-8px_0px_25px_rgba(5,150,105,0.15)]'
+          : 'border-[var(--color-accent,#10b981)] bg-black text-[var(--color-accent,#10b981)] shadow-[0_0_35px_var(--color-glow,rgba(16,185,129,0.25))]'
+      }`;
     }
     if (isBrutalist) {
       return `h-full w-full max-w-xl md:max-w-2xl border-l-4 rounded-none animate-drawer-in ${
@@ -328,7 +350,11 @@ export const SettingsModal: React.FC = () => {
       }`;
     }
     if (isHud) {
-      return 'h-full w-full max-w-xl md:max-w-2xl border-l-2 border-[var(--color-accent,#06b6d4)]/60 bg-[#040814]/98 text-[#e0f2fe] rounded-none shadow-[0_0_30px_var(--color-glow,rgba(6,182,212,0.25))] animate-drawer-in';
+      return `h-full w-full max-w-xl md:max-w-2xl border-l-2 rounded-none animate-drawer-in ${
+        isLight
+          ? 'border-[var(--color-accent,#0891b2)] bg-[#f8fafc] text-slate-900 shadow-[-8px_0px_25px_rgba(6,182,212,0.15)]'
+          : 'border-[var(--color-accent,#06b6d4)]/60 bg-[#040814]/98 text-[#e0f2fe] shadow-[0_0_30px_var(--color-glow,rgba(6,182,212,0.25))]'
+      }`;
     }
     if (isEink) {
       return `h-full w-full max-w-xl md:max-w-2xl border-l-2 rounded-none animate-drawer-in ${
@@ -374,7 +400,11 @@ export const SettingsModal: React.FC = () => {
 
   const getModalClasses = () => {
     if (isTui) {
-      return 'w-full max-w-2xl border-2 border-[var(--color-accent,#10b981)] bg-black text-[var(--color-accent,#10b981)] rounded-none shadow-[0_0_35px_var(--color-glow,rgba(16,185,129,0.3))] overflow-hidden max-h-[90vh] animate-modal-in';
+      return `w-full max-w-2xl border-2 rounded-none overflow-hidden max-h-[90vh] animate-modal-in ${
+        isLight
+          ? 'border-[var(--color-accent,#059669)] bg-white text-slate-900 shadow-[8px_8px_0px_rgba(5,150,105,0.2)]'
+          : 'border-[var(--color-accent,#10b981)] bg-black text-[var(--color-accent,#10b981)] shadow-[0_0_35px_var(--color-glow,rgba(16,185,129,0.3))]'
+      }`;
     }
     if (isBrutalist) {
       return `w-full max-w-2xl border-4 rounded-none overflow-hidden max-h-[90vh] animate-modal-in ${
@@ -384,7 +414,11 @@ export const SettingsModal: React.FC = () => {
       }`;
     }
     if (isHud) {
-      return 'w-full max-w-2xl border-2 border-[var(--color-accent,#06b6d4)]/60 bg-[#040814]/98 text-[#e0f2fe] rounded-none shadow-[0_0_35px_var(--color-glow,rgba(6,182,212,0.3))] overflow-hidden max-h-[90vh] animate-modal-in';
+      return `w-full max-w-2xl border-2 rounded-none overflow-hidden max-h-[90vh] animate-modal-in ${
+        isLight
+          ? 'border-[var(--color-accent,#0891b2)] bg-[#f8fafc] text-slate-900 shadow-[0_4px_30px_rgba(6,182,212,0.2)]'
+          : 'border-[var(--color-accent,#06b6d4)]/60 bg-[#040814]/98 text-[#e0f2fe] shadow-[0_0_35px_var(--color-glow,rgba(6,182,212,0.3))]'
+      }`;
     }
     if (isEink) {
       return `w-full max-w-2xl border-2 rounded-none overflow-hidden max-h-[90vh] animate-modal-in ${
@@ -456,7 +490,11 @@ export const SettingsModal: React.FC = () => {
 
   const getSectionCardClass = () => {
     if (isTui) {
-      return 'rounded-none border border-[var(--color-accent,#10b981)]/50 bg-black/90 hover:border-[var(--color-accent,#10b981)] transition-colors';
+      return `rounded-none border transition-colors ${
+        isLight
+          ? 'border-[var(--color-accent,#059669)]/40 bg-white hover:border-[var(--color-accent,#059669)] shadow-xs'
+          : 'border-[var(--color-accent,#10b981)]/50 bg-black/90 hover:border-[var(--color-accent,#10b981)]'
+      }`;
     }
     if (isBrutalist) {
       return `rounded-none border-2 transition-all ${
@@ -466,7 +504,11 @@ export const SettingsModal: React.FC = () => {
       }`;
     }
     if (isHud) {
-      return 'rounded-none border border-[var(--color-accent,#06b6d4)]/40 bg-[#050c1f]/90 hover:border-[var(--color-accent,#06b6d4)]/80 transition-colors';
+      return `rounded-none border transition-colors ${
+        isLight
+          ? 'border-[var(--color-accent,#0891b2)]/40 bg-white hover:border-[var(--color-accent,#0891b2)] shadow-xs'
+          : 'border-[var(--color-accent,#06b6d4)]/40 bg-[#050c1f]/90 hover:border-[var(--color-accent,#06b6d4)]/80'
+      }`;
     }
     if (isEink) {
       return `rounded-none border-2 transition-all ${
@@ -500,7 +542,11 @@ export const SettingsModal: React.FC = () => {
 
   const getInputClass = () => {
     if (isTui) {
-      return 'rounded-none border border-[var(--color-accent,#10b981)] bg-black text-[var(--color-accent,#10b981)] font-mono placeholder-[var(--color-accent,#10b981)]/40 focus:outline-none focus:ring-1 focus:ring-[var(--color-accent,#10b981)]';
+      return `rounded-none border font-mono focus:outline-none ${
+        isLight
+          ? 'border-[var(--color-accent,#059669)] bg-white text-slate-900 placeholder-slate-400 focus:ring-1 focus:ring-[var(--color-accent,#059669)]'
+          : 'border-[var(--color-accent,#10b981)] bg-black text-[var(--color-accent,#10b981)] placeholder-[var(--color-accent,#10b981)]/40 focus:ring-1 focus:ring-[var(--color-accent,#10b981)]'
+      }`;
     }
     if (isBrutalist) {
       return `rounded-none border-2 font-bold focus:outline-none ${
@@ -510,7 +556,11 @@ export const SettingsModal: React.FC = () => {
       }`;
     }
     if (isHud) {
-      return 'rounded-none border border-[var(--color-accent,#06b6d4)]/50 bg-[#030712] text-[var(--color-accent,#06b6d4)] font-mono placeholder-[var(--color-accent,#06b6d4)]/40 focus:outline-none focus:border-[var(--color-accent,#06b6d4)]';
+      return `rounded-none border font-mono focus:outline-none ${
+        isLight
+          ? 'border-[var(--color-accent,#0891b2)] bg-white text-slate-900 placeholder-slate-400 focus:border-[var(--color-accent,#0891b2)] focus:ring-1 focus:ring-[var(--color-accent,#0891b2)]'
+          : 'border-[var(--color-accent,#06b6d4)]/50 bg-[#030712] text-[var(--color-accent,#06b6d4)] placeholder-[var(--color-accent,#06b6d4)]/40 focus:border-[var(--color-accent,#06b6d4)]'
+      }`;
     }
     if (isEink) {
       return `rounded-none border-2 font-serif focus:outline-none ${
@@ -548,7 +598,11 @@ export const SettingsModal: React.FC = () => {
 
   const getPrimaryButtonClass = () => {
     if (isTui) {
-      return 'rounded-none border-2 border-[var(--color-accent,#10b981)] bg-[var(--color-accent,#10b981)]/20 text-[var(--color-accent,#10b981)] hover:bg-[var(--color-accent,#10b981)] hover:text-black font-mono font-bold uppercase transition-colors';
+      return `rounded-none border-2 font-mono font-bold uppercase transition-colors ${
+        isLight
+          ? 'border-[var(--color-accent,#059669)] bg-[var(--color-accent,#059669)] text-white hover:bg-[var(--color-accent,#047857)]'
+          : 'border-[var(--color-accent,#10b981)] bg-[var(--color-accent,#10b981)]/20 text-[var(--color-accent,#10b981)] hover:bg-[var(--color-accent,#10b981)] hover:text-black'
+      }`;
     }
     if (isBrutalist) {
       return `rounded-none border-2 font-black uppercase tracking-wider transition-all ${
@@ -558,7 +612,11 @@ export const SettingsModal: React.FC = () => {
       }`;
     }
     if (isHud) {
-      return 'rounded-none border-2 border-[var(--color-accent,#06b6d4)] bg-[var(--color-accent,#06b6d4)]/20 text-[var(--color-accent,#06b6d4)] hover:bg-[var(--color-accent,#06b6d4)] hover:text-black font-mono font-bold uppercase tracking-wider transition-colors';
+      return `rounded-none border-2 font-mono font-bold uppercase tracking-wider transition-colors ${
+        isLight
+          ? 'border-[var(--color-accent,#0891b2)] bg-[var(--color-accent,#0891b2)] text-white hover:bg-[var(--color-accent,#0e7490)]'
+          : 'border-[var(--color-accent,#06b6d4)] bg-[var(--color-accent,#06b6d4)]/20 text-[var(--color-accent,#06b6d4)] hover:bg-[var(--color-accent,#06b6d4)] hover:text-black'
+      }`;
     }
     if (isEink) {
       return `rounded-none border-2 font-serif font-bold uppercase transition-colors ${
@@ -592,7 +650,11 @@ export const SettingsModal: React.FC = () => {
 
   const getSecondaryButtonClass = () => {
     if (isTui) {
-      return 'rounded-none border border-[var(--color-accent,#10b981)] bg-black text-[var(--color-accent,#10b981)] hover:bg-[var(--color-accent,#10b981)] hover:text-black font-mono text-xs';
+      return `rounded-none border font-mono text-xs transition-colors ${
+        isLight
+          ? 'border-[var(--color-accent,#059669)] bg-emerald-50 text-[var(--color-accent,#059669)] hover:bg-[var(--color-accent,#059669)] hover:text-white'
+          : 'border border-[var(--color-accent,#10b981)] bg-black text-[var(--color-accent,#10b981)] hover:bg-[var(--color-accent,#10b981)] hover:text-black'
+      }`;
     }
     if (isBrutalist) {
       return `rounded-none border-2 font-black uppercase text-xs ${
@@ -602,7 +664,11 @@ export const SettingsModal: React.FC = () => {
       }`;
     }
     if (isHud) {
-      return 'rounded-none border border-[var(--color-accent,#06b6d4)]/60 bg-[#030712] text-[var(--color-accent,#06b6d4)] font-mono text-xs hover:bg-[var(--color-accent,#06b6d4)]/20';
+      return `rounded-none border font-mono text-xs transition-colors ${
+        isLight
+          ? 'border-[var(--color-accent,#0891b2)] bg-cyan-50 text-[var(--color-accent,#0891b2)] hover:bg-[var(--color-accent,#0891b2)] hover:text-white'
+          : 'border border-[var(--color-accent,#06b6d4)]/60 bg-[#030712] text-[var(--color-accent,#06b6d4)] hover:bg-[var(--color-accent,#06b6d4)]/20'
+      }`;
     }
     if (isEink) {
       return `rounded-none border-2 font-serif text-xs ${
@@ -626,7 +692,11 @@ export const SettingsModal: React.FC = () => {
 
   const getBadgeClass = () => {
     if (isTui) {
-      return 'rounded-none border border-[var(--color-accent,#10b981)] bg-[var(--color-accent,#10b981)]/15 text-[var(--color-accent,#10b981)] font-mono text-[10px] px-2 py-0.5';
+      return `rounded-none border font-mono text-[10px] px-2 py-0.5 ${
+        isLight
+          ? 'border-[var(--color-accent,#059669)] bg-emerald-50 text-[var(--color-accent,#059669)] font-bold'
+          : 'border-[var(--color-accent,#10b981)] bg-[var(--color-accent,#10b981)]/15 text-[var(--color-accent,#10b981)]'
+      }`;
     }
     if (isBrutalist) {
       return `rounded-none border-2 font-black font-sans text-[10px] uppercase tracking-wider px-2 py-0.5 ${
@@ -634,7 +704,11 @@ export const SettingsModal: React.FC = () => {
       }`;
     }
     if (isHud) {
-      return 'rounded-none border border-[var(--color-accent,#06b6d4)]/60 bg-[var(--color-accent,#06b6d4)]/10 text-[var(--color-accent,#06b6d4)] font-mono text-[10px] px-2 py-0.5 tracking-wider';
+      return `rounded-none border font-mono text-[10px] px-2 py-0.5 tracking-wider ${
+        isLight
+          ? 'border-[var(--color-accent,#0891b2)] bg-cyan-50 text-[var(--color-accent,#0891b2)] font-bold'
+          : 'border-[var(--color-accent,#06b6d4)]/60 bg-[var(--color-accent,#06b6d4)]/10 text-[var(--color-accent,#06b6d4)]'
+      }`;
     }
     if (isEink) {
       return `rounded-none border text-[10px] font-serif font-semibold italic px-2 py-0.5 ${
@@ -710,13 +784,17 @@ export const SettingsModal: React.FC = () => {
         <div
           className={`flex items-center justify-between px-6 py-4 border-b shrink-0 ${
             isTui
-              ? 'border-[var(--color-accent,#10b981)] bg-black text-[var(--color-accent,#10b981)]'
+              ? isLight
+                ? 'border-[var(--color-accent,#059669)] bg-slate-50 text-slate-900'
+                : 'border-[var(--color-accent,#10b981)] bg-black text-[var(--color-accent,#10b981)]'
               : isBrutalist
               ? isLight
                 ? 'border-black bg-white text-black border-b-4'
                 : 'border-white bg-black text-white border-b-4'
               : isHud
-              ? 'border-[var(--color-accent,#06b6d4)]/40 bg-[#060c1d] text-[#e0f2fe]'
+              ? isLight
+                ? 'border-[var(--color-accent,#0891b2)]/40 bg-cyan-50/70 text-slate-900'
+                : 'border-[var(--color-accent,#06b6d4)]/40 bg-[#060c1d] text-[#e0f2fe]'
               : isEink
               ? isLight
                 ? 'border-stone-800 bg-[#f5f2eb] text-stone-900 border-b-2'
@@ -737,7 +815,22 @@ export const SettingsModal: React.FC = () => {
           }`}
         >
           <div className="flex items-center space-x-2.5">
-            <Sliders size={18} className={isTui ? 'text-[var(--color-accent,#10b981)]' : isHud ? 'text-[var(--color-accent,#06b6d4)]' : isLight ? 'text-blue-600' : 'text-blue-400'} />
+            <Sliders
+              size={18}
+              className={
+                isTui
+                  ? isLight
+                    ? 'text-[var(--color-accent,#059669)]'
+                    : 'text-[var(--color-accent,#10b981)]'
+                  : isHud
+                  ? isLight
+                    ? 'text-[var(--color-accent,#0891b2)]'
+                    : 'text-[var(--color-accent,#06b6d4)]'
+                  : isLight
+                  ? 'text-blue-600'
+                  : 'text-blue-400'
+              }
+            />
             <h2 className={`text-base sm:text-lg ${typo.modalTitle}`}>
               {getHeaderTitle()}
             </h2>
@@ -773,7 +866,13 @@ export const SettingsModal: React.FC = () => {
               onClick={() => setIsSettingsOpen(false)}
               className={`p-2 transition-all cursor-pointer ${
                 isTui
-                  ? 'border border-[var(--color-accent,#10b981)] text-[var(--color-accent,#10b981)] hover:bg-[var(--color-accent,#10b981)] hover:text-black rounded-none'
+                  ? isLight
+                    ? 'border border-[var(--color-accent,#059669)] text-[var(--color-accent,#059669)] hover:bg-[var(--color-accent,#059669)] hover:text-white rounded-none'
+                    : 'border border-[var(--color-accent,#10b981)] text-[var(--color-accent,#10b981)] hover:bg-[var(--color-accent,#10b981)] hover:text-black rounded-none'
+                  : isHud
+                  ? isLight
+                    ? 'border border-[var(--color-accent,#0891b2)] text-[var(--color-accent,#0891b2)] hover:bg-[var(--color-accent,#0891b2)] hover:text-white rounded-none'
+                    : 'border border-[var(--color-accent,#06b6d4)] text-[var(--color-accent,#06b6d4)] hover:bg-[var(--color-accent,#06b6d4)] hover:text-black rounded-none'
                   : isBrutalist
                   ? isLight
                     ? 'border-2 border-black bg-white text-black shadow-[2px_2px_0px_#000] hover:bg-black hover:text-white rounded-none'
@@ -796,13 +895,17 @@ export const SettingsModal: React.FC = () => {
         <div
           className={`px-6 py-3 border-b shrink-0 ${
             isTui
-              ? 'border-[var(--color-accent,#10b981)]/40 bg-black/90'
+              ? isLight
+                ? 'border-[var(--color-accent,#059669)]/40 bg-white'
+                : 'border-[var(--color-accent,#10b981)]/40 bg-black/90'
               : isBrutalist
               ? isLight
                 ? 'border-black bg-white border-b-4'
                 : 'border-white bg-black border-b-4'
               : isHud
-              ? 'border-[var(--color-accent,#06b6d4)]/30 bg-[#050c1f]'
+              ? isLight
+                ? 'border-[var(--color-accent,#0891b2)]/30 bg-[#f0f9ff]'
+                : 'border-[var(--color-accent,#06b6d4)]/30 bg-[#050c1f]'
               : isEink
               ? isLight
                 ? 'border-stone-800 bg-[#ede8df] border-b-2'
@@ -829,9 +932,13 @@ export const SettingsModal: React.FC = () => {
                 size={14}
                 className={`absolute left-3.5 pointer-events-none ${
                   isTui
-                    ? 'text-[var(--color-accent,#10b981)]'
+                    ? isLight
+                      ? 'text-[var(--color-accent,#059669)]'
+                      : 'text-[var(--color-accent,#10b981)]'
                     : isHud
-                    ? 'text-[var(--color-accent,#06b6d4)]'
+                    ? isLight
+                      ? 'text-[var(--color-accent,#0891b2)]'
+                      : 'text-[var(--color-accent,#06b6d4)]'
                     : isLight
                     ? 'text-slate-400'
                     : 'text-gray-400'
@@ -849,7 +956,13 @@ export const SettingsModal: React.FC = () => {
                   onClick={() => setSearchQuery('')}
                   className={`absolute right-3 p-1 transition-colors cursor-pointer ${
                     isTui
-                      ? 'text-[var(--color-accent,#10b981)]'
+                      ? isLight
+                        ? 'text-[var(--color-accent,#059669)] hover:text-[var(--color-accent,#047857)]'
+                        : 'text-[var(--color-accent,#10b981)]'
+                      : isHud
+                      ? isLight
+                        ? 'text-[var(--color-accent,#0891b2)] hover:text-[var(--color-accent,#0e7490)]'
+                        : 'text-[var(--color-accent,#06b6d4)]'
                       : isLight
                       ? 'text-slate-400 hover:text-slate-700'
                       : 'text-gray-400 hover:text-white'
@@ -920,7 +1033,13 @@ export const SettingsModal: React.FC = () => {
                     aria-controls={`section-${sec.id}`}
                     className={`w-full px-5 py-3.5 flex items-center justify-between text-left cursor-pointer transition-colors ${
                       isTui
-                        ? 'hover:bg-[var(--color-accent,#10b981)]/10'
+                        ? isLight
+                          ? 'hover:bg-emerald-50/70'
+                          : 'hover:bg-[var(--color-accent,#10b981)]/10'
+                        : isHud
+                        ? isLight
+                          ? 'hover:bg-cyan-50/70'
+                          : 'hover:bg-[var(--color-accent,#06b6d4)]/10'
                         : isBrutalist
                         ? isLight
                           ? 'hover:bg-neutral-100'
@@ -934,13 +1053,17 @@ export const SettingsModal: React.FC = () => {
                       <div
                         className={`p-2 shrink-0 ${radiusMd} ${
                           isTui
-                            ? 'border border-[var(--color-accent,#10b981)]/60 bg-[var(--color-accent,#10b981)]/15 text-[var(--color-accent,#10b981)]'
+                            ? isLight
+                              ? 'border border-[var(--color-accent,#059669)]/60 bg-emerald-50 text-[var(--color-accent,#059669)]'
+                              : 'border border-[var(--color-accent,#10b981)]/60 bg-[var(--color-accent,#10b981)]/15 text-[var(--color-accent,#10b981)]'
+                            : isHud
+                            ? isLight
+                              ? 'border border-[var(--color-accent,#0891b2)]/60 bg-cyan-50 text-[var(--color-accent,#0891b2)]'
+                              : 'border border-[var(--color-accent,#06b6d4)]/60 bg-[var(--color-accent,#06b6d4)]/15 text-[var(--color-accent,#06b6d4)]'
                             : isBrutalist
                             ? isLight
                               ? 'border-2 border-black bg-amber-300 text-black shadow-[1px_1px_0px_#000]'
                               : 'border-2 border-white bg-amber-400 text-black shadow-[1px_1px_0px_#fff]'
-                            : isHud
-                            ? 'border border-[var(--color-accent,#06b6d4)]/60 bg-[var(--color-accent,#06b6d4)]/15 text-[var(--color-accent,#06b6d4)]'
                             : isEink
                             ? isLight
                               ? 'border border-stone-800 bg-stone-200 text-stone-900'
@@ -957,9 +1080,13 @@ export const SettingsModal: React.FC = () => {
                           <h3
                             className={`text-sm truncate ${typo.sectionTitle} ${
                               isTui
-                                ? 'text-[var(--color-accent,#10b981)]'
+                                ? isLight
+                                  ? 'text-slate-900'
+                                  : 'text-[var(--color-accent,#10b981)]'
                                 : isHud
-                                ? 'text-[#e0f2fe]'
+                                ? isLight
+                                  ? 'text-slate-900'
+                                  : 'text-[#e0f2fe]'
                                 : isLight
                                 ? 'text-slate-900'
                                 : 'text-white'
@@ -1001,13 +1128,17 @@ export const SettingsModal: React.FC = () => {
                       <div
                         className={`p-5 border-t space-y-6 ${
                           isTui
-                            ? 'border-[var(--color-accent,#10b981)]/40 bg-black/95 text-[var(--color-accent,#10b981)] font-mono'
+                            ? isLight
+                              ? 'border-[var(--color-accent,#059669)]/30 bg-emerald-50/20 text-slate-900 font-mono'
+                              : 'border-[var(--color-accent,#10b981)]/40 bg-black/95 text-[var(--color-accent,#10b981)] font-mono'
                             : isBrutalist
                             ? isLight
                               ? 'border-t-2 border-black bg-neutral-50 text-black'
                               : 'border-t-2 border-white bg-neutral-950 text-white'
                             : isHud
-                            ? 'border-[var(--color-accent,#06b6d4)]/30 bg-[#030712] text-[#e0f2fe] font-mono'
+                            ? isLight
+                              ? 'border-[var(--color-accent,#0891b2)]/30 bg-[#f8fafc] text-slate-900 font-mono'
+                              : 'border-[var(--color-accent,#06b6d4)]/30 bg-[#030712] text-[#e0f2fe] font-mono'
                             : isEink
                             ? isLight
                               ? 'border-stone-800 bg-[#ede8df] text-stone-900 font-serif'
@@ -1054,24 +1185,32 @@ export const SettingsModal: React.FC = () => {
                                       className={`p-3 cursor-pointer transition-all border flex flex-col justify-between ${radiusMd} ${
                                         isSelected
                                           ? isTui
-                                            ? 'border-2 border-[var(--color-accent,#10b981)] bg-[var(--color-accent,#10b981)]/20 shadow-[0_0_15px_var(--color-glow,rgba(16,185,129,0.3))]'
+                                            ? isLight
+                                              ? 'border-2 border-[var(--color-accent,#059669)] bg-emerald-50 text-slate-900 shadow-sm'
+                                              : 'border-2 border-[var(--color-accent,#10b981)] bg-[var(--color-accent,#10b981)]/20 shadow-[0_0_15px_var(--color-glow,rgba(16,185,129,0.3))]'
                                             : isBrutalist
                                             ? isLight
                                               ? 'border-2 border-black bg-amber-300 text-black shadow-[3px_3px_0px_#000]'
                                               : 'border-2 border-white bg-amber-400 text-black shadow-[3px_3px_0px_#fff]'
                                             : isHud
-                                            ? 'border-2 border-[var(--color-accent,#06b6d4)] bg-[var(--color-accent,#06b6d4)]/20 shadow-[0_0_15px_var(--color-glow,rgba(6,182,212,0.3))]'
+                                            ? isLight
+                                              ? 'border-2 border-[var(--color-accent,#0891b2)] bg-cyan-50 text-slate-900 shadow-sm'
+                                              : 'border-2 border-[var(--color-accent,#06b6d4)] bg-[var(--color-accent,#06b6d4)]/20 shadow-[0_0_15px_var(--color-glow,rgba(6,182,212,0.3))]'
                                             : isLight
                                             ? 'bg-blue-50 border-blue-500 shadow-md ring-1 ring-blue-400/50'
                                             : 'bg-blue-600/15 border-blue-500 shadow-lg ring-1 ring-blue-500/50'
                                           : isTui
-                                          ? 'border border-[var(--color-accent,#10b981)]/30 bg-black/60 hover:border-[var(--color-accent,#10b981)]/80'
+                                          ? isLight
+                                            ? 'border border-[var(--color-accent,#059669)]/30 bg-white text-slate-700 hover:border-[var(--color-accent,#059669)]'
+                                            : 'border border-[var(--color-accent,#10b981)]/30 bg-black/60 hover:border-[var(--color-accent,#10b981)]/80'
                                           : isBrutalist
                                           ? isLight
                                             ? 'border-2 border-black bg-white shadow-[2px_2px_0px_#000] hover:shadow-[3px_3px_0px_#000]'
                                             : 'border-2 border-white bg-black shadow-[2px_2px_0px_#fff] hover:shadow-[3px_3px_0px_#fff]'
                                           : isHud
-                                          ? 'border border-[var(--color-accent,#06b6d4)]/30 bg-black/60 hover:border-[var(--color-accent,#06b6d4)]/70'
+                                          ? isLight
+                                            ? 'border border-[var(--color-accent,#0891b2)]/30 bg-white text-slate-700 hover:border-[var(--color-accent,#0891b2)]/70'
+                                            : 'border border-[var(--color-accent,#06b6d4)]/30 bg-black/60 hover:border-[var(--color-accent,#06b6d4)]/70'
                                           : isLight
                                           ? 'bg-white border-slate-200 hover:border-slate-300 shadow-xs'
                                           : 'bg-white/5 border-white/10 hover:border-white/20'
@@ -1113,13 +1252,17 @@ export const SettingsModal: React.FC = () => {
                               <div
                                 className={`flex items-center justify-between p-3.5 border ${radiusMd} ${
                                   isTui
-                                    ? 'border-[var(--color-accent,#10b981)]/40 bg-black/70'
+                                    ? isLight
+                                      ? 'border-[var(--color-accent,#059669)]/40 bg-white'
+                                      : 'border-[var(--color-accent,#10b981)]/40 bg-black/70'
                                     : isBrutalist
                                     ? isLight
                                       ? 'border-2 border-black bg-white shadow-[2px_2px_0px_#000]'
                                       : 'border-2 border-white bg-black shadow-[2px_2px_0px_#fff]'
                                     : isHud
-                                    ? 'border-[var(--color-accent,#06b6d4)]/40 bg-black/60'
+                                    ? isLight
+                                      ? 'border-[var(--color-accent,#0891b2)]/40 bg-white'
+                                      : 'border-[var(--color-accent,#06b6d4)]/40 bg-black/60'
                                     : isLight
                                     ? 'bg-white border-slate-200 shadow-xs'
                                     : 'bg-white/5 border-white/10'
@@ -1142,7 +1285,13 @@ export const SettingsModal: React.FC = () => {
                                 <div
                                   className={`flex items-center space-x-1 p-1 border shrink-0 ${radiusMd} ${
                                     isTui
-                                      ? 'border-[var(--color-accent,#10b981)]/40 bg-black'
+                                      ? isLight
+                                        ? 'border-[var(--color-accent,#059669)]/40 bg-emerald-50/50'
+                                        : 'border-[var(--color-accent,#10b981)]/40 bg-black'
+                                      : isHud
+                                      ? isLight
+                                        ? 'border-[var(--color-accent,#0891b2)]/40 bg-cyan-50/50'
+                                        : 'border-[var(--color-accent,#06b6d4)]/40 bg-black'
                                       : isBrutalist
                                       ? isLight
                                         ? 'border-2 border-black bg-neutral-100'
@@ -1158,6 +1307,8 @@ export const SettingsModal: React.FC = () => {
                                       colorMode === 'dark'
                                         ? isTui
                                           ? 'bg-[var(--color-accent,#10b981)] text-black font-mono font-bold'
+                                          : isHud
+                                          ? 'bg-[var(--color-accent,#06b6d4)] text-black font-mono font-bold'
                                           : isBrutalist
                                           ? 'bg-black text-white border border-white'
                                           : 'bg-blue-600 text-white shadow-md'
@@ -1172,7 +1323,9 @@ export const SettingsModal: React.FC = () => {
                                     className={`px-3 py-1.5 text-xs font-bold transition-all flex items-center space-x-1.5 cursor-pointer ${radiusSm} ${
                                       colorMode === 'light'
                                         ? isTui
-                                          ? 'bg-[var(--color-accent,#10b981)] text-black font-mono font-bold'
+                                          ? 'bg-[var(--color-accent,#059669)] text-white font-mono font-bold shadow-xs'
+                                          : isHud
+                                          ? 'bg-[var(--color-accent,#0891b2)] text-white font-mono font-bold shadow-xs'
                                           : isBrutalist
                                           ? 'bg-amber-300 text-black border border-black font-black'
                                           : 'bg-amber-400 text-slate-950 shadow-md font-extrabold'
@@ -1212,7 +1365,13 @@ export const SettingsModal: React.FC = () => {
                                       className={`p-3 cursor-pointer transition-all border flex flex-col justify-between ${radiusMd} ${
                                         isSelected
                                           ? isTui
-                                            ? 'border-2 border-[var(--color-accent,#10b981)] bg-[var(--color-accent,#10b981)]/20 shadow-[0_0_15px_var(--color-glow,rgba(16,185,129,0.3))]'
+                                            ? isLight
+                                              ? 'border-2 bg-emerald-50 text-slate-900 shadow-sm'
+                                              : 'border-2 border-[var(--color-accent,#10b981)] bg-[var(--color-accent,#10b981)]/20 shadow-[0_0_15px_var(--color-glow,rgba(16,185,129,0.3))]'
+                                            : isHud
+                                            ? isLight
+                                              ? 'border-2 bg-cyan-50 text-slate-900 shadow-sm'
+                                              : 'border-2 border-[var(--color-accent,#06b6d4)] bg-[var(--color-accent,#06b6d4)]/20 shadow-[0_0_15px_var(--color-glow,rgba(6,182,212,0.3))]'
                                             : isBrutalist
                                             ? isLight
                                               ? 'border-2 border-black bg-white shadow-[3px_3px_0px_#000] ring-2 ring-black'
@@ -1221,7 +1380,13 @@ export const SettingsModal: React.FC = () => {
                                             ? 'border-slate-400 shadow-md ring-2 bg-slate-50'
                                             : 'border-white/50 shadow-xl ring-2 bg-white/10'
                                           : isTui
-                                          ? 'border border-[var(--color-accent,#10b981)]/30 bg-black/60'
+                                          ? isLight
+                                            ? 'border border-[var(--color-accent,#059669)]/30 bg-white text-slate-700 hover:border-[var(--color-accent,#059669)]/70'
+                                            : 'border border-[var(--color-accent,#10b981)]/30 bg-black/60'
+                                          : isHud
+                                          ? isLight
+                                            ? 'border border-[var(--color-accent,#0891b2)]/30 bg-white text-slate-700 hover:border-[var(--color-accent,#0891b2)]/70'
+                                            : 'border border-[var(--color-accent,#06b6d4)]/30 bg-black/60'
                                           : isBrutalist
                                           ? isLight
                                             ? 'border-2 border-black bg-white shadow-[2px_2px_0px_#000]'
@@ -1284,7 +1449,13 @@ export const SettingsModal: React.FC = () => {
                             <div
                               className={`flex items-center justify-between p-3.5 border ${radiusMd} ${
                                 isTui
-                                  ? 'border-[var(--color-accent,#10b981)]/40 bg-black/60'
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#059669)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#10b981)]/40 bg-black/60'
+                                  : isHud
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#0891b2)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#06b6d4)]/40 bg-black/60'
                                   : isBrutalist
                                   ? isLight
                                     ? 'border-2 border-black bg-white shadow-[2px_2px_0px_#000]'
@@ -1391,7 +1562,13 @@ export const SettingsModal: React.FC = () => {
                                       className={`p-2.5 text-xs font-semibold border transition-all text-left cursor-pointer ${radiusMd} ${
                                         isSelected
                                           ? isTui
-                                            ? 'border-2 border-[var(--color-accent,#10b981)] bg-[var(--color-accent,#10b981)] text-black font-bold'
+                                            ? isLight
+                                              ? 'border-2 border-[var(--color-accent,#059669)] bg-[var(--color-accent,#059669)] text-white font-bold'
+                                              : 'border-2 border-[var(--color-accent,#10b981)] bg-[var(--color-accent,#10b981)] text-black font-bold'
+                                            : isHud
+                                            ? isLight
+                                              ? 'border-2 border-[var(--color-accent,#0891b2)] bg-[var(--color-accent,#0891b2)] text-white font-bold'
+                                              : 'border-2 border-[var(--color-accent,#06b6d4)] bg-[var(--color-accent,#06b6d4)] text-black font-bold'
                                             : isBrutalist
                                             ? isLight
                                               ? 'border-2 border-black bg-amber-300 text-black shadow-[2px_2px_0px_#000] font-black'
@@ -1400,7 +1577,13 @@ export const SettingsModal: React.FC = () => {
                                             ? 'bg-blue-50 text-blue-900 border-blue-400 shadow-xs font-bold'
                                             : 'bg-blue-600/30 text-white border-blue-500 shadow-sm'
                                           : isTui
-                                          ? 'border border-[var(--color-accent,#10b981)]/30 bg-black text-[var(--color-accent,#10b981)]'
+                                          ? isLight
+                                            ? 'border border-[var(--color-accent,#059669)]/40 bg-white text-slate-900 hover:bg-emerald-50'
+                                            : 'border border-[var(--color-accent,#10b981)]/30 bg-black text-[var(--color-accent,#10b981)]'
+                                          : isHud
+                                          ? isLight
+                                            ? 'border border-[var(--color-accent,#0891b2)]/40 bg-white text-slate-900 hover:bg-cyan-50'
+                                            : 'border border-[var(--color-accent,#06b6d4)]/30 bg-black text-[var(--color-accent,#06b6d4)]'
                                           : isBrutalist
                                           ? isLight
                                             ? 'border-2 border-black bg-white text-black shadow-[1px_1px_0px_#000]'
@@ -1460,7 +1643,13 @@ export const SettingsModal: React.FC = () => {
                             <div
                               className={`p-4 border ${radiusMd} ${
                                 isTui
-                                  ? 'border-[var(--color-accent,#10b981)]/40 bg-black/60'
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#059669)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#10b981)]/40 bg-black/60'
+                                  : isHud
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#0891b2)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#06b6d4)]/40 bg-black/60'
                                   : isBrutalist
                                   ? isLight
                                     ? 'border-2 border-black bg-white shadow-[2px_2px_0px_#000]'
@@ -1480,7 +1669,13 @@ export const SettingsModal: React.FC = () => {
                               <div
                                 className={`mt-2 p-2.5 text-xs select-all border ${radiusSm} ${isEink ? 'font-serif' : 'font-mono'} ${
                                   isTui
-                                    ? 'border-[var(--color-accent,#10b981)] bg-black text-[var(--color-accent,#10b981)]'
+                                    ? isLight
+                                      ? 'border-[var(--color-accent,#059669)] bg-emerald-50 text-slate-900 font-bold'
+                                      : 'border-[var(--color-accent,#10b981)] bg-black text-[var(--color-accent,#10b981)]'
+                                    : isHud
+                                    ? isLight
+                                      ? 'border-[var(--color-accent,#0891b2)] bg-cyan-50 text-slate-900 font-bold'
+                                      : 'border-[var(--color-accent,#06b6d4)] bg-black text-[var(--color-accent,#06b6d4)]'
                                     : isBrutalist
                                     ? 'border-2 border-black bg-neutral-100 text-black font-bold'
                                     : isLight
@@ -1531,6 +1726,206 @@ export const SettingsModal: React.FC = () => {
                                 <RotateCcw size={13} />
                                 <span>Reset to Showcase</span>
                               </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* ===================== SECTION: FORMULA 1 WIDGETS ===================== */}
+                        {sec.id === 'f1' && (
+                          <div className="space-y-4 text-xs">
+                            {/* Auto-Fit Mode Toggle */}
+                            <div
+                              className={`p-4 border space-y-3 ${radiusMd} ${
+                                isTui
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#059669)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#10b981)]/40 bg-black/60'
+                                  : isHud
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#0891b2)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#06b6d4)]/40 bg-black/60'
+                                  : isBrutalist
+                                  ? isLight
+                                    ? 'border-2 border-black bg-white shadow-[2px_2px_0px_#000]'
+                                    : 'border-2 border-white bg-black shadow-[2px_2px_0px_#fff]'
+                                  : isLight
+                                  ? 'bg-white border-slate-200 shadow-xs'
+                                  : 'bg-white/5 border-white/10'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <h4 className={`text-sm mb-0.5 ${typo.cardTitle}`}>
+                                    Dynamic Vertical Auto-Fitting
+                                  </h4>
+                                  <p className={typo.subtitle}>
+                                    Automatically measures available column height on any screen or theme and populates 1–2 more widgets into the bottom space.
+                                  </p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => setF1AutoFit(!f1AutoFit)}
+                                  className={`px-3 py-1.5 font-mono text-xs uppercase tracking-wider font-bold transition-all cursor-pointer ${radiusSm} ${
+                                    f1AutoFit
+                                      ? isTui
+                                        ? isLight
+                                          ? 'bg-[var(--color-accent,#059669)] text-white'
+                                          : 'bg-[var(--color-accent,#10b981)] text-black'
+                                        : isHud
+                                        ? isLight
+                                          ? 'bg-[var(--color-accent,#0891b2)] text-white'
+                                          : 'bg-[var(--color-accent,#06b6d4)] text-black'
+                                        : isBrutalist
+                                        ? 'bg-amber-400 text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                                        : 'bg-emerald-600 text-white shadow-sm'
+                                      : isTui
+                                      ? isLight
+                                        ? 'border border-[var(--color-accent,#059669)]/40 text-slate-600 bg-white'
+                                        : 'border border-[var(--color-accent,#10b981)]/40 text-[var(--color-accent,#10b981)]/60'
+                                      : isHud
+                                      ? isLight
+                                        ? 'border border-[var(--color-accent,#0891b2)]/40 text-slate-600 bg-white'
+                                        : 'border border-[var(--color-accent,#06b6d4)]/40 text-[var(--color-accent,#06b6d4)]/60'
+                                      : isBrutalist
+                                      ? 'bg-neutral-200 text-neutral-600 border-2 border-black'
+                                      : isLight
+                                      ? 'bg-slate-200 text-slate-600'
+                                      : 'bg-white/10 text-slate-400'
+                                  }`}
+                                >
+                                  {f1AutoFit ? 'Enabled' : 'Disabled'}
+                                </button>
+                              </div>
+
+                              {/* Presets */}
+                              <div className="flex items-center space-x-2 pt-1 border-t border-current/10">
+                                <span className={`text-[11px] opacity-75 ${typo.subtitle}`}>Quick Presets:</span>
+                                <button
+                                  type="button"
+                                  onClick={() => setF1ActiveWidgets(['countdown', 'podium', 'trackWeather'])}
+                                  className={`px-2 py-0.5 text-[11px] border cursor-pointer ${radiusSm} ${
+                                    f1ActiveWidgets.length === 3 && f1ActiveWidgets.includes('countdown')
+                                      ? 'border-blue-500 font-bold bg-blue-500/10'
+                                      : 'opacity-70 hover:opacity-100 border-current/20'
+                                  }`}
+                                >
+                                  Compact (3)
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setF1ActiveWidgets(['countdown', 'podium', 'titleBattle', 'pitstop', 'qualifying', 'trackWeather'])}
+                                  className={`px-2 py-0.5 text-[11px] border cursor-pointer ${radiusSm} ${
+                                    f1ActiveWidgets.length === 6 && f1ActiveWidgets.includes('titleBattle')
+                                      ? 'border-blue-500 font-bold bg-blue-500/10'
+                                      : 'opacity-70 hover:opacity-100 border-current/20'
+                                  }`}
+                                >
+                                  Default (6)
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setF1ActiveWidgets(F1_AVAILABLE_WIDGETS.map((w) => w.id))}
+                                  className={`px-2 py-0.5 text-[11px] border cursor-pointer ${radiusSm} ${
+                                    f1ActiveWidgets.length === F1_AVAILABLE_WIDGETS.length
+                                      ? 'border-blue-500 font-bold bg-blue-500/10'
+                                      : 'opacity-70 hover:opacity-100 border-current/20'
+                                  }`}
+                                >
+                                  All ({F1_AVAILABLE_WIDGETS.length})
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Available Widgets List */}
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <h4 className={`text-xs uppercase tracking-wider ${typo.label}`}>
+                                  Available F1 Widgets ({f1ActiveWidgets.length} of {F1_AVAILABLE_WIDGETS.length} Selected)
+                                </h4>
+                                <span className={`text-[11px] opacity-70 ${isEink ? 'font-serif italic' : 'font-mono'}`}>
+                                  Toggle on/off to customize priority
+                                </span>
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                                {F1_AVAILABLE_WIDGETS.map((w) => {
+                                  const isActive = f1ActiveWidgets.includes(w.id);
+                                  return (
+                                    <div
+                                      key={w.id}
+                                      onClick={() => toggleF1Widget(w.id)}
+                                      className={`p-3 border cursor-pointer transition-all flex flex-col justify-between ${radiusMd} ${
+                                        isActive
+                                          ? isTui
+                                            ? isLight
+                                              ? 'border-2 border-[var(--color-accent,#059669)] bg-emerald-50 text-slate-900 shadow-xs'
+                                              : 'border-2 border-[var(--color-accent,#10b981)] bg-[var(--color-accent,#10b981)]/15 shadow-[0_0_12px_var(--color-glow,rgba(16,185,129,0.25))]'
+                                            : isHud
+                                            ? isLight
+                                              ? 'border-2 border-[var(--color-accent,#0891b2)] bg-cyan-50 text-slate-900 shadow-xs'
+                                              : 'border-2 border-[var(--color-accent,#06b6d4)] bg-[var(--color-accent,#06b6d4)]/20 shadow-[0_0_12px_var(--color-glow,rgba(6,182,212,0.25))]'
+                                            : isBrutalist
+                                            ? isLight
+                                              ? 'border-2 border-black bg-amber-300 text-black shadow-[3px_3px_0px_#000]'
+                                              : 'border-2 border-white bg-amber-400 text-black shadow-[3px_3px_0px_#fff]'
+                                            : isLight
+                                            ? 'bg-blue-50/80 border-blue-500 shadow-xs ring-1 ring-blue-400/50 text-slate-900'
+                                            : 'bg-blue-600/15 border-blue-500 shadow-md ring-1 ring-blue-500/50 text-white'
+                                          : isTui
+                                          ? isLight
+                                            ? 'border border-[var(--color-accent,#059669)]/30 bg-white text-slate-700 opacity-70 hover:opacity-100'
+                                            : 'border border-[var(--color-accent,#10b981)]/30 bg-black/60 opacity-60 hover:opacity-90'
+                                          : isHud
+                                          ? isLight
+                                            ? 'border border-[var(--color-accent,#0891b2)]/30 bg-white text-slate-700 opacity-70 hover:opacity-100'
+                                            : 'border border-[var(--color-accent,#06b6d4)]/30 bg-black/60 opacity-60 hover:opacity-90'
+                                          : isBrutalist
+                                          ? isLight
+                                            ? 'border-2 border-black bg-white opacity-60 hover:opacity-100 shadow-[2px_2px_0px_#000]'
+                                            : 'border-2 border-white bg-black opacity-60 hover:opacity-100 shadow-[2px_2px_0px_#fff]'
+                                          : isLight
+                                          ? 'bg-white border-slate-200 opacity-60 hover:opacity-100 shadow-xs'
+                                          : 'bg-white/5 border-white/10 opacity-60 hover:opacity-100'
+                                      }`}
+                                    >
+                                      <div>
+                                        <div className="flex items-center justify-between mb-1">
+                                          <div className="flex items-center space-x-2">
+                                            <div
+                                              className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-colors ${
+                                                isActive
+                                                  ? isTui
+                                                    ? isLight
+                                                      ? 'bg-[var(--color-accent,#059669)] border-[var(--color-accent,#059669)] text-white'
+                                                      : 'bg-[var(--color-accent,#10b981)] border-[var(--color-accent,#10b981)] text-black'
+                                                    : isHud
+                                                    ? isLight
+                                                      ? 'bg-[var(--color-accent,#0891b2)] border-[var(--color-accent,#0891b2)] text-white'
+                                                      : 'bg-[var(--color-accent,#06b6d4)] border-[var(--color-accent,#06b6d4)] text-black'
+                                                    : 'bg-blue-600 border-blue-600 text-white'
+                                                  : 'border-current/40 bg-transparent'
+                                              }`}
+                                            >
+                                              {isActive && <Check size={12} strokeWidth={3} />}
+                                            </div>
+                                            <span className={`text-xs font-semibold ${typo.cardTitle}`}>{w.name}</span>
+                                          </div>
+                                          <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-mono font-bold ${
+                                            isActive
+                                              ? 'bg-blue-500/20 text-blue-500'
+                                              : 'bg-current/10 opacity-70'
+                                          }`}>
+                                            {w.badge}
+                                          </span>
+                                        </div>
+                                        <p className={`text-[11px] leading-relaxed opacity-75 pl-6 ${typo.subtitle}`}>
+                                          {w.description}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
                             </div>
                           </div>
                         )}
