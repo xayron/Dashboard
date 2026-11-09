@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { Calendar, CloudSun } from 'lucide-react';
+import { Calendar, CloudSun, Award } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
 
 export const CivicRaceWeekendMode: React.FC = () => {
   const { f1, media, weather, colorMode } = useDashboard();
   const isLight = colorMode === 'light';
+  const [standingsTab, setStandingsTab] = useState<'drivers' | 'constructors'>('drivers');
 
   const sessionsList = [
     { key: 'fp1', label: 'Practice 1', data: f1.sessions.fp1 },
@@ -33,7 +34,7 @@ export const CivicRaceWeekendMode: React.FC = () => {
       isLight ? 'text-slate-900' : 'text-slate-100'
     }`}>
       {/* 1. TOP BANNER: RACE WEEKEND MASTHEAD */}
-      <div className={`p-5 ${cardClass} flex items-center justify-between mb-4 relative overflow-hidden`}>
+      <div className={`p-4 ${cardClass} flex items-center justify-between mb-3.5 relative overflow-hidden`}>
         <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#f97316] via-slate-300 to-[#16a34a]" />
 
         <div>
@@ -59,12 +60,12 @@ export const CivicRaceWeekendMode: React.FC = () => {
 
       {/* 2. MAIN 3-COLUMN GRID */}
       <div className="grid grid-cols-12 gap-6 flex-1 min-h-0">
-        {/* Left Column (5 cols): Hero Countdown & Circuit Telemetry */}
-        <div className="col-span-5 flex flex-col space-y-4">
+        {/* Left Column (5 cols): Hero Countdown, Circuit Telemetry & Previous GP */}
+        <div className="col-span-5 flex flex-col space-y-3">
           {/* Hero Countdown Card */}
-          <div className={`p-5 ${cardClass} flex-1 flex flex-col justify-between`}>
+          <div className={`p-4 ${cardClass} flex-1 flex flex-col justify-between`}>
             <div>
-              <div className="flex items-center justify-between border-b pb-2" style={{ borderColor: isLight ? '#e2e8f0' : '#334155' }}>
+              <div className="flex items-center justify-between border-b pb-1.5" style={{ borderColor: isLight ? '#e2e8f0' : '#334155' }}>
                 <span className={`text-[10px] font-mono uppercase tracking-wider font-bold ${mutedClass}`}>
                   Target Session Countdown
                 </span>
@@ -72,26 +73,26 @@ export const CivicRaceWeekendMode: React.FC = () => {
                   LIVE IN IST
                 </span>
               </div>
-              <h2 className={`text-2xl font-black tracking-tight mt-2 ${isLight ? 'text-slate-900' : 'text-white'}`}>
+              <h2 className={`text-xl font-black tracking-tight mt-1.5 ${isLight ? 'text-slate-900' : 'text-white'}`}>
                 {f1.nextSession.name}
               </h2>
-              <p className={`text-xs font-mono mt-1 flex items-center ${mutedClass}`}>
-                <Calendar size={13} className="mr-1.5 text-orange-500" />
+              <p className={`text-xs font-mono mt-0.5 flex items-center ${mutedClass}`}>
+                <Calendar size={12} className="mr-1.5 text-orange-500" />
                 {f1.nextSession.istTimeFormatted}
               </p>
             </div>
 
             {/* Big Countdown Digits */}
-            <div className={`my-3 p-4 ${innerClass} flex items-center justify-around font-mono`}>
+            <div className={`my-2 p-3 ${innerClass} flex items-center justify-around font-mono`}>
               <div className="text-center">
-                <span className={`text-3xl font-black block ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                <span className={`text-2xl font-black block ${isLight ? 'text-slate-900' : 'text-white'}`}>
                   {f1.nextSession.countdownFormatted.split(' ')[0] || '00'}
                 </span>
                 <span className={`text-[9px] uppercase tracking-widest font-bold ${mutedClass}`}>Days / Hrs</span>
               </div>
-              <span className="text-xl font-black" style={{ color: 'var(--color-accent, #f97316)' }}>:</span>
+              <span className="text-lg font-black" style={{ color: 'var(--color-accent, #f97316)' }}>:</span>
               <div className="text-center">
-                <span className="text-3xl font-black block" style={{ color: 'var(--color-accent, #f97316)' }}>
+                <span className="text-2xl font-black block" style={{ color: 'var(--color-accent, #f97316)' }}>
                   {f1.nextSession.countdownFormatted.split(' ')[1] || '00m'}
                 </span>
                 <span className={`text-[9px] uppercase tracking-widest font-bold ${mutedClass}`}>Minutes</span>
@@ -99,32 +100,54 @@ export const CivicRaceWeekendMode: React.FC = () => {
             </div>
 
             {/* Circuit Quick Telemetry */}
-            <div className="grid grid-cols-3 gap-2 font-mono text-xs">
-              <div className={`p-2.5 ${innerClass} text-center`}>
-                <span className={`block text-[9px] uppercase font-bold ${mutedClass}`}>Laps</span>
-                <span className="font-bold text-xs">50 LAPS</span>
+            <div className="grid grid-cols-4 gap-1.5 font-mono text-xs">
+              <div className={`p-1.5 ${innerClass} text-center`}>
+                <span className={`block text-[8px] uppercase font-bold ${mutedClass}`}>Laps</span>
+                <span className="font-bold text-xs">50</span>
               </div>
-              <div className={`p-2.5 ${innerClass} text-center`}>
-                <span className={`block text-[9px] uppercase font-bold ${mutedClass}`}>Length</span>
-                <span className="font-bold text-xs">6.201 KM</span>
+              <div className={`p-1.5 ${innerClass} text-center`}>
+                <span className={`block text-[8px] uppercase font-bold ${mutedClass}`}>Length</span>
+                <span className="font-bold text-xs">6.2 KM</span>
               </div>
-              <div className={`p-2.5 ${innerClass} text-center`}>
-                <span className={`block text-[9px] uppercase font-bold ${mutedClass}`}>DRS</span>
+              <div className={`p-1.5 ${innerClass} text-center`}>
+                <span className={`block text-[8px] uppercase font-bold ${mutedClass}`}>DRS</span>
                 <span className="font-bold text-xs text-orange-500">2 ZONES</span>
+              </div>
+              <div className={`p-1.5 ${innerClass} text-center`}>
+                <span className={`block text-[8px] uppercase font-bold ${mutedClass}`}>Record</span>
+                <span className="font-bold text-xs text-amber-500">{f1.circuitLapRecord?.lapTime || '1:35.4'}</span>
               </div>
             </div>
           </div>
 
-          {/* Track Conditions Card */}
-          <div className={`p-3.5 ${cardClass} flex items-center justify-between text-xs font-mono`}>
-            <div className="flex items-center space-x-2.5">
-              <CloudSun size={20} className="text-orange-500" />
-              <div>
-                <span className="font-bold block">{weather.temperature}°C {weather.condition}</span>
-                <span className={`text-[10px] ${mutedClass}`}>Circuit Climate</span>
+          {/* Previous GP Podium Card */}
+          {f1.lastRace && (
+            <div className={`p-2.5 ${cardClass} text-xs font-mono`}>
+              <div className="flex items-center justify-between pb-1 border-b text-[10px]" style={{ borderColor: isLight ? '#e2e8f0' : '#334155' }}>
+                <span className="font-bold flex items-center space-x-1">
+                  <Award size={12} className="text-amber-500" />
+                  <span>PREV GP: {f1.lastRace.raceName}</span>
+                </span>
+                <span className="text-purple-400">FL: {f1.lastRace.fastestLapDriver} ({f1.lastRace.fastestLapTime})</span>
+              </div>
+              <div className="grid grid-cols-3 gap-1 pt-1 text-[10px]">
+                <div className="truncate"><span className="text-amber-500 font-bold">1st:</span> {f1.lastRace.winner}</div>
+                <div className="truncate"><span className="font-bold">2nd:</span> {f1.lastRace.p2.split(' ')[0]} {f1.lastRace.p2.split(' ')[1]}</div>
+                <div className="truncate"><span className="font-bold">3rd:</span> {f1.lastRace.p3.split(' ')[0]} {f1.lastRace.p3.split(' ')[1]}</div>
               </div>
             </div>
-            <div className="text-right text-[11px]">
+          )}
+
+          {/* Track Conditions Card */}
+          <div className={`p-2.5 ${cardClass} flex items-center justify-between text-xs font-mono`}>
+            <div className="flex items-center space-x-2">
+              <CloudSun size={18} className="text-orange-500" />
+              <div>
+                <span className="font-bold text-xs block">{weather.temperature}°C {weather.condition}</span>
+                <span className={`text-[9px] ${mutedClass}`}>Circuit Climate</span>
+              </div>
+            </div>
+            <div className="text-right text-[10px]">
               <div>Humidity: {weather.humidity}%</div>
               <div className="text-orange-500">Wind: {weather.windSpeed} km/h</div>
             </div>
@@ -141,13 +164,13 @@ export const CivicRaceWeekendMode: React.FC = () => {
             <span>IST (UTC+5:30)</span>
           </div>
 
-          <div className="space-y-2.5 overflow-y-auto font-mono flex-1 max-h-[56vh] pr-1">
+          <div className="space-y-2 overflow-y-auto font-mono flex-1 max-h-[56vh] pr-1">
             {sessionsList.map((s) => {
               const isNext = f1.nextSession.name.toLowerCase().includes(s.label.toLowerCase());
               return (
                 <div
                   key={s.key}
-                  className={`p-3 ${innerClass} flex items-center justify-between ${
+                  className={`p-2.5 ${innerClass} flex items-center justify-between ${
                     isNext ? 'border-l-4 border-orange-500' : ''
                   }`}
                 >
@@ -168,37 +191,82 @@ export const CivicRaceWeekendMode: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Column (3 cols): World Drivers Championship */}
+        {/* Right Column (3 cols): World Drivers Championship with Switcher */}
         <div className={`col-span-3 flex flex-col ${cardClass} p-5`}>
-          <div className={`flex items-center justify-between border-b pb-2 mb-3 text-xs font-mono ${borderDivider} ${mutedClass}`}>
-            <span className={`font-bold ${isLight ? 'text-slate-800' : 'text-slate-200'}`}>DRIVERS CHAMPIONSHIP</span>
-            <span>PTS</span>
+          <div className={`flex items-center justify-between border-b pb-2 mb-3 text-xs font-mono ${borderDivider}`}>
+            <div className="flex space-x-1 text-[10px] font-bold">
+              <button
+                onClick={() => setStandingsTab('drivers')}
+                className={`px-2 py-0.5 rounded ${
+                  standingsTab === 'drivers' ? 'bg-orange-600 text-white' : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                Drivers
+              </button>
+              <button
+                onClick={() => setStandingsTab('constructors')}
+                className={`px-2 py-0.5 rounded ${
+                  standingsTab === 'constructors' ? 'bg-orange-600 text-white' : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                Teams
+              </button>
+            </div>
+            <span className={`text-[9px] font-mono ${mutedClass}`}>PTS</span>
           </div>
 
-          <div className="space-y-2 overflow-y-auto max-h-[56vh] font-mono flex-1 pr-1">
-            {f1.standings.map((driver) => (
-              <div
-                key={driver.driverCode}
-                className={`p-2.5 ${innerClass} flex items-center justify-between text-xs`}
-              >
-                <div className="flex items-center space-x-2.5 truncate">
-                  <span className={`w-4 font-bold ${mutedClass}`}>
-                    #{driver.position}
-                  </span>
-                  <span
-                    className="w-1.5 h-4 rounded-sm shrink-0"
-                    style={{ backgroundColor: driver.teamColor || '#888' }}
-                  />
-                  <div className="truncate">
-                    <span className={`font-bold uppercase block truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{driver.driver}</span>
-                    <span className={`text-[10px] block truncate ${mutedClass}`}>({driver.team})</span>
+          <div className="space-y-1.5 overflow-y-auto max-h-[56vh] font-mono flex-1 pr-1">
+            {standingsTab === 'drivers' ? (
+              f1.standings.map((driver) => (
+                <div
+                  key={driver.driverCode}
+                  className={`p-2 ${innerClass} flex items-center justify-between text-xs`}
+                >
+                  <div className="flex items-center space-x-2 truncate">
+                    <span className={`w-4 font-bold ${mutedClass}`}>
+                      #{driver.position}
+                    </span>
+                    <span
+                      className="w-1.5 h-3.5 rounded-sm shrink-0"
+                      style={{ backgroundColor: driver.teamColor || '#888' }}
+                    />
+                    <div className="truncate">
+                      <span className={`font-bold uppercase block truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{driver.driver}</span>
+                      <span className={`text-[9px] block truncate ${mutedClass}`}>({driver.team})</span>
+                    </div>
                   </div>
+                  <span className="font-bold shrink-0 ml-1" style={{ color: 'var(--color-accent, #f97316)' }}>
+                    {driver.points}
+                  </span>
                 </div>
-                <span className="font-bold shrink-0 ml-1" style={{ color: 'var(--color-accent, #f97316)' }}>
-                  {driver.points} PTS
-                </span>
-              </div>
-            ))}
+              ))
+            ) : (
+              (f1.constructorStandings || []).map((team) => (
+                <div
+                  key={team.team}
+                  className={`p-2 ${innerClass} flex items-center justify-between text-xs`}
+                >
+                  <div className="flex items-center space-x-2 truncate">
+                    <span className={`w-4 font-bold ${mutedClass}`}>
+                      #{team.position}
+                    </span>
+                    <span
+                      className="w-1.5 h-3.5 rounded-sm shrink-0"
+                      style={{ backgroundColor: team.teamColor || '#888' }}
+                    />
+                    <div className="truncate">
+                      <span className={`font-bold uppercase block truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{team.team}</span>
+                      <span className={`text-[9px] block truncate ${mutedClass}`}>
+                        {team.wins > 0 ? `${team.wins} wins` : '0 wins'}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="font-bold shrink-0 ml-1" style={{ color: 'var(--color-accent, #f97316)' }}>
+                    {team.points}
+                  </span>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
@@ -207,7 +275,7 @@ export const CivicRaceWeekendMode: React.FC = () => {
       <div className={`flex items-center justify-between pt-2 text-xs font-mono ${mutedClass}`}>
         <div className="flex items-center space-x-2">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>F1 Telemetry Connected via Jolpica-F1 Service</span>
+          <span>F1 Telemetry Connected via Jolpica-F1 Service (2026 Feed)</span>
         </div>
 
         {media.state === 'playing' && (

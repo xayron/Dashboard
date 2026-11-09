@@ -85,6 +85,54 @@ import { CivicFinanceTicker } from './components/civic/CivicFinanceTicker';
 import { KioskControls } from './components/kiosk/KioskControls';
 import { SettingsModal } from './components/settings/SettingsModal';
 
+class SettingsErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    console.error('SettingsErrorBoundary caught an error:', error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/75 backdrop-blur-md">
+          <div className="max-w-md w-full p-6 rounded-2xl bg-slate-900 border border-red-500/50 shadow-2xl text-white space-y-3">
+            <h3 className="text-sm font-bold text-red-400">Settings Error Encountered</h3>
+            <p className="text-xs text-gray-300">
+              {this.state.error?.message || 'An unexpected rendering error occurred in the settings panel.'}
+            </p>
+            <div className="flex space-x-2 pt-2">
+              <button
+                onClick={() => this.setState({ hasError: false, error: null })}
+                className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-xs font-bold"
+              >
+                Retry
+              </button>
+              <button
+                onClick={() => window.location.reload()}
+                className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-semibold text-gray-300"
+              >
+                Reload Dashboard
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 const DashboardContent: React.FC = () => {
   const { activeMode, uiStyle, theme, colorMode } = useDashboard();
   const isLight = colorMode === 'light';
@@ -356,8 +404,10 @@ const DashboardContent: React.FC = () => {
       {/* Floating Kiosk Quick Switcher Controls */}
       <KioskControls />
 
-      {/* Settings Modal */}
-      <SettingsModal />
+      {/* Settings Modal with Error Boundary */}
+      <SettingsErrorBoundary>
+        <SettingsModal />
+      </SettingsErrorBoundary>
     </div>
   );
 };

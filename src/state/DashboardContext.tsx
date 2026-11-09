@@ -15,7 +15,7 @@ import type {
 } from '../types/dashboard';
 import { haService } from '../services/homeAssistant';
 import { fetchWeatherData, getFallbackWeatherAndAQI } from '../services/weatherService';
-import { getF1Data } from '../services/f1Service';
+import { getF1Data, getFallbackF1Data } from '../services/f1Service';
 import { getFinanceData } from '../services/financeService';
 import { photoService } from '../services/photoService';
 import { getCalendarEvents, getTodoTasks } from '../services/calendarService';
@@ -251,23 +251,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const initialData = getFallbackWeatherAndAQI();
   const [weather, setWeather] = useState<WeatherData>(initialData.weather);
   const [aqi, setAqi] = useState<AQIData>(initialData.aqi);
-  const [f1, setF1] = useState<F1Data>(() => ({
-    isRaceWeekend: false,
-    activeRound: 22,
-    totalRounds: 24,
-    raceName: 'Las Vegas Grand Prix',
-    circuitName: 'Las Vegas Strip Circuit',
-    location: 'Las Vegas, NV',
-    country: 'United States',
-    countryCode: 'US',
-    sessions: {
-      fp1: { name: 'Practice 1', utcTime: '', istTime: 'Fri 08:00 IST', status: 'upcoming' },
-      qualifying: { name: 'Qualifying', utcTime: '', istTime: 'Sat 11:30 IST', status: 'upcoming' },
-      race: { name: 'Grand Prix', utcTime: '', istTime: 'Sun 11:30 IST', status: 'upcoming' },
-    },
-    nextSession: { name: 'Qualifying', istTimeFormatted: 'Saturday • 11:30 IST', diffMs: 50000000, countdownFormatted: '14h 32m' },
-    standings: [],
-  }));
+  const [f1, setF1] = useState<F1Data>(() => getFallbackF1Data());
   const [media, setMedia] = useState<MediaPlayerData>(() => haService.parseActiveMediaPlayer());
   // livePosition ticks forward locally every second between HA WebSocket pushes
   const [livePosition, setLivePosition] = useState<number>(0);

@@ -80,6 +80,34 @@ export interface F1DriverStanding {
   teamColor: string;
 }
 
+export interface F1ConstructorStanding {
+  position: number;
+  team: string;
+  points: number;
+  wins: number;
+  teamColor: string;
+}
+
+export interface F1LastRacePodium {
+  raceName: string;
+  circuitName: string;
+  winner: string;
+  winnerTeam: string;
+  p2: string;
+  p2Team: string;
+  p3: string;
+  p3Team: string;
+  fastestLapDriver: string;
+  fastestLapTime: string;
+  fastestLapTeam: string;
+}
+
+export interface F1CircuitLapRecord {
+  lapTime: string;
+  driver: string;
+  year: string;
+}
+
 export interface F1Data {
   isRaceWeekend: boolean;
   activeRound: number;
@@ -106,6 +134,9 @@ export interface F1Data {
     countdownFormatted: string;
   };
   standings: F1DriverStanding[];
+  constructorStandings?: F1ConstructorStanding[];
+  lastRace?: F1LastRacePodium;
+  circuitLapRecord?: F1CircuitLapRecord;
 }
 
 export interface FinanceItem {

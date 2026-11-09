@@ -3,7 +3,7 @@ import { useDashboard } from '../../state/DashboardContext';
 
 interface TuiBoxProps {
   title?: string;
-  badge?: string;
+  badge?: React.ReactNode;
   badgeColor?: string;
   children: React.ReactNode;
   className?: string;

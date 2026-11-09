@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDashboard } from '../../state/DashboardContext';
 import { TuiBox } from './TuiBox';
 
 export const TuiRaceWeekendMode: React.FC = () => {
   const { f1, media, weather, colorMode } = useDashboard();
   const isLight = colorMode === 'light';
+  const [standingsTab, setStandingsTab] = useState<'drivers' | 'constructors'>('drivers');
 
   const sessionsList = [
     { key: 'fp1', label: 'FP1', data: f1.sessions.fp1 },
@@ -38,50 +39,71 @@ export const TuiRaceWeekendMode: React.FC = () => {
       </div>
 
       {/* Main 3-Column Grid */}
-      <div className="grid grid-cols-12 gap-5 flex-1 my-4 min-h-0">
-        {/* Left Col (5 cols): Next Session Hero & Track Metrics */}
-        <div className="col-span-5 flex flex-col space-y-4">
+      <div className="grid grid-cols-12 gap-5 flex-1 my-3.5 min-h-0">
+        {/* Left Col (5 cols): Next Session Hero, Circuit Telemetry & Previous GP */}
+        <div className="col-span-5 flex flex-col space-y-3.5">
           <TuiBox
             title="NEXT_SESSION_COUNTDOWN"
             badge="LIVE IN IST"
             badgeColor="text-red-500"
             className="flex-1 border-red-500/50"
           >
-            <div className="flex flex-col justify-between h-full py-2">
+            <div className="flex flex-col justify-between h-full py-1">
               <div>
                 <div className={`text-xs ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>TARGET_EVENT:</div>
-                <div className={`text-2xl font-black mt-0.5 ${isLight ? 'text-slate-900' : 'text-white'}`}>{f1.nextSession.name.toUpperCase()}</div>
-                <div className="text-xs text-red-500 mt-1 font-bold">&gt;&gt; {f1.nextSession.istTimeFormatted}</div>
+                <div className={`text-xl font-black mt-0.5 ${isLight ? 'text-slate-900' : 'text-white'}`}>{f1.nextSession.name.toUpperCase()}</div>
+                <div className="text-xs text-red-500 mt-0.5 font-bold">&gt;&gt; {f1.nextSession.istTimeFormatted}</div>
               </div>
 
               {/* Huge T-Minus Terminal Box */}
-              <div className={`my-3 p-4 border-2 border-red-500/60 text-center ${isLight ? 'bg-red-50' : 'bg-red-950/20'}`}>
+              <div className={`my-2 p-3 border-2 border-red-500/60 text-center ${isLight ? 'bg-red-50' : 'bg-red-950/20'}`}>
                 <div className={`text-[10px] uppercase tracking-widest font-bold ${isLight ? 'text-slate-600' : 'text-gray-400'}`}>
                   COUNTDOWN TO SESSION GREEN LIGHT
                 </div>
-                <div className="text-4xl font-black text-red-500 mt-1 tracking-wider animate-pulse">
+                <div className="text-3xl font-black text-red-500 mt-0.5 tracking-wider animate-pulse">
                   T-{f1.nextSession.countdownFormatted}
                 </div>
               </div>
 
               {/* Circuit Stats Table */}
-              <div className={`grid grid-cols-3 gap-2 text-[11px] pt-2 border-t ${isLight ? 'border-slate-200' : 'border-gray-800'}`}>
-                <div className={`p-1.5 border ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-white/5 border-white/10'}`}>
-                  <div className={`text-[10px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>LAPS</div>
+              <div className={`grid grid-cols-4 gap-1.5 text-[10px] pt-1.5 border-t ${isLight ? 'border-slate-200' : 'border-gray-800'}`}>
+                <div className={`p-1 border text-center ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-white/5 border-white/10'}`}>
+                  <div className={`text-[9px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>LAPS</div>
                   <div className={`font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>50 LAPS</div>
                 </div>
-                <div className={`p-1.5 border ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-white/5 border-white/10'}`}>
-                  <div className={`text-[10px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>CIRCUIT</div>
+                <div className={`p-1 border text-center ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-white/5 border-white/10'}`}>
+                  <div className={`text-[9px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>CIRCUIT</div>
                   <div className={`font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>6.201 KM</div>
                 </div>
-                <div className={`p-1.5 border ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-white/5 border-white/10'}`}>
-                  <div className={`text-[10px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>DRS ZONES</div>
+                <div className={`p-1 border text-center ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-white/5 border-white/10'}`}>
+                  <div className={`text-[9px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>DRS</div>
                   <div className="text-red-500 font-bold">2 ZONES</div>
+                </div>
+                <div className={`p-1 border text-center ${isLight ? 'bg-slate-50 border-slate-200' : 'bg-white/5 border-white/10'}`}>
+                  <div className={`text-[9px] ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>RECORD</div>
+                  <div className="text-amber-500 font-bold">{f1.circuitLapRecord?.lapTime || '1:35.490'}</div>
                 </div>
               </div>
             </div>
           </TuiBox>
 
+          {/* Previous GP Podium Box */}
+          {f1.lastRace && (
+            <TuiBox title="PREV_GP_PODIUM" badge={f1.lastRace.raceName.toUpperCase()} badgeColor="text-amber-400">
+              <div className="text-xs space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-amber-400 font-bold">P1: {f1.lastRace.winner.toUpperCase()} ({f1.lastRace.winnerTeam})</span>
+                  <span className="text-[10px] text-purple-400 font-mono">FL: {f1.lastRace.fastestLapDriver} [{f1.lastRace.fastestLapTime}]</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-[11px] pt-1 border-t border-gray-800">
+                  <span className={isLight ? 'text-slate-600' : 'text-gray-400'}>P2: {f1.lastRace.p2}</span>
+                  <span className={isLight ? 'text-slate-600' : 'text-gray-400'}>P3: {f1.lastRace.p3}</span>
+                </div>
+              </div>
+            </TuiBox>
+          )}
+
+          {/* Track Meteo Box */}
           <TuiBox
             title="TRACK_METEO"
             badge="CONDITIONS"
@@ -141,35 +163,70 @@ export const TuiRaceWeekendMode: React.FC = () => {
           </TuiBox>
         </div>
 
-        {/* Right Col (3 cols): Driver Championship Standings */}
+        {/* Right Col (3 cols): Driver & Constructor Standings */}
         <div className="col-span-3 flex flex-col">
           <TuiBox
-            title="DRIVER_STANDINGS"
-            badge="TOP 8"
+            title={standingsTab === 'drivers' ? 'DRIVER_STANDINGS' : 'TEAM_STANDINGS'}
+            badge={
+              <div className="flex space-x-1">
+                <button
+                  onClick={() => setStandingsTab('drivers')}
+                  className={`px-1.5 py-0.2 text-[9px] font-bold ${standingsTab === 'drivers' ? 'bg-red-600 text-white' : 'text-gray-400'}`}
+                >
+                  [WDC]
+                </button>
+                <button
+                  onClick={() => setStandingsTab('constructors')}
+                  className={`px-1.5 py-0.2 text-[9px] font-bold ${standingsTab === 'constructors' ? 'bg-red-600 text-white' : 'text-gray-400'}`}
+                >
+                  [WCC]
+                </button>
+              </div>
+            }
             className="flex-1"
           >
             <div className="space-y-1 overflow-y-auto max-h-[58vh] pr-1 text-xs">
               <div className={`flex items-center justify-between pb-1 border-b text-[10px] font-bold uppercase ${
                 isLight ? 'border-slate-200 text-slate-500' : 'border-gray-800 text-gray-500'
               }`}>
-                <span>POS DRIVER</span>
+                <span>{standingsTab === 'drivers' ? 'POS DRIVER' : 'POS CONSTRUCTOR'}</span>
                 <span>PTS</span>
               </div>
-              {f1.standings.map((driver) => (
-                <div
-                  key={driver.driverCode}
-                  className={`p-1.5 border flex items-center justify-between ${
-                    isLight ? 'border-slate-200 bg-black/[0.02] hover:bg-black/[0.05]' : 'border-gray-900 bg-white/5 hover:bg-white/10'
-                  }`}
-                >
-                  <div className="flex items-center space-x-2 truncate">
-                    <span className={`font-bold w-4 ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>{String(driver.position).padStart(2, '0')}</span>
-                    <span className={`font-bold truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{driver.driverCode}</span>
-                    <span className={`text-[10px] truncate ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>({driver.team})</span>
+
+              {standingsTab === 'drivers' ? (
+                f1.standings.map((driver) => (
+                  <div
+                    key={driver.driverCode}
+                    className={`p-1.5 border flex items-center justify-between ${
+                      isLight ? 'border-slate-200 bg-black/[0.02] hover:bg-black/[0.05]' : 'border-gray-900 bg-white/5 hover:bg-white/10'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2 truncate">
+                      <span className={`font-bold w-4 ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>{String(driver.position).padStart(2, '0')}</span>
+                      <div className="w-1 h-3 shrink-0" style={{ backgroundColor: driver.teamColor }} />
+                      <span className={`font-bold truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{driver.driverCode}</span>
+                      <span className={`text-[10px] truncate ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>({driver.team})</span>
+                    </div>
+                    <span className={`font-extrabold ${isLight ? 'text-slate-900' : 'text-white'}`}>{driver.points}</span>
                   </div>
-                  <span className={`font-extrabold ${isLight ? 'text-slate-900' : 'text-white'}`}>{driver.points}</span>
-                </div>
-              ))}
+                ))
+              ) : (
+                (f1.constructorStandings || []).map((team) => (
+                  <div
+                    key={team.team}
+                    className={`p-1.5 border flex items-center justify-between ${
+                      isLight ? 'border-slate-200 bg-black/[0.02] hover:bg-black/[0.05]' : 'border-gray-900 bg-white/5 hover:bg-white/10'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2 truncate">
+                      <span className={`font-bold w-4 ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>{String(team.position).padStart(2, '0')}</span>
+                      <div className="w-1 h-3 shrink-0" style={{ backgroundColor: team.teamColor }} />
+                      <span className={`font-bold truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{team.team}</span>
+                    </div>
+                    <span className={`font-extrabold ${isLight ? 'text-slate-900' : 'text-white'}`}>{team.points}</span>
+                  </div>
+                ))
+              )}
             </div>
           </TuiBox>
         </div>

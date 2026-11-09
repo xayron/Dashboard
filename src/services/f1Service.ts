@@ -1,4 +1,13 @@
-import type { F1Data, F1DriverStanding, F1Session } from '../types/dashboard';
+import type {
+  F1Data,
+  F1DriverStanding,
+  F1ConstructorStanding,
+  F1LastRacePodium,
+  F1CircuitLapRecord,
+  F1Session,
+} from '../types/dashboard';
+
+const JOLPICA_BASE = 'https://api.jolpi.ca/ergast/f1';
 
 // Convert UTC ISO timestamp string to IST (UTC+5:30) formatted string
 export const formatToIST = (dateStr?: string, timeStr?: string): { formatted: string; dateObj: Date } => {
@@ -28,17 +37,6 @@ export const formatToIST = (dateStr?: string, timeStr?: string): { formatted: st
 export const isDateInRaceWeekend = (raceDateStr: string, testDate: Date = new Date()): boolean => {
   const raceDate = new Date(`${raceDateStr}T23:59:59Z`);
   
-  // Convert testDate to IST time components
-  const istFormatter = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'Asia/Kolkata',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    weekday: 'short',
-  });
-  
-  // Calculate Thursday of that race week
-  // A race is typically on Sunday. Race weekend starts on Thursday before the race.
   const raceSundayIST = new Date(raceDate.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
   const thursdayIST = new Date(raceSundayIST);
   thursdayIST.setDate(raceSundayIST.getDate() - 3);
@@ -52,33 +50,98 @@ export const isDateInRaceWeekend = (raceDateStr: string, testDate: Date = new Da
   return currentIST >= thursdayIST && currentIST <= sundayNightIST;
 };
 
-const TEAM_COLORS: Record<string, string> = {
-  'Red Bull': '#3671C6',
-  'McLaren': '#FF8000',
-  'Ferrari': '#E8002D',
+export const TEAM_COLORS: Record<string, string> = {
   'Mercedes': '#27F4D2',
+  'Mercedes-Benz': '#27F4D2',
+  'Ferrari': '#E8002D',
+  'Scuderia Ferrari': '#E8002D',
+  'Red Bull': '#3671C6',
+  'Red Bull Racing': '#3671C6',
+  'McLaren': '#FF8000',
   'Aston Martin': '#229971',
   'Alpine': '#0093CC',
+  'Alpine F1 Team': '#0093CC',
   'Williams': '#64C4FF',
+  'Williams Racing': '#64C4FF',
   'RB': '#6692FF',
+  'RB F1 Team': '#6692FF',
+  'Racing Bulls': '#6692FF',
   'Kick Sauber': '#52E252',
+  'Sauber': '#52E252',
   'Haas': '#B6BABD',
+  'Haas F1 Team': '#B6BABD',
+  'Audi': '#EE0000',
+  'Cadillac': '#B8860B',
+  'Cadillac F1 Team': '#B8860B',
+};
+
+export const CIRCUIT_LAP_RECORDS: Record<string, F1CircuitLapRecord> = {
+  vegas: { lapTime: '1:35.490', driver: 'Charles Leclerc', year: '2023' },
+  interlagos: { lapTime: '1:10.540', driver: 'Valtteri Bottas', year: '2018' },
+  monza: { lapTime: '1:21.046', driver: 'Rubens Barrichello', year: '2004' },
+  silverstone: { lapTime: '1:27.097', driver: 'Max Verstappen', year: '2020' },
+  spa: { lapTime: '1:46.286', driver: 'Valtteri Bottas', year: '2018' },
+  yas_marina: { lapTime: '1:26.103', driver: 'Max Verstappen', year: '2021' },
+  albert_park: { lapTime: '1:19.813', driver: 'Charles Leclerc', year: '2024' },
+  suzuka: { lapTime: '1:30.983', driver: 'Lewis Hamilton', year: '2019' },
+  bahrain: { lapTime: '1:31.447', driver: 'Pedro de la Rosa', year: '2005' },
+  jeddah: { lapTime: '1:30.734', driver: 'Lewis Hamilton', year: '2021' },
+  miami: { lapTime: '1:29.708', driver: 'Max Verstappen', year: '2023' },
+  monaco: { lapTime: '1:12.909', driver: 'Lewis Hamilton', year: '2021' },
+  villeneuve: { lapTime: '1:13.078', driver: 'Valtteri Bottas', year: '2019' },
+  red_bull_ring: { lapTime: '1:05.619', driver: 'Carlos Sainz', year: '2020' },
+  hungaroring: { lapTime: '1:16.627', driver: 'Lewis Hamilton', year: '2020' },
+  zandvoort: { lapTime: '1:11.097', driver: 'Lewis Hamilton', year: '2021' },
+  baku: { lapTime: '1:43.009', driver: 'Charles Leclerc', year: '2019' },
+  marina_bay: { lapTime: '1:34.486', driver: 'Daniel Ricciardo', year: '2024' },
+  americas: { lapTime: '1:36.169', driver: 'Charles Leclerc', year: '2019' },
+  rodriguez: { lapTime: '1:17.774', driver: 'Valtteri Bottas', year: '2021' },
+  losail: { lapTime: '1:24.319', driver: 'Max Verstappen', year: '2023' },
 };
 
 const FALLBACK_STANDINGS: F1DriverStanding[] = [
-  { position: 1, driver: 'Max Verstappen', driverCode: 'VER', team: 'Red Bull', points: 393, number: 1, teamColor: '#3671C6' },
-  { position: 2, driver: 'Lando Norris', driverCode: 'NOR', team: 'McLaren', points: 331, number: 4, teamColor: '#FF8000' },
-  { position: 3, driver: 'Charles Leclerc', driverCode: 'LEC', team: 'Ferrari', points: 307, number: 16, teamColor: '#E8002D' },
-  { position: 4, driver: 'Oscar Piastri', driverCode: 'PIA', team: 'McLaren', points: 262, number: 81, teamColor: '#FF8000' },
-  { position: 5, driver: 'Carlos Sainz', driverCode: 'SAI', team: 'Ferrari', points: 244, number: 55, teamColor: '#E8002D' },
-  { position: 6, driver: 'George Russell', driverCode: 'RUS', team: 'Mercedes', points: 192, number: 63, teamColor: '#27F4D2' },
-  { position: 7, driver: 'Lewis Hamilton', driverCode: 'HAM', team: 'Mercedes', points: 190, number: 44, teamColor: '#27F4D2' },
-  { position: 8, driver: 'Sergio Perez', driverCode: 'PER', team: 'Red Bull', points: 151, number: 11, teamColor: '#3671C6' },
+  { position: 1, driver: 'Andrea Kimi Antonelli', driverCode: 'ANT', team: 'Mercedes', points: 390, number: 12, teamColor: '#27F4D2' },
+  { position: 2, driver: 'Max Verstappen', driverCode: 'VER', team: 'Red Bull', points: 279, number: 3, teamColor: '#3671C6' },
+  { position: 3, driver: 'George Russell', driverCode: 'RUS', team: 'Mercedes', points: 262, number: 63, teamColor: '#27F4D2' },
+  { position: 4, driver: 'Lewis Hamilton', driverCode: 'HAM', team: 'Ferrari', points: 261, number: 44, teamColor: '#E8002D' },
+  { position: 5, driver: 'Charles Leclerc', driverCode: 'LEC', team: 'Ferrari', points: 249, number: 16, teamColor: '#E8002D' },
+  { position: 6, driver: 'Lando Norris', driverCode: 'NOR', team: 'McLaren', points: 246, number: 1, teamColor: '#FF8000' },
+  { position: 7, driver: 'Oscar Piastri', driverCode: 'PIA', team: 'McLaren', points: 152, number: 81, teamColor: '#FF8000' },
+  { position: 8, driver: 'Isack Hadjar', driverCode: 'HAD', team: 'Red Bull', points: 122, number: 6, teamColor: '#3671C6' },
+  { position: 9, driver: 'Liam Lawson', driverCode: 'LAW', team: 'RB F1 Team', points: 89, number: 30, teamColor: '#6692FF' },
+  { position: 10, driver: 'Pierre Gasly', driverCode: 'GAS', team: 'Alpine', points: 42, number: 10, teamColor: '#0093CC' },
 ];
+
+const FALLBACK_CONSTRUCTORS: F1ConstructorStanding[] = [
+  { position: 1, team: 'Mercedes', points: 652, wins: 12, teamColor: '#27F4D2' },
+  { position: 2, team: 'Ferrari', points: 510, wins: 2, teamColor: '#E8002D' },
+  { position: 3, team: 'Red Bull', points: 415, wins: 3, teamColor: '#3671C6' },
+  { position: 4, team: 'McLaren', points: 398, wins: 3, teamColor: '#FF8000' },
+  { position: 5, team: 'RB F1 Team', points: 114, wins: 0, teamColor: '#6692FF' },
+  { position: 6, team: 'Alpine', points: 69, wins: 0, teamColor: '#0093CC' },
+  { position: 7, team: 'Haas', points: 31, wins: 0, teamColor: '#B6BABD' },
+  { position: 8, team: 'Audi', points: 28, wins: 0, teamColor: '#EE0000' },
+  { position: 9, team: 'Williams', points: 12, wins: 0, teamColor: '#64C4FF' },
+  { position: 10, team: 'Aston Martin', points: 7, wins: 0, teamColor: '#229971' },
+];
+
+const FALLBACK_LAST_RACE: F1LastRacePodium = {
+  raceName: 'Brazilian Grand Prix',
+  circuitName: 'Autódromo José Carlos Pace',
+  winner: 'Lando Norris',
+  winnerTeam: 'McLaren',
+  p2: 'Max Verstappen (+14.6s)',
+  p2Team: 'Red Bull',
+  p3: 'Isack Hadjar (+24.4s)',
+  p3Team: 'Red Bull',
+  fastestLapDriver: 'Kimi Antonelli',
+  fastestLapTime: '1:12.689',
+  fastestLapTeam: 'Mercedes',
+};
 
 const fetchLiveStandings = async (): Promise<F1DriverStanding[]> => {
   try {
-    const res = await fetch('https://api.jolpica.com/ergast/f1/current/driverStandings.json');
+    const res = await fetch(`${JOLPICA_BASE}/current/driverStandings.json`);
     if (res.ok) {
       const data = await res.json();
       const list = data.MRData?.StandingsTable?.StandingsLists?.[0]?.DriverStandings;
@@ -103,22 +166,101 @@ const fetchLiveStandings = async (): Promise<F1DriverStanding[]> => {
   return FALLBACK_STANDINGS;
 };
 
-export const getF1Data = async (forceRaceWeekendSim: boolean = false): Promise<F1Data> => {
+const fetchConstructorStandings = async (): Promise<F1ConstructorStanding[]> => {
   try {
-    const [raceRes, standings] = await Promise.all([
-      fetch('https://api.jolpica.com/ergast/f1/current/next.json'),
-      fetchLiveStandings(),
-    ]);
-
-    if (raceRes.ok) {
-      const data = await raceRes.json();
-      const race = data.MRData.RaceTable.Races[0];
-      if (race) {
-        return parseJolpicaRace(race, forceRaceWeekendSim, standings);
+    const res = await fetch(`${JOLPICA_BASE}/current/constructorStandings.json`);
+    if (res.ok) {
+      const data = await res.json();
+      const list = data.MRData?.StandingsTable?.StandingsLists?.[0]?.ConstructorStandings;
+      if (Array.isArray(list) && list.length > 0) {
+        return list.slice(0, 10).map((item: any) => {
+          const teamName = item.Constructor?.name || 'Unknown';
+          return {
+            position: Number(item.position),
+            team: teamName,
+            points: Number(item.points),
+            wins: Number(item.wins || 0),
+            teamColor: TEAM_COLORS[teamName] || '#888888',
+          };
+        });
       }
     }
+  } catch (e) {
+    // fallback
+  }
+  return FALLBACK_CONSTRUCTORS;
+};
+
+const fetchLastRacePodium = async (): Promise<F1LastRacePodium | undefined> => {
+  try {
+    const res = await fetch(`${JOLPICA_BASE}/current/last/results.json`);
+    if (res.ok) {
+      const data = await res.json();
+      const race = data.MRData?.RaceTable?.Races?.[0];
+      const results = race?.Results;
+      if (race && Array.isArray(results) && results.length >= 3) {
+        const p1 = results[0];
+        const p2 = results[1];
+        const p3 = results[2];
+
+        // Find fastest lap winner
+        const fastest = results.find((r: any) => r.FastestLap?.rank === '1') || results[0];
+
+        return {
+          raceName: race.raceName,
+          circuitName: race.Circuit?.circuitName || 'Circuit',
+          winner: `${p1.Driver.givenName} ${p1.Driver.familyName}`,
+          winnerTeam: p1.Constructor?.name || 'Team',
+          p2: `${p2.Driver.givenName} ${p2.Driver.familyName} (${p2.Time?.time || '+gap'})`,
+          p2Team: p2.Constructor?.name || 'Team',
+          p3: `${p3.Driver.givenName} ${p3.Driver.familyName} (${p3.Time?.time || '+gap'})`,
+          p3Team: p3.Constructor?.name || 'Team',
+          fastestLapDriver: `${fastest.Driver.givenName} ${fastest.Driver.familyName}`,
+          fastestLapTime: fastest.FastestLap?.Time?.time || '1:12.689',
+          fastestLapTeam: fastest.Constructor?.name || 'Team',
+        };
+      }
+    }
+  } catch (e) {
+    // fallback
+  }
+  return FALLBACK_LAST_RACE;
+};
+
+export const getF1Data = async (forceRaceWeekendSim: boolean = false): Promise<F1Data> => {
+  try {
+    const [nextRes, lastRes, driverStandings, constructorStandings, lastRace] = await Promise.all([
+      fetch(`${JOLPICA_BASE}/current/next.json`),
+      fetch(`${JOLPICA_BASE}/current/last.json`),
+      fetchLiveStandings(),
+      fetchConstructorStandings(),
+      fetchLastRacePodium(),
+    ]);
+
+    let targetRace: any = null;
+
+    if (nextRes.ok) {
+      const data = await nextRes.json();
+      targetRace = data.MRData?.RaceTable?.Races?.[0];
+    }
+
+    // If next race is not found (e.g. season end or between races), fallback to last race
+    if (!targetRace && lastRes.ok) {
+      const lastData = await lastRes.json();
+      targetRace = lastData.MRData?.RaceTable?.Races?.[0];
+    }
+
+    if (targetRace) {
+      return parseJolpicaRace(targetRace, forceRaceWeekendSim, driverStandings, constructorStandings, lastRace);
+    }
+
     const fallback = getFallbackF1Data(forceRaceWeekendSim);
-    return { ...fallback, standings };
+    return {
+      ...fallback,
+      standings: driverStandings,
+      constructorStandings,
+      lastRace: lastRace || FALLBACK_LAST_RACE,
+    };
   } catch (err) {
     console.warn('Jolpica F1 API failed or offline. Using rich schedule fallback.', err);
   }
@@ -126,7 +268,13 @@ export const getF1Data = async (forceRaceWeekendSim: boolean = false): Promise<F
   return getFallbackF1Data(forceRaceWeekendSim);
 };
 
-const parseJolpicaRace = (race: any, forceRaceWeekendSim: boolean, liveStandings: F1DriverStanding[] = FALLBACK_STANDINGS): F1Data => {
+const parseJolpicaRace = (
+  race: any,
+  forceRaceWeekendSim: boolean,
+  liveStandings: F1DriverStanding[] = FALLBACK_STANDINGS,
+  constructorStandings: F1ConstructorStanding[] = FALLBACK_CONSTRUCTORS,
+  lastRace: F1LastRacePodium = FALLBACK_LAST_RACE,
+): F1Data => {
   const fp1Info = formatToIST(race.FirstPractice?.date, race.FirstPractice?.time);
   const fp2Info = race.SecondPractice ? formatToIST(race.SecondPractice.date, race.SecondPractice.time) : undefined;
   const fp3Info = race.ThirdPractice ? formatToIST(race.ThirdPractice.date, race.ThirdPractice.time) : undefined;
@@ -183,6 +331,15 @@ const parseJolpicaRace = (race: any, forceRaceWeekendSim: boolean, liveStandings
     };
   }
 
+  if (sprintQualiInfo) {
+    sessions.sprintQualifying = {
+      name: 'Sprint Shootout',
+      utcTime: `${race.SprintQualifying.date}T${race.SprintQualifying.time}`,
+      istTime: sprintQualiInfo.formatted,
+      status: getStatus(sprintQualiInfo.dateObj),
+    };
+  }
+
   if (sprintInfo) {
     sessions.sprint = {
       name: 'Sprint Race',
@@ -197,6 +354,7 @@ const parseJolpicaRace = (race: any, forceRaceWeekendSim: boolean, liveStandings
     { name: 'Practice 1', d: fp1Info.dateObj, fmt: fp1Info.formatted },
     fp2Info ? { name: 'Practice 2', d: fp2Info.dateObj, fmt: fp2Info.formatted } : null,
     fp3Info ? { name: 'Practice 3', d: fp3Info.dateObj, fmt: fp3Info.formatted } : null,
+    sprintQualiInfo ? { name: 'Sprint Shootout', d: sprintQualiInfo.dateObj, fmt: sprintQualiInfo.formatted } : null,
     sprintInfo ? { name: 'Sprint Race', d: sprintInfo.dateObj, fmt: sprintInfo.formatted } : null,
     { name: 'Qualifying', d: qualiInfo.dateObj, fmt: qualiInfo.formatted },
     { name: 'Grand Prix Race', d: raceInfo.dateObj, fmt: raceInfo.formatted },
@@ -211,10 +369,11 @@ const parseJolpicaRace = (race: any, forceRaceWeekendSim: boolean, liveStandings
   const countdownFormatted = `${days > 0 ? `${days}d ` : ''}${hours}h ${mins}m`;
 
   const isWeekend = forceRaceWeekendSim || isDateInRaceWeekend(race.date, now);
+  const circuitId = race.Circuit?.circuitId || 'vegas';
 
   return {
     isRaceWeekend: isWeekend,
-    activeRound: Number(race.round) || 22,
+    activeRound: Number(race.round) || 21,
     totalRounds: 24,
     raceName: race.raceName,
     circuitName: race.Circuit.circuitName,
@@ -230,17 +389,19 @@ const parseJolpicaRace = (race: any, forceRaceWeekendSim: boolean, liveStandings
       countdownFormatted,
     },
     standings: liveStandings,
+    constructorStandings,
+    lastRace,
+    circuitLapRecord: CIRCUIT_LAP_RECORDS[circuitId] || { lapTime: '1:35.490', driver: 'Charles Leclerc', year: '2023' },
   };
 };
 
 export const getFallbackF1Data = (forceRaceWeekendSim: boolean = false): F1Data => {
-  // Las Vegas Grand Prix simulation
   return {
     isRaceWeekend: forceRaceWeekendSim,
-    activeRound: 22,
+    activeRound: 21,
     totalRounds: 24,
-    raceName: 'Formula 1 Heineken Silver Las Vegas Grand Prix',
-    circuitName: 'Las Vegas Strip Circuit',
+    raceName: 'Formula 1 Las Vegas Grand Prix',
+    circuitName: 'Las Vegas Strip Street Circuit',
     location: 'Las Vegas, Nevada',
     country: 'United States',
     countryCode: 'US',
@@ -248,41 +409,44 @@ export const getFallbackF1Data = (forceRaceWeekendSim: boolean = false): F1Data 
     sessions: {
       fp1: {
         name: 'Practice 1',
-        utcTime: '2026-11-20T02:30:00Z',
-        istTime: 'Fri, 20 Nov • 08:00 IST',
+        utcTime: '2026-11-20T00:30:00Z',
+        istTime: 'Fri, 20 Nov • 06:00 IST',
         status: 'completed',
       },
       fp2: {
         name: 'Practice 2',
-        utcTime: '2026-11-20T06:00:00Z',
-        istTime: 'Fri, 20 Nov • 11:30 IST',
+        utcTime: '2026-11-20T04:00:00Z',
+        istTime: 'Fri, 20 Nov • 09:30 IST',
         status: 'completed',
       },
       fp3: {
         name: 'Practice 3',
-        utcTime: '2026-11-21T02:30:00Z',
-        istTime: 'Sat, 21 Nov • 08:00 IST',
+        utcTime: '2026-11-21T00:30:00Z',
+        istTime: 'Sat, 21 Nov • 06:00 IST',
         status: 'upcoming',
       },
       qualifying: {
         name: 'Qualifying',
-        utcTime: '2026-11-21T06:00:00Z',
-        istTime: 'Sat, 21 Nov • 11:30 IST',
+        utcTime: '2026-11-21T04:00:00Z',
+        istTime: 'Sat, 21 Nov • 09:30 IST',
         status: 'upcoming',
       },
       race: {
         name: 'Grand Prix (50 Laps)',
-        utcTime: '2026-11-22T06:00:00Z',
-        istTime: 'Sun, 22 Nov • 11:30 IST',
+        utcTime: '2026-11-22T04:00:00Z',
+        istTime: 'Sun, 22 Nov • 09:30 IST',
         status: 'upcoming',
       },
     },
     nextSession: {
       name: 'Qualifying',
-      istTimeFormatted: 'Saturday • 11:30 IST',
+      istTimeFormatted: 'Saturday • 09:30 IST',
       diffMs: 52400000,
       countdownFormatted: '14h 32m',
     },
     standings: FALLBACK_STANDINGS,
+    constructorStandings: FALLBACK_CONSTRUCTORS,
+    lastRace: FALLBACK_LAST_RACE,
+    circuitLapRecord: { lapTime: '1:35.490', driver: 'Charles Leclerc', year: '2023' },
   };
 };

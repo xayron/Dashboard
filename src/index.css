@@ -533,6 +533,50 @@
 /* ==========================================================================
    UI Style Specific Scrollbar & Theming Overrides
    ========================================================================== */
+/* Global Style Typography Enforcers */
+[data-style="tui"],
+[data-style="tui"] input,
+[data-style="tui"] select,
+[data-style="tui"] button,
+[data-style="tui"] textarea,
+[data-style="tui"] .font-display,
+[data-style="tui"] .font-sans,
+[data-style="tui"] .font-serif {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+}
+
+[data-style="hud"],
+[data-style="hud"] input,
+[data-style="hud"] select,
+[data-style="hud"] button,
+[data-style="hud"] textarea,
+[data-style="hud"] .font-display,
+[data-style="hud"] .font-sans,
+[data-style="hud"] .font-serif {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+}
+
+[data-style="eink"],
+[data-style="eink"] input,
+[data-style="eink"] select,
+[data-style="eink"] button,
+[data-style="eink"] textarea,
+[data-style="eink"] .font-display,
+[data-style="eink"] .font-sans {
+  font-family: 'Newsreader', Charter, Georgia, Cambria, 'Times New Roman', Times, serif !important;
+}
+
+[data-style="brutalist"] .font-display {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-weight: 900 !important;
+}
+
+[data-style="civic"] h1,
+[data-style="civic"] h2,
+[data-style="civic"] .font-display {
+  font-family: 'Newsreader', Charter, Georgia, serif !important;
+}
+
 [data-style="tui"] {
   --scrollbar-track: #000000;
   --scrollbar-thumb: var(--color-accent, #059669);

@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { Calendar, CloudSun } from 'lucide-react';
+import { Calendar, CloudSun, Award } from 'lucide-react';
 import { AudioBanner } from '../common/AudioBanner';
 
 export const EinkRaceWeekendMode: React.FC = () => {
   const { f1, media, weather, colorMode } = useDashboard();
   const isLight = colorMode === 'light';
+  const [standingsTab, setStandingsTab] = useState<'drivers' | 'constructors'>('drivers');
 
   const sessionsList = [
     { key: 'fp1', label: 'Practice 1', data: f1.sessions.fp1 },
@@ -22,7 +23,7 @@ export const EinkRaceWeekendMode: React.FC = () => {
       isLight ? 'text-[#1c1917]' : 'text-[#f5f2eb]'
     }`}>
       {/* 1. TOP BANNER */}
-      <div className={`p-4 border-2 flex items-center justify-between mb-4 ${
+      <div className={`p-4 border-2 flex items-center justify-between mb-3.5 ${
         isLight
           ? 'border-stone-800 bg-[#ede8df] shadow-[3px_3px_0px_#1c1917]'
           : 'border-stone-500 bg-[#292524] shadow-[3px_3px_0px_#000]'
@@ -48,12 +49,12 @@ export const EinkRaceWeekendMode: React.FC = () => {
 
       {/* 2. MAIN 3-COLUMN GRID */}
       <div className="grid grid-cols-12 gap-6 flex-1 min-h-0">
-        {/* Left Column (5 cols): Hero Countdown & Circuit Specifications */}
+        {/* Left Column (5 cols): Hero Countdown, Circuit Specs & Previous GP */}
         <div className={`col-span-5 flex flex-col justify-between border-r-2 pr-6 ${
           isLight ? 'border-stone-300' : 'border-stone-700'
         }`}>
           {/* Hero Countdown Card */}
-          <div className="flex flex-col justify-between flex-1 pb-3">
+          <div className="flex flex-col justify-between flex-1 pb-2.5">
             <div>
               <div className="flex items-center justify-between border-b pb-1">
                 <span className={`text-[10px] font-mono uppercase tracking-widest ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>
@@ -65,41 +66,65 @@ export const EinkRaceWeekendMode: React.FC = () => {
                   Live in IST
                 </span>
               </div>
-              <h2 className="text-2xl font-bold tracking-tight mt-1.5">{f1.nextSession.name}</h2>
+              <h2 className="text-xl font-bold tracking-tight mt-1">{f1.nextSession.name}</h2>
               <p className={`text-xs font-mono mt-0.5 flex items-center ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>
-                <Calendar size={13} className="mr-1.5" />
+                <Calendar size={12} className="mr-1.5" />
                 {f1.nextSession.istTimeFormatted}
               </p>
             </div>
 
             {/* Big Countdown Digits */}
-            <div className={`my-3 p-4 border-2 text-center ${
+            <div className={`my-2 p-3 border-2 text-center ${
               isLight ? 'border-stone-800 bg-[#ede8df]' : 'border-stone-600 bg-[#292524]'
             }`}>
               <div className={`text-[9px] uppercase font-mono tracking-widest ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>
                 Time Remaining To Green Flag
               </div>
-              <div className="text-3xl font-bold font-mono mt-1" style={{ color: 'var(--color-accent)' }}>
+              <div className="text-2xl font-bold font-mono mt-0.5" style={{ color: 'var(--color-accent)' }}>
                 {f1.nextSession.countdownFormatted}
               </div>
             </div>
 
             {/* Circuit Specifications */}
-            <div className="grid grid-cols-3 gap-2 text-xs">
-              <div className={`p-2 border ${isLight ? 'border-stone-400 bg-[#ede8df]' : 'border-stone-600 bg-[#292524]'}`}>
-                <span className={`block text-[9px] font-mono uppercase ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>Laps</span>
-                <span className="font-mono font-bold text-xs">50 LAPS</span>
+            <div className="grid grid-cols-4 gap-1.5 text-xs">
+              <div className={`p-1.5 border text-center ${isLight ? 'border-stone-400 bg-[#ede8df]' : 'border-stone-600 bg-[#292524]'}`}>
+                <span className={`block text-[8px] font-mono uppercase ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>Laps</span>
+                <span className="font-mono font-bold text-xs">50</span>
               </div>
-              <div className={`p-2 border ${isLight ? 'border-stone-400 bg-[#ede8df]' : 'border-stone-600 bg-[#292524]'}`}>
-                <span className={`block text-[9px] font-mono uppercase ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>Circuit</span>
-                <span className="font-mono font-bold text-xs">6.201 KM</span>
+              <div className={`p-1.5 border text-center ${isLight ? 'border-stone-400 bg-[#ede8df]' : 'border-stone-600 bg-[#292524]'}`}>
+                <span className={`block text-[8px] font-mono uppercase ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>Circuit</span>
+                <span className="font-mono font-bold text-xs">6.2 KM</span>
               </div>
-              <div className={`p-2 border ${isLight ? 'border-stone-400 bg-[#ede8df]' : 'border-stone-600 bg-[#292524]'}`}>
-                <span className={`block text-[9px] font-mono uppercase ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>DRS Zones</span>
+              <div className={`p-1.5 border text-center ${isLight ? 'border-stone-400 bg-[#ede8df]' : 'border-stone-600 bg-[#292524]'}`}>
+                <span className={`block text-[8px] font-mono uppercase ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>DRS</span>
                 <span className="font-mono font-bold text-xs" style={{ color: 'var(--color-accent)' }}>2 ZONES</span>
+              </div>
+              <div className={`p-1.5 border text-center ${isLight ? 'border-stone-400 bg-[#ede8df]' : 'border-stone-600 bg-[#292524]'}`}>
+                <span className={`block text-[8px] font-mono uppercase ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>Record</span>
+                <span className="font-mono font-bold text-xs text-amber-500">{f1.circuitLapRecord?.lapTime || '1:35.4'}</span>
               </div>
             </div>
           </div>
+
+          {/* Previous Trial Podium Box */}
+          {f1.lastRace && (
+            <div className={`p-2 border mb-2 text-xs font-mono ${
+              isLight ? 'border-stone-400 bg-[#ede8df]' : 'border-stone-600 bg-[#292524]'
+            }`}>
+              <div className="flex items-center justify-between pb-1 border-b border-stone-400/40 text-[10px] uppercase">
+                <span className="font-bold flex items-center space-x-1">
+                  <Award size={12} className="text-amber-500" />
+                  <span>Prev Trial: {f1.lastRace.raceName}</span>
+                </span>
+                <span className="text-purple-400">FL: {f1.lastRace.fastestLapDriver} ({f1.lastRace.fastestLapTime})</span>
+              </div>
+              <div className="grid grid-cols-3 gap-1 pt-1 text-[10px]">
+                <div className="truncate"><span className="font-bold text-amber-500">1st:</span> {f1.lastRace.winner}</div>
+                <div className="truncate"><span className="font-bold">2nd:</span> {f1.lastRace.p2.split(' ')[0]} {f1.lastRace.p2.split(' ')[1]}</div>
+                <div className="truncate"><span className="font-bold">3rd:</span> {f1.lastRace.p3.split(' ')[0]} {f1.lastRace.p3.split(' ')[1]}</div>
+              </div>
+            </div>
+          )}
 
           {/* Local Weather Conditions */}
           <div className={`pt-2 border-t-2 flex items-center justify-between text-xs font-mono ${
@@ -122,7 +147,7 @@ export const EinkRaceWeekendMode: React.FC = () => {
           }`}>
             Programme of the Weekend
           </h3>
-          <div className="space-y-2.5 overflow-y-auto max-h-[56vh] pr-1">
+          <div className="space-y-2 overflow-y-auto max-h-[56vh] pr-1">
             {sessionsList.map((s) => {
               const isNext = f1.nextSession.name.toLowerCase().includes(s.label.toLowerCase());
               return (
@@ -157,39 +182,85 @@ export const EinkRaceWeekendMode: React.FC = () => {
 
         {/* Right Column (3 cols): Championship Standings */}
         <div className="col-span-3 flex flex-col">
-          <h3 className={`text-xs uppercase font-bold tracking-widest border-b-2 pb-1 mb-3 ${
-            isLight ? 'text-stone-900 border-stone-800' : 'text-stone-100 border-stone-500'
-          }`}>
-            Standings
-          </h3>
-          <div className="space-y-1.5 overflow-y-auto max-h-[56vh] pr-1">
-            {f1.standings.map((driver) => (
-              <div
-                key={driver.driverCode}
-                className={`p-2 border flex items-center justify-between text-xs ${
-                  isLight
-                    ? 'border-stone-300 bg-[#ede8df]'
-                    : 'border-stone-700 bg-[#292524]'
-                }`}
+          <div className="flex items-center justify-between border-b-2 pb-1 mb-3">
+            <div className="flex items-center space-x-1.5 text-xs font-mono">
+              <button
+                onClick={() => setStandingsTab('drivers')}
+                className={`font-bold uppercase ${standingsTab === 'drivers' ? 'underline' : 'opacity-60'}`}
               >
-                <div className="flex items-center space-x-2 truncate">
-                  <span className={`w-4 font-mono font-bold ${isLight ? 'text-stone-500' : 'text-stone-400'}`}>
-                    #{driver.position}
-                  </span>
-                  <span
-                    className="w-1.5 h-4 shrink-0"
-                    style={{ backgroundColor: driver.teamColor || '#888' }}
-                  />
-                  <div className="truncate">
-                    <span className="font-bold uppercase block truncate">{driver.driver}</span>
-                    <span className={`text-[10px] italic block truncate ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>({driver.team})</span>
+                Drivers
+              </button>
+              <span>/</span>
+              <button
+                onClick={() => setStandingsTab('constructors')}
+                className={`font-bold uppercase ${standingsTab === 'constructors' ? 'underline' : 'opacity-60'}`}
+              >
+                Teams
+              </button>
+            </div>
+            <span className="text-[10px] font-mono uppercase font-bold">PTS</span>
+          </div>
+
+          <div className="space-y-1.5 overflow-y-auto max-h-[56vh] pr-1">
+            {standingsTab === 'drivers' ? (
+              f1.standings.map((driver) => (
+                <div
+                  key={driver.driverCode}
+                  className={`p-1.5 border flex items-center justify-between text-xs ${
+                    isLight
+                      ? 'border-stone-300 bg-[#ede8df]'
+                      : 'border-stone-700 bg-[#292524]'
+                  }`}
+                >
+                  <div className="flex items-center space-x-2 truncate">
+                    <span className={`w-4 font-mono font-bold ${isLight ? 'text-stone-500' : 'text-stone-400'}`}>
+                      #{driver.position}
+                    </span>
+                    <span
+                      className="w-1.5 h-3.5 shrink-0"
+                      style={{ backgroundColor: driver.teamColor || '#888' }}
+                    />
+                    <div className="truncate">
+                      <span className="font-bold uppercase block truncate">{driver.driver}</span>
+                      <span className={`text-[9px] italic block truncate ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>({driver.team})</span>
+                    </div>
                   </div>
+                  <span className="font-mono font-bold shrink-0 ml-1" style={{ color: 'var(--color-accent)' }}>
+                    {driver.points} pts
+                  </span>
                 </div>
-                <span className="font-mono font-bold shrink-0 ml-1" style={{ color: 'var(--color-accent)' }}>
-                  {driver.points} pts
-                </span>
-              </div>
-            ))}
+              ))
+            ) : (
+              (f1.constructorStandings || []).map((team) => (
+                <div
+                  key={team.team}
+                  className={`p-1.5 border flex items-center justify-between text-xs ${
+                    isLight
+                      ? 'border-stone-300 bg-[#ede8df]'
+                      : 'border-stone-700 bg-[#292524]'
+                  }`}
+                >
+                  <div className="flex items-center space-x-2 truncate">
+                    <span className={`w-4 font-mono font-bold ${isLight ? 'text-stone-500' : 'text-stone-400'}`}>
+                      #{team.position}
+                    </span>
+                    <span
+                      className="w-1.5 h-3.5 shrink-0"
+                      style={{ backgroundColor: team.teamColor || '#888' }}
+                    />
+                    <div className="truncate">
+                      <span className="font-bold uppercase block truncate">{team.team}</span>
+                      <span className={`text-[9px] italic block truncate ${isLight ? 'text-stone-600' : 'text-stone-400'}`}>
+                        {team.wins > 0 ? `${team.wins} wins` : '0 wins'}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="font-mono font-bold shrink-0 ml-1" style={{ color: 'var(--color-accent)' }}>
+                    {team.points} pts
+                  </span>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
@@ -199,7 +270,7 @@ export const EinkRaceWeekendMode: React.FC = () => {
         isLight ? 'border-stone-800 text-stone-600' : 'border-stone-600 text-stone-400'
       }`}>
         <div className="flex items-center space-x-2">
-          <span>● TELEMETRY: DISPATCHED VIA JOLPICA RACING SERVICES</span>
+          <span>● TELEMETRY: DISPATCHED VIA JOLPICA RACING SERVICES (2026 LIVE)</span>
         </div>
 
         {media.state === 'playing' && (

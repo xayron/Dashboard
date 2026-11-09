@@ -3,7 +3,7 @@ import { useDashboard } from '../../state/DashboardContext';
 
 interface HudBoxProps {
   title: string;
-  code?: string;
+  code?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
   glowColor?: 'cyan' | 'amber' | 'emerald';
