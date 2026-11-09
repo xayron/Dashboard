@@ -14,11 +14,13 @@ import {
   PanelRight,
   AppWindow,
   Search,
+  ChevronUp,
   ChevronDown,
   ChevronsUpDown,
   Sliders,
   Monitor,
   Flag,
+  GripVertical,
 } from 'lucide-react';
 import { useDashboard, UI_STYLES } from '../../state/DashboardContext';
 import { haService, getSavedHAConfig, saveHAConfig } from '../../services/homeAssistant';
@@ -46,6 +48,7 @@ export const SettingsModal: React.FC = () => {
     f1ActiveWidgets,
     setF1ActiveWidgets,
     toggleF1Widget,
+    moveF1Widget,
     f1WidgetSizes,
     setF1WidgetSize,
     setAllF1WidgetSizes,
@@ -1845,7 +1848,11 @@ export const SettingsModal: React.FC = () => {
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
                                 {F1_AVAILABLE_WIDGETS.map((w) => {
                                   const isActive = f1ActiveWidgets.includes(w.id);
+                                  const activeIdx = f1ActiveWidgets.indexOf(w.id);
                                   const currentSize = f1WidgetSizes[w.id] || 'normal';
+                                  const canMoveUp = activeIdx > 0;
+                                  const canMoveDown = activeIdx !== -1 && activeIdx < f1ActiveWidgets.length - 1;
+
                                   return (
                                     <div
                                       key={w.id}
@@ -1905,13 +1912,47 @@ export const SettingsModal: React.FC = () => {
                                               {isActive && <Check size={12} strokeWidth={3} />}
                                             </div>
                                             <span className={`text-xs font-semibold ${typo.cardTitle}`}>{w.name}</span>
+                                            {isActive && (
+                                              <span className="text-[9px] font-mono font-bold px-1 py-0.2 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                                                #{activeIdx + 1}
+                                              </span>
+                                            )}
                                           </div>
 
-                                          {/* Manual Size Adjuster Pill */}
+                                          {/* Reorder and Size Controls */}
                                           <div
                                             className="flex items-center space-x-1"
                                             onClick={(e) => e.stopPropagation()}
                                           >
+                                            {/* Reorder Arrows */}
+                                            {isActive && (
+                                              <div className="flex items-center space-x-0.5 bg-black/10 dark:bg-white/10 p-0.5 rounded">
+                                                <button
+                                                  type="button"
+                                                  title="Move widget up in sequence"
+                                                  disabled={!canMoveUp}
+                                                  onClick={() => moveF1Widget(w.id, 'up')}
+                                                  className={`p-0.5 rounded text-[10px] ${
+                                                    canMoveUp ? 'hover:bg-black/20 dark:hover:bg-white/20 cursor-pointer' : 'opacity-20 cursor-not-allowed'
+                                                  }`}
+                                                >
+                                                  <ChevronUp size={11} />
+                                                </button>
+                                                <button
+                                                  type="button"
+                                                  title="Move widget down in sequence"
+                                                  disabled={!canMoveDown}
+                                                  onClick={() => moveF1Widget(w.id, 'down')}
+                                                  className={`p-0.5 rounded text-[10px] ${
+                                                    canMoveDown ? 'hover:bg-black/20 dark:hover:bg-white/20 cursor-pointer' : 'opacity-20 cursor-not-allowed'
+                                                  }`}
+                                                >
+                                                  <ChevronDown size={11} />
+                                                </button>
+                                              </div>
+                                            )}
+
+                                            {/* Size Toggles [ S | M ] */}
                                             {(['compact', 'normal'] as F1WidgetSize[]).map((sz) => {
                                               const isSzActive = currentSize === sz;
                                               return (

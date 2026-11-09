@@ -159,6 +159,8 @@ interface DashboardContextType {
   f1ActiveWidgets: F1WidgetId[];
   setF1ActiveWidgets: (widgets: F1WidgetId[]) => void;
   toggleF1Widget: (id: F1WidgetId) => void;
+  moveF1Widget: (id: F1WidgetId, direction: 'up' | 'down') => void;
+  reorderF1Widgets: (fromIndex: number, toIndex: number) => void;
   f1WidgetSizes: Record<F1WidgetId, F1WidgetSize>;
   setF1WidgetSize: (id: F1WidgetId, size: F1WidgetSize) => void;
   setAllF1WidgetSizes: (size: F1WidgetSize) => void;
@@ -296,6 +298,27 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const next = f1ActiveWidgets.includes(id)
       ? f1ActiveWidgets.filter(w => w !== id)
       : [...f1ActiveWidgets, id];
+    setF1ActiveWidgets(next);
+  };
+
+  const moveF1Widget = (id: F1WidgetId, direction: 'up' | 'down') => {
+    const idx = f1ActiveWidgets.indexOf(id);
+    if (idx === -1) return;
+    const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (targetIdx < 0 || targetIdx >= f1ActiveWidgets.length) return;
+    const next = [...f1ActiveWidgets];
+    const [removed] = next.splice(idx, 1);
+    next.splice(targetIdx, 0, removed);
+    setF1ActiveWidgets(next);
+  };
+
+  const reorderF1Widgets = (fromIndex: number, toIndex: number) => {
+    if (fromIndex < 0 || fromIndex >= f1ActiveWidgets.length) return;
+    if (toIndex < 0 || toIndex >= f1ActiveWidgets.length) return;
+    if (fromIndex === toIndex) return;
+    const next = [...f1ActiveWidgets];
+    const [removed] = next.splice(fromIndex, 1);
+    next.splice(toIndex, 0, removed);
     setF1ActiveWidgets(next);
   };
 
@@ -708,6 +731,8 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         f1ActiveWidgets,
         setF1ActiveWidgets,
         toggleF1Widget,
+        moveF1Widget,
+        reorderF1Widgets,
         f1WidgetSizes,
         setF1WidgetSize,
         setAllF1WidgetSizes,

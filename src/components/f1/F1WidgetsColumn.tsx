@@ -16,6 +16,9 @@ import {
   X,
   Maximize2,
   Minimize2,
+  ChevronUp,
+  ChevronDown,
+  GripVertical,
 } from 'lucide-react';
 import { BrutalistBox } from '../brutalist/BrutalistBox';
 import { HudBox } from '../hud/HudBox';
@@ -102,6 +105,8 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
     f1ActiveWidgets,
     setF1ActiveWidgets,
     toggleF1Widget,
+    moveF1Widget,
+    reorderF1Widgets,
     f1WidgetSizes,
     setF1WidgetSize,
     setAllF1WidgetSizes,
@@ -111,10 +116,13 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
   const isLight = propIsLight !== undefined ? propIsLight : colorMode === 'light';
 
   const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
 
-  // Filter to currently selected active widgets
+  // Map f1ActiveWidgets in exact user-defined order
   const visibleWidgets = React.useMemo(() => {
-    return F1_AVAILABLE_WIDGETS.filter((w) => f1ActiveWidgets.includes(w.id));
+    return f1ActiveWidgets
+      .map((id) => F1_AVAILABLE_WIDGETS.find((w) => w.id === id))
+      .filter((w): w is F1WidgetDef => Boolean(w));
   }, [f1ActiveWidgets]);
 
   // Style Tokens per visual theme
@@ -197,32 +205,73 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
   const fontClass = uiStyle === 'tui' || uiStyle === 'hud' ? 'font-mono' : uiStyle === 'eink' ? 'font-serif' : 'font-sans';
 
-  // Helper size controls inside each widget card header
-  const renderSizeToggle = (widgetId: F1WidgetId) => {
+  // Helper controls (Move Up/Down reordering + Size toggles) inside each widget card header
+  const renderCardControls = (widgetId: F1WidgetId) => {
     const currentSize = f1WidgetSizes[widgetId] || 'normal';
+    const index = f1ActiveWidgets.indexOf(widgetId);
+    const canMoveUp = index > 0;
+    const canMoveDown = index !== -1 && index < f1ActiveWidgets.length - 1;
+
     return (
-      <div className="flex items-center space-x-1 opacity-60 hover:opacity-100 transition-opacity">
-        {(['compact', 'normal'] as F1WidgetSize[]).map((sz) => (
+      <div className="flex items-center space-x-1 opacity-70 hover:opacity-100 transition-opacity">
+        {/* Reorder Arrows */}
+        <div className="flex items-center space-x-0.5 bg-black/10 dark:bg-white/10 p-0.5 rounded">
           <button
-            key={sz}
             type="button"
-            title={`Set widget size: ${sz}`}
+            title="Move widget up in layout"
+            disabled={!canMoveUp}
             onClick={(e) => {
               e.stopPropagation();
-              setF1WidgetSize(widgetId, sz);
+              moveF1Widget(widgetId, 'up');
             }}
-            className={`px-1.5 py-0.2 text-[9px] font-mono uppercase font-bold rounded transition-colors ${
-              currentSize === sz
-                ? 'bg-blue-600 text-white font-extrabold shadow-xs'
-                : 'bg-black/10 hover:bg-black/20 text-current'
+            className={`p-0.5 rounded text-[10px] transition-colors ${
+              canMoveUp ? 'hover:bg-black/20 dark:hover:bg-white/20 text-current cursor-pointer' : 'opacity-20 cursor-not-allowed'
             }`}
           >
-            {sz === 'compact' ? 'S' : 'M'}
+            <ChevronUp size={10} strokeWidth={2.5} />
           </button>
-        ))}
+          <button
+            type="button"
+            title="Move widget down in layout"
+            disabled={!canMoveDown}
+            onClick={(e) => {
+              e.stopPropagation();
+              moveF1Widget(widgetId, 'down');
+            }}
+            className={`p-0.5 rounded text-[10px] transition-colors ${
+              canMoveDown ? 'hover:bg-black/20 dark:hover:bg-white/20 text-current cursor-pointer' : 'opacity-20 cursor-not-allowed'
+            }`}
+          >
+            <ChevronDown size={10} strokeWidth={2.5} />
+          </button>
+        </div>
+
+        {/* Size Toggles [ S | M ] */}
+        <div className="flex items-center space-x-0.5 bg-black/10 dark:bg-white/10 p-0.5 rounded">
+          {(['compact', 'normal'] as F1WidgetSize[]).map((sz) => (
+            <button
+              key={sz}
+              type="button"
+              title={`Set widget size: ${sz}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                setF1WidgetSize(widgetId, sz);
+              }}
+              className={`px-1.5 py-0.2 text-[9px] font-mono uppercase font-bold rounded transition-colors cursor-pointer ${
+                currentSize === sz
+                  ? 'bg-blue-600 text-white font-extrabold shadow-xs'
+                  : 'hover:bg-black/20 dark:hover:bg-white/20 text-current'
+              }`}
+            >
+              {sz === 'compact' ? 'S' : 'M'}
+            </button>
+          ))}
+        </div>
       </div>
     );
   };
+
+  const renderSizeToggle = renderCardControls;
 
   // 1. COUNTDOWN WIDGET
   const renderCountdownWidget = (size: F1WidgetSize) => {
@@ -1322,24 +1371,42 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
               </div>
             </div>
 
-            {/* Widgets List with Individual Size Selectors */}
+            {/* Active & Arranged Widgets List with Drag & Up/Down Controls */}
             <div className="space-y-1.5 max-h-[300px] overflow-y-auto pr-1">
-              {F1_AVAILABLE_WIDGETS.map((widget) => {
-                const isActive = f1ActiveWidgets.includes(widget.id);
+              <div className="flex items-center justify-between pb-1 text-[10px] uppercase font-mono text-gray-400">
+                <span>Active Sequence ({visibleWidgets.length}) • Drag or use arrows to rearrange</span>
+              </div>
+
+              {visibleWidgets.map((widget, idx) => {
                 const currentSize = f1WidgetSizes[widget.id] || 'normal';
                 const Icon = widget.icon;
+                const canMoveUp = idx > 0;
+                const canMoveDown = idx < visibleWidgets.length - 1;
+
                 return (
                   <div
                     key={widget.id}
-                    onClick={() => toggleF1Widget(widget.id)}
-                    className={`w-full p-2 rounded-xl border text-left transition-all flex items-center justify-between cursor-pointer ${
-                      isActive
-                        ? 'bg-white/15 border-white/30 text-white'
-                        : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10'
+                    draggable
+                    onDragStart={() => setDraggedIdx(idx)}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={() => {
+                      if (draggedIdx !== null && draggedIdx !== idx) {
+                        reorderF1Widgets(draggedIdx, idx);
+                        setDraggedIdx(null);
+                      }
+                    }}
+                    className={`w-full p-2 rounded-xl border text-left transition-all flex items-center justify-between bg-white/15 border-white/30 text-white ${
+                      draggedIdx === idx ? 'opacity-50 ring-2 ring-blue-500' : ''
                     }`}
                   >
-                    <div className="flex items-center space-x-2.5">
-                      <div className={`p-1.5 rounded-lg border ${isActive ? 'bg-amber-500/20 border-amber-500/40 text-amber-400' : 'bg-white/5 border-white/10 text-gray-500'}`}>
+                    <div className="flex items-center space-x-2">
+                      <div className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-white p-0.5">
+                        <GripVertical size={14} />
+                      </div>
+                      <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                        #{idx + 1}
+                      </span>
+                      <div className="p-1.5 rounded-lg border bg-amber-500/20 border-amber-500/40 text-amber-400">
                         <Icon size={14} />
                       </div>
                       <div>
@@ -1354,6 +1421,32 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                     </div>
 
                     <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
+                      {/* Reorder Up / Down Buttons */}
+                      <div className="flex items-center space-x-0.5 bg-black/40 p-0.5 rounded-lg border border-white/15">
+                        <button
+                          type="button"
+                          title="Move Up"
+                          disabled={!canMoveUp}
+                          onClick={() => moveF1Widget(widget.id, 'up')}
+                          className={`p-1 rounded text-xs transition-colors ${
+                            canMoveUp ? 'hover:bg-white/20 text-white cursor-pointer' : 'opacity-20 cursor-not-allowed text-gray-500'
+                          }`}
+                        >
+                          <ChevronUp size={12} strokeWidth={2.5} />
+                        </button>
+                        <button
+                          type="button"
+                          title="Move Down"
+                          disabled={!canMoveDown}
+                          onClick={() => moveF1Widget(widget.id, 'down')}
+                          className={`p-1 rounded text-xs transition-colors ${
+                            canMoveDown ? 'hover:bg-white/20 text-white cursor-pointer' : 'opacity-20 cursor-not-allowed text-gray-500'
+                          }`}
+                        >
+                          <ChevronDown size={12} strokeWidth={2.5} />
+                        </button>
+                      </div>
+
                       {/* Individual Widget Size Picker */}
                       <div className="flex items-center space-x-0.5 bg-black/40 p-0.5 rounded-lg border border-white/15">
                         {(['compact', 'normal'] as F1WidgetSize[]).map((sz) => {
@@ -1363,10 +1456,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                               key={sz}
                               type="button"
                               title={`Set ${widget.name} to ${sz}`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setF1WidgetSize(widget.id, sz);
-                              }}
+                              onClick={() => setF1WidgetSize(widget.id, sz)}
                               className={`px-1.5 py-0.5 text-[9px] font-mono font-bold rounded transition-colors cursor-pointer ${
                                 isSzActive ? 'bg-blue-600 text-white shadow-xs' : 'text-gray-400 hover:text-white'
                               }`}
@@ -1377,18 +1467,61 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                         })}
                       </div>
 
-                      <div
+                      {/* Remove / Toggle Active */}
+                      <button
+                        type="button"
+                        title="Remove from layout"
                         onClick={() => toggleF1Widget(widget.id)}
-                        className={`w-5 h-5 rounded-md border flex items-center justify-center cursor-pointer ${
-                          isActive ? 'bg-emerald-600 border-emerald-500 text-white' : 'border-gray-600'
-                        }`}
+                        className="w-5 h-5 rounded-md border flex items-center justify-center bg-emerald-600 border-emerald-500 text-white hover:bg-red-600 hover:border-red-500 transition-colors cursor-pointer"
                       >
-                        {isActive && <Check size={12} strokeWidth={3} />}
-                      </div>
+                        <Check size={12} strokeWidth={3} />
+                      </button>
                     </div>
                   </div>
                 );
               })}
+
+              {/* Inactive Widgets available to add */}
+              {F1_AVAILABLE_WIDGETS.filter((w) => !f1ActiveWidgets.includes(w.id)).length > 0 && (
+                <div className="pt-2 mt-2 border-t border-white/10">
+                  <div className="text-[10px] uppercase font-mono text-gray-400 mb-1">
+                    Available to Add ({F1_AVAILABLE_WIDGETS.filter((w) => !f1ActiveWidgets.includes(w.id)).length})
+                  </div>
+                  <div className="space-y-1">
+                    {F1_AVAILABLE_WIDGETS.filter((w) => !f1ActiveWidgets.includes(w.id)).map((widget) => {
+                      const Icon = widget.icon;
+                      return (
+                        <div
+                          key={widget.id}
+                          onClick={() => toggleF1Widget(widget.id)}
+                          className="w-full p-2 rounded-xl border text-left transition-all flex items-center justify-between bg-white/5 border-white/5 text-gray-400 hover:bg-white/10 hover:text-white cursor-pointer"
+                        >
+                          <div className="flex items-center space-x-2.5">
+                            <div className="p-1.5 rounded-lg border bg-white/5 border-white/10 text-gray-400">
+                              <Icon size={14} />
+                            </div>
+                            <div>
+                              <div className="text-xs font-bold flex items-center space-x-2">
+                                <span>{widget.name}</span>
+                                <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-white/10 text-gray-400">
+                                  {widget.badge}
+                                </span>
+                              </div>
+                              <p className="text-[10px] text-gray-400">{widget.description}</p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            className="px-2 py-1 text-[10px] font-bold rounded-lg border border-white/20 bg-white/10 hover:bg-blue-600 hover:border-blue-500 text-white transition-all cursor-pointer"
+                          >
+                            + Add
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
