@@ -27,6 +27,14 @@ import {
   ShieldAlert,
   Sun,
   CloudSun,
+  Cloud,
+  CloudFog,
+  CloudRain,
+  CloudSnow,
+  CloudRainWind,
+  CloudLightning,
+  Moon,
+  CloudMoon,
   Flame,
 } from 'lucide-react';
 import { BrutalistBox } from '../brutalist/BrutalistBox';
@@ -779,6 +787,17 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
     );
   };
 
+  // Helper to render weather icon by condition code
+  const renderWeatherIcon = (code: number, isDay: boolean, size = 18) => {
+    if (code === 0) return isDay ? <Sun size={size} className="text-amber-400" /> : <Moon size={size} className="text-indigo-300" />;
+    if (code <= 3) return isDay ? <CloudSun size={size} className="text-amber-300" /> : <CloudMoon size={size} className="text-slate-300" />;
+    if (code <= 48) return <CloudFog size={size} className="text-gray-400" />;
+    if (code <= 67) return <CloudRain size={size} className="text-blue-400" />;
+    if (code <= 77) return <CloudSnow size={size} className="text-cyan-200" />;
+    if (code <= 82) return <CloudRainWind size={size} className="text-blue-500" />;
+    return <CloudLightning size={size} className="text-yellow-400" />;
+  };
+
   // 2. WEATHER WIDGET
   const renderWeatherWidget = (layout: MorningWidgetLayoutItem) => {
     const isCompact = layout.colSpan <= 3 && layout.rowSpan === 1;
@@ -793,17 +812,33 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
           headerRight={renderCardControls('weather')}
           className="h-full flex flex-col justify-between"
         >
-          <div className="flex flex-col justify-between flex-1 py-1 font-mono">
+          <div className="flex flex-col justify-between flex-1 py-1 font-mono text-xs min-h-0">
             <div className="flex items-baseline justify-between">
               <span className="text-3xl font-extrabold">{weather.temperature}°C</span>
               <span className="text-xs opacity-75">{weather.highTemp}° / {weather.lowTemp}°</span>
             </div>
-            <div className="grid grid-cols-2 gap-1 text-[10px] mt-2 border-t pt-1">
+            <div className="grid grid-cols-2 gap-1 text-[10px] mt-1.5 border-t pt-1">
               <div>FEELS: {weather.apparentTemperature}°C</div>
               <div>AQI: {aqi.usAqi} ({aqi.label})</div>
               <div>HUMIDITY: {weather.humidity}%</div>
               <div>WIND: {weather.windSpeed} km/h</div>
             </div>
+            {isTall && weather.hourly && weather.hourly.length > 0 && (
+              <div className="mt-2 pt-1 border-t border-dashed border-emerald-500/30">
+                <div className="text-[9px] uppercase tracking-wider text-emerald-400 font-bold mb-1">
+                  &gt; HOURLY_FORECAST
+                </div>
+                <div className="grid grid-cols-5 gap-1 text-[10px]">
+                  {weather.hourly.slice(0, 5).map((h, i) => (
+                    <div key={i} className="text-center p-1 bg-black/40 border border-emerald-500/20 rounded">
+                      <div className="text-[9px] opacity-70">{h.time}</div>
+                      <div className="font-bold my-0.5">{h.temp}°</div>
+                      <div className="text-[8px] text-cyan-400">{h.pop}%</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </TuiBox>
       );
@@ -817,9 +852,9 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
           headerRight={renderCardControls('weather')}
           className="h-full flex flex-col justify-between"
         >
-          <div className="flex flex-col justify-between flex-1 py-1 font-mono">
+          <div className="flex flex-col justify-between flex-1 py-1 font-mono min-h-0">
             <div className="flex items-baseline justify-between border-b-2 border-black pb-1">
-              <span className="text-3xl font-black">{weather.condition}</span>
+              <span className="text-2xl font-black">{weather.condition}</span>
               <span className="text-xs font-bold">{weather.highTemp}° / {weather.lowTemp}°</span>
             </div>
             <div className="grid grid-cols-2 gap-1 text-[10px] pt-1">
@@ -828,6 +863,20 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
               <div>WIND: {weather.windSpeed}KM/H</div>
               <div>HUM: {weather.humidity}%</div>
             </div>
+            {isTall && weather.hourly && weather.hourly.length > 0 && (
+              <div className="mt-2 pt-1 border-t-2 border-black">
+                <div className="text-[9px] font-black uppercase mb-1">UPCOMING HOURS</div>
+                <div className="grid grid-cols-5 gap-1 text-[10px]">
+                  {weather.hourly.slice(0, 5).map((h, i) => (
+                    <div key={i} className="border border-black p-1 text-center bg-yellow-200 text-black">
+                      <div className="text-[8px] font-bold">{h.time}</div>
+                      <div className="font-black text-[11px]">{h.temp}°</div>
+                      <div className="text-[8px]">{h.pop}%</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </BrutalistBox>
       );
@@ -842,7 +891,7 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
           headerRight={renderCardControls('weather')}
           className="h-full flex flex-col justify-between"
         >
-          <div className="flex flex-col justify-between flex-1 py-1 font-mono">
+          <div className="flex flex-col justify-between flex-1 py-1 font-mono min-h-0">
             <div className="flex items-baseline justify-between text-cyan-400">
               <span className="text-3xl font-black">{weather.temperature}°C</span>
               <span className="text-xs text-rose-400">{weather.condition}</span>
@@ -853,6 +902,23 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
               <span>WIND: {weather.windSpeed}KM/H</span>
               <span>HUM: {weather.humidity}%</span>
             </div>
+            {isTall && weather.hourly && weather.hourly.length > 0 && (
+              <div className="mt-2 pt-1 border-t border-cyan-500/30">
+                <div className="text-[9px] uppercase tracking-wider text-cyan-300 font-bold mb-1 flex items-center justify-between">
+                  <span>RADAR_PROJECTION</span>
+                  <span className="text-[8px] text-cyan-500">HOURLY</span>
+                </div>
+                <div className="grid grid-cols-5 gap-1 text-[10px]">
+                  {weather.hourly.slice(0, 5).map((h, i) => (
+                    <div key={i} className="text-center p-1 bg-cyan-950/40 border border-cyan-500/30 rounded">
+                      <div className="text-[8px] text-cyan-400/70">{h.time}</div>
+                      <div className="font-bold text-cyan-200">{h.temp}°</div>
+                      <div className="text-[8px] text-teal-400">{h.pop}%</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </HudBox>
       );
@@ -892,23 +958,32 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
             </div>
 
             {isWide ? (
-              <div className="grid grid-cols-4 gap-1.5 text-xs font-mono text-center">
-                <div className={`px-2 py-1 rounded-lg border ${getInnerClass()}`}>
-                  <span className="block text-[7px] uppercase opacity-70">Feels</span>
-                  <span className="font-bold text-[11px] block">{weather.apparentTemperature}°</span>
+              <div className="flex items-center space-x-3">
+                <div className="grid grid-cols-2 gap-1 text-xs font-mono text-center">
+                  <div className={`px-2 py-0.5 rounded-lg border ${getInnerClass()}`}>
+                    <span className="block text-[7px] uppercase opacity-70">Feels</span>
+                    <span className="font-bold text-[11px] block">{weather.apparentTemperature}°</span>
+                  </div>
+                  <div className={`px-2 py-0.5 rounded-lg border ${getInnerClass()}`}>
+                    <span className="block text-[7px] uppercase opacity-70">AQI</span>
+                    <span className="font-bold text-[11px] text-emerald-400 block">{aqi.usAqi}</span>
+                  </div>
                 </div>
-                <div className={`px-2 py-1 rounded-lg border ${getInnerClass()}`}>
-                  <span className="block text-[7px] uppercase opacity-70">Hum</span>
-                  <span className="font-bold text-[11px] block">{weather.humidity}%</span>
-                </div>
-                <div className={`px-2 py-1 rounded-lg border ${getInnerClass()}`}>
-                  <span className="block text-[7px] uppercase opacity-70">Wind</span>
-                  <span className="font-bold text-[11px] block">{weather.windSpeed}k</span>
-                </div>
-                <div className={`px-2 py-1 rounded-lg border ${getInnerClass()}`}>
-                  <span className="block text-[7px] uppercase opacity-70">AQI</span>
-                  <span className="font-bold text-[11px] text-emerald-400 block">{aqi.usAqi}</span>
-                </div>
+                {/* 4-hour forecast strip */}
+                {weather.hourly && weather.hourly.length > 0 && (
+                  <div className="flex items-center space-x-1">
+                    {weather.hourly.slice(0, 4).map((h, i) => (
+                      <div
+                        key={i}
+                        className={`flex flex-col items-center px-1.5 py-1 rounded-lg border text-center ${getInnerClass()}`}
+                      >
+                        <span className="text-[8px] opacity-70 font-mono-numbers">{h.time}</span>
+                        <div className="my-0.5">{renderWeatherIcon(h.conditionCode, true, 13)}</div>
+                        <span className="text-[10px] font-bold font-mono-numbers">{h.temp}°</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ) : (
               <div className="flex items-center space-x-2">
@@ -917,7 +992,7 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
                   <span className="font-bold text-[11px] block">{weather.apparentTemperature}°</span>
                 </div>
                 <div className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
-                  <Sun size={20} className="animate-spin-slow" />
+                  {renderWeatherIcon(weather.conditionCode, weather.isDay, 20)}
                 </div>
               </div>
             )}
@@ -928,7 +1003,7 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-baseline space-x-1.5">
-                  <span className="font-black tracking-tight text-4xl xl:text-5xl">
+                  <span className="font-black tracking-tight text-3xl sm:text-4xl xl:text-5xl font-mono-numbers">
                     {weather.temperature}°
                   </span>
                   <span className="text-xs font-semibold opacity-75">{weather.condition}</span>
@@ -937,12 +1012,12 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
                   High {weather.highTemp}° • Low {weather.lowTemp}°
                 </p>
               </div>
-              <div className="p-2.5 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
-                <Sun size={24} className="animate-spin-slow" />
+              <div className="p-2.5 rounded-2xl bg-cyan-500/10 border border-cyan-500/20">
+                {renderWeatherIcon(weather.conditionCode, weather.isDay, 26)}
               </div>
             </div>
 
-            <div className={`grid grid-cols-4 gap-1.5 pt-1.5 border-t text-xs font-mono text-center ${isLight ? 'border-black/10' : 'border-white/10'}`}>
+            <div className={`grid grid-cols-4 gap-1.5 py-1.5 border-t text-xs font-mono text-center ${isLight ? 'border-black/10' : 'border-white/10'}`}>
               <div className={`p-1 rounded-lg border ${getInnerClass()}`}>
                 <span className="block text-[7px] uppercase opacity-70">Feels</span>
                 <span className="font-bold text-[11px] block">{weather.apparentTemperature}°</span>
@@ -956,10 +1031,70 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
                 <span className="font-bold text-[11px] block">{weather.windSpeed}k</span>
               </div>
               <div className={`p-1 rounded-lg border ${getInnerClass()}`}>
-                <span className="block text-[7px] uppercase opacity-70">AQI</span>
-                <span className="font-bold text-[11px] text-emerald-400 block">{aqi.usAqi}</span>
+                <span className="block text-[7px] uppercase opacity-70 flex items-center justify-center">
+                  <Droplets size={8} className="mr-0.5 text-blue-400" />Rain
+                </span>
+                <span className="font-bold text-[11px] text-blue-400 block">{weather.rainProbability}%</span>
               </div>
             </div>
+
+            {/* Upcoming Hourly Forecast */}
+            {weather.hourly && weather.hourly.length > 0 && (
+              <div className={`pt-1.5 border-t ${isLight ? 'border-black/10' : 'border-white/10'}`}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[9px] uppercase tracking-wider font-semibold opacity-60">
+                    Upcoming Hours
+                  </span>
+                  <span className="text-[9px] font-mono opacity-50">6-hr Forecast</span>
+                </div>
+                <div className="grid grid-cols-6 gap-1">
+                  {weather.hourly.slice(0, 6).map((h, i) => (
+                    <div
+                      key={i}
+                      className={`flex flex-col items-center p-1 rounded-lg border text-center ${getInnerClass()}`}
+                    >
+                      <span className="text-[9px] opacity-70 font-mono-numbers">{h.time}</span>
+                      <div className="my-0.5">
+                        {renderWeatherIcon(h.conditionCode, true, 14)}
+                      </div>
+                      <span className="text-[10px] font-bold font-mono-numbers">{h.temp}°</span>
+                      <span className="text-[8px] text-blue-400 font-mono-numbers flex items-center mt-0.5">
+                        <Droplets size={7} className="mr-0.5 shrink-0" />
+                        {h.pop}%
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* If 3+ rows, also show daily forecast */}
+            {layout.rowSpan >= 3 && weather.daily && weather.daily.length > 0 && (
+              <div className={`pt-1.5 border-t mt-1.5 ${isLight ? 'border-black/10' : 'border-white/10'}`}>
+                <div className="text-[9px] uppercase tracking-wider font-semibold opacity-60 mb-1">
+                  Daily Forecast
+                </div>
+                <div className="grid grid-cols-4 gap-1">
+                  {weather.daily.slice(0, 4).map((d, i) => (
+                    <div
+                      key={i}
+                      className={`flex flex-col items-center p-1 rounded-lg border text-center ${getInnerClass()}`}
+                    >
+                      <span className="text-[9px] font-bold">{d.day}</span>
+                      <div className="my-0.5">
+                        {renderWeatherIcon(d.conditionCode, true, 13)}
+                      </div>
+                      <span className="text-[9px] font-mono-numbers font-semibold">
+                        {d.high}°/{d.low}°
+                      </span>
+                      <span className="text-[8px] text-blue-400 font-mono-numbers">
+                        {d.rainProb}%
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
