@@ -2862,13 +2862,13 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
               >
                 <div className="w-2 h-2 rounded-full bg-amber-400 border border-black/40 shadow-xs" />
               </div>
-              {/* South-East (Primary Corner Indicator) */}
+              {/* South-East (Corner Resize Handle) */}
               <div
                 onMouseDown={(e) => handleResizeStart(e, w.id, 'se')}
-                className="absolute -bottom-1.5 -right-1.5 w-4 h-4 cursor-nwse-resize z-30 flex items-center justify-center"
+                className="absolute -bottom-1.5 -right-1.5 w-4 h-4 cursor-nwse-resize z-30 flex items-center justify-center group-hover:opacity-100 opacity-0 transition-opacity"
                 title="Drag to resize width and height (South-East)"
               >
-                <div className="w-2.5 h-2.5 rounded-full bg-amber-400/70 hover:bg-amber-400 border border-black/30 shadow-xs transition-colors" />
+                <div className="w-2 h-2 rounded-full bg-amber-400 border border-black/40 shadow-xs" />
               </div>
             </div>
           );
