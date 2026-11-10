@@ -1694,9 +1694,8 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
     if (news.length === 0) return null;
     const isCompact = size === 'compact';
     const isLarge = size === 'large';
-    const displayNews = isCompact ? news.slice(0, 2) : isLarge ? news.slice(0, 8) : news.slice(0, 4);
     const leadStory = news[0];
-    const wireStories = news.slice(1, 8);
+    const wireStories = news.slice(1);
 
     if (uiStyle === 'tui') {
       return (
@@ -1705,16 +1704,17 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           title={isCompact ? 'F1_WIRE' : isLarge ? 'F1_BREAKING_NEWS_&_WIRE' : 'F1_PADDOCK_WIRE'}
           badge="LIVE"
           badgeColor="text-amber-400"
+          headerRight={renderCardControls('news')}
           className="h-full flex flex-col justify-between"
         >
           {isLarge ? (
-            <div className="space-y-2 text-xs py-0.5 font-mono flex-1 flex flex-col justify-between">
+            <div className="space-y-2 text-xs py-0.5 font-mono flex-1 flex flex-col min-h-0">
               {leadStory && (
                 <a
                   href={leadStory.link}
                   target="_blank"
                   rel="noreferrer"
-                  className="p-2 border border-amber-500/30 bg-amber-950/20 hover:border-amber-400 flex flex-col justify-between block group"
+                  className="p-2 border border-amber-500/30 bg-amber-950/20 hover:border-amber-400 flex flex-col justify-between block group shrink-0"
                 >
                   <div>
                     <div className="flex items-center justify-between text-[9px] opacity-75 mb-1">
@@ -1735,8 +1735,8 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                   </div>
                 </a>
               )}
-              <div className="space-y-1.5 overflow-y-auto flex-1 pr-0.5">
-                <div className="text-[8px] font-bold text-gray-400 uppercase pb-0.5 border-b border-amber-500/20">
+              <div className="space-y-1.5 overflow-y-auto flex-1 min-h-0 pr-1">
+                <div className="text-[8px] font-bold text-gray-400 uppercase pb-0.5 border-b border-amber-500/20 shrink-0">
                   Latest Paddock Dispatches ({wireStories.length})
                 </div>
                 {wireStories.map((item: any, idx: number) => (
@@ -1759,14 +1759,14 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
               </div>
             </div>
           ) : (
-            <div className="space-y-1.5 text-xs py-0.5 flex flex-col justify-between h-full font-mono">
-              {displayNews.map((item: any, idx: number) => (
+            <div className="space-y-1.5 text-xs py-0.5 flex-1 min-h-0 overflow-y-auto pr-1 font-mono">
+              {news.map((item: any, idx: number) => (
                 <a
                   key={item.id || idx}
                   href={item.link}
                   target="_blank"
                   rel="noreferrer"
-                  className="group block space-y-0.5 hover:text-amber-300 transition-colors"
+                  className="group block space-y-0.5 hover:text-amber-300 transition-colors p-1 border border-black/10 dark:border-white/10"
                 >
                   <div className="flex items-center space-x-1.5 text-[9px] opacity-75">
                     <span className="text-amber-400 font-bold">[{item.source.toUpperCase()}]</span>
@@ -1790,16 +1790,17 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           title={isCompact ? 'F1 WIRE' : isLarge ? 'F1 BREAKING NEWS & PADDOCK WIRE' : 'F1 PADDOCK NEWS'}
           badge={isCompact ? 'WIRE' : 'BREAKING'}
           badgeColor="bg-red-600 text-white"
+          headerRight={renderCardControls('news')}
           className="h-full flex flex-col justify-between"
         >
           {isLarge ? (
-            <div className="space-y-2 py-0.5 flex-1 flex flex-col justify-between">
+            <div className="space-y-2 py-0.5 flex-1 flex flex-col min-h-0">
               {leadStory && (
                 <a
                   href={leadStory.link}
                   target="_blank"
                   rel="noreferrer"
-                  className={`p-2.5 border-2 border-black flex flex-col justify-between ${
+                  className={`p-2.5 border-2 border-black flex flex-col justify-between shrink-0 ${
                     isLight ? 'bg-amber-100 shadow-[2px_2px_0px_#000]' : 'bg-neutral-900 text-white shadow-[2px_2px_0px_#fff]'
                   }`}
                 >
@@ -1820,8 +1821,8 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                   </div>
                 </a>
               )}
-              <div className="space-y-1.5 overflow-y-auto flex-1 pr-0.5">
-                <div className="text-[9px] font-black uppercase tracking-wider opacity-75 pb-0.5 border-b-2 border-black">
+              <div className="space-y-1.5 overflow-y-auto flex-1 min-h-0 pr-1">
+                <div className="text-[9px] font-black uppercase tracking-wider opacity-75 pb-0.5 border-b-2 border-black shrink-0">
                   Paddock Wire ({wireStories.length})
                 </div>
                 {wireStories.map((item: any, idx: number) => (
@@ -1846,8 +1847,8 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
               </div>
             </div>
           ) : (
-            <div className="space-y-2 py-0.5 flex flex-col justify-between h-full">
-              {displayNews.map((item: any, idx: number) => (
+            <div className="space-y-2 py-0.5 flex-1 min-h-0 overflow-y-auto pr-1">
+              {news.map((item: any, idx: number) => (
                 <a
                   key={item.id || idx}
                   href={item.link}
@@ -1882,16 +1883,17 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           title={isCompact ? 'PADDOCK_FEED' : isLarge ? 'F1_PADDOCK_FEED_&_HEADLINES' : 'F1_PADDOCK_NEWS_FEED'}
           code="LIVE_WIRE"
           glowColor="cyan"
+          headerRight={renderCardControls('news')}
           className="h-full flex flex-col justify-between"
         >
           {isLarge ? (
-            <div className="space-y-2 py-0.5 font-mono flex-1 flex flex-col justify-between">
+            <div className="space-y-2 py-0.5 font-mono flex-1 flex flex-col min-h-0">
               {leadStory && (
                 <a
                   href={leadStory.link}
                   target="_blank"
                   rel="noreferrer"
-                  className="p-2 rounded border border-cyan-500/30 bg-cyan-950/20 hover:border-cyan-400/60 transition-colors flex flex-col justify-between group"
+                  className="p-2 rounded border border-cyan-500/30 bg-cyan-950/20 hover:border-cyan-400/60 transition-colors flex flex-col justify-between group shrink-0"
                 >
                   <div>
                     <div className="flex items-center justify-between text-[8px] text-cyan-400 mb-0.5">
@@ -1912,8 +1914,8 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                   </div>
                 </a>
               )}
-              <div className="space-y-1 overflow-y-auto flex-1 pr-0.5">
-                <div className="text-[8px] font-bold text-cyan-400 uppercase pb-0.5 border-b border-cyan-500/20">
+              <div className="space-y-1 overflow-y-auto flex-1 min-h-0 pr-1">
+                <div className="text-[8px] font-bold text-cyan-400 uppercase pb-0.5 border-b border-cyan-500/20 shrink-0">
                   // PADDOCK_DISPATCHES ({wireStories.length})
                 </div>
                 {wireStories.map((item: any, idx: number) => (
@@ -1936,8 +1938,8 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
               </div>
             </div>
           ) : (
-            <div className="space-y-1.5 py-0.5 flex flex-col justify-between h-full font-mono">
-              {displayNews.map((item: any, idx: number) => (
+            <div className="space-y-1.5 py-0.5 flex-1 min-h-0 overflow-y-auto pr-1 font-mono">
+              {news.map((item: any, idx: number) => (
                 <a
                   key={item.id || idx}
                   href={item.link}
@@ -1963,50 +1965,30 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
     // Modern Glass / Default Theme (supports Minimal, Retrowave, Neumorphic, Obsidian, Civic)
     return (
       <div key="news" className={`border ${getCardClass(size, 'news')}`}>
-        <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center justify-between mb-1.5 shrink-0">
           <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
             <Newspaper size={12} className="text-red-500 shrink-0" />
             <span className="truncate">{isCompact ? 'Paddock Wire' : isLarge ? 'F1 PADDOCK NEWS & WIRE (DEEP FEED)' : 'F1 PADDOCK NEWS & WIRE'}</span>
           </span>
           <div className="flex items-center space-x-1.5 shrink-0">
             {!isCompact && (
-              <span className="text-[9px] font-mono font-bold text-red-500 bg-red-500/10 px-1.5 py-0.2 rounded border border-red-500/20">
+              <span className="text-[9px] font-mono font-bold text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded border border-red-500/20">
                 LIVE
               </span>
             )}
-            {renderSizeToggle('news')}
+            {renderCardControls('news')}
           </div>
         </div>
 
-        {isCompact ? (
-          <div className="py-1 flex-1 flex flex-col justify-between space-y-1.5">
-            {displayNews.map((item: any, idx: number) => (
-              <a
-                key={item.id || idx}
-                href={item.link}
-                target="_blank"
-                rel="noreferrer"
-                className={`p-1.5 rounded-lg border block hover:opacity-100 transition-opacity ${getInnerClass()}`}
-              >
-                <div className="flex items-center justify-between text-[8px] opacity-75 mb-0.5">
-                  <span className="font-bold text-red-500 truncate mr-1">{item.source}</span>
-                  <span className="font-mono shrink-0">{item.timeAgo}</span>
-                </div>
-                <div className="text-[10px] font-bold leading-tight line-clamp-2 hover:underline">
-                  {item.title}
-                </div>
-              </a>
-            ))}
-          </div>
-        ) : isLarge ? (
-          <div className="space-y-2 py-0.5 flex-1 flex flex-col justify-between">
+        {isLarge ? (
+          <div className="space-y-2 py-0.5 flex-1 flex flex-col min-h-0">
             {/* Top: Featured Lead Story Card */}
             {leadStory && (
               <a
                 href={leadStory.link}
                 target="_blank"
                 rel="noreferrer"
-                className={`p-2.5 rounded-xl border flex flex-col justify-between group hover:opacity-100 transition-all ${getInnerClass()}`}
+                className={`p-2.5 rounded-xl border flex flex-col justify-between group hover:opacity-100 transition-all shrink-0 ${getInnerClass()}`}
               >
                 <div>
                   <div className="flex items-center justify-between text-[9px] mb-1">
@@ -2032,8 +2014,8 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
             )}
 
             {/* Bottom: Vertical Paddock Wire Feed */}
-            <div className="space-y-1.5 overflow-y-auto flex-1 pr-0.5">
-              <div className="text-[9px] font-bold uppercase tracking-wider text-gray-400 pb-0.5 border-b border-black/10 dark:border-white/10">
+            <div className="space-y-1.5 overflow-y-auto flex-1 min-h-0 pr-1">
+              <div className="text-[9px] font-bold uppercase tracking-wider text-gray-400 pb-0.5 border-b border-black/10 dark:border-white/10 shrink-0">
                 Paddock Wire Feed ({wireStories.length} Stories)
               </div>
               {wireStories.map((item: any, idx: number) => (
@@ -2046,7 +2028,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                 >
                   <div className="flex items-center justify-between text-[9px] mb-1">
                     <div className="flex items-center space-x-1.5">
-                      <span className="font-bold text-red-500 bg-red-500/10 px-1.5 py-0.2 rounded text-[8px] uppercase tracking-wider">
+                      <span className="font-bold text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded text-[8px] uppercase tracking-wider">
                         {item.source}
                       </span>
                       <span className="opacity-60 font-mono text-[9px]">{item.timeAgo}</span>
@@ -2061,8 +2043,8 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
             </div>
           </div>
         ) : (
-          <div className="space-y-1.5 text-xs overflow-y-auto pr-0.5 flex-1">
-            {displayNews.map((item: any, idx: number) => (
+          <div className="space-y-1.5 text-xs overflow-y-auto pr-1 flex-1 min-h-0">
+            {news.map((item: any, idx: number) => (
               <a
                 key={item.id || idx}
                 href={item.link}
@@ -2072,7 +2054,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
               >
                 <div className="flex items-center justify-between text-[9px] mb-1">
                   <div className="flex items-center space-x-1.5">
-                    <span className="font-bold text-red-500 bg-red-500/10 px-1.5 py-0.2 rounded text-[8px] uppercase tracking-wider">
+                    <span className="font-bold text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded text-[8px] uppercase tracking-wider">
                       {item.source}
                     </span>
                     <span className="opacity-60 font-mono text-[9px]">{item.timeAgo}</span>
@@ -2411,8 +2393,8 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
   const renderStandingsWidget = (size: F1WidgetSize) => {
     const isCompact = size === 'compact';
     const isLarge = size === 'large';
-    const drivers = (f1.standings || []).slice(0, isCompact ? 4 : isLarge ? 20 : 10);
-    const constructors = (f1.constructorStandings || []).slice(0, isCompact ? 4 : 10);
+    const drivers = isCompact ? (f1.standings || []).slice(0, 5) : (f1.standings || []);
+    const constructors = (f1.constructorStandings || []);
 
     if (uiStyle === 'tui') {
       return (
@@ -2421,27 +2403,28 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           title={isCompact ? 'STANDINGS' : isLarge ? 'FULL_CHAMPIONSHIP_STANDINGS' : standingsTab === 'drivers' ? 'WDC_STANDINGS' : 'WCC_STANDINGS'}
           badge={standingsTab === 'drivers' ? 'WDC' : 'WCC'}
           badgeColor="text-amber-400"
+          headerRight={renderCardControls('standings')}
           className="h-full flex flex-col justify-between"
         >
-          <div className="space-y-1 text-xs py-0.5 flex flex-col justify-between h-full font-mono flex-1">
-            <div className="flex items-center justify-between pb-1 border-b border-amber-400/20 text-[10px]">
+          <div className="space-y-1 text-xs py-0.5 flex flex-col h-full font-mono flex-1 min-h-0">
+            <div className="flex items-center justify-between pb-1 border-b border-amber-400/20 text-[10px] shrink-0">
               <div className="flex space-x-2">
                 <button
                   onClick={() => setStandingsTab('drivers')}
                   className={`hover:underline cursor-pointer ${standingsTab === 'drivers' ? 'text-amber-400 font-bold' : 'text-gray-500'}`}
                 >
-                  [DRIVERS {isLarge ? '(ALL)' : ''}]
+                  [DRIVERS ({drivers.length})]
                 </button>
                 <button
                   onClick={() => setStandingsTab('constructors')}
                   className={`hover:underline cursor-pointer ${standingsTab === 'constructors' ? 'text-amber-400 font-bold' : 'text-gray-500'}`}
                 >
-                  [TEAMS]
+                  [TEAMS ({constructors.length})]
                 </button>
               </div>
               <span className="text-gray-400">PTS</span>
             </div>
-            <div className="space-y-1 overflow-y-auto flex-1 pr-0.5">
+            <div className="space-y-1 overflow-y-auto flex-1 min-h-0 pr-1">
               {standingsTab === 'drivers' ? (
                 drivers.map((d: any) => (
                   <div key={d.driverCode} className="flex items-center justify-between text-[11px]">
@@ -2470,10 +2453,11 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           title={isCompact ? 'STANDINGS' : isLarge ? 'CHAMPIONSHIP STANDINGS (DEEP)' : standingsTab === 'drivers' ? 'DRIVER STANDINGS' : 'TEAM STANDINGS'}
           badge={standingsTab === 'drivers' ? 'WDC' : 'WCC'}
           badgeColor="bg-amber-400 text-black"
+          headerRight={renderCardControls('standings')}
           className="h-full flex flex-col justify-between"
         >
-          <div className="space-y-1.5 py-0.5 flex flex-col justify-between h-full flex-1">
-            <div className="flex items-center justify-between pb-1 border-b-2 border-black text-[10px]">
+          <div className="space-y-1.5 py-0.5 flex flex-col h-full flex-1 min-h-0">
+            <div className="flex items-center justify-between pb-1 border-b-2 border-black text-[10px] shrink-0">
               <div className="flex space-x-1">
                 <button
                   onClick={() => setStandingsTab('drivers')}
@@ -2481,7 +2465,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                     standingsTab === 'drivers' ? 'bg-amber-400 text-black' : 'bg-transparent text-gray-600'
                   }`}
                 >
-                  Drivers {isLarge ? '(Top 20)' : ''}
+                  Drivers ({drivers.length})
                 </button>
                 <button
                   onClick={() => setStandingsTab('constructors')}
@@ -2489,12 +2473,12 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                     standingsTab === 'constructors' ? 'bg-amber-400 text-black' : 'bg-transparent text-gray-600'
                   }`}
                 >
-                  Teams
+                  Teams ({constructors.length})
                 </button>
               </div>
               <span className="font-mono font-bold">PTS</span>
             </div>
-            <div className="space-y-1 overflow-y-auto flex-1 pr-0.5">
+            <div className="space-y-1 overflow-y-auto flex-1 min-h-0 pr-1">
               {standingsTab === 'drivers' ? (
                 drivers.map((d: any) => (
                   <div
@@ -2533,31 +2517,32 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           title={isCompact ? 'STANDINGS' : isLarge ? 'FULL_CHAMPIONSHIP_STANDINGS' : standingsTab === 'drivers' ? 'PILOT_RANKS' : 'CONSTRUCTOR_RANKS'}
           code={standingsTab === 'drivers' ? 'WDC' : 'WCC'}
           glowColor="amber"
+          headerRight={renderCardControls('standings')}
           className="h-full flex flex-col justify-between"
         >
-          <div className="space-y-1 py-0.5 flex flex-col justify-between h-full font-mono text-[10px] flex-1">
-            <div className="flex items-center justify-between pb-1 border-b border-amber-500/20">
+          <div className="space-y-1 py-0.5 flex flex-col h-full font-mono text-[10px] flex-1 min-h-0">
+            <div className="flex items-center justify-between pb-1 border-b border-amber-500/20 shrink-0">
               <div className="flex space-x-1">
                 <button
                   onClick={() => setStandingsTab('drivers')}
-                  className={`px-1 py-0.2 rounded border cursor-pointer ${
+                  className={`px-1 py-0.5 rounded border cursor-pointer ${
                     standingsTab === 'drivers' ? 'border-amber-400 text-amber-400 bg-amber-500/20' : 'border-transparent text-gray-500'
                   }`}
                 >
-                  DRV {isLarge ? '(ALL)' : ''}
+                  DRV ({drivers.length})
                 </button>
                 <button
                   onClick={() => setStandingsTab('constructors')}
-                  className={`px-1 py-0.2 rounded border cursor-pointer ${
+                  className={`px-1 py-0.5 rounded border cursor-pointer ${
                     standingsTab === 'constructors' ? 'border-amber-400 text-amber-400 bg-amber-500/20' : 'border-transparent text-gray-500'
                   }`}
                 >
-                  CON
+                  CON ({constructors.length})
                 </button>
               </div>
               <span className="text-amber-400">PTS</span>
             </div>
-            <div className="space-y-1 overflow-y-auto flex-1 pr-0.5">
+            <div className="space-y-1 overflow-y-auto flex-1 min-h-0 pr-1">
               {standingsTab === 'drivers' ? (
                 drivers.map((d: any) => (
                   <div key={d.driverCode} className="p-1 rounded border border-amber-500/20 flex items-center justify-between">
@@ -2581,7 +2566,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
 
     return (
       <div key="standings" className={`border ${getCardClass(size, 'standings')}`}>
-        <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center justify-between mb-1.5 shrink-0">
           <div className="flex items-center space-x-2 truncate">
             <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
               <Trophy size={12} className="text-amber-500 shrink-0" />
@@ -2601,24 +2586,24 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
               <button
                 type="button"
                 onClick={() => setStandingsTab('drivers')}
-                className={`px-1.5 py-0.2 rounded font-bold transition-all cursor-pointer ${
+                className={`px-1.5 py-0.5 rounded font-bold transition-all cursor-pointer ${
                   standingsTab === 'drivers'
                     ? 'bg-amber-500 text-black shadow-xs font-extrabold'
                     : 'text-gray-400 hover:text-current'
                 }`}
               >
-                Drivers {isLarge ? '(Top 20)' : ''}
+                Drivers ({drivers.length})
               </button>
               <button
                 type="button"
                 onClick={() => setStandingsTab('constructors')}
-                className={`px-1.5 py-0.2 rounded font-bold transition-all cursor-pointer ${
+                className={`px-1.5 py-0.5 rounded font-bold transition-all cursor-pointer ${
                   standingsTab === 'constructors'
                     ? 'bg-amber-500 text-black shadow-xs font-extrabold'
                     : 'text-gray-400 hover:text-current'
                 }`}
               >
-                Teams
+                Teams ({constructors.length})
               </button>
             </div>
           </div>
@@ -2630,7 +2615,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
         </div>
 
         {isCompact ? (
-          <div className="space-y-1 py-1 flex-1 flex flex-col justify-between">
+          <div className="space-y-1 py-1 flex-1 flex flex-col min-h-0 overflow-y-auto pr-0.5">
             {standingsTab === 'drivers' ? (
               drivers.map((d: any) => (
                 <div key={d.driverCode} className={`p-1 rounded-lg border flex items-center justify-between text-[10px] ${getInnerClass()}`}>
@@ -2656,12 +2641,12 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
             )}
           </div>
         ) : (
-          <div className="space-y-1 text-xs overflow-y-auto pr-0.5 flex-1">
+          <div className="space-y-1 text-xs overflow-y-auto pr-1 flex-1 min-h-0">
             {standingsTab === 'drivers' ? (
               drivers.map((d: any) => (
                 <div key={d.driverCode} className={`p-1.5 rounded-xl border flex items-center justify-between ${getInnerClass()}`}>
                   <div className="flex items-center space-x-2 truncate">
-                    <span className="font-mono font-bold opacity-60 w-3 text-center text-xs">{d.position}</span>
+                    <span className="font-mono font-bold opacity-60 w-4 text-center text-xs">{d.position}</span>
                     <div className="w-1.5 h-4 rounded-full shrink-0" style={{ backgroundColor: d.teamColor }} />
                     <div className="truncate">
                       <span className="font-bold text-[11px] block truncate">{d.driver}</span>
@@ -2675,7 +2660,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
               constructors.map((c: any) => (
                 <div key={c.team} className={`p-1.5 rounded-xl border flex items-center justify-between ${getInnerClass()}`}>
                   <div className="flex items-center space-x-2.5 truncate">
-                    <span className="font-mono font-bold opacity-60 w-3 text-center text-xs">{c.position}</span>
+                    <span className="font-mono font-bold opacity-60 w-4 text-center text-xs">{c.position}</span>
                     <div className="w-1.5 h-4 rounded-full shrink-0" style={{ backgroundColor: c.teamColor }} />
                     <div className="truncate">
                       <span className="font-bold text-[11px] block truncate">{c.team}</span>

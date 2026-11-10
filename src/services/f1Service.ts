@@ -116,6 +116,16 @@ const FALLBACK_STANDINGS: F1DriverStanding[] = [
   { position: 8, driver: 'Isack Hadjar', driverCode: 'HAD', team: 'Red Bull', points: 122, number: 6, teamColor: '#3671C6' },
   { position: 9, driver: 'Liam Lawson', driverCode: 'LAW', team: 'RB F1 Team', points: 89, number: 30, teamColor: '#6692FF' },
   { position: 10, driver: 'Pierre Gasly', driverCode: 'GAS', team: 'Alpine', points: 42, number: 10, teamColor: '#0093CC' },
+  { position: 11, driver: 'Esteban Ocon', driverCode: 'OCO', team: 'Haas', points: 27, number: 31, teamColor: '#B6BABD' },
+  { position: 12, driver: 'Oliver Bearman', driverCode: 'BEA', team: 'Haas', points: 24, number: 87, teamColor: '#B6BABD' },
+  { position: 13, driver: 'Nico Hülkenberg', driverCode: 'HUL', team: 'Audi', points: 20, number: 27, teamColor: '#EE0000' },
+  { position: 14, driver: 'Carlos Sainz', driverCode: 'SAI', team: 'Williams', points: 19, number: 55, teamColor: '#64C4FF' },
+  { position: 15, driver: 'Yuki Tsunoda', driverCode: 'TSU', team: 'RB F1 Team', points: 16, number: 22, teamColor: '#6692FF' },
+  { position: 16, driver: 'Alexander Albon', driverCode: 'ALB', team: 'Williams', points: 12, number: 23, teamColor: '#64C4FF' },
+  { position: 17, driver: 'Gabriel Bortoleto', driverCode: 'BOR', team: 'Audi', points: 8, number: 5, teamColor: '#EE0000' },
+  { position: 18, driver: 'Lance Stroll', driverCode: 'STR', team: 'Aston Martin', points: 5, number: 18, teamColor: '#229971' },
+  { position: 19, driver: 'Fernando Alonso', driverCode: 'ALO', team: 'Aston Martin', points: 4, number: 14, teamColor: '#229971' },
+  { position: 20, driver: 'Jack Doohan', driverCode: 'DOO', team: 'Alpine', points: 2, number: 7, teamColor: '#0093CC' },
 ];
 
 const FALLBACK_CONSTRUCTORS: F1ConstructorStanding[] = [
@@ -480,7 +490,7 @@ const fetchLiveStandings = async (): Promise<F1DriverStanding[]> => {
       const data = await res.json();
       const list = data.MRData?.StandingsTable?.StandingsLists?.[0]?.DriverStandings;
       if (Array.isArray(list) && list.length > 0) {
-        return list.slice(0, 10).map((item: any) => {
+        return list.map((item: any) => {
           const teamName = item.Constructors?.[0]?.name || 'Unknown';
           return {
             position: Number(item.position),
@@ -507,7 +517,7 @@ const fetchConstructorStandings = async (): Promise<F1ConstructorStanding[]> => 
       const data = await res.json();
       const list = data.MRData?.StandingsTable?.StandingsLists?.[0]?.ConstructorStandings;
       if (Array.isArray(list) && list.length > 0) {
-        return list.slice(0, 10).map((item: any) => {
+        return list.map((item: any) => {
           const teamName = item.Constructor?.name || 'Unknown';
           return {
             position: Number(item.position),
