@@ -36,6 +36,9 @@ import {
   Moon,
   CloudMoon,
   Flame,
+  Timer,
+  Car,
+  Gauge,
 } from 'lucide-react';
 import { BrutalistBox } from '../brutalist/BrutalistBox';
 import { HudBox } from '../hud/HudBox';
@@ -92,15 +95,39 @@ export const MORNING_AVAILABLE_WIDGETS: MorningWidgetDef[] = [
     description: 'Curated morning news headlines and breaking news wire.',
     icon: Newspaper,
   },
+  {
+    id: 'timeProgress',
+    name: 'Time & Year Progress',
+    badge: 'CHRONO',
+    description: 'Year, quarter, and month elapsed progress bars with week and day countdown.',
+    icon: Timer,
+  },
+  {
+    id: 'traffic',
+    name: 'Traffic to Office',
+    badge: 'COMMUTE',
+    description: 'Live commute route, ETA, distance, delay alerts, and congestion status.',
+    icon: Car,
+  },
+  {
+    id: 'aqi',
+    name: 'Current AQI',
+    badge: 'AIR QUALITY',
+    description: 'Dedicated US AQI meter, PM2.5/PM10 breakdown, and health advisories.',
+    icon: Gauge,
+  },
 ];
 
 export const DEFAULT_MORNING_SLOT_LAYOUT: Record<MorningWidgetId, MorningWidgetLayoutItem> = {
-  clock:    { col: 1, row: 1, colSpan: 4, rowSpan: 1 },
-  weather:  { col: 1, row: 2, colSpan: 4, rowSpan: 2 },
-  calendar: { col: 5, row: 1, colSpan: 4, rowSpan: 2 },
-  tasks:    { col: 5, row: 3, colSpan: 4, rowSpan: 1 },
-  markets:  { col: 9, row: 1, colSpan: 4, rowSpan: 2 },
-  news:     { col: 9, row: 3, colSpan: 4, rowSpan: 1 },
+  clock:        { col: 1, row: 1, colSpan: 4, rowSpan: 1 },
+  weather:      { col: 1, row: 2, colSpan: 4, rowSpan: 2 },
+  timeProgress: { col: 1, row: 4, colSpan: 4, rowSpan: 1 },
+  calendar:     { col: 5, row: 1, colSpan: 4, rowSpan: 2 },
+  tasks:        { col: 5, row: 3, colSpan: 4, rowSpan: 1 },
+  traffic:      { col: 5, row: 4, colSpan: 4, rowSpan: 1 },
+  markets:      { col: 9, row: 1, colSpan: 4, rowSpan: 2 },
+  news:         { col: 9, row: 3, colSpan: 4, rowSpan: 1 },
+  aqi:          { col: 9, row: 4, colSpan: 4, rowSpan: 1 },
 };
 
 export const collides = (a: MorningWidgetLayoutItem, b: MorningWidgetLayoutItem): boolean => {
@@ -1597,6 +1624,608 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
     );
   };
 
+  // 7. TIME PROGRESS WIDGET (Year / Quarter / Month Progress Bar)
+  const renderTimeProgressWidget = (layout: MorningWidgetLayoutItem) => {
+    const isCompact = layout.colSpan <= 3 && layout.rowSpan === 1;
+    const isTall = layout.rowSpan >= 2;
+
+    const now = new Date();
+    const year = now.getFullYear();
+    const startOfYear = new Date(year, 0, 1);
+    const endOfYear = new Date(year + 1, 0, 1);
+    const isLeap = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+    const totalDaysInYear = isLeap ? 366 : 365;
+    const dayOfYear = Math.floor((now.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    const yearPercent = Math.min(100, Math.max(0, ((now.getTime() - startOfYear.getTime()) / (endOfYear.getTime() - startOfYear.getTime())) * 100));
+    const daysLeftInYear = Math.max(0, totalDaysInYear - dayOfYear);
+
+    const quarterNum = Math.floor(now.getMonth() / 3) + 1;
+    const startOfQuarter = new Date(year, (quarterNum - 1) * 3, 1);
+    const endOfQuarter = new Date(year, quarterNum * 3, 1);
+    const quarterPercent = Math.min(100, Math.max(0, ((now.getTime() - startOfQuarter.getTime()) / (endOfQuarter.getTime() - startOfQuarter.getTime())) * 100));
+    const daysLeftInQuarter = Math.max(0, Math.ceil((endOfQuarter.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+
+    const monthName = now.toLocaleString('en-US', { month: 'short' });
+    const dayOfMonth = now.getDate();
+    const daysInMonth = new Date(year, now.getMonth() + 1, 0).getDate();
+    const monthPercent = Math.min(100, Math.max(0, (dayOfMonth / daysInMonth) * 100));
+    const daysLeftInMonth = Math.max(0, daysInMonth - dayOfMonth);
+
+    const weekNum = Math.ceil((dayOfYear + startOfYear.getDay()) / 7);
+
+    if (uiStyle === 'tui') {
+      return (
+        <TuiBox
+          title="CHRONO_PROGRESS"
+          badge={`W${weekNum} / D${dayOfYear}`}
+          headerRight={renderCardControls('timeProgress')}
+          className="h-full flex flex-col justify-between"
+        >
+          <div className="flex flex-col justify-between flex-1 py-1 font-mono text-xs min-h-0 space-y-1.5">
+            <div>
+              <div className="flex justify-between text-[10px] mb-0.5">
+                <span>YEAR_{year}</span>
+                <span>{yearPercent.toFixed(1)}% ({daysLeftInYear}d left)</span>
+              </div>
+              <div className="h-1.5 w-full bg-black/40 border border-emerald-500/30 overflow-hidden">
+                <div className="h-full bg-emerald-400" style={{ width: `${yearPercent}%` }} />
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between text-[10px] mb-0.5">
+                <span>QUARTER_Q{quarterNum}</span>
+                <span>{quarterPercent.toFixed(1)}% ({daysLeftInQuarter}d left)</span>
+              </div>
+              <div className="h-1.5 w-full bg-black/40 border border-cyan-500/30 overflow-hidden">
+                <div className="h-full bg-cyan-400" style={{ width: `${quarterPercent}%` }} />
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between text-[10px] mb-0.5">
+                <span>MONTH_{monthName.toUpperCase()}</span>
+                <span>{monthPercent.toFixed(1)}% ({daysLeftInMonth}d left)</span>
+              </div>
+              <div className="h-1.5 w-full bg-black/40 border border-amber-500/30 overflow-hidden">
+                <div className="h-full bg-amber-400" style={{ width: `${monthPercent}%` }} />
+              </div>
+            </div>
+          </div>
+        </TuiBox>
+      );
+    }
+
+    if (uiStyle === 'brutalist') {
+      return (
+        <BrutalistBox
+          title="TIME PASSAGE"
+          badge={`${yearPercent.toFixed(0)}% YEAR`}
+          headerRight={renderCardControls('timeProgress')}
+          className="h-full flex flex-col justify-between"
+        >
+          <div className="flex flex-col justify-between flex-1 py-1 font-mono min-h-0 space-y-1.5">
+            <div>
+              <div className="flex justify-between text-[10px] font-black uppercase mb-0.5">
+                <span>YEAR {year}</span>
+                <span>{yearPercent.toFixed(1)}% • {daysLeftInYear}D LEFT</span>
+              </div>
+              <div className="h-2 w-full bg-neutral-200 border-2 border-black overflow-hidden">
+                <div className="h-full bg-yellow-400 border-r-2 border-black" style={{ width: `${yearPercent}%` }} />
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between text-[10px] font-black uppercase mb-0.5">
+                <span>QUARTER Q{quarterNum}</span>
+                <span>{quarterPercent.toFixed(1)}% • {daysLeftInQuarter}D LEFT</span>
+              </div>
+              <div className="h-2 w-full bg-neutral-200 border-2 border-black overflow-hidden">
+                <div className="h-full bg-lime-400 border-r-2 border-black" style={{ width: `${quarterPercent}%` }} />
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between text-[10px] font-black uppercase mb-0.5">
+                <span>MONTH {monthName.toUpperCase()}</span>
+                <span>{monthPercent.toFixed(1)}% • {daysLeftInMonth}D LEFT</span>
+              </div>
+              <div className="h-2 w-full bg-neutral-200 border-2 border-black overflow-hidden">
+                <div className="h-full bg-cyan-400 border-r-2 border-black" style={{ width: `${monthPercent}%` }} />
+              </div>
+            </div>
+          </div>
+        </BrutalistBox>
+      );
+    }
+
+    if (uiStyle === 'hud') {
+      return (
+        <HudBox
+          title="TEMPORAL_CYCLE"
+          code={`W${weekNum}_D${dayOfYear}`}
+          glowColor="cyan"
+          headerRight={renderCardControls('timeProgress')}
+          className="h-full flex flex-col justify-between"
+        >
+          <div className="flex flex-col justify-between flex-1 py-1 font-mono text-xs min-h-0 space-y-2">
+            <div>
+              <div className="flex justify-between text-[10px] text-cyan-300 mb-0.5">
+                <span>CYCLE_{year}</span>
+                <span className="font-bold">{yearPercent.toFixed(1)}% [{daysLeftInYear}D REMAIN]</span>
+              </div>
+              <div className="h-1.5 w-full bg-cyan-950/60 border border-cyan-500/40 rounded-sm overflow-hidden">
+                <div className="h-full bg-cyan-400 shadow-[0_0_8px_rgba(6,182,212,0.8)]" style={{ width: `${yearPercent}%` }} />
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between text-[10px] text-teal-300 mb-0.5">
+                <span>SECTOR_Q{quarterNum}</span>
+                <span className="font-bold">{quarterPercent.toFixed(1)}% [{daysLeftInQuarter}D REMAIN]</span>
+              </div>
+              <div className="h-1.5 w-full bg-cyan-950/60 border border-teal-500/40 rounded-sm overflow-hidden">
+                <div className="h-full bg-teal-400 shadow-[0_0_8px_rgba(45,212,191,0.8)]" style={{ width: `${quarterPercent}%` }} />
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between text-[10px] text-indigo-300 mb-0.5">
+                <span>PHASE_{monthName.toUpperCase()}</span>
+                <span className="font-bold">{monthPercent.toFixed(1)}% [{daysLeftInMonth}D REMAIN]</span>
+              </div>
+              <div className="h-1.5 w-full bg-cyan-950/60 border border-indigo-500/40 rounded-sm overflow-hidden">
+                <div className="h-full bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.8)]" style={{ width: `${monthPercent}%` }} />
+              </div>
+            </div>
+          </div>
+        </HudBox>
+      );
+    }
+
+    // Default Glass / Minimal / Civic
+    return (
+      <div className={getCardClass(isCompact)}>
+        <div className="flex items-center justify-between mb-1.5 shrink-0">
+          <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
+            <Timer size={12} className="text-indigo-400 shrink-0" />
+            <span className="truncate">{isCompact ? 'Progress' : 'Time & Year Progress'}</span>
+          </span>
+          <div className="flex items-center space-x-1.5 shrink-0">
+            {!isCompact && (
+              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-indigo-500/15 text-indigo-400 border border-indigo-500/20 font-bold">
+                W{weekNum} • Day {dayOfYear}
+              </span>
+            )}
+            {renderCardControls('timeProgress')}
+          </div>
+        </div>
+
+        <div className="flex-1 flex flex-col justify-around min-h-0 py-0.5 space-y-2">
+          {/* Year bar */}
+          <div>
+            <div className="flex items-center justify-between text-xs mb-1 font-mono">
+              <span className="font-semibold text-[11px] opacity-90">{year} Year</span>
+              <div className="space-x-1.5 text-[10px]">
+                <span className="font-bold text-indigo-400">{yearPercent.toFixed(1)}%</span>
+                <span className="opacity-50">({daysLeftInYear}d left)</span>
+              </div>
+            </div>
+            <div className={`h-2 w-full rounded-full overflow-hidden ${isLight ? 'bg-slate-200' : 'bg-white/10'}`}>
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-500"
+                style={{ width: `${yearPercent}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Quarter bar */}
+          <div>
+            <div className="flex items-center justify-between text-xs mb-1 font-mono">
+              <span className="font-semibold text-[11px] opacity-90">Quarter {quarterNum}</span>
+              <div className="space-x-1.5 text-[10px]">
+                <span className="font-bold text-violet-400">{quarterPercent.toFixed(1)}%</span>
+                <span className="opacity-50">({daysLeftInQuarter}d left)</span>
+              </div>
+            </div>
+            <div className={`h-2 w-full rounded-full overflow-hidden ${isLight ? 'bg-slate-200' : 'bg-white/10'}`}>
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-violet-500 to-purple-500 transition-all duration-500"
+                style={{ width: `${quarterPercent}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Month bar */}
+          <div>
+            <div className="flex items-center justify-between text-xs mb-1 font-mono">
+              <span className="font-semibold text-[11px] opacity-90">{monthName} Month</span>
+              <div className="space-x-1.5 text-[10px]">
+                <span className="font-bold text-teal-400">{monthPercent.toFixed(1)}%</span>
+                <span className="opacity-50">({daysLeftInMonth}d left)</span>
+              </div>
+            </div>
+            <div className={`h-2 w-full rounded-full overflow-hidden ${isLight ? 'bg-slate-200' : 'bg-white/10'}`}>
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-400 transition-all duration-500"
+                style={{ width: `${monthPercent}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Extra metrics when tall */}
+          {isTall && (
+            <div className={`grid grid-cols-3 gap-1.5 pt-2 border-t text-center font-mono text-xs ${isLight ? 'border-black/10' : 'border-white/10'}`}>
+              <div className={`p-1.5 rounded-lg border ${getInnerClass()}`}>
+                <span className="block text-[8px] uppercase opacity-70">Week</span>
+                <span className="font-bold text-indigo-400">{weekNum} / 52</span>
+              </div>
+              <div className={`p-1.5 rounded-lg border ${getInnerClass()}`}>
+                <span className="block text-[8px] uppercase opacity-70">Day of Year</span>
+                <span className="font-bold">{dayOfYear} / {totalDaysInYear}</span>
+              </div>
+              <div className={`p-1.5 rounded-lg border ${getInnerClass()}`}>
+                <span className="block text-[8px] uppercase opacity-70">Pace</span>
+                <span className="font-bold text-emerald-400">On Track</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // 8. TRAFFIC TO OFFICE WIDGET
+  const renderTrafficWidget = (layout: MorningWidgetLayoutItem) => {
+    const isCompact = layout.colSpan <= 3 && layout.rowSpan === 1;
+    const isTall = layout.rowSpan >= 2;
+
+    // Route calculation & ETA
+    const now = new Date();
+    const etaDate = new Date(now.getTime() + 34 * 60 * 1000);
+    const etaString = etaDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    if (uiStyle === 'tui') {
+      return (
+        <TuiBox
+          title="COMMUTE_TELEMETRY"
+          badge="ETA 34M"
+          headerRight={renderCardControls('traffic')}
+          className="h-full flex flex-col justify-between"
+        >
+          <div className="flex flex-col justify-between flex-1 py-1 font-mono text-xs min-h-0">
+            <div className="flex items-baseline justify-between">
+              <div>
+                <span className="text-2xl font-extrabold text-amber-400">34 MIN</span>
+                <span className="text-[10px] ml-1.5 text-rose-400">+8m delay</span>
+              </div>
+              <span className="text-[10px] opacity-75">ETA: {etaString}</span>
+            </div>
+            <div className="text-[10px] text-gray-300 mt-1">
+              ROUTE: Outer Ring Rd Exp (18.4 km)
+            </div>
+            <div className="text-[10px] text-amber-400/90 border-t border-dashed border-amber-500/30 pt-1 mt-1">
+              STATUS: Moderate congestion at Flyover
+            </div>
+            {isTall && (
+              <div className="text-[9px] opacity-70 border-t pt-1 mt-1">
+                ALT: Airport Bypass (41 min • Clear)
+              </div>
+            )}
+          </div>
+        </TuiBox>
+      );
+    }
+
+    if (uiStyle === 'brutalist') {
+      return (
+        <BrutalistBox
+          title="COMMUTE ROUTE"
+          badge="34 MIN"
+          headerRight={renderCardControls('traffic')}
+          className="h-full flex flex-col justify-between"
+        >
+          <div className="flex flex-col justify-between flex-1 py-1 font-mono min-h-0">
+            <div className="flex items-baseline justify-between border-b-2 border-black pb-1">
+              <div>
+                <span className="text-2xl font-black">34 MIN</span>
+                <span className="text-xs font-bold text-red-600 ml-1.5">+8M DELAY</span>
+              </div>
+              <span className="text-xs font-bold">ARRIVE {etaString}</span>
+            </div>
+            <div className="text-[10px] font-bold pt-1">
+              HOME ➔ TECH PARK (18.4 KM)
+            </div>
+            <div className="bg-amber-200 border border-black p-1 text-[9px] font-black uppercase mt-1">
+              MODERATE CONGESTION ON FLYOVER
+            </div>
+          </div>
+        </BrutalistBox>
+      );
+    }
+
+    if (uiStyle === 'hud') {
+      return (
+        <HudBox
+          title="TRANSIT_RADAR"
+          code="ORR_EXP_18K"
+          glowColor="amber"
+          headerRight={renderCardControls('traffic')}
+          className="h-full flex flex-col justify-between"
+        >
+          <div className="flex flex-col justify-between flex-1 py-1 font-mono text-xs min-h-0">
+            <div className="flex items-baseline justify-between text-amber-400">
+              <span className="text-3xl font-black">34<span className="text-sm font-normal">MIN</span></span>
+              <span className="text-xs text-rose-400">+8M DELAY</span>
+            </div>
+            <div className="text-[10px] text-cyan-300 mt-1">
+              WAYPOINT: TECH PARK HQ • ETA {etaString}
+            </div>
+            <div className="flex items-center space-x-1 mt-1.5">
+              <div className="h-1 flex-1 bg-emerald-500 rounded" />
+              <div className="h-1 flex-1 bg-amber-500 rounded" />
+              <div className="h-1 flex-1 bg-rose-500 rounded animate-pulse" />
+              <div className="h-1 flex-1 bg-emerald-500 rounded" />
+            </div>
+            {isTall && (
+              <div className="text-[9px] text-gray-400 border-t border-cyan-500/20 pt-1 mt-1">
+                BACKUP: BYPASS EXP // 41 MIN // CLEAR
+              </div>
+            )}
+          </div>
+        </HudBox>
+      );
+    }
+
+    // Default Glass / Minimal / Civic
+    return (
+      <div className={getCardClass(isCompact)}>
+        <div className="flex items-center justify-between mb-1.5 shrink-0">
+          <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
+            <Car size={12} className="text-amber-400 shrink-0" />
+            <span className="truncate">{isCompact ? 'Commute' : 'Traffic to Office'}</span>
+          </span>
+          <div className="flex items-center space-x-1.5 shrink-0">
+            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500 border border-amber-500/20 font-bold">
+              +8m Delay
+            </span>
+            {renderCardControls('traffic')}
+          </div>
+        </div>
+
+        <div className="flex-1 flex flex-col justify-between min-h-0 py-0.5">
+          <div className="flex items-baseline justify-between">
+            <div>
+              <div className="flex items-baseline space-x-1.5">
+                <span className="text-2xl sm:text-3xl font-black tracking-tight font-mono-numbers">
+                  34
+                </span>
+                <span className="text-xs font-semibold opacity-75">min</span>
+                <span className="text-[10px] font-mono text-amber-500 font-semibold">(26m typical)</span>
+              </div>
+              <p className="text-[10px] opacity-70 mt-0.5 font-mono truncate">
+                via Outer Ring Rd Exp • 18.4 km
+              </p>
+            </div>
+            <div className="text-right">
+              <div className="text-[11px] font-mono font-bold text-emerald-400">
+                ETA {etaString}
+              </div>
+              <div className="text-[9px] opacity-60">Leave by {new Date(now.getTime() + 10 * 60 * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+            </div>
+          </div>
+
+          {/* Route traffic density bar */}
+          <div className="my-1">
+            <div className="flex items-center justify-between text-[9px] opacity-60 mb-0.5 font-mono">
+              <span>Home</span>
+              <span className="text-amber-400">Flyover bottleneck</span>
+              <span>Office</span>
+            </div>
+            <div className="flex items-center space-x-1 h-1.5 w-full rounded-full overflow-hidden">
+              <div className="h-full w-2/5 bg-emerald-500 rounded-l" />
+              <div className="h-full w-2/5 bg-amber-500 animate-pulse" />
+              <div className="h-full w-1/5 bg-emerald-400 rounded-r" />
+            </div>
+          </div>
+
+          {/* Alternate route or extra detail when tall */}
+          {isTall && (
+            <div className={`pt-2 border-t text-xs font-mono flex items-center justify-between ${isLight ? 'border-black/10' : 'border-white/10'}`}>
+              <div className="truncate min-w-0 mr-2">
+                <span className="block text-[8px] uppercase opacity-60">Alternative Route</span>
+                <span className="font-semibold text-[11px] truncate block">via Metro & Bypass</span>
+              </div>
+              <div className="text-right shrink-0">
+                <span className="font-bold text-[11px] block">41 min</span>
+                <span className="text-[9px] text-emerald-400 block">Clear flow</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // 9. CURRENT AQI WIDGET
+  const renderAqiWidget = (layout: MorningWidgetLayoutItem) => {
+    const isCompact = layout.colSpan <= 3 && layout.rowSpan === 1;
+    const isTall = layout.rowSpan >= 2;
+
+    const getAdvisory = (score: number) => {
+      if (score <= 50) return 'Air quality is excellent. Ideal for outdoor activities.';
+      if (score <= 100) return 'Moderate air quality. Sensitive individuals should take note.';
+      if (score <= 150) return 'Unhealthy for sensitive groups. Reduce heavy outdoor exertion.';
+      return 'Unhealthy air conditions. Mask recommended outside.';
+    };
+
+    if (uiStyle === 'tui') {
+      return (
+        <TuiBox
+          title="ATMOSPHERIC_AQI"
+          badge={`AQI_${aqi.usAqi}`}
+          headerRight={renderCardControls('aqi')}
+          className="h-full flex flex-col justify-between"
+        >
+          <div className="flex flex-col justify-between flex-1 py-1 font-mono text-xs min-h-0">
+            <div className="flex items-baseline justify-between">
+              <span className="text-3xl font-extrabold">{aqi.usAqi} AQI</span>
+              <span className="text-xs uppercase font-bold" style={{ color: aqi.color }}>
+                {aqi.label}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-1 text-[10px] mt-1.5 border-t pt-1">
+              <div>PM2.5: {aqi.pm25} ug/m3</div>
+              <div>PM10: {aqi.pm10} ug/m3</div>
+              <div>OZONE: 34 ppb</div>
+              <div>NO2: 18 ppb</div>
+            </div>
+            {isTall && (
+              <div className="text-[9px] opacity-75 mt-1 border-t pt-1">
+                ADVISORY: {getAdvisory(aqi.usAqi)}
+              </div>
+            )}
+          </div>
+        </TuiBox>
+      );
+    }
+
+    if (uiStyle === 'brutalist') {
+      return (
+        <BrutalistBox
+          title="AIR QUALITY"
+          badge={`AQI ${aqi.usAqi}`}
+          headerRight={renderCardControls('aqi')}
+          className="h-full flex flex-col justify-between"
+        >
+          <div className="flex flex-col justify-between flex-1 py-1 font-mono min-h-0">
+            <div className="flex items-baseline justify-between border-b-2 border-black pb-1">
+              <span className="text-3xl font-black">{aqi.usAqi}</span>
+              <span className="text-xs font-black uppercase px-1.5 py-0.5 border border-black bg-yellow-200">
+                {aqi.label}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-1 text-[10px] pt-1">
+              <div>PM2.5: {aqi.pm25} µG/M³</div>
+              <div>PM10: {aqi.pm10} µG/M³</div>
+            </div>
+            {isTall && (
+              <div className="bg-black text-white p-1 text-[8px] font-bold uppercase mt-1">
+                {getAdvisory(aqi.usAqi)}
+              </div>
+            )}
+          </div>
+        </BrutalistBox>
+      );
+    }
+
+    if (uiStyle === 'hud') {
+      return (
+        <HudBox
+          title="PARTICULATE_INDEX"
+          code={`AQI_${aqi.usAqi}`}
+          glowColor="cyan"
+          headerRight={renderCardControls('aqi')}
+          className="h-full flex flex-col justify-between"
+        >
+          <div className="flex flex-col justify-between flex-1 py-1 font-mono text-xs min-h-0">
+            <div className="flex items-baseline justify-between text-cyan-400">
+              <span className="text-3xl font-black">{aqi.usAqi}</span>
+              <span className="text-xs font-bold uppercase" style={{ color: aqi.color }}>
+                {aqi.label}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-1 text-[10px] text-gray-300 border-t border-cyan-500/20 pt-1 mt-1">
+              <span>PM2.5: {aqi.pm25} ug/m3</span>
+              <span>PM10: {aqi.pm10} ug/m3</span>
+            </div>
+            {isTall && (
+              <div className="text-[9px] text-cyan-300/80 border-t border-cyan-500/20 pt-1 mt-1">
+                ADVISORY: {getAdvisory(aqi.usAqi)}
+              </div>
+            )}
+          </div>
+        </HudBox>
+      );
+    }
+
+    // Default Glass / Minimal / Civic
+    return (
+      <div className={getCardClass(isCompact)}>
+        <div className="flex items-center justify-between mb-1.5 shrink-0">
+          <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
+            <Gauge size={12} className="text-cyan-400 shrink-0" />
+            <span className="truncate">{isCompact ? 'AQI' : 'Current Air Quality'}</span>
+          </span>
+          <div className="flex items-center space-x-1.5 shrink-0">
+            <span
+              className="text-[9px] font-mono px-2 py-0.5 rounded-full border font-bold"
+              style={{
+                borderColor: `${aqi.color}60`,
+                backgroundColor: `${aqi.color}20`,
+                color: aqi.color,
+              }}
+            >
+              {aqi.label}
+            </span>
+            {renderCardControls('aqi')}
+          </div>
+        </div>
+
+        <div className="flex-1 flex flex-col justify-between min-h-0 py-0.5">
+          <div className="flex items-baseline justify-between">
+            <div className="flex items-baseline space-x-2">
+              <span
+                className="text-3xl sm:text-4xl font-black tracking-tight font-mono-numbers"
+                style={{ color: aqi.color }}
+              >
+                {aqi.usAqi}
+              </span>
+              <span className="text-xs font-semibold opacity-70">US AQI</span>
+            </div>
+            <div className="text-right font-mono text-[10px]">
+              <span className="opacity-60 block">Dominant</span>
+              <span className="font-bold">PM 2.5</span>
+            </div>
+          </div>
+
+          {/* Pollutant mini chips */}
+          <div className="grid grid-cols-3 gap-1 text-center font-mono my-1">
+            <div className={`p-1 rounded-lg border text-[10px] ${getInnerClass()}`}>
+              <span className="block text-[7px] uppercase opacity-70">PM 2.5</span>
+              <span className="font-bold text-[10px]">{aqi.pm25} <span className="text-[7px]">µg</span></span>
+            </div>
+            <div className={`p-1 rounded-lg border text-[10px] ${getInnerClass()}`}>
+              <span className="block text-[7px] uppercase opacity-70">PM 10</span>
+              <span className="font-bold text-[10px]">{aqi.pm10} <span className="text-[7px]">µg</span></span>
+            </div>
+            <div className={`p-1 rounded-lg border text-[10px] ${getInnerClass()}`}>
+              <span className="block text-[7px] uppercase opacity-70">Ozone</span>
+              <span className="font-bold text-[10px]">34 <span className="text-[7px]">ppb</span></span>
+            </div>
+          </div>
+
+          {/* Health notice */}
+          <div className={`text-[9px] leading-tight px-2 py-1 rounded-lg border truncate font-mono ${getInnerClass()}`}>
+            <span className="opacity-90">{getAdvisory(aqi.usAqi)}</span>
+          </div>
+
+          {/* Extra detail when tall */}
+          {isTall && (
+            <div className={`pt-2 border-t mt-1 text-[10px] font-mono ${isLight ? 'border-black/10' : 'border-white/10'}`}>
+              <div className="flex items-center justify-between text-[9px] opacity-70 mb-1">
+                <span>6-Hour Forecast</span>
+                <span>Trend: Stable</span>
+              </div>
+              <div className="grid grid-cols-6 gap-1 text-center text-[9px]">
+                {['08:00', '10:00', '12:00', '14:00', '16:00', '18:00'].map((time, idx) => (
+                  <div key={idx} className={`p-1 rounded border ${getInnerClass()}`}>
+                    <span className="block text-[8px] opacity-60">{time}</span>
+                    <span className="font-bold text-[10px] text-emerald-400">Good</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const renderWidget = (id: MorningWidgetId) => {
     const layout = slotLayout[id] || DEFAULT_MORNING_SLOT_LAYOUT[id];
     switch (id) {
@@ -1604,14 +2233,20 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
         return renderClockWidget(layout);
       case 'weather':
         return renderWeatherWidget(layout);
+      case 'timeProgress':
+        return renderTimeProgressWidget(layout);
       case 'calendar':
         return renderCalendarWidget(layout);
       case 'tasks':
         return renderTasksWidget(layout);
+      case 'traffic':
+        return renderTrafficWidget(layout);
       case 'markets':
         return renderMarketsWidget(layout);
       case 'news':
         return renderNewsWidget(layout);
+      case 'aqi':
+        return renderAqiWidget(layout);
       default:
         return null;
     }

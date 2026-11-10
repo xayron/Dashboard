@@ -431,10 +431,13 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const DEFAULT_MORNING_ACTIVE_WIDGETS: MorningWidgetId[] = [
     'clock',
     'weather',
+    'timeProgress',
     'calendar',
     'tasks',
+    'traffic',
     'markets',
     'news',
+    'aqi',
   ];
 
   const [morningActiveWidgets, setMorningActiveWidgetsState] = useState<MorningWidgetId[]>(() => {
@@ -443,6 +446,22 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
+          // Merge newly available widgets if missing so user sees them immediately
+          const allKnown: MorningWidgetId[] = [
+            'clock',
+            'weather',
+            'timeProgress',
+            'calendar',
+            'tasks',
+            'traffic',
+            'markets',
+            'news',
+            'aqi',
+          ];
+          const missing = allKnown.filter((id) => !parsed.includes(id));
+          if (missing.length > 0) {
+            return [...parsed, ...missing];
+          }
           return parsed;
         }
       }

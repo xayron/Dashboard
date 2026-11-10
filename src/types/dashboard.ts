@@ -211,7 +211,10 @@ export type MorningWidgetId =
   | 'calendar'
   | 'tasks'
   | 'markets'
-  | 'news';
+  | 'news'
+  | 'timeProgress'
+  | 'traffic'
+  | 'aqi';
 
 export interface MorningWidgetLayoutItem {
   col: number;      // 1 to 12
