@@ -9,7 +9,7 @@ export const MinimalRaceWeekendMode: React.FC = () => {
   const isLight = colorMode === 'light';
 
   return (
-    <div className={`w-full h-full p-8 flex flex-col justify-between overflow-hidden bg-transparent select-none font-sans ${isLight ? 'text-neutral-900' : 'text-neutral-100'}`}>
+    <div className={`w-full h-full px-8 xl:px-10 pt-2 pb-6 flex flex-col justify-between overflow-hidden bg-transparent select-none font-sans ${isLight ? 'text-neutral-900' : 'text-neutral-100'}`}>
       {/* 1. TOP HEADING */}
       <div className={`flex items-baseline justify-between pb-4 border-b ${isLight ? 'border-neutral-200' : 'border-white/10'}`}>
         <div>

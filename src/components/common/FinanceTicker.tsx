@@ -18,8 +18,8 @@ export const FinanceTicker: React.FC<FinanceTickerProps> = ({ mode = 'ticker', c
     const min = Math.min(...points);
     const max = Math.max(...points);
     const range = max - min || 1;
-    const width = 48;
-    const height = 18;
+    const width = 40;
+    const height = 14;
 
     const pathData = points
       .map((p, i) => {
@@ -33,7 +33,7 @@ export const FinanceTicker: React.FC<FinanceTickerProps> = ({ mode = 'ticker', c
 
     return (
       <svg width={width} height={height} className="overflow-visible">
-        <path d={pathData} fill="none" stroke={strokeColor} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        <path d={pathData} fill="none" stroke={strokeColor} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     );
   };
@@ -78,55 +78,57 @@ export const FinanceTicker: React.FC<FinanceTickerProps> = ({ mode = 'ticker', c
     return (
       <div
         key={item.id}
-        className={`p-2.5 xl:p-3 rounded-2xl border flex flex-col justify-between transition-all ${
+        className={`px-2.5 py-1.5 rounded-xl border flex items-center justify-between gap-2 transition-all hover:scale-[1.01] ${
           isLight
-            ? 'bg-black/[0.02] border-black/[0.08] hover:bg-black/[0.04]'
-            : 'bg-white/5 border-white/10 hover:bg-white/[0.08]'
+            ? 'bg-black/[0.02] border-black/[0.06] hover:bg-black/[0.04] hover:border-black/[0.12]'
+            : 'bg-white/[0.04] border-white/[0.08] hover:bg-white/[0.07] hover:border-white/15'
         }`}
       >
-        {/* Top Row: Symbol/Name on Left, Up/Down Indicator Pill aligned on Right */}
-        <div className="flex items-center justify-between gap-2">
-          <span
-            className={`text-xs font-semibold tracking-wider uppercase truncate ${
-              isLight ? 'text-slate-600' : 'text-gray-300'
-            }`}
-            title={item.name}
-          >
-            {item.name}
-          </span>
+        {/* Left: Name and Price */}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center space-x-1">
+            <span
+              className={`text-[11px] font-bold tracking-wider uppercase truncate ${
+                isLight ? 'text-slate-600' : 'text-gray-300'
+              }`}
+              title={item.name}
+            >
+              {item.name}
+            </span>
+            {item.unit && (
+              <span className={`text-[9px] font-normal opacity-60 ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
+                {item.unit}
+              </span>
+            )}
+          </div>
+          <div className={`text-xs xl:text-sm font-black font-mono-numbers tracking-tight mt-0.5 leading-tight ${
+            isLight ? 'text-slate-900' : 'text-white'
+          }`}>
+            {item.price}
+          </div>
+        </div>
+
+        {/* Right: Sparkline and Change % Pill */}
+        <div className="flex flex-col items-end shrink-0 space-y-0.5">
+          <div className="h-3 flex items-center">
+            {renderSparkline(item.sparkline, isPositive)}
+          </div>
           <div
-            className={`inline-flex items-center justify-center text-[11px] font-semibold font-mono-numbers px-2 py-0.5 rounded-full shrink-0 leading-none ${
+            className={`inline-flex items-center justify-center text-[10px] font-bold font-mono-numbers px-1.5 py-0.2 rounded leading-none ${
               isPositive
                 ? 'text-emerald-500 bg-emerald-500/15'
                 : 'text-rose-500 bg-rose-500/15'
             }`}
           >
             {isPositive ? (
-              <TrendingUp size={11} className="mr-0.5 shrink-0" />
+              <TrendingUp size={10} className="mr-0.5 shrink-0" />
             ) : (
-              <TrendingDown size={11} className="mr-0.5 shrink-0" />
+              <TrendingDown size={10} className="mr-0.5 shrink-0" />
             )}
             <span>
               {isPositive ? '+' : ''}
               {item.changePercent.toFixed(2)}%
             </span>
-          </div>
-        </div>
-
-        {/* Bottom Row: Price on Left, Sparkline on Right */}
-        <div className="flex items-baseline justify-between mt-2 pt-1 border-t border-current/10">
-          <div className="flex items-baseline space-x-1">
-            <span className={`text-sm xl:text-base font-bold font-mono-numbers ${isLight ? 'text-slate-900' : 'text-white'}`}>
-              {item.price}
-            </span>
-            {item.unit && (
-              <span className={`text-[10px] font-medium ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
-                {item.unit}
-              </span>
-            )}
-          </div>
-          <div className="shrink-0 flex items-center">
-            {renderSparkline(item.sparkline, isPositive)}
           </div>
         </div>
       </div>
@@ -136,7 +138,7 @@ export const FinanceTicker: React.FC<FinanceTickerProps> = ({ mode = 'ticker', c
   if (mode === 'grid') {
     const displayFinance = maxItems ? finance.slice(0, maxItems) : finance;
     return (
-      <div className={`grid grid-cols-2 gap-2.5 ${className}`}>
+      <div className={`grid grid-cols-2 gap-2 ${className}`}>
         {displayFinance.map(item => renderGridCard(item))}
       </div>
     );

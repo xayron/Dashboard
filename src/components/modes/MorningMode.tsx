@@ -1,43 +1,33 @@
 import React from 'react';
 import {
-  Calendar,
-  CheckCircle2,
-  Circle,
   Sunrise,
   Coffee,
-  TrendingUp,
-  MapPin,
-  Clock,
-  Flag,
 } from 'lucide-react';
 import { useDashboard } from '../../state/DashboardContext';
-import { ClockWidget } from '../common/ClockWidget';
-import { WeatherWidget } from '../common/WeatherWidget';
-import { FinanceTicker } from '../common/FinanceTicker';
 import { AudioBanner } from '../common/AudioBanner';
-import { NewsWidget } from '../common/NewsWidget';
+import { MorningWidgetsGrid } from '../morning/MorningWidgetsGrid';
 
 export const MorningMode: React.FC = () => {
-  const { weather, events, tasks, toggleTask, media, colorMode } = useDashboard();
+  const { weather, media, colorMode, uiStyle } = useDashboard();
   const isLight = colorMode === 'light';
 
   return (
-    <div className="w-full h-full p-5 xl:p-6 flex flex-col justify-between overflow-hidden bg-transparent select-none">
+    <div className="w-full h-full px-6 pt-1 pb-5 xl:pb-6 flex flex-col justify-between overflow-hidden bg-transparent select-none">
       {/* Top Bar: Morning Greeting & Key Timings */}
-      <div className={`flex items-center justify-between mb-4 pb-3 border-b shrink-0 ${isLight ? 'border-black/[0.08]' : 'border-white/10'}`}>
+      <div className={`flex items-center justify-between mb-3 pb-2.5 border-b shrink-0 ${isLight ? 'border-black/[0.08]' : 'border-white/10'}`}>
         <div className="flex items-center space-x-3">
           <div
-            className="p-2.5 rounded-2xl border"
+            className="p-2 rounded-xl border"
             style={{
               backgroundColor: 'var(--theme-accent-soft)',
               borderColor: 'var(--color-accent)',
               color: 'var(--color-accent)',
             }}
           >
-            <Coffee size={22} />
+            <Coffee size={20} />
           </div>
           <div>
-            <h1 className={`text-xl xl:text-2xl font-bold font-display tracking-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>Morning Briefing</h1>
+            <h1 className={`text-lg xl:text-xl font-bold font-display tracking-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>Morning Briefing</h1>
             <p className={`text-xs flex items-center mt-0.5 ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
               <Sunrise size={13} className="mr-1.5" style={{ color: 'var(--color-accent)' }} />
               Sunrise at {weather.sunrise} • Have a productive day ahead
@@ -48,140 +38,9 @@ export const MorningMode: React.FC = () => {
         {media.state === 'playing' && <AudioBanner />}
       </div>
 
-      {/* Main 3-Column 1080p Grid */}
-      <div className="grid grid-cols-12 gap-4 xl:gap-5 flex-1 min-h-0">
-        {/* Left Column: Clock & Detailed Weather (Cols 1-4) */}
-        <div className="col-span-4 flex flex-col space-y-4 min-h-0">
-          <div
-            className="glass-panel p-4 xl:p-5 rounded-3xl shadow-xl border shrink-0"
-            style={{ borderColor: 'var(--color-panel-border)' }}
-          >
-            <ClockWidget size="large" showSeconds={true} showDate={true} />
-          </div>
-
-          <div className="flex-1 min-h-0">
-            <WeatherWidget layout="detailed" className="h-full" />
-          </div>
-        </div>
-
-        {/* Center Column: Calendar & Today's Tasks (Cols 5-8) */}
-        <div className="col-span-4 flex flex-col space-y-4 min-h-0">
-          {/* Calendar Agenda */}
-          <div
-            className="glass-panel p-4 xl:p-5 rounded-3xl border flex-1 flex flex-col min-h-0"
-            style={{ borderColor: 'var(--color-panel-border)' }}
-          >
-            <div className={`flex items-center justify-between mb-2.5 pb-2 border-b shrink-0 ${isLight ? 'border-black/[0.08]' : 'border-white/10'}`}>
-              <div className={`flex items-center space-x-2 text-sm font-bold uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                <Calendar size={16} style={{ color: 'var(--color-accent)' }} />
-                <span>Today's Schedule</span>
-              </div>
-              <span className={`text-xs font-mono-numbers ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>{events.length} Events</span>
-            </div>
-
-            <div className="space-y-2 overflow-y-auto pr-1 flex-1 min-h-0">
-              {events.slice(0, 4).map(event => (
-                <div
-                  key={event.id}
-                  className={`p-2.5 xl:p-3 rounded-2xl border transition-all flex items-start space-x-3 ${
-                    isLight ? 'bg-black/[0.03] border-black/[0.06] hover:border-black/[0.12]' : 'bg-white/5 border-white/5 hover:border-white/15'
-                  }`}
-                >
-                  <div
-                    className="px-2 py-1 rounded-xl font-mono-numbers text-xs font-bold shrink-0"
-                    style={{
-                      backgroundColor: 'var(--theme-accent-soft)',
-                      color: 'var(--color-accent)',
-                    }}
-                  >
-                    {event.startTime}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-semibold truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{event.title}</p>
-                    {event.location && (
-                      <p className={`text-xs flex items-center mt-0.5 truncate ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>
-                        <MapPin size={11} className="mr-1 shrink-0" style={{ color: 'var(--color-accent)' }} />
-                        {event.location}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Today's Tasks / Reminders */}
-          <div
-            className="glass-panel p-4 xl:p-5 rounded-3xl border flex-1 flex flex-col min-h-0"
-            style={{ borderColor: 'var(--color-panel-border)' }}
-          >
-            <div className={`flex items-center justify-between mb-2.5 pb-2 border-b shrink-0 ${isLight ? 'border-black/[0.08]' : 'border-white/10'}`}>
-              <div className={`flex items-center space-x-2 text-sm font-bold uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                <CheckCircle2 size={16} style={{ color: 'var(--color-accent)' }} />
-                <span>Priorities & Tasks</span>
-              </div>
-              <span className="text-xs font-mono-numbers" style={{ color: 'var(--color-accent)' }}>
-                {tasks.filter(t => t.completed).length}/{tasks.length} Done
-              </span>
-            </div>
-
-            <div className="space-y-1.5 overflow-y-auto pr-1 flex-1 min-h-0">
-              {tasks.map(task => (
-                <div
-                  key={task.id}
-                  onClick={() => toggleTask(task.id)}
-                  className={`p-2.5 rounded-2xl flex items-center space-x-3 cursor-pointer transition-all border ${
-                    task.completed
-                      ? (isLight ? 'bg-black/[0.02] border-black/[0.04] opacity-50' : 'bg-white/5 border-white/5 opacity-60')
-                      : (isLight ? 'bg-black/[0.04] border-black/[0.08] hover:border-black/[0.15]' : 'bg-white/10 border-white/10 hover:border-white/20')
-                  }`}
-                >
-                  {task.completed ? (
-                    <CheckCircle2 size={18} className="shrink-0" style={{ color: 'var(--color-accent)' }} />
-                  ) : (
-                    <Circle size={18} className={isLight ? 'text-slate-400 shrink-0' : 'text-gray-400 shrink-0'} />
-                  )}
-                  <span className={`text-xs font-medium flex-1 truncate ${
-                    task.completed
-                      ? (isLight ? 'line-through text-slate-400' : 'line-through text-gray-400')
-                      : (isLight ? 'text-slate-800' : 'text-gray-100')
-                  }`}>
-                    {task.title}
-                  </span>
-                  {task.priority === 'high' && (
-                    <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-600 border border-rose-500/30">
-                      High
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Financial Markets & F1 Radar (Cols 9-12) */}
-        <div className="col-span-4 flex flex-col space-y-4 min-h-0">
-          {/* Markets Overview */}
-          <div
-            className="glass-panel p-4 xl:p-5 rounded-3xl border flex-1 flex flex-col justify-between min-h-0"
-            style={{ borderColor: 'var(--color-panel-border)' }}
-          >
-            <div className={`flex items-center justify-between mb-2.5 pb-2 border-b shrink-0 ${isLight ? 'border-black/[0.08]' : 'border-white/10'}`}>
-              <div className={`flex items-center space-x-2 text-sm font-bold uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                <TrendingUp size={16} className="text-emerald-500" />
-                <span>Markets at Open</span>
-              </div>
-              <span className={`text-xs font-mono-numbers ${isLight ? 'text-slate-500' : 'text-gray-400'}`}>Realtime</span>
-            </div>
-
-            <div className="flex-1 min-h-0 overflow-y-auto flex flex-col justify-center">
-              <FinanceTicker mode="grid" maxItems={4} />
-            </div>
-          </div>
-
-          {/* Top News Headlines Widget */}
-          <NewsWidget maxItems={2} className="flex-1 min-h-0" />
-        </div>
+      {/* Main Resizable 12-Column Slot Grid */}
+      <div className="flex-1 min-h-0 flex flex-col">
+        <MorningWidgetsGrid uiStyle={uiStyle || 'modern'} isLight={isLight} className="h-full flex-1" />
       </div>
     </div>
   );

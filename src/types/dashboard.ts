@@ -205,6 +205,21 @@ export type F1WidgetId =
   | 'schedule'
   | 'standings';
 
+export type MorningWidgetId =
+  | 'clock'
+  | 'weather'
+  | 'calendar'
+  | 'tasks'
+  | 'markets'
+  | 'news';
+
+export interface MorningWidgetLayoutItem {
+  col: number;      // 1 to 12
+  row: number;      // 1 to N
+  colSpan: number;  // 2 to 12
+  rowSpan: number;  // 1 to 6
+}
+
 export interface F1Data {
   isRaceWeekend: boolean;
   activeRound: number;

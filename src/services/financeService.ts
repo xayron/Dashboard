@@ -67,29 +67,30 @@ const fetchLiveExchangeRates = async (): Promise<{ usdinr: number } | null> => {
 
 export const getFinanceData = async (): Promise<FinanceItem[]> => {
   try {
-    // 1. Fetch live Yahoo Finance proxies for Nifty, Sensex, Gold, S&P 500
-    const [nifty, sensex, gold, sp500, exRates] = await Promise.all([
+    // Fetch live Yahoo Finance proxies for key Indian & global indexes
+    const [nifty, sensex, banknifty, sp500, nasdaq, dow, gold, crude, btc, exRates] = await Promise.all([
       fetchYahooTicker('^NSEI', 'nifty50', 'NIFTY 50'),
       fetchYahooTicker('^BSESN', 'sensex', 'SENSEX'),
-      fetchYahooTicker('GC=F', 'gold', 'Gold (MCX / Spot)', '/ 10g'),
+      fetchYahooTicker('^NSEBANK', 'banknifty', 'BANK NIFTY'),
       fetchYahooTicker('^GSPC', 'sp500', 'S&P 500'),
+      fetchYahooTicker('^IXIC', 'nasdaq', 'NASDAQ'),
+      fetchYahooTicker('^DJI', 'dow', 'DOW JONES'),
+      fetchYahooTicker('GC=F', 'gold', 'Gold', '/ 10g'),
+      fetchYahooTicker('BZ=F', 'crude', 'Crude Oil'),
+      fetchYahooTicker('BTC-USD', 'bitcoin', 'Bitcoin'),
       fetchLiveExchangeRates(),
     ]);
 
     const items: FinanceItem[] = [];
 
-    if (nifty) items.push(nifty);
-    else items.push(getFallbackItem('nifty50'));
-
-    if (sensex) items.push(sensex);
-    else items.push(getFallbackItem('sensex'));
-
-    if (gold) {
-      // If gold is returned in USD/oz, convert approx to 10g in INR if USDINR is known, or show spot
-      items.push(gold);
-    } else {
-      items.push(getFallbackItem('gold'));
-    }
+    items.push(nifty || getFallbackItem('nifty50'));
+    items.push(sensex || getFallbackItem('sensex'));
+    items.push(banknifty || getFallbackItem('banknifty'));
+    items.push(sp500 || getFallbackItem('sp500'));
+    items.push(nasdaq || getFallbackItem('nasdaq'));
+    items.push(dow || getFallbackItem('dow'));
+    items.push(gold || getFallbackItem('gold'));
+    items.push(crude || getFallbackItem('crude'));
 
     // USD/INR
     if (exRates?.usdinr) {
@@ -107,8 +108,7 @@ export const getFinanceData = async (): Promise<FinanceItem[]> => {
       items.push(getFallbackItem('usdinr'));
     }
 
-    if (sp500) items.push(sp500);
-    else items.push(getFallbackItem('sp500'));
+    items.push(btc || getFallbackItem('bitcoin'));
 
     return items;
   } catch (e) {
@@ -144,15 +144,65 @@ export const getFallbackFinanceData = (): FinanceItem[] => {
       sparkline: [79100, 79220, 79190, 79350, 79410, 79380, 79486],
     },
     {
+      id: 'banknifty',
+      symbol: '^NSEBANK',
+      name: 'BANK NIFTY',
+      price: '51,820.40',
+      change: 285.60,
+      changePercent: 0.55,
+      currency: 'INR',
+      sparkline: [51400, 51520, 51610, 51590, 51720, 51820],
+    },
+    {
+      id: 'sp500',
+      symbol: '^GSPC',
+      name: 'S&P 500',
+      price: '5,995.54',
+      change: 22.80,
+      changePercent: 0.38,
+      currency: 'USD',
+      sparkline: [5940, 5960, 5955, 5980, 5990, 5995],
+    },
+    {
+      id: 'nasdaq',
+      symbol: '^IXIC',
+      name: 'NASDAQ',
+      price: '19,281.40',
+      change: 120.30,
+      changePercent: 0.63,
+      currency: 'USD',
+      sparkline: [19100, 19180, 19210, 19240, 19281],
+    },
+    {
+      id: 'dow',
+      symbol: '^DJI',
+      name: 'DOW JONES',
+      price: '43,910.20',
+      change: 259.60,
+      changePercent: 0.59,
+      currency: 'USD',
+      sparkline: [43600, 43710, 43790, 43850, 43910],
+    },
+    {
       id: 'gold',
       symbol: 'GOLD_MCX',
-      name: 'Gold (24K / 10g)',
+      name: 'Gold',
       price: '₹77,450',
       change: 320,
       changePercent: 0.41,
       currency: 'INR',
       unit: '/ 10g',
       sparkline: [76900, 77100, 77050, 77200, 77350, 77450],
+    },
+    {
+      id: 'crude',
+      symbol: 'BZ=F',
+      name: 'Crude Oil',
+      price: '$74.20',
+      change: -0.65,
+      changePercent: -0.87,
+      currency: 'USD',
+      sparkline: [75.2, 74.9, 74.8, 74.5, 74.2],
     },
     {
       id: 'usdinr',
@@ -165,14 +215,14 @@ export const getFallbackFinanceData = (): FinanceItem[] => {
       sparkline: [84.45, 84.42, 84.40, 84.39, 84.38],
     },
     {
-      id: 'sp500',
-      symbol: '^GSPC',
-      name: 'S&P 500',
-      price: '5,995.54',
-      change: 22.80,
-      changePercent: 0.38,
+      id: 'bitcoin',
+      symbol: 'BTC-USD',
+      name: 'Bitcoin',
+      price: '$88,420',
+      change: 1420.00,
+      changePercent: 1.63,
       currency: 'USD',
-      sparkline: [5940, 5960, 5955, 5980, 5990, 5995],
+      sparkline: [86500, 86900, 87400, 88100, 88420],
     },
   ];
 };

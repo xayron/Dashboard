@@ -21,6 +21,13 @@ import {
   Monitor,
   Flag,
   GripVertical,
+  Smartphone,
+  Flame,
+  Camera,
+  Newspaper,
+  ChevronLeft,
+  ChevronRight,
+  Layers,
 } from 'lucide-react';
 import { useDashboard, UI_STYLES } from '../../state/DashboardContext';
 import { haService, getSavedHAConfig, saveHAConfig } from '../../services/homeAssistant';
@@ -28,7 +35,7 @@ import { getSavedCoords, saveCoords, type WeatherCoords } from '../../services/w
 import { photoService } from '../../services/photoService';
 import { THEMES, type ThemeId } from '../../types/theme';
 import { F1_AVAILABLE_WIDGETS } from '../f1/F1WidgetsColumn';
-import type { F1WidgetId, F1WidgetSize } from '../../types/dashboard';
+import type { DashboardMode, F1WidgetId, F1WidgetSize } from '../../types/dashboard';
 
 type SectionId = 'themes' | 'ha' | 'weather' | 'photos' | 'display' | 'f1';
 
@@ -54,6 +61,17 @@ export const SettingsModal: React.FC = () => {
     setAllF1WidgetSizes,
     showMorningFinanceTicker,
     toggleMorningFinanceTicker,
+    activeMode,
+    autoCalculatedMode,
+    manualOverrideMode,
+    setManualOverrideMode,
+    isRaceWeekendSimulated,
+    setIsRaceWeekendSimulated,
+    setIsPairingModalOpen,
+    connectedRemotesCount,
+    prevPhoto,
+    nextPhoto,
+    media,
   } = useDashboard();
 
   const isLight = colorMode === 'light';
@@ -1646,6 +1664,62 @@ export const SettingsModal: React.FC = () => {
                         {/* ===================== SECTION 4: PHOTOS & STORAGE ===================== */}
                         {sec.id === 'photos' && (
                           <div className="space-y-4">
+                            {/* Ambient Wallpaper Slideshow Controls */}
+                            <div
+                              className={`p-4 border space-y-3 ${radiusMd} ${
+                                isTui
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#059669)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#10b981)]/40 bg-black/60'
+                                  : isHud
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#0891b2)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#06b6d4)]/40 bg-black/60'
+                                  : isBrutalist
+                                  ? isLight
+                                    ? 'border-2 border-black bg-white shadow-[2px_2px_0px_#000]'
+                                    : 'border-2 border-white bg-black shadow-[2px_2px_0px_#fff]'
+                                  : isLight
+                                  ? 'bg-white border-slate-200 shadow-xs'
+                                  : 'bg-white/5 border-white/10'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <h4 className={`text-sm mb-0.5 flex items-center space-x-1.5 ${typo.cardTitle}`}>
+                                    <Camera size={15} style={{ color: 'var(--color-accent)' }} />
+                                    <span>Ambient Wallpaper Slideshow</span>
+                                  </h4>
+                                  <p className={typo.subtitle}>
+                                    The ambient screen cycles wallpapers every 15 seconds. You can also manually step through them.
+                                  </p>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <button
+                                    type="button"
+                                    onClick={prevPhoto}
+                                    title="Previous Photo"
+                                    className={`px-3 py-1.5 border rounded-xl text-xs font-semibold flex items-center space-x-1 transition-all cursor-pointer ${
+                                      isLight ? 'bg-black/5 hover:bg-black/10 text-slate-800 border-black/10' : 'bg-white/10 hover:bg-white/20 text-white border-white/10'
+                                    }`}
+                                  >
+                                    <ChevronLeft size={14} />
+                                    <span>Prev</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={nextPhoto}
+                                    title="Next Photo"
+                                    className={`px-3 py-1.5 border rounded-xl text-xs font-semibold flex items-center space-x-1 transition-all cursor-pointer ${
+                                      isLight ? 'bg-black/5 hover:bg-black/10 text-slate-800 border-black/10' : 'bg-white/10 hover:bg-white/20 text-white border-white/10'
+                                    }`}
+                                  >
+                                    <span>Next</span>
+                                    <ChevronRight size={14} />
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
                             <div
                               className={`p-4 border ${radiusMd} ${
                                 isTui
@@ -1739,6 +1813,51 @@ export const SettingsModal: React.FC = () => {
                         {/* ===================== SECTION: FORMULA 1 WIDGETS ===================== */}
                         {sec.id === 'f1' && (
                           <div className="space-y-4 text-xs">
+                            {/* Race Weekend Simulation Switch */}
+                            <div
+                              className={`p-4 border space-y-3 ${radiusMd} ${
+                                isTui
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#059669)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#10b981)]/40 bg-black/60'
+                                  : isHud
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#0891b2)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#06b6d4)]/40 bg-black/60'
+                                  : isBrutalist
+                                  ? isLight
+                                    ? 'border-2 border-black bg-white shadow-[2px_2px_0px_#000]'
+                                    : 'border-2 border-white bg-black shadow-[2px_2px_0px_#fff]'
+                                  : isLight
+                                  ? 'bg-white border-slate-200 shadow-xs'
+                                  : 'bg-white/5 border-white/10'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <h4 className={`text-sm mb-0.5 flex items-center space-x-1.5 ${typo.cardTitle}`}>
+                                    <Flame size={15} className="text-red-500" />
+                                    <span>Simulate F1 Race Weekend</span>
+                                  </h4>
+                                  <p className={typo.subtitle}>
+                                    Force activate Race Weekend view anytime to test live telemetry, standings, countdown timer, and paddock wire outside real race dates.
+                                  </p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => setIsRaceWeekendSimulated(!isRaceWeekendSimulated)}
+                                  className={`px-3 py-1.5 font-mono text-xs uppercase tracking-wider font-bold transition-all cursor-pointer ${radiusSm} ${
+                                    isRaceWeekendSimulated
+                                      ? 'bg-red-600 text-white shadow-sm'
+                                      : isLight
+                                      ? 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                                      : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                                  }`}
+                                >
+                                  {isRaceWeekendSimulated ? 'Simulation Active' : 'Real Schedule'}
+                                </button>
+                              </div>
+                            </div>
                             {/* Manual Size & Density Controls */}
                             <div
                               className={`p-4 border space-y-3 ${radiusMd} ${
@@ -1995,6 +2114,217 @@ export const SettingsModal: React.FC = () => {
                         {/* ===================== SECTION 5: DISPLAY & HARDWARE ===================== */}
                         {sec.id === 'display' && (
                           <div className="space-y-4 text-xs">
+                            {/* Dashboard Mode & Page Switcher */}
+                            <div
+                              className={`p-4 border space-y-3 ${radiusMd} ${
+                                isTui
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#059669)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#10b981)]/40 bg-black/60'
+                                  : isHud
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#0891b2)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#06b6d4)]/40 bg-black/60'
+                                  : isBrutalist
+                                  ? isLight
+                                    ? 'border-2 border-black bg-white shadow-[2px_2px_0px_#000]'
+                                    : 'border-2 border-white bg-black shadow-[2px_2px_0px_#fff]'
+                                  : isLight
+                                  ? 'bg-white border-slate-200 shadow-xs'
+                                  : 'bg-white/5 border-white/10'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <h4 className={`text-sm mb-0.5 flex items-center space-x-1.5 ${typo.cardTitle}`}>
+                                    <Layers size={15} style={{ color: 'var(--color-accent)' }} />
+                                    <span>Active Dashboard View &amp; Mode</span>
+                                  </h4>
+                                  <p className={typo.subtitle}>
+                                    Select which full-screen page to display, or rely on automatic time-and-event scheduling.
+                                  </p>
+                                </div>
+                                <span className={getBadgeClass()}>
+                                  {manualOverrideMode === null ? `Auto (${autoCalculatedMode})` : `Manual (${activeMode})`}
+                                </span>
+                              </div>
+
+                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
+                                <button
+                                  type="button"
+                                  onClick={() => setManualOverrideMode(null)}
+                                  className={`p-2.5 border rounded-xl text-left transition-all flex items-center space-x-2 cursor-pointer ${
+                                    manualOverrideMode === null
+                                      ? 'ring-2 ring-blue-500 bg-blue-500/15 border-blue-500/40 text-blue-400 font-bold'
+                                      : isLight ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-black/5' : 'bg-white/5 hover:bg-white/10 text-gray-300 border-white/10'
+                                  }`}
+                                >
+                                  <RotateCcw size={14} />
+                                  <span className="text-xs">Auto Mode</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => setManualOverrideMode('morning')}
+                                  className={`p-2.5 border rounded-xl text-left transition-all flex items-center space-x-2 cursor-pointer ${
+                                    activeMode === 'morning' && manualOverrideMode === 'morning'
+                                      ? 'ring-2 ring-amber-500 bg-amber-500/15 border-amber-500/40 text-amber-400 font-bold'
+                                      : isLight ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-black/5' : 'bg-white/5 hover:bg-white/10 text-gray-300 border-white/10'
+                                  }`}
+                                >
+                                  <Sun size={14} className="text-amber-400" />
+                                  <span className="text-xs">Morning View</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => setManualOverrideMode('news')}
+                                  className={`p-2.5 border rounded-xl text-left transition-all flex items-center space-x-2 cursor-pointer ${
+                                    activeMode === 'news' && manualOverrideMode === 'news'
+                                      ? 'ring-2 ring-cyan-500 bg-cyan-500/15 border-cyan-500/40 text-cyan-400 font-bold'
+                                      : isLight ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-black/5' : 'bg-white/5 hover:bg-white/10 text-gray-300 border-white/10'
+                                  }`}
+                                >
+                                  <Newspaper size={14} className="text-cyan-400" />
+                                  <span className="text-xs">News Wire</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => setManualOverrideMode('ambient')}
+                                  className={`p-2.5 border rounded-xl text-left transition-all flex items-center space-x-2 cursor-pointer ${
+                                    activeMode === 'ambient' && manualOverrideMode === 'ambient'
+                                      ? 'ring-2 ring-emerald-500 bg-emerald-500/15 border-emerald-500/40 text-emerald-400 font-bold'
+                                      : isLight ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-black/5' : 'bg-white/5 hover:bg-white/10 text-gray-300 border-white/10'
+                                  }`}
+                                >
+                                  <Camera size={14} className="text-emerald-400" />
+                                  <span className="text-xs">Ambient Gallery</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => setManualOverrideMode('race')}
+                                  className={`p-2.5 border rounded-xl text-left transition-all flex items-center space-x-2 cursor-pointer ${
+                                    activeMode === 'race' && manualOverrideMode === 'race'
+                                      ? 'ring-2 ring-red-500 bg-red-500/15 border-red-500/40 text-red-400 font-bold'
+                                      : isLight ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-black/5' : 'bg-white/5 hover:bg-white/10 text-gray-300 border-white/10'
+                                  }`}
+                                >
+                                  <Flame size={14} className="text-red-400" />
+                                  <span className="text-xs">Race Weekend</span>
+                                </button>
+
+                                {media.state === 'playing' && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setManualOverrideMode('evening')}
+                                    className={`p-2.5 border rounded-xl text-left transition-all flex items-center space-x-2 cursor-pointer ${
+                                      activeMode === 'evening' && manualOverrideMode === 'evening'
+                                        ? 'ring-2 ring-purple-500 bg-purple-500/15 border-purple-500/40 text-purple-400 font-bold'
+                                        : isLight ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-black/5' : 'bg-white/5 hover:bg-white/10 text-gray-300 border-white/10'
+                                    }`}
+                                  >
+                                    <Moon size={14} className="text-purple-400" />
+                                    <span className="text-xs">Now Playing</span>
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Mobile Phone Remote Pairing Hub */}
+                            <div
+                              className={`p-4 border space-y-3 ${radiusMd} ${
+                                isTui
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#059669)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#10b981)]/40 bg-black/60'
+                                  : isHud
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#0891b2)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#06b6d4)]/40 bg-black/60'
+                                  : isBrutalist
+                                  ? isLight
+                                    ? 'border-2 border-black bg-white shadow-[2px_2px_0px_#000]'
+                                    : 'border-2 border-white bg-black shadow-[2px_2px_0px_#fff]'
+                                  : isLight
+                                  ? 'bg-white border-slate-200 shadow-xs'
+                                  : 'bg-white/5 border-white/10'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <h4 className={`text-sm mb-0.5 flex items-center space-x-1.5 ${typo.cardTitle}`}>
+                                    <Smartphone size={15} className="text-blue-400" />
+                                    <span>Mobile Phone Remote Controller</span>
+                                  </h4>
+                                  <p className={typo.subtitle}>
+                                    Scan QR code to control media, volume, pages, and themes wirelessly from your smartphone.
+                                  </p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => setIsPairingModalOpen(true)}
+                                  className={`px-3 py-1.5 text-xs font-semibold rounded-xl border flex items-center space-x-1.5 transition-all cursor-pointer ${
+                                    isLight
+                                      ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-sm'
+                                      : 'bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border-blue-500/40 shadow-sm'
+                                  }`}
+                                >
+                                  <Smartphone size={13} />
+                                  <span>Pair Phone</span>
+                                  {connectedRemotesCount > 0 && (
+                                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse ml-1" />
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Simulate Formula 1 Race Weekend */}
+                            <div
+                              className={`p-4 border space-y-3 ${radiusMd} ${
+                                isTui
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#059669)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#10b981)]/40 bg-black/60'
+                                  : isHud
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#0891b2)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#06b6d4)]/40 bg-black/60'
+                                  : isBrutalist
+                                  ? isLight
+                                    ? 'border-2 border-black bg-white shadow-[2px_2px_0px_#000]'
+                                    : 'border-2 border-white bg-black shadow-[2px_2px_0px_#fff]'
+                                  : isLight
+                                  ? 'bg-white border-slate-200 shadow-xs'
+                                  : 'bg-white/5 border-white/10'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <h4 className={`text-sm mb-0.5 flex items-center space-x-1.5 ${typo.cardTitle}`}>
+                                    <Flame size={15} className="text-red-500" />
+                                    <span>Simulate Formula 1 Race Weekend</span>
+                                  </h4>
+                                  <p className={typo.subtitle}>
+                                    Force activate Race Weekend view and F1 telemetry anytime outside official Grand Prix dates.
+                                  </p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => setIsRaceWeekendSimulated(!isRaceWeekendSimulated)}
+                                  className={`px-3 py-1.5 font-mono text-xs uppercase tracking-wider font-bold transition-all cursor-pointer ${radiusSm} ${
+                                    isRaceWeekendSimulated
+                                      ? 'bg-red-600 text-white shadow-sm'
+                                      : isLight
+                                      ? 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                                      : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                                  }`}
+                                >
+                                  {isRaceWeekendSimulated ? 'Simulation ON' : 'Off'}
+                                </button>
+                              </div>
+                            </div>
                             {/* Presentation Layout Option */}
                             <div
                               className={`p-4 border space-y-3 ${radiusMd} ${

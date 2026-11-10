@@ -7,6 +7,7 @@ import type {
   F1Data,
   F1WidgetId,
   F1WidgetSize,
+  MorningWidgetId,
   FinanceItem,
   MediaPlayerData,
   PhotoItem,
@@ -178,6 +179,11 @@ interface DashboardContextType {
   f1WidgetSizes: Record<F1WidgetId, F1WidgetSize>;
   setF1WidgetSize: (id: F1WidgetId, size: F1WidgetSize) => void;
   setAllF1WidgetSizes: (size: F1WidgetSize) => void;
+  morningActiveWidgets: MorningWidgetId[];
+  setMorningActiveWidgets: (widgets: MorningWidgetId[]) => void;
+  toggleMorningWidget: (id: MorningWidgetId) => void;
+  moveMorningWidget: (id: MorningWidgetId, direction: 'up' | 'down') => void;
+  reorderMorningWidgets: (fromIndex: number, toIndex: number) => void;
   connectedRemotesCount: number;
   isPairingModalOpen: boolean;
   setIsPairingModalOpen: (open: boolean) => void;
@@ -419,6 +425,64 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       localStorage.setItem('dashboard_f1_widget_sizes', JSON.stringify(next));
     } catch (e) {}
+  };
+
+  // Morning Custom Widgets state
+  const DEFAULT_MORNING_ACTIVE_WIDGETS: MorningWidgetId[] = [
+    'clock',
+    'weather',
+    'calendar',
+    'tasks',
+    'markets',
+    'news',
+  ];
+
+  const [morningActiveWidgets, setMorningActiveWidgetsState] = useState<MorningWidgetId[]>(() => {
+    try {
+      const saved = localStorage.getItem('dashboard_morning_active_widgets');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch (e) {}
+    return DEFAULT_MORNING_ACTIVE_WIDGETS;
+  });
+
+  const setMorningActiveWidgets = (widgets: MorningWidgetId[]) => {
+    setMorningActiveWidgetsState(widgets);
+    try {
+      localStorage.setItem('dashboard_morning_active_widgets', JSON.stringify(widgets));
+    } catch (e) {}
+  };
+
+  const toggleMorningWidget = (id: MorningWidgetId) => {
+    const next = morningActiveWidgets.includes(id)
+      ? morningActiveWidgets.filter(w => w !== id)
+      : [...morningActiveWidgets, id];
+    setMorningActiveWidgets(next);
+  };
+
+  const moveMorningWidget = (id: MorningWidgetId, direction: 'up' | 'down') => {
+    const idx = morningActiveWidgets.indexOf(id);
+    if (idx === -1) return;
+    const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (targetIdx < 0 || targetIdx >= morningActiveWidgets.length) return;
+    const next = [...morningActiveWidgets];
+    const [removed] = next.splice(idx, 1);
+    next.splice(targetIdx, 0, removed);
+    setMorningActiveWidgets(next);
+  };
+
+  const reorderMorningWidgets = (fromIndex: number, toIndex: number) => {
+    if (fromIndex < 0 || fromIndex >= morningActiveWidgets.length) return;
+    if (toIndex < 0 || toIndex >= morningActiveWidgets.length) return;
+    if (fromIndex === toIndex) return;
+    const next = [...morningActiveWidgets];
+    const [removed] = next.splice(fromIndex, 1);
+    next.splice(toIndex, 0, removed);
+    setMorningActiveWidgets(next);
   };
 
   // Data states
@@ -942,6 +1006,11 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         f1WidgetSizes,
         setF1WidgetSize,
         setAllF1WidgetSizes,
+        morningActiveWidgets,
+        setMorningActiveWidgets,
+        toggleMorningWidget,
+        moveMorningWidget,
+        reorderMorningWidgets,
         connectedRemotesCount,
         isPairingModalOpen,
         setIsPairingModalOpen,

@@ -9,6 +9,7 @@ import {
   Server,
   Layers,
   Newspaper,
+  Smartphone,
 } from 'lucide-react';
 import { useDashboard } from '../../state/DashboardContext';
 
@@ -20,8 +21,8 @@ export const StatusHeader: React.FC = () => {
     setManualOverrideMode,
     systemHealth,
     setIsSettingsOpen,
-    toggleKioskBar,
-    isKioskBarVisible,
+    setIsPairingModalOpen,
+    connectedRemotesCount,
     colorMode,
     toggleColorMode,
   } = useDashboard();
@@ -77,7 +78,7 @@ export const StatusHeader: React.FC = () => {
   const modeInfo = getModeInfo();
 
   return (
-    <header className="w-full flex items-center justify-between px-6 py-3.5 z-40 select-none">
+    <header className="w-full flex items-center justify-between px-6 py-2.5 z-40 select-none">
       {/* Left: Mode Badge & Auto Indicator */}
       <div className="flex items-center space-x-3">
         <div className={`flex items-center space-x-2 px-3 py-1.5 rounded-full text-xs font-semibold border backdrop-blur-md ${modeInfo.color}`}>
@@ -127,24 +128,21 @@ export const StatusHeader: React.FC = () => {
           <span>{systemHealth.networkLatencyMs}ms</span>
         </div>
 
-        {/* Quick Kiosk Control Toggle */}
+        {/* Phone Remote Controller Trigger */}
         <button
-          onClick={toggleKioskBar}
-          title="Toggle Kiosk Controls (Press 'M')"
-          className={`p-2 rounded-xl transition-all border ${
-            isKioskBarVisible
-              ? ''
-              : isLight
-              ? 'glass-pill text-slate-700 hover:text-slate-900 hover:border-slate-300 border-transparent'
-              : 'glass-pill text-gray-300 hover:text-white border-transparent'
+          onClick={() => setIsPairingModalOpen(true)}
+          title="Phone Remote Controller (Pairing)"
+          aria-label="Phone Remote Controller"
+          className={`p-2 rounded-xl glass-pill transition-all cursor-pointer relative ${
+            isLight
+              ? 'text-slate-700 hover:text-slate-900 hover:border-slate-300'
+              : 'text-gray-300 hover:text-white hover:border-white/30'
           }`}
-          style={isKioskBarVisible ? {
-            backgroundColor: 'var(--theme-accent-soft)',
-            borderColor: 'var(--color-accent)',
-            color: 'var(--color-accent)',
-          } : undefined}
         >
-          <Layers size={16} />
+          <Smartphone size={16} />
+          {connectedRemotesCount > 0 && (
+            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          )}
         </button>
 
         {/* Light / Dark Mode Toggle */}

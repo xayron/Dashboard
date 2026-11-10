@@ -4,9 +4,12 @@ import { Sun, Moon, Settings } from 'lucide-react';
 
 export const MinimalHeader: React.FC = () => {
   const { systemHealth, activeMode, weather, colorMode, toggleColorMode, setIsSettingsOpen } = useDashboard();
+  const isLight = colorMode === 'light';
 
   return (
-    <header className="w-full px-10 py-3 border-b border-white/10 flex items-center justify-between text-xs text-neutral-400 select-none bg-transparent backdrop-blur-sm z-30">
+    <header className={`w-full px-8 xl:px-10 py-2.5 border-b flex items-center justify-between text-xs select-none bg-transparent backdrop-blur-sm z-30 ${
+      isLight ? 'border-neutral-200 text-neutral-600' : 'border-white/10 text-neutral-400'
+    }`}>
       <div className="flex items-center space-x-3">
         <span className="font-medium tracking-widest text-[11px] uppercase">
           Smart Display

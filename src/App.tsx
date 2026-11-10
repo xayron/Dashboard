@@ -82,7 +82,7 @@ import { CivicAmbientMode } from './components/civic/CivicAmbientMode';
 import { CivicFinanceTicker } from './components/civic/CivicFinanceTicker';
 
 // Global Kiosk Controls & Settings
-import { KioskControls } from './components/kiosk/KioskControls';
+import { CarouselIndicator } from './components/kiosk/CarouselIndicator';
 import { SettingsModal } from './components/settings/SettingsModal';
 import { PairingModal } from './components/kiosk/PairingModal';
 import { NewsModal } from './components/news/NewsModal';
@@ -412,8 +412,8 @@ const DashboardContent: React.FC = () => {
       {/* Optional Bottom Financial Strip in Morning Mode (Removed from Race Weekend) */}
       {renderFinanceTicker()}
 
-      {/* Floating Kiosk Quick Switcher Controls */}
-      <KioskControls />
+      {/* Bottom Page Carousel Indicator */}
+      <CarouselIndicator />
 
       {/* Settings Modal with Error Boundary */}
       <SettingsErrorBoundary>
