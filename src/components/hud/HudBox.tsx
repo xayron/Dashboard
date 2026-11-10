@@ -7,6 +7,7 @@ interface HudBoxProps {
   children: React.ReactNode;
   className?: string;
   glowColor?: 'cyan' | 'amber' | 'emerald';
+  headerRight?: React.ReactNode;
 }
 
 export const HudBox: React.FC<HudBoxProps> = ({
@@ -14,6 +15,7 @@ export const HudBox: React.FC<HudBoxProps> = ({
   code,
   children,
   className = '',
+  headerRight,
 }) => {
   const { colorMode } = useDashboard();
   const isLight = colorMode === 'light';
@@ -38,27 +40,30 @@ export const HudBox: React.FC<HudBoxProps> = ({
 
       {/* Header */}
       <div
-        className="flex items-center justify-between pb-2 mb-3 border-b text-xs font-mono"
+        className="flex items-center justify-between pb-2 mb-3 border-b text-xs font-mono shrink-0"
         style={{ borderColor: 'var(--color-accent-soft, rgba(6, 182, 212, 0.2))' }}
       >
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 truncate">
           <span style={{ color: 'var(--color-accent, #22d3ee)' }} className="text-[10px]">❖</span>
-          <h3 style={{ color: 'var(--color-accent, #22d3ee)' }} className="font-bold uppercase tracking-wider">
+          <h3 style={{ color: 'var(--color-accent, #22d3ee)' }} className="font-bold uppercase tracking-wider truncate">
             {title}
           </h3>
         </div>
-        {code && (
-          <span
-            className="px-1.5 py-0.5 text-[9px] font-mono border rounded-sm"
-            style={{
-              backgroundColor: 'var(--color-accent-soft, rgba(6, 182, 212, 0.15))',
-              borderColor: 'var(--color-accent, #22d3ee)',
-              color: 'var(--color-accent, #22d3ee)',
-            }}
-          >
-            {code}
-          </span>
-        )}
+        <div className="flex items-center space-x-2 shrink-0">
+          {code && (
+            <span
+              className="px-1.5 py-0.5 text-[9px] font-mono border rounded-sm"
+              style={{
+                backgroundColor: 'var(--theme-accent-soft, rgba(6, 182, 212, 0.15))',
+                borderColor: 'var(--color-accent, #22d3ee)',
+                color: 'var(--color-accent, #22d3ee)',
+              }}
+            >
+              {code}
+            </span>
+          )}
+          {headerRight}
+        </div>
       </div>
 
       <div className={`flex-1 min-h-0 ${isLight ? 'text-slate-800' : 'text-cyan-100'}`}>

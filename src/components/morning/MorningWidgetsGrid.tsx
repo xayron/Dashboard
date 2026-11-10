@@ -10,6 +10,8 @@ import {
   Sunset,
   TrendingUp,
   TrendingDown,
+  ArrowUpRight,
+  ArrowDownRight,
   MapPin,
   Newspaper,
   ExternalLink,
@@ -473,21 +475,42 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
   // Card Theme classes
   const getCardClass = (isCompact: boolean) => {
     const pad = isCompact
-      ? 'p-3 h-full overflow-hidden flex flex-col justify-between'
-      : 'p-3.5 xl:p-4 h-full overflow-hidden flex flex-col justify-between';
+      ? 'p-2.5 xl:p-3 h-full overflow-hidden flex flex-col justify-between'
+      : 'p-3 xl:p-3.5 h-full overflow-hidden flex flex-col justify-between';
 
+    if (uiStyle === 'tui') {
+      return `${pad} ${
+        isLight
+          ? 'bg-white/95 border border-black/30 font-mono text-slate-900 rounded-none shadow-xs'
+          : 'bg-black/90 border border-white/20 font-mono text-gray-100 rounded-none shadow-md'
+      }`;
+    }
+    if (uiStyle === 'brutalist') {
+      return `${pad} ${
+        isLight
+          ? 'bg-white border-2 border-black text-black rounded-none shadow-[3px_3px_0px_#000]'
+          : 'bg-black border-2 border-white text-white rounded-none shadow-[3px_3px_0px_#fff]'
+      }`;
+    }
+    if (uiStyle === 'hud') {
+      return `${pad} ${
+        isLight
+          ? 'bg-white/95 border border-cyan-500/40 text-slate-900 font-mono rounded-none shadow-xs'
+          : 'bg-[#040814]/90 border border-cyan-500/40 text-cyan-100 font-mono rounded-none shadow-[0_0_15px_rgba(0,240,255,0.1)]'
+      }`;
+    }
     if (uiStyle === 'minimal') {
       return `${pad} ${
         isLight
-          ? 'bg-neutral-50/80 border border-neutral-200 rounded-2xl text-neutral-900 shadow-xs'
-          : 'bg-white/[0.02] border border-white/10 rounded-2xl text-neutral-100 shadow-md'
+          ? 'bg-neutral-50/90 border border-neutral-200 rounded-2xl text-neutral-900 shadow-xs'
+          : 'bg-white/[0.03] border border-white/10 rounded-2xl text-neutral-100 shadow-md'
       }`;
     }
     if (uiStyle === 'eink') {
       return `${pad} ${
         isLight
-          ? 'border-2 border-stone-800 bg-[#ede8df] text-[#1c1917]'
-          : 'border-2 border-stone-600 bg-[#292524] text-[#f5f2eb]'
+          ? 'border-2 border-stone-800 bg-[#ede8df] text-[#1c1917] rounded-none'
+          : 'border-2 border-stone-600 bg-[#292524] text-[#f5f2eb] rounded-none'
       }`;
     }
     if (uiStyle === 'retrowave') {
@@ -521,12 +544,21 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
     // Modern Glass
     return `${pad} ${
       isLight
-        ? 'glass-panel bg-white/80 border border-slate-200 rounded-3xl text-slate-900 shadow-sm'
-        : 'glass-panel border border-white/10 bg-white/[0.03] rounded-3xl text-white shadow-md'
+        ? 'glass-panel bg-white/80 border border-slate-200 rounded-2xl text-slate-900 shadow-sm'
+        : 'glass-panel border border-white/10 bg-white/[0.03] rounded-2xl text-white shadow-md'
     }`;
   };
 
   const getInnerClass = () => {
+    if (uiStyle === 'tui') {
+      return isLight ? 'bg-black/[0.04] border border-black/20 font-mono' : 'bg-white/5 border border-white/10 font-mono';
+    }
+    if (uiStyle === 'brutalist') {
+      return isLight ? 'bg-white border-2 border-black' : 'bg-neutral-900 border-2 border-white';
+    }
+    if (uiStyle === 'hud') {
+      return isLight ? 'bg-cyan-50/70 border border-cyan-500/30 font-mono' : 'bg-cyan-950/20 border border-cyan-500/30 font-mono text-cyan-200';
+    }
     if (uiStyle === 'minimal') {
       return isLight ? 'bg-neutral-100 border border-neutral-200' : 'bg-white/5 border border-white/10';
     }
@@ -597,14 +629,20 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
   const renderClockWidget = (layout: MorningWidgetLayoutItem) => {
     const isCompact = layout.colSpan <= 3 && layout.rowSpan === 1;
     const isTall = layout.rowSpan >= 2;
+    const isWide = layout.colSpan >= 5 && !isTall;
 
     if (uiStyle === 'tui') {
       return (
-        <TuiBox title="SYSTEM_CLOCK" badge="IST UTC+5:30" className="h-full flex flex-col justify-between">
+        <TuiBox
+          title="SYSTEM_CLOCK"
+          badge="IST UTC+5:30"
+          headerRight={renderCardControls('clock')}
+          className="h-full flex flex-col justify-between"
+        >
           <div className="flex flex-col items-center justify-center py-2 flex-1">
-            <div className={`font-extrabold tracking-wider flex items-baseline ${isTall ? 'text-5xl' : 'text-3xl'}`}>
+            <div className={`font-extrabold tracking-wider flex items-baseline font-mono ${isTall ? 'text-5xl' : 'text-3xl'}`}>
               <span>{hours}:{minutes}</span>
-              <span className="text-xl ml-2 animate-pulse" style={{ color: 'var(--color-accent)' }}>:{seconds}</span>
+              <span className="text-xl ml-2 animate-pulse tabular-nums" style={{ color: 'var(--color-accent)' }}>:{seconds}</span>
             </div>
             <div className="mt-1 text-xs font-bold tracking-widest text-center" style={{ color: 'var(--color-accent)' }}>
               {dateFormatted.toUpperCase()}
@@ -621,11 +659,16 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
 
     if (uiStyle === 'brutalist') {
       return (
-        <BrutalistBox title="SYSTEM TIME" badge="IST" className="h-full flex flex-col justify-between">
+        <BrutalistBox
+          title="SYSTEM TIME"
+          badge="IST"
+          headerRight={renderCardControls('clock')}
+          className="h-full flex flex-col justify-between"
+        >
           <div className="flex flex-col justify-between flex-1 py-1">
             <div className="flex items-baseline space-x-2 font-mono">
               <span className={`font-black tracking-tight ${isTall ? 'text-5xl' : 'text-3xl'}`}>{hours}:{minutes}</span>
-              <span className="text-xl font-bold text-red-500 animate-pulse">:{seconds}</span>
+              <span className="text-xl font-bold text-red-500 animate-pulse tabular-nums">:{seconds}</span>
             </div>
             <div className="font-mono text-xs font-bold uppercase mt-1 border-t-2 border-black pt-1">
               {dateFormatted}
@@ -642,11 +685,17 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
 
     if (uiStyle === 'hud') {
       return (
-        <HudBox title="SYS_TIME" code="IST_ZONE" glowColor="cyan" className="h-full flex flex-col justify-between">
+        <HudBox
+          title="SYS_TIME"
+          code="IST_ZONE"
+          glowColor="cyan"
+          headerRight={renderCardControls('clock')}
+          className="h-full flex flex-col justify-between"
+        >
           <div className="flex flex-col justify-between flex-1 py-1 font-mono">
             <div className={`font-black tracking-widest text-cyan-400 flex items-baseline ${isTall ? 'text-5xl' : 'text-3xl'}`}>
               <span>{hours}:{minutes}</span>
-              <span className="text-xl ml-1 text-rose-500 animate-pulse">:{seconds}</span>
+              <span className="text-xl ml-1 text-rose-500 animate-pulse tabular-nums">:{seconds}</span>
             </div>
             <div className="text-xs uppercase tracking-wider text-cyan-300 mt-1">
               {dateFormatted}
@@ -663,15 +712,15 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
 
     // Default Glass / Modern / Minimal / Civic
     return (
-      <div className={`border ${getCardClass(isCompact)}`}>
-        <div className="flex items-center justify-between mb-1">
+      <div className={getCardClass(isCompact)}>
+        <div className="flex items-center justify-between mb-1 shrink-0">
           <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
             <Clock size={12} className="text-amber-500 shrink-0" />
             <span className="truncate">{isCompact ? 'Time' : 'System Time (IST)'}</span>
           </span>
           <div className="flex items-center space-x-1.5 shrink-0">
             {!isCompact && (
-              <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-500 border border-amber-500/20 font-bold">
+              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500 border border-amber-500/20 font-bold">
                 UTC+5:30
               </span>
             )}
@@ -679,32 +728,53 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col justify-between min-h-0 py-0.5">
-          <div className="flex items-baseline space-x-1.5 font-mono">
-            <span className={`font-extrabold tracking-tight ${isTall ? 'text-5xl xl:text-6xl' : 'text-3xl xl:text-4xl'}`}>
-              {hours}:{minutes}
-            </span>
-            <span className="text-lg xl:text-xl font-bold animate-pulse" style={{ color: 'var(--color-accent)' }}>
-              :{seconds}
-            </span>
+        {isWide ? (
+          <div className="flex-1 flex items-center justify-between min-h-0 py-0.5">
+            <div className="flex items-baseline space-x-1.5 font-mono">
+              <span className="font-extrabold tracking-tight text-3xl xl:text-4xl">
+                {hours}:{minutes}
+              </span>
+              <span className="text-lg xl:text-xl font-bold animate-pulse tabular-nums" style={{ color: 'var(--color-accent)' }}>
+                :{seconds}
+              </span>
+            </div>
+            <div className="text-right">
+              <p className="text-xs font-semibold tracking-wide" style={{ color: 'var(--color-accent)' }}>
+                {dateFormatted}
+              </p>
+              <p className="text-[10px] opacity-70 mt-0.5 font-mono">
+                Dawn {weather.sunrise} • Dusk {weather.sunset}
+              </p>
+            </div>
           </div>
+        ) : (
+          <div className="flex-1 flex flex-col justify-center min-h-0 py-0.5 space-y-1">
+            <div className="flex items-baseline space-x-1.5 font-mono">
+              <span className={`font-extrabold tracking-tight ${isTall ? 'text-5xl xl:text-6xl' : 'text-3xl xl:text-4xl'}`}>
+                {hours}:{minutes}
+              </span>
+              <span className="text-lg xl:text-xl font-bold animate-pulse tabular-nums" style={{ color: 'var(--color-accent)' }}>
+                :{seconds}
+              </span>
+            </div>
 
-          <div className="mt-1">
-            <p className="text-xs font-medium tracking-wide truncate" style={{ color: 'var(--color-accent)' }}>
-              {dateFormatted}
-            </p>
-            {isTall && (
-              <div className={`mt-2 pt-2 border-t text-[11px] flex items-center justify-between opacity-80 ${isLight ? 'border-black/10' : 'border-white/10'}`}>
-                <span className="flex items-center">
-                  <Sunrise size={12} className="mr-1 text-amber-400" /> Sunrise {weather.sunrise}
-                </span>
-                <span className="flex items-center">
-                  <Sunset size={12} className="mr-1 text-rose-400" /> Sunset {weather.sunset}
-                </span>
-              </div>
-            )}
+            <div>
+              <p className="text-xs font-medium tracking-wide truncate" style={{ color: 'var(--color-accent)' }}>
+                {dateFormatted}
+              </p>
+              {isTall && (
+                <div className={`mt-2 pt-2 border-t text-[11px] flex items-center justify-between opacity-80 ${isLight ? 'border-black/10' : 'border-white/10'}`}>
+                  <span className="flex items-center">
+                    <Sunrise size={12} className="mr-1 text-amber-400" /> Sunrise {weather.sunrise}
+                  </span>
+                  <span className="flex items-center">
+                    <Sunset size={12} className="mr-1 text-rose-400" /> Sunset {weather.sunset}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     );
   };
@@ -713,10 +783,16 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
   const renderWeatherWidget = (layout: MorningWidgetLayoutItem) => {
     const isCompact = layout.colSpan <= 3 && layout.rowSpan === 1;
     const isTall = layout.rowSpan >= 2;
+    const isWide = layout.colSpan >= 5;
 
     if (uiStyle === 'tui') {
       return (
-        <TuiBox title="WEATHER_STATION" badge={weather.condition.toUpperCase()} className="h-full flex flex-col justify-between">
+        <TuiBox
+          title="WEATHER_STATION"
+          badge={weather.condition.toUpperCase()}
+          headerRight={renderCardControls('weather')}
+          className="h-full flex flex-col justify-between"
+        >
           <div className="flex flex-col justify-between flex-1 py-1 font-mono">
             <div className="flex items-baseline justify-between">
               <span className="text-3xl font-extrabold">{weather.temperature}°C</span>
@@ -735,7 +811,12 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
 
     if (uiStyle === 'brutalist') {
       return (
-        <BrutalistBox title="METEOROLOGY" badge={`${weather.temperature}°C`} className="h-full flex flex-col justify-between">
+        <BrutalistBox
+          title="METEOROLOGY"
+          badge={`${weather.temperature}°C`}
+          headerRight={renderCardControls('weather')}
+          className="h-full flex flex-col justify-between"
+        >
           <div className="flex flex-col justify-between flex-1 py-1 font-mono">
             <div className="flex items-baseline justify-between border-b-2 border-black pb-1">
               <span className="text-3xl font-black">{weather.condition}</span>
@@ -754,7 +835,13 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
 
     if (uiStyle === 'hud') {
       return (
-        <HudBox title="ATMOSPHERE" code={`${weather.temperature}C_TEMP`} glowColor="cyan" className="h-full flex flex-col justify-between">
+        <HudBox
+          title="ATMOSPHERE"
+          code={`${weather.temperature}C_TEMP`}
+          glowColor="cyan"
+          headerRight={renderCardControls('weather')}
+          className="h-full flex flex-col justify-between"
+        >
           <div className="flex flex-col justify-between flex-1 py-1 font-mono">
             <div className="flex items-baseline justify-between text-cyan-400">
               <span className="text-3xl font-black">{weather.temperature}°C</span>
@@ -773,15 +860,15 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
 
     // Default Glass / Minimal / Civic
     return (
-      <div className={`border ${getCardClass(isCompact)}`}>
-        <div className="flex items-center justify-between mb-1">
+      <div className={getCardClass(isCompact)}>
+        <div className="flex items-center justify-between mb-1 shrink-0">
           <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
             <CloudSun size={12} className="text-cyan-400 shrink-0" />
             <span className="truncate">{isCompact ? 'Weather' : 'Local Weather & AQI'}</span>
           </span>
           <div className="flex items-center space-x-1.5 shrink-0">
             {!isCompact && (
-              <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-cyan-500/15 text-cyan-500 border border-cyan-500/20 font-bold">
+              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-cyan-500/15 text-cyan-500 border border-cyan-500/20 font-bold">
                 AQI {aqi.usAqi}
               </span>
             )}
@@ -789,43 +876,92 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col justify-between min-h-0 py-0.5">
-          <div className="flex items-center justify-between">
+        {/* 1-row layout (height 140px) */}
+        {!isTall ? (
+          <div className="flex-1 flex items-center justify-between min-h-0 py-0.5">
             <div>
               <div className="flex items-baseline space-x-1.5">
-                <span className={`font-black tracking-tight ${isTall ? 'text-4xl xl:text-5xl' : 'text-3xl'}`}>
+                <span className="text-3xl font-black tracking-tight">
                   {weather.temperature}°
                 </span>
                 <span className="text-xs font-semibold opacity-75">{weather.condition}</span>
               </div>
               <p className="text-[10px] opacity-70 mt-0.5 font-mono">
-                High {weather.highTemp}° • Low {weather.lowTemp}°
+                H {weather.highTemp}° • L {weather.lowTemp}°
               </p>
             </div>
-            <div className="p-2.5 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
-              <Sun size={24} className="animate-spin-slow" />
-            </div>
-          </div>
 
-          <div className={`grid grid-cols-4 gap-1.5 pt-1.5 border-t text-xs font-mono text-center ${isLight ? 'border-black/10' : 'border-white/10'}`}>
-            <div className={`p-1 rounded-lg border ${getInnerClass()}`}>
-              <span className="block text-[7px] uppercase opacity-70">Feels</span>
-              <span className="font-bold text-[11px] block">{weather.apparentTemperature}°</span>
+            {isWide ? (
+              <div className="grid grid-cols-4 gap-1.5 text-xs font-mono text-center">
+                <div className={`px-2 py-1 rounded-lg border ${getInnerClass()}`}>
+                  <span className="block text-[7px] uppercase opacity-70">Feels</span>
+                  <span className="font-bold text-[11px] block">{weather.apparentTemperature}°</span>
+                </div>
+                <div className={`px-2 py-1 rounded-lg border ${getInnerClass()}`}>
+                  <span className="block text-[7px] uppercase opacity-70">Hum</span>
+                  <span className="font-bold text-[11px] block">{weather.humidity}%</span>
+                </div>
+                <div className={`px-2 py-1 rounded-lg border ${getInnerClass()}`}>
+                  <span className="block text-[7px] uppercase opacity-70">Wind</span>
+                  <span className="font-bold text-[11px] block">{weather.windSpeed}k</span>
+                </div>
+                <div className={`px-2 py-1 rounded-lg border ${getInnerClass()}`}>
+                  <span className="block text-[7px] uppercase opacity-70">AQI</span>
+                  <span className="font-bold text-[11px] text-emerald-400 block">{aqi.usAqi}</span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <div className={`px-2 py-1 rounded-lg border text-center font-mono ${getInnerClass()}`}>
+                  <span className="block text-[7px] uppercase opacity-70">Feels</span>
+                  <span className="font-bold text-[11px] block">{weather.apparentTemperature}°</span>
+                </div>
+                <div className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
+                  <Sun size={20} className="animate-spin-slow" />
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          /* 2+ row layout */
+          <div className="flex-1 flex flex-col justify-between min-h-0 py-0.5">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-baseline space-x-1.5">
+                  <span className="font-black tracking-tight text-4xl xl:text-5xl">
+                    {weather.temperature}°
+                  </span>
+                  <span className="text-xs font-semibold opacity-75">{weather.condition}</span>
+                </div>
+                <p className="text-[10px] opacity-70 mt-0.5 font-mono">
+                  High {weather.highTemp}° • Low {weather.lowTemp}°
+                </p>
+              </div>
+              <div className="p-2.5 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
+                <Sun size={24} className="animate-spin-slow" />
+              </div>
             </div>
-            <div className={`p-1 rounded-lg border ${getInnerClass()}`}>
-              <span className="block text-[7px] uppercase opacity-70">Humidity</span>
-              <span className="font-bold text-[11px] block">{weather.humidity}%</span>
-            </div>
-            <div className={`p-1 rounded-lg border ${getInnerClass()}`}>
-              <span className="block text-[7px] uppercase opacity-70">Wind</span>
-              <span className="font-bold text-[11px] block">{weather.windSpeed}k</span>
-            </div>
-            <div className={`p-1 rounded-lg border ${getInnerClass()}`}>
-              <span className="block text-[7px] uppercase opacity-70">AQI</span>
-              <span className="font-bold text-[11px] text-emerald-400 block">{aqi.usAqi}</span>
+
+            <div className={`grid grid-cols-4 gap-1.5 pt-1.5 border-t text-xs font-mono text-center ${isLight ? 'border-black/10' : 'border-white/10'}`}>
+              <div className={`p-1 rounded-lg border ${getInnerClass()}`}>
+                <span className="block text-[7px] uppercase opacity-70">Feels</span>
+                <span className="font-bold text-[11px] block">{weather.apparentTemperature}°</span>
+              </div>
+              <div className={`p-1 rounded-lg border ${getInnerClass()}`}>
+                <span className="block text-[7px] uppercase opacity-70">Humidity</span>
+                <span className="font-bold text-[11px] block">{weather.humidity}%</span>
+              </div>
+              <div className={`p-1 rounded-lg border ${getInnerClass()}`}>
+                <span className="block text-[7px] uppercase opacity-70">Wind</span>
+                <span className="font-bold text-[11px] block">{weather.windSpeed}k</span>
+              </div>
+              <div className={`p-1 rounded-lg border ${getInnerClass()}`}>
+                <span className="block text-[7px] uppercase opacity-70">AQI</span>
+                <span className="font-bold text-[11px] text-emerald-400 block">{aqi.usAqi}</span>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     );
   };
@@ -834,18 +970,83 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
   const renderCalendarWidget = (layout: MorningWidgetLayoutItem) => {
     const isCompact = layout.colSpan <= 3 && layout.rowSpan === 1;
     const isTall = layout.rowSpan >= 2;
-    const displayEvents = isCompact ? events.slice(0, 1) : isTall ? events.slice(0, 5) : events.slice(0, 2);
+    const maxItems = layout.rowSpan === 1 ? (layout.colSpan >= 6 ? 4 : 2) : 5;
+    const displayEvents = events.slice(0, maxItems);
+
+    if (uiStyle === 'tui') {
+      return (
+        <TuiBox
+          title="CALENDAR_AGENDA"
+          badge={`${events.length} EVENTS`}
+          headerRight={renderCardControls('calendar')}
+          className="h-full flex flex-col justify-between"
+        >
+          <div className="flex-1 flex flex-col justify-start space-y-1.5 overflow-y-auto pr-0.5 min-h-0 font-mono text-xs">
+            {displayEvents.map((evt) => (
+              <div key={evt.id} className="p-1 border border-black/20 dark:border-white/20 flex items-center justify-between">
+                <span className="text-[10px] text-cyan-400 font-bold mr-2">&gt; {evt.startTime}</span>
+                <span className="truncate flex-1 font-bold">{evt.title}</span>
+              </div>
+            ))}
+            {events.length === 0 && <div className="text-[10px] opacity-60">NO_EVENTS_TODAY</div>}
+          </div>
+        </TuiBox>
+      );
+    }
+
+    if (uiStyle === 'brutalist') {
+      return (
+        <BrutalistBox
+          title="TODAY'S SCHEDULE"
+          badge={`${events.length} EVENTS`}
+          headerRight={renderCardControls('calendar')}
+          className="h-full flex flex-col justify-between"
+        >
+          <div className="flex-1 flex flex-col justify-start space-y-1.5 overflow-y-auto pr-0.5 min-h-0 font-mono text-xs">
+            {displayEvents.map((evt) => (
+              <div key={evt.id} className="p-1.5 border-2 border-black dark:border-white flex items-center justify-between">
+                <span className="text-[10px] font-black mr-2 bg-yellow-400 text-black px-1">{evt.startTime}</span>
+                <span className="truncate flex-1 font-black">{evt.title}</span>
+              </div>
+            ))}
+            {events.length === 0 && <div className="text-xs font-bold opacity-60">NO SCHEDULED EVENTS</div>}
+          </div>
+        </BrutalistBox>
+      );
+    }
+
+    if (uiStyle === 'hud') {
+      return (
+        <HudBox
+          title="SCHEDULE_LOG"
+          code={`${events.length}_EVTS`}
+          glowColor="cyan"
+          headerRight={renderCardControls('calendar')}
+          className="h-full flex flex-col justify-between"
+        >
+          <div className="flex-1 flex flex-col justify-start space-y-1.5 overflow-y-auto pr-0.5 min-h-0 font-mono text-xs text-cyan-200">
+            {displayEvents.map((evt) => (
+              <div key={evt.id} className="p-1.5 border border-cyan-500/30 bg-cyan-950/20 flex items-center justify-between">
+                <span className="text-[10px] text-cyan-400 font-bold mr-2">[{evt.startTime}]</span>
+                <span className="truncate flex-1 font-bold">{evt.title}</span>
+              </div>
+            ))}
+            {events.length === 0 && <div className="text-[10px] opacity-60">ALL_CLEAR // NO_ENTRIES</div>}
+          </div>
+        </HudBox>
+      );
+    }
 
     return (
-      <div className={`border ${getCardClass(isCompact)}`}>
-        <div className="flex items-center justify-between mb-1">
+      <div className={getCardClass(isCompact)}>
+        <div className="flex items-center justify-between mb-1 shrink-0">
           <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
             <Calendar size={12} className="text-purple-400 shrink-0" />
             <span className="truncate">{isCompact ? 'Schedule' : "Today's Schedule"}</span>
           </span>
           <div className="flex items-center space-x-1.5 shrink-0">
             {!isCompact && (
-              <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-purple-500/15 text-purple-400 border border-purple-500/20 font-bold">
+              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-purple-500/15 text-purple-400 border border-purple-500/20 font-bold">
                 {events.length} Events
               </span>
             )}
@@ -853,7 +1054,7 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col justify-between space-y-1.5 overflow-y-auto pr-0.5 min-h-0 py-0.5">
+        <div className="flex-1 flex flex-col justify-start space-y-1.5 overflow-y-auto pr-0.5 min-h-0 py-0.5">
           {displayEvents.map((evt) => (
             <div key={evt.id} className={`p-2 rounded-xl border flex items-center justify-between text-xs ${getInnerClass()}`}>
               <div className="flex items-center space-x-2 truncate min-w-0">
@@ -882,19 +1083,99 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
   const renderTasksWidget = (layout: MorningWidgetLayoutItem) => {
     const isCompact = layout.colSpan <= 3 && layout.rowSpan === 1;
     const isTall = layout.rowSpan >= 2;
-    const displayTasks = isCompact ? tasks.slice(0, 2) : isTall ? tasks.slice(0, 6) : tasks.slice(0, 3);
+    const maxItems = layout.rowSpan === 1 ? (layout.colSpan >= 6 ? 4 : 2) : 6;
+    const displayTasks = tasks.slice(0, maxItems);
     const completedCount = tasks.filter((t) => t.completed).length;
 
+    if (uiStyle === 'tui') {
+      return (
+        <TuiBox
+          title="TASKS_CHECKLIST"
+          badge={`${completedCount}/${tasks.length} DONE`}
+          headerRight={renderCardControls('tasks')}
+          className="h-full flex flex-col justify-between"
+        >
+          <div className="flex-1 flex flex-col justify-start space-y-1 overflow-y-auto pr-0.5 min-h-0 font-mono text-xs">
+            {displayTasks.map((t) => (
+              <div
+                key={t.id}
+                onClick={() => toggleTask(t.id)}
+                className={`p-1 border border-black/20 dark:border-white/20 flex items-center space-x-2 cursor-pointer ${
+                  t.completed ? 'opacity-40 line-through' : ''
+                }`}
+              >
+                <span>{t.completed ? '[X]' : '[ ]'}</span>
+                <span className="truncate flex-1">{t.title}</span>
+              </div>
+            ))}
+          </div>
+        </TuiBox>
+      );
+    }
+
+    if (uiStyle === 'brutalist') {
+      return (
+        <BrutalistBox
+          title="PRIORITIES & TASKS"
+          badge={`${completedCount}/${tasks.length} DONE`}
+          headerRight={renderCardControls('tasks')}
+          className="h-full flex flex-col justify-between"
+        >
+          <div className="flex-1 flex flex-col justify-start space-y-1.5 overflow-y-auto pr-0.5 min-h-0 font-mono text-xs">
+            {displayTasks.map((t) => (
+              <div
+                key={t.id}
+                onClick={() => toggleTask(t.id)}
+                className={`p-1.5 border-2 border-black dark:border-white flex items-center space-x-2 cursor-pointer ${
+                  t.completed ? 'opacity-40 line-through' : ''
+                }`}
+              >
+                <span className="font-black">{t.completed ? '■' : '□'}</span>
+                <span className="truncate flex-1 font-bold">{t.title}</span>
+              </div>
+            ))}
+          </div>
+        </BrutalistBox>
+      );
+    }
+
+    if (uiStyle === 'hud') {
+      return (
+        <HudBox
+          title="ACTION_ITEMS"
+          code={`${completedCount}/${tasks.length}_DONE`}
+          glowColor="cyan"
+          headerRight={renderCardControls('tasks')}
+          className="h-full flex flex-col justify-between"
+        >
+          <div className="flex-1 flex flex-col justify-start space-y-1 overflow-y-auto pr-0.5 min-h-0 font-mono text-xs text-cyan-200">
+            {displayTasks.map((t) => (
+              <div
+                key={t.id}
+                onClick={() => toggleTask(t.id)}
+                className={`p-1.5 border border-cyan-500/30 bg-cyan-950/20 flex items-center space-x-2 cursor-pointer ${
+                  t.completed ? 'opacity-40 line-through' : ''
+                }`}
+              >
+                <span className="text-cyan-400">{t.completed ? '☑' : '☐'}</span>
+                <span className="truncate flex-1 font-medium">{t.title}</span>
+              </div>
+            ))}
+          </div>
+        </HudBox>
+      );
+    }
+
     return (
-      <div className={`border ${getCardClass(isCompact)}`}>
-        <div className="flex items-center justify-between mb-1">
+      <div className={getCardClass(isCompact)}>
+        <div className="flex items-center justify-between mb-1 shrink-0">
           <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
             <CheckCircle2 size={12} className="text-emerald-400 shrink-0" />
             <span className="truncate">{isCompact ? 'Tasks' : 'Priorities & Checklist'}</span>
           </span>
           <div className="flex items-center space-x-1.5 shrink-0">
             {!isCompact && (
-              <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 font-bold">
+              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 font-bold">
                 {completedCount}/{tasks.length} Done
               </span>
             )}
@@ -902,7 +1183,7 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col justify-between space-y-1 overflow-y-auto pr-0.5 min-h-0 py-0.5">
+        <div className="flex-1 flex flex-col justify-start space-y-1.5 overflow-y-auto pr-0.5 min-h-0 py-0.5">
           {displayTasks.map((t) => (
             <div
               key={t.id}
@@ -918,7 +1199,7 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
               )}
               <span className="truncate flex-1 font-medium">{t.title}</span>
               {t.priority === 'high' && (
-                <span className="text-[8px] font-mono px-1 py-0.2 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30 uppercase font-bold shrink-0">
+                <span className="text-[8px] font-mono px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30 uppercase font-bold shrink-0">
                   High
                 </span>
               )}
@@ -936,18 +1217,107 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
   const renderMarketsWidget = (layout: MorningWidgetLayoutItem) => {
     const isCompact = layout.colSpan <= 3 && layout.rowSpan === 1;
     const isTall = layout.rowSpan >= 2;
-    const displayItems = isCompact ? finance.slice(0, 2) : isTall ? finance.slice(0, 6) : finance.slice(0, 3);
+    const maxItems = layout.rowSpan === 1 ? (layout.colSpan >= 6 ? 4 : 2) : 6;
+    const displayItems = finance.slice(0, maxItems);
+
+    if (uiStyle === 'tui') {
+      return (
+        <TuiBox
+          title="MARKETS_TICKER"
+          badge="REALTIME"
+          headerRight={renderCardControls('markets')}
+          className="h-full flex flex-col justify-between"
+        >
+          <div className="flex-1 flex flex-col justify-start space-y-1.5 overflow-y-auto pr-0.5 min-h-0 font-mono text-xs">
+            {displayItems.map((item) => {
+              const isPos = item.change >= 0;
+              return (
+                <div key={item.id} className="p-1 border border-black/20 dark:border-white/20 flex items-center justify-between">
+                  <span className="font-bold">{item.symbol}</span>
+                  <div className="text-right">
+                    <span>{item.price}</span>
+                    <span className={`ml-2 text-[10px] ${isPos ? 'text-emerald-400' : 'text-rose-400'}`}>
+                      {isPos ? '+' : ''}{item.changePercent.toFixed(2)}%
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </TuiBox>
+      );
+    }
+
+    if (uiStyle === 'brutalist') {
+      return (
+        <BrutalistBox
+          title="MARKETS AT OPEN"
+          badge="LIVE"
+          headerRight={renderCardControls('markets')}
+          className="h-full flex flex-col justify-between"
+        >
+          <div className="flex-1 flex flex-col justify-start space-y-1.5 overflow-y-auto pr-0.5 min-h-0 font-mono text-xs">
+            {displayItems.map((item) => {
+              const isPos = item.change >= 0;
+              return (
+                <div key={item.id} className="p-1.5 border-2 border-black dark:border-white flex items-center justify-between">
+                  <div>
+                    <span className="font-black block">{item.name}</span>
+                    <span className="text-[9px] opacity-70">{item.symbol}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-black block">{item.price}</span>
+                    <span className={`text-[10px] font-black ${isPos ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                      {isPos ? '+' : ''}{item.changePercent.toFixed(2)}%
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </BrutalistBox>
+      );
+    }
+
+    if (uiStyle === 'hud') {
+      return (
+        <HudBox
+          title="EXCHANGE_INDICES"
+          code="LIVE_FEED"
+          glowColor="cyan"
+          headerRight={renderCardControls('markets')}
+          className="h-full flex flex-col justify-between"
+        >
+          <div className="flex-1 flex flex-col justify-start space-y-1.5 overflow-y-auto pr-0.5 min-h-0 font-mono text-xs text-cyan-200">
+            {displayItems.map((item) => {
+              const isPos = item.change >= 0;
+              return (
+                <div key={item.id} className="p-1.5 border border-cyan-500/30 bg-cyan-950/20 flex items-center justify-between">
+                  <span className="font-bold">{item.symbol}</span>
+                  <div className="text-right">
+                    <span>{item.price}</span>
+                    <span className={`ml-2 text-[10px] ${isPos ? 'text-emerald-400' : 'text-rose-400'}`}>
+                      {isPos ? '+' : ''}{item.changePercent.toFixed(2)}%
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </HudBox>
+      );
+    }
 
     return (
-      <div className={`border ${getCardClass(isCompact)}`}>
-        <div className="flex items-center justify-between mb-1">
+      <div className={getCardClass(isCompact)}>
+        <div className="flex items-center justify-between mb-1 shrink-0">
           <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
             <TrendingUp size={12} className="text-emerald-400 shrink-0" />
             <span className="truncate">{isCompact ? 'Markets' : 'Markets at Open'}</span>
           </span>
           <div className="flex items-center space-x-1.5 shrink-0">
             {!isCompact && (
-              <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 font-bold">
+              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 font-bold">
                 REALTIME
               </span>
             )}
@@ -955,7 +1325,7 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col justify-between space-y-1.5 overflow-y-auto pr-0.5 min-h-0 py-0.5">
+        <div className="flex-1 flex flex-col justify-start space-y-1.5 overflow-y-auto pr-0.5 min-h-0 py-0.5">
           {displayItems.map((item) => {
             const isPos = item.change >= 0;
             return (
@@ -967,7 +1337,8 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
                 <div className="text-right shrink-0">
                   <div className="font-bold">{item.price}</div>
                   <div className={`text-[10px] font-bold flex items-center justify-end ${isPos ? 'text-emerald-400' : 'text-rose-400'}`}>
-                    {isPos ? '+' : ''}{item.changePercent.toFixed(2)}%
+                    {isPos ? <ArrowUpRight size={11} className="mr-0.5" /> : <ArrowDownRight size={11} className="mr-0.5" />}
+                    {Math.abs(item.changePercent).toFixed(2)}%
                   </div>
                 </div>
               </div>
@@ -982,18 +1353,80 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
   const renderNewsWidget = (layout: MorningWidgetLayoutItem) => {
     const isCompact = layout.colSpan <= 3 && layout.rowSpan === 1;
     const isTall = layout.rowSpan >= 2;
-    const displayNews = isCompact ? news.slice(0, 1) : isTall ? news.slice(0, 4) : news.slice(0, 2);
+    const maxNews = layout.rowSpan === 1 ? (layout.colSpan >= 6 ? 2 : 1) : 4;
+    const displayNews = news.slice(0, maxNews);
+
+    if (uiStyle === 'tui') {
+      return (
+        <TuiBox
+          title="NEWS_DISPATCH"
+          badge="WIRE"
+          headerRight={renderCardControls('news')}
+          className="h-full flex flex-col justify-between"
+        >
+          <div className="flex-1 flex flex-col justify-start space-y-1.5 overflow-y-auto pr-0.5 min-h-0 font-mono text-xs">
+            {displayNews.map((item, idx) => (
+              <div key={item.id || idx} className="p-1 border border-black/20 dark:border-white/20">
+                <div className="text-[9px] text-amber-400 font-bold">[{item.source}]</div>
+                <div className="font-bold truncate mt-0.5">{item.title}</div>
+              </div>
+            ))}
+          </div>
+        </TuiBox>
+      );
+    }
+
+    if (uiStyle === 'brutalist') {
+      return (
+        <BrutalistBox
+          title="MORNING WIRE"
+          badge="LIVE"
+          headerRight={renderCardControls('news')}
+          className="h-full flex flex-col justify-between"
+        >
+          <div className="flex-1 flex flex-col justify-start space-y-1.5 overflow-y-auto pr-0.5 min-h-0 font-mono text-xs">
+            {displayNews.map((item, idx) => (
+              <div key={item.id || idx} className="p-1.5 border-2 border-black dark:border-white">
+                <span className="text-[9px] font-black uppercase bg-red-600 text-white px-1 mr-1">{item.source}</span>
+                <span className="font-black">{item.title}</span>
+              </div>
+            ))}
+          </div>
+        </BrutalistBox>
+      );
+    }
+
+    if (uiStyle === 'hud') {
+      return (
+        <HudBox
+          title="INTEL_FEED"
+          code="WIRE_LIVE"
+          glowColor="cyan"
+          headerRight={renderCardControls('news')}
+          className="h-full flex flex-col justify-between"
+        >
+          <div className="flex-1 flex flex-col justify-start space-y-1.5 overflow-y-auto pr-0.5 min-h-0 font-mono text-xs text-cyan-200">
+            {displayNews.map((item, idx) => (
+              <div key={item.id || idx} className="p-1.5 border border-cyan-500/30 bg-cyan-950/20">
+                <div className="text-[9px] text-rose-400 font-bold">&gt; {item.source}</div>
+                <div className="font-medium truncate mt-0.5">{item.title}</div>
+              </div>
+            ))}
+          </div>
+        </HudBox>
+      );
+    }
 
     return (
-      <div className={`border ${getCardClass(isCompact)}`}>
-        <div className="flex items-center justify-between mb-1">
+      <div className={getCardClass(isCompact)}>
+        <div className="flex items-center justify-between mb-1 shrink-0">
           <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
             <Newspaper size={12} className="text-red-500 shrink-0" />
             <span className="truncate">{isCompact ? 'Wire' : 'Morning News Briefing'}</span>
           </span>
           <div className="flex items-center space-x-1.5 shrink-0">
             {!isCompact && (
-              <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-red-500/15 text-red-500 border border-red-500/20 font-bold">
+              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-red-500/15 text-red-500 border border-red-500/20 font-bold">
                 LIVE
               </span>
             )}
@@ -1001,7 +1434,7 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col justify-between space-y-1.5 overflow-y-auto pr-0.5 min-h-0 py-0.5">
+        <div className="flex-1 flex flex-col justify-start space-y-1.5 overflow-y-auto pr-0.5 min-h-0 py-0.5">
           {displayNews.map((item, idx) => (
             <a
               key={item.id || idx}
@@ -1126,11 +1559,11 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
                 gridColumn: `${layout.col} / span ${layout.colSpan}`,
                 gridRow: `${layout.row} / span ${layout.rowSpan}`,
               }}
-              className={`relative group ${
+              className={`relative group h-full flex flex-col ${
                 isActivelyMoved
-                  ? 'opacity-85 shadow-2xl z-30 ring-2 ring-blue-500 rounded-3xl'
+                  ? 'opacity-85 shadow-2xl z-30 ring-2 ring-blue-500 rounded-2xl'
                   : isActivelyResized
-                  ? 'shadow-2xl z-30 ring-2 ring-amber-400 rounded-3xl'
+                  ? 'shadow-2xl z-30 ring-2 ring-amber-400 rounded-2xl'
                   : 'z-10 transition-all duration-150'
               }`}
             >
@@ -1273,7 +1706,7 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
                       <div>
                         <div className="text-xs font-bold flex items-center space-x-2">
                           <span>{widget.name}</span>
-                          <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-white/10 text-gray-300">
+                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-white/10 text-gray-300">
                             {widget.badge}
                           </span>
                         </div>
