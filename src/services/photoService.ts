@@ -99,20 +99,29 @@ export class PhotoService {
       console.error('Error loading custom photos', e);
     }
 
-    // 2. Check local photo directory via /api/photos
+    // 2. Check local photo directory via /api/photos or static /photos.json
     try {
-      const res = await fetch('/api/photos');
+      let res = await fetch('/api/photos');
+      const contentType = res.headers.get('content-type') || '';
+      // If /api/photos is not handled or returns SPA index.html fallback, try static /photos.json
+      if (!res.ok || contentType.includes('text/html')) {
+        res = await fetch('/photos.json');
+      }
+
       if (res.ok) {
-        const localList: PhotoItem[] = await res.json();
-        if (Array.isArray(localList) && localList.length > 0) {
-          this.photos = localList;
-          this.source = 'local';
-          this.preloadUpcoming(0);
-          return this.photos;
+        const ct = res.headers.get('content-type') || '';
+        if (ct.includes('application/json') || !ct.includes('text/html')) {
+          const localList: PhotoItem[] = await res.json();
+          if (Array.isArray(localList) && localList.length > 0) {
+            this.photos = localList;
+            this.source = 'local';
+            this.preloadUpcoming(0);
+            return this.photos;
+          }
         }
       }
     } catch (e) {
-      // /api/photos unavailable or empty
+      // /api/photos and /photos.json unavailable or empty
     }
 
     // 3. Fallback to curated showcase photos

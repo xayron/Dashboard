@@ -9,49 +9,63 @@ import { remoteHubPlugin } from './server/remoteHub';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+function getLocalPhotosList() {
+  const photosDir = path.resolve(__dirname, 'public/photos');
+  if (!fs.existsSync(photosDir)) {
+    fs.mkdirSync(photosDir, { recursive: true });
+  }
+
+  const validExts = ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif'];
+  try {
+    const files = fs.readdirSync(photosDir).filter(file => {
+      const ext = path.extname(file).toLowerCase();
+      return validExts.includes(ext) && !file.startsWith('.');
+    });
+
+    return files.map((file, i) => {
+      const name = path.basename(file, path.extname(file));
+      return {
+        id: `local-${i}-${file}`,
+        url: `/photos/${encodeURIComponent(file)}`,
+        title: name.replace(/[-_]/g, ' '),
+        location: 'Local Media Share',
+        aspectRatio: 1.6,
+        orientation: 'landscape',
+        credit: 'Local Storage',
+      };
+    });
+  } catch (e) {
+    return [];
+  }
+}
+
 function localPhotoServerPlugin(): Plugin {
+  const handler = (req: any, res: any) => {
+    if (req.method !== 'GET') {
+      res.statusCode = 405;
+      res.end();
+      return;
+    }
+    const photos = getLocalPhotosList();
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(photos));
+  };
+
   return {
     name: 'local-photo-server',
-    configureServer(server) {
-      server.middlewares.use('/api/photos', (req, res) => {
-        if (req.method !== 'GET') {
-          res.statusCode = 405;
-          res.end();
-          return;
-        }
-
-        const photosDir = path.resolve(__dirname, 'public/photos');
-        if (!fs.existsSync(photosDir)) {
-          fs.mkdirSync(photosDir, { recursive: true });
-        }
-
-        const validExts = ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif'];
-        try {
-          const files = fs.readdirSync(photosDir).filter(file => {
-            const ext = path.extname(file).toLowerCase();
-            return validExts.includes(ext) && !file.startsWith('.');
-          });
-
-          const photos = files.map((file, i) => {
-            const name = path.basename(file, path.extname(file));
-            return {
-              id: `local-${i}-${file}`,
-              url: `/photos/${encodeURIComponent(file)}`,
-              title: name.replace(/[-_]/g, ' '),
-              location: 'Local Media Share',
-              aspectRatio: 1.6,
-              orientation: 'landscape',
-              credit: 'Local Storage',
-            };
-          });
-
-          res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify(photos));
-        } catch (e) {
-          res.statusCode = 500;
-          res.end(JSON.stringify({ error: String(e) }));
-        }
+    generateBundle() {
+      const photos = getLocalPhotosList();
+      this.emitFile({
+        type: 'asset',
+        fileName: 'photos.json',
+        source: JSON.stringify(photos, null, 2),
       });
+    },
+    configureServer(server) {
+      server.middlewares.use('/api/photos', handler);
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use('/api/photos', handler);
     },
   };
 }
@@ -149,77 +163,93 @@ function parseNewsSnippet(rawSnippet: string, mainTitle: string, source: string)
 }
 
 function newsServerPlugin(): Plugin {
+  const handler = async (req: any, res: any) => {
+    if (req.method !== 'GET') {
+      res.statusCode = 405;
+      res.end();
+      return;
+    }
+
+    try {
+      const feedUrl = 'https://news.google.com/rss?hl=en-IN&gl=IN&ceid=IN:en';
+      const response = await fetch(feedUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
+        },
+        signal: AbortSignal.timeout(5000),
+      });
+
+      if (!response.ok) throw new Error(`RSS feed returned ${response.status}`);
+      const xmlText = await response.text();
+
+      const items: Array<{ title: string; source: string; time: string; url: string; snippet: string; summary: string }> = [];
+      const itemRegex = /<item>[\s\S]*?<\/item>/g;
+      const matches = xmlText.match(itemRegex) || [];
+
+      for (const match of matches.slice(0, 40)) {
+        const titleMatch = match.match(/<title>(.*?)<\/title>/);
+        const linkMatch = match.match(/<link>(.*?)<\/link>/);
+        const pubDateMatch = match.match(/<pubDate>(.*?)<\/pubDate>/);
+        const sourceMatch = match.match(/<source[^>]*>(.*?)<\/source>/);
+        const descMatch = match.match(/<description>([\s\S]*?)<\/description>/);
+
+        if (titleMatch) {
+          let rawTitle = titleMatch[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1');
+          let rawSource = sourceMatch ? sourceMatch[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1') : 'News Feed';
+
+          let fullTitle = fullyDecodeHtml(rawTitle.trim());
+          let source = fullyDecodeHtml(rawSource.trim());
+
+          if (fullTitle.includes(' - ')) {
+            const parts = fullTitle.split(' - ');
+            source = parts.pop()?.trim() || source;
+            fullTitle = parts.join(' - ').trim();
+          }
+
+          const rawDesc = descMatch ? descMatch[1] : '';
+          const snippet = parseNewsSnippet(rawDesc, fullTitle, source);
+
+          items.push({
+            title: fullTitle,
+            source: source,
+            time: pubDateMatch ? pubDateMatch[1] : new Date().toISOString(),
+            url: linkMatch ? linkMatch[1] : '',
+            snippet,
+            summary: snippet,
+          });
+        }
+      }
+
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify(items));
+    } catch (e) {
+      // If network fetch fails, return empty array so client falls back gracefully
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify([]));
+    }
+  };
+
   return {
     name: 'news-server',
     configureServer(server) {
-      server.middlewares.use('/api/news', async (req, res) => {
-        if (req.method !== 'GET') {
-          res.statusCode = 405;
-          res.end();
-          return;
-        }
-
-        try {
-          const feedUrl = 'https://news.google.com/rss?hl=en-IN&gl=IN&ceid=IN:en';
-          const response = await fetch(feedUrl, {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
-            },
-            signal: AbortSignal.timeout(5000),
-          });
-
-          if (!response.ok) throw new Error(`RSS feed returned ${response.status}`);
-          const xmlText = await response.text();
-
-          const items: Array<{ title: string; source: string; time: string; url: string; snippet: string; summary: string }> = [];
-          const itemRegex = /<item>[\s\S]*?<\/item>/g;
-          const matches = xmlText.match(itemRegex) || [];
-
-          for (const match of matches.slice(0, 40)) {
-            const titleMatch = match.match(/<title>(.*?)<\/title>/);
-            const linkMatch = match.match(/<link>(.*?)<\/link>/);
-            const pubDateMatch = match.match(/<pubDate>(.*?)<\/pubDate>/);
-            const sourceMatch = match.match(/<source[^>]*>(.*?)<\/source>/);
-            const descMatch = match.match(/<description>([\s\S]*?)<\/description>/);
-
-            if (titleMatch) {
-              let rawTitle = titleMatch[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1');
-              let rawSource = sourceMatch ? sourceMatch[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1') : 'News Feed';
-
-              let fullTitle = fullyDecodeHtml(rawTitle.trim());
-              let source = fullyDecodeHtml(rawSource.trim());
-
-              if (fullTitle.includes(' - ')) {
-                const parts = fullTitle.split(' - ');
-                source = parts.pop()?.trim() || source;
-                fullTitle = parts.join(' - ').trim();
-              }
-
-              const rawDesc = descMatch ? descMatch[1] : '';
-              const snippet = parseNewsSnippet(rawDesc, fullTitle, source);
-
-              items.push({
-                title: fullTitle,
-                source: source,
-                time: pubDateMatch ? pubDateMatch[1] : new Date().toISOString(),
-                url: linkMatch ? linkMatch[1] : '',
-                snippet,
-                summary: snippet,
-              });
-            }
-          }
-
-          res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify(items));
-        } catch (e) {
-          // If network fetch fails, return empty array so client falls back gracefully
-          res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify([]));
-        }
-      });
+      server.middlewares.use('/api/news', handler);
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use('/api/news', handler);
     },
   };
 }
+
+const financeProxy = {
+  '/api/finance': {
+    target: 'https://query1.finance.yahoo.com',
+    changeOrigin: true,
+    rewrite: (path: string) => path.replace(/^\/api\/finance/, ''),
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
+    },
+  },
+};
 
 export default defineConfig({
   plugins: [
@@ -232,19 +262,11 @@ export default defineConfig({
   server: {
     port: 3000,
     host: '0.0.0.0', // accessible on local network for kiosk display
-    proxy: {
-      '/api/finance': {
-        target: 'https://query1.finance.yahoo.com',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/finance/, ''),
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
-        },
-      },
-    },
+    proxy: financeProxy,
   },
   preview: {
     port: 3000,
     host: '0.0.0.0',
+    proxy: financeProxy,
   },
 });
