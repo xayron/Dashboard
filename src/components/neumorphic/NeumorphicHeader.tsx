@@ -1,9 +1,9 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { Radio, Sun, Moon, Settings } from 'lucide-react';
+import { Radio, Sun, Moon, Settings, Maximize2 } from 'lucide-react';
 
 export const NeumorphicHeader: React.FC = () => {
-  const { systemHealth, activeMode, weather, colorMode, toggleColorMode, setIsSettingsOpen } = useDashboard();
+  const { systemHealth, activeMode, weather, colorMode, toggleColorMode, setIsSettingsOpen, toggleKioskMode } = useDashboard();
 
   return (
     <header className="w-full bg-transparent text-neutral-300 px-8 py-3 flex items-center justify-between text-xs select-none z-30">
@@ -32,6 +32,15 @@ export const NeumorphicHeader: React.FC = () => {
         >
           {colorMode === 'dark' ? <Sun size={12} /> : <Moon size={12} />}
           <span>{colorMode.toUpperCase()}</span>
+        </button>
+        <button
+          onClick={toggleKioskMode}
+          title="Enter Kiosk Mode (Press 'K')"
+          aria-label="Enter Kiosk Mode"
+          className="p-1.5 rounded-xl bg-[#1a1d24] shadow-[3px_3px_6px_#101217,-3px_-3px_6px_#242831] hover:shadow-[inset_2px_2px_4px_#101217,inset_-2px_-2px_4px_#242831] cursor-pointer transition-all"
+          style={{ color: 'var(--color-accent)' }}
+        >
+          <Maximize2 size={13} />
         </button>
         <button
           onClick={() => setIsSettingsOpen(true)}

@@ -11,7 +11,7 @@ export const MinimalFinanceTicker: React.FC = () => {
         isLight ? 'bg-white/90 border-slate-200 text-slate-800' : 'bg-[#09090b] border-white/10 text-neutral-200'
       }`}
     >
-      <div className="flex-1 flex items-center justify-around overflow-x-auto space-x-6">
+      <div className="flex-1 flex items-center justify-around overflow-x-auto no-scrollbar space-x-6">
         {finance.map((item) => {
           const isUp = item.change >= 0;
           return (

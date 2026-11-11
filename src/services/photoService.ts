@@ -147,6 +147,10 @@ export class PhotoService {
     return this.photos;
   }
 
+  public getCurrentIndex(): number {
+    return this.currentIndex;
+  }
+
   public getCurrentPhoto(): PhotoItem {
     return this.photos[this.currentIndex] || this.photos[0];
   }

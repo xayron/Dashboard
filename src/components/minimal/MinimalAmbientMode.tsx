@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
+import { PhotoStack } from '../ambient/PhotoStack';
 
 export const MinimalAmbientMode: React.FC = () => {
   const { currentPhoto, photoProgress, now, weather, colorMode } = useDashboard();
@@ -9,7 +10,7 @@ export const MinimalAmbientMode: React.FC = () => {
   const minutes = String(now.getMinutes()).padStart(2, '0');
 
   return (
-    <div className={`relative w-full h-full overflow-hidden flex flex-col justify-between p-12 select-none transition-colors duration-300 ${
+    <div className={`relative w-full h-full overflow-hidden flex flex-col justify-between p-8 md:p-12 select-none transition-colors duration-300 ${
       isLight ? 'bg-slate-50 text-neutral-900' : 'bg-black text-white'
     }`}>
       {/* Minimal Ambient Backdrop */}
@@ -27,24 +28,16 @@ export const MinimalAmbientMode: React.FC = () => {
         }`} />
       </div>
 
-      {/* Floating Photo with True Aspect Ratio */}
-      <div className="absolute inset-0 z-0 flex items-center justify-center p-8">
-        <img
-          key={currentPhoto.url}
-          src={currentPhoto.url}
-          alt={currentPhoto.title}
-          className={`relative z-0 max-w-[92vw] max-h-[84vh] object-contain shadow-2xl transition-opacity duration-1000 ${
-            isLight ? 'border border-black/5' : 'border border-white/10'
-          }`}
-          style={{ aspectRatio: currentPhoto.aspectRatio }}
-        />
+      {/* Center Photo Stack */}
+      <div className="absolute inset-0 z-10 flex items-center justify-center p-4 pointer-events-auto">
+        <PhotoStack isLight={isLight} uiStyle="minimal" />
       </div>
 
       {/* Top Bar: Whispering Clock */}
-      <div className={`relative z-10 flex items-baseline justify-between drop-shadow-md ${
+      <div className={`relative z-20 flex items-baseline justify-between drop-shadow-md pointer-events-none ${
         isLight ? 'text-neutral-900' : 'text-white'
       }`}>
-        <div className="text-5xl font-extralight tracking-tighter">
+        <div className="text-4xl md:text-5xl font-extralight tracking-tighter">
           {hours}:{minutes}
         </div>
         <div className={`text-xs font-light ${isLight ? 'text-neutral-600' : 'text-neutral-300'}`}>
@@ -52,20 +45,8 @@ export const MinimalAmbientMode: React.FC = () => {
         </div>
       </div>
 
-      {/* Bottom Bar: Photo Credit & 15s Hairline */}
-      <div className="relative z-10">
-        <div className="mb-4 drop-shadow-md">
-          <h2 className={`text-xl font-light tracking-wide ${
-            isLight ? 'text-neutral-900' : 'text-white'
-          }`}>{currentPhoto.title}</h2>
-          {currentPhoto.location && (
-            <p className={`text-xs font-light mt-0.5 ${
-              isLight ? 'text-neutral-600' : 'text-neutral-300'
-            }`}>{currentPhoto.location}</p>
-          )}
-        </div>
-
-        {/* 15s Hairline Bar */}
+      {/* Bottom Bar: 15s Hairline */}
+      <div className="relative z-20 pointer-events-none">
         <div className={`w-full h-0.5 overflow-hidden ${
           isLight ? 'bg-black/10' : 'bg-white/20'
         }`}>

@@ -1,9 +1,9 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { Newspaper, Activity, Database, Radio, Sun, Moon, Settings } from 'lucide-react';
+import { Newspaper, Activity, Database, Radio, Sun, Moon, Settings, Maximize2 } from 'lucide-react';
 
 export const CivicHeader: React.FC = () => {
-  const { systemHealth, activeMode, weather, colorMode, toggleColorMode, setIsSettingsOpen } = useDashboard();
+  const { systemHealth, activeMode, weather, colorMode, toggleColorMode, setIsSettingsOpen, toggleKioskMode } = useDashboard();
   const isLight = colorMode === 'light';
 
   return (
@@ -95,6 +95,18 @@ export const CivicHeader: React.FC = () => {
             }`}>
               SYSTEM ONLINE
             </span>
+            <button
+              onClick={toggleKioskMode}
+              title="Enter Kiosk Mode (Press 'K')"
+              aria-label="Enter Kiosk Mode"
+              className={`p-1.5 rounded border transition-colors cursor-pointer ${
+                isLight
+                  ? 'bg-white hover:bg-slate-200 text-slate-800 border-slate-300'
+                  : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-600'
+              }`}
+            >
+              <Maximize2 size={13} />
+            </button>
             <button
               onClick={() => setIsSettingsOpen(true)}
               title="Settings (Press 'S')"

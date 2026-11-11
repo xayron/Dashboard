@@ -181,7 +181,7 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({
           <div className="text-[11px] uppercase tracking-wider text-gray-400 font-semibold mb-2">
             Upcoming Hours
           </div>
-          <div className="flex items-center justify-between space-x-2 overflow-x-auto pb-0.5">
+          <div className="flex items-center justify-between space-x-2 overflow-x-auto no-scrollbar pb-0.5">
             {weather.hourly.slice(0, 6).map((h, i) => (
               <div key={i} className="flex flex-col items-center flex-1 min-w-[46px] p-1.5 rounded-xl bg-white/5">
                 <span className="text-[11px] text-gray-400 font-mono-numbers">{h.time}</span>

@@ -80,6 +80,7 @@ export type RemoteCommand =
   | { type: 'TOGGLE_TASK'; id: string }
   | { type: 'ADD_TASK'; text: string }
   | { type: 'TOGGLE_KIOSK_BAR' }
+  | { type: 'TOGGLE_KIOSK_MODE' }
   | { type: 'TOGGLE_SETTINGS'; open?: boolean }
   | { type: 'SYSTEM_COMMAND'; command: 'reload' | 'dpms_sleep' | 'dpms_wake' }
   | { type: 'REQUEST_SNAPSHOT' };

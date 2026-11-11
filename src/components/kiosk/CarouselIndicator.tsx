@@ -11,7 +11,11 @@ export const CarouselIndicator: React.FC = () => {
     setManualOverrideMode,
     media,
     colorMode,
+    isKioskBarVisible,
+    isKioskMode,
   } = useDashboard();
+
+  if (!isKioskBarVisible || isKioskMode) return null;
 
   const isLight = colorMode === 'light';
   const isPlaying = media.state === 'playing';

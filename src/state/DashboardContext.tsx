@@ -17,6 +17,7 @@ import type {
   WeatherData,
   NewsItem,
   NewsCategory,
+  GridLayoutBackup,
 } from '../types/dashboard';
 import { haService } from '../services/homeAssistant';
 import { fetchWeatherData, getFallbackWeatherAndAQI } from '../services/weatherService';
@@ -153,10 +154,13 @@ interface DashboardContextType {
   livePosition: number;
   mediaControl: (action: 'play' | 'pause' | 'toggle' | 'next' | 'prev' | 'volume' | 'seek', value?: number) => void;
   finance: FinanceItem[];
+  photos: PhotoItem[];
+  photoIndex: number;
   currentPhoto: PhotoItem;
   photoProgress: number; // 0 to 100 for the 15-second timer bar
   nextPhoto: () => void;
   prevPhoto: () => void;
+  goToPhotoIndex: (index: number) => void;
   events: CalendarEvent[];
   tasks: TodoTask[];
   toggleTask: (id: string) => void;
@@ -168,6 +172,9 @@ interface DashboardContextType {
   toggleSettingsLayout: () => void;
   isKioskBarVisible: boolean;
   toggleKioskBar: () => void;
+  isKioskMode: boolean;
+  setIsKioskMode: (kiosk: boolean) => void;
+  toggleKioskMode: () => void;
   showMorningFinanceTicker: boolean;
   setShowMorningFinanceTicker: (show: boolean) => void;
   toggleMorningFinanceTicker: () => void;
@@ -303,6 +310,67 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const [isKioskBarVisible, setIsKioskBarVisible] = useState<boolean>(true);
+  const [isKioskMode, setIsKioskModeState] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('dashboard_kiosk_mode') === 'true';
+    } catch (e) {
+      return false;
+    }
+  });
+
+  const setIsKioskMode = (kiosk: boolean) => {
+    setIsKioskModeState(kiosk);
+    try {
+      localStorage.setItem('dashboard_kiosk_mode', String(kiosk));
+    } catch (e) {}
+    if (kiosk) {
+      if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+    } else {
+      if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+  };
+
+  const toggleKioskMode = () => {
+    setIsKioskModeState(prev => {
+      const next = !prev;
+      try {
+        localStorage.setItem('dashboard_kiosk_mode', String(next));
+      } catch (e) {}
+      if (next) {
+        if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        }
+      } else {
+        if (document.fullscreenElement && document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        }
+      }
+      return next;
+    });
+  };
+
+  // Sync fullscreen change from browser (e.g. user presses Esc in native fullscreen)
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement) {
+        setIsKioskModeState(prev => {
+          if (prev) {
+            try {
+              localStorage.setItem('dashboard_kiosk_mode', 'false');
+            } catch (e) {}
+            return false;
+          }
+          return prev;
+        });
+      }
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
   const [showMorningFinanceTicker, setShowMorningFinanceTickerState] = useState<boolean>(() => {
     try {
       const saved = localStorage.getItem('dashboard_show_morning_ticker');
@@ -504,6 +572,28 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setMorningActiveWidgets(next);
   };
 
+  // Synchronize layout restoration into React state
+  useEffect(() => {
+    const handleLayoutRestored = (e: Event) => {
+      const customEvent = e as CustomEvent<GridLayoutBackup>;
+      const backup = customEvent.detail;
+      if (!backup) return;
+
+      if (backup.morning?.activeWidgets && Array.isArray(backup.morning.activeWidgets)) {
+        setMorningActiveWidgetsState(backup.morning.activeWidgets);
+      }
+      if (backup.f1?.activeWidgets && Array.isArray(backup.f1.activeWidgets)) {
+        setF1ActiveWidgetsState(backup.f1.activeWidgets);
+      }
+      if (backup.f1?.widgetSizes) {
+        setF1WidgetSizesState(prev => ({ ...prev, ...backup.f1!.widgetSizes }));
+      }
+    };
+
+    window.addEventListener('dashboard_layout_restored', handleLayoutRestored);
+    return () => window.removeEventListener('dashboard_layout_restored', handleLayoutRestored);
+  }, []);
+
   // Data states
   const initialData = getFallbackWeatherAndAQI();
   const [weather, setWeather] = useState<WeatherData>(initialData.weather);
@@ -563,6 +653,8 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   // Photo carousel state (15-second rotation)
+  const [photoList, setPhotoList] = useState<PhotoItem[]>(() => photoService.getPhotos());
+  const [photoIndex, setPhotoIndex] = useState<number>(0);
   const [currentPhoto, setCurrentPhoto] = useState<PhotoItem>(() => photoService.getCurrentPhoto());
   const [photoProgress, setPhotoProgress] = useState<number>(0);
 
@@ -600,6 +692,21 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         toggleColorMode();
       } else if (e.key === 'i' || e.key === 'I') {
         toggleMorningFinanceTicker();
+      } else if (e.key === 'k' || e.key === 'K') {
+        toggleKioskMode();
+      } else if (e.key === 'Escape') {
+        setIsKioskModeState(prev => {
+          if (prev) {
+            try {
+              localStorage.setItem('dashboard_kiosk_mode', 'false');
+            } catch (e) {}
+            if (document.fullscreenElement && document.exitFullscreen) {
+              document.exitFullscreen().catch(() => {});
+            }
+            return false;
+          }
+          return prev;
+        });
       }
     };
     window.addEventListener('keydown', handleKey);
@@ -624,6 +731,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setPhotoProgress(prev => {
         if (prev >= 100) {
           setCurrentPhoto(photoService.advance());
+          setPhotoIndex(photoService.getCurrentIndex());
           return 0;
         }
         return prev + step;
@@ -759,7 +867,9 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const loadPhotos = async () => {
       const photos = await photoService.initPhotos();
       if (photos.length > 0) {
+        setPhotoList([...photoService.getPhotos()]);
         setCurrentPhoto(photoService.getCurrentPhoto());
+        setPhotoIndex(photoService.getCurrentIndex());
       }
     };
 
@@ -833,6 +943,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const nextPhoto = () => {
     setCurrentPhoto(photoService.advance());
+    setPhotoIndex(photoService.getCurrentIndex());
     setPhotoProgress(0);
   };
 
@@ -841,6 +952,13 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const curIdx = photos.findIndex(p => p.id === currentPhoto.id);
     const prevIdx = (curIdx - 1 + photos.length) % photos.length;
     setCurrentPhoto(photoService.goToIndex(prevIdx));
+    setPhotoIndex(photoService.getCurrentIndex());
+    setPhotoProgress(0);
+  };
+
+  const goToPhotoIndex = (index: number) => {
+    setCurrentPhoto(photoService.goToIndex(index));
+    setPhotoIndex(photoService.getCurrentIndex());
     setPhotoProgress(0);
   };
 
@@ -889,6 +1007,9 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           break;
         case 'TOGGLE_KIOSK_BAR':
           setIsKioskBarVisible(v => !v);
+          break;
+        case 'TOGGLE_KIOSK_MODE':
+          toggleKioskMode();
           break;
         case 'TOGGLE_SETTINGS':
           setIsSettingsOpen(v => (cmd.open !== undefined ? cmd.open : !v));
@@ -999,10 +1120,13 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         livePosition,
         mediaControl,
         finance,
+        photos: photoList,
+        photoIndex,
         currentPhoto,
         photoProgress,
         nextPhoto,
         prevPhoto,
+        goToPhotoIndex,
         events,
         tasks,
         toggleTask,
@@ -1014,6 +1138,9 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         toggleSettingsLayout,
         isKioskBarVisible,
         toggleKioskBar,
+        isKioskMode,
+        setIsKioskMode,
+        toggleKioskMode,
         showMorningFinanceTicker,
         setShowMorningFinanceTicker,
         toggleMorningFinanceTicker,

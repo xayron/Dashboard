@@ -223,6 +223,29 @@ export interface MorningWidgetLayoutItem {
   rowSpan: number;  // 1 to 6
 }
 
+export interface F1WidgetLayoutItem {
+  col: number;      // 1 to 12
+  row: number;      // 1 to N
+  colSpan: number;  // 2 to 12
+  rowSpan: number;  // 1 to 6
+}
+
+export interface GridLayoutBackup {
+  version: 1;
+  appName: 'Smart Display Dashboard';
+  exportedAt: string;
+  scope: 'all' | 'morning' | 'f1';
+  morning?: {
+    activeWidgets: MorningWidgetId[];
+    slotLayout: Record<MorningWidgetId, MorningWidgetLayoutItem>;
+  };
+  f1?: {
+    activeWidgets: F1WidgetId[];
+    slotLayout: Record<F1WidgetId, F1WidgetLayoutItem>;
+    widgetSizes?: Record<F1WidgetId, F1WidgetSize>;
+  };
+}
+
 export interface F1Data {
   isRaceWeekend: boolean;
   activeRound: number;

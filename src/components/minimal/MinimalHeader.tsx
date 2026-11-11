@@ -1,9 +1,9 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { Sun, Moon, Settings } from 'lucide-react';
+import { Sun, Moon, Settings, Maximize2 } from 'lucide-react';
 
 export const MinimalHeader: React.FC = () => {
-  const { systemHealth, activeMode, weather, colorMode, toggleColorMode, setIsSettingsOpen } = useDashboard();
+  const { systemHealth, activeMode, weather, colorMode, toggleColorMode, setIsSettingsOpen, toggleKioskMode } = useDashboard();
   const isLight = colorMode === 'light';
 
   return (
@@ -34,6 +34,15 @@ export const MinimalHeader: React.FC = () => {
         >
           {colorMode === 'dark' ? <Sun size={12} /> : <Moon size={12} />}
           <span className="uppercase text-[10px]">{colorMode}</span>
+        </button>
+        <button
+          onClick={toggleKioskMode}
+          title="Enter Kiosk Mode (Press 'K')"
+          aria-label="Enter Kiosk Mode"
+          className="cursor-pointer hover:opacity-100 opacity-70 transition-opacity"
+          style={{ color: 'var(--color-accent)' }}
+        >
+          <Maximize2 size={13} />
         </button>
         <button
           onClick={() => setIsSettingsOpen(true)}

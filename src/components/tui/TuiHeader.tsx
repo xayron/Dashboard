@@ -1,5 +1,5 @@
 import React from 'react';
-import { Terminal, Shield, Wifi, ToggleLeft, ToggleRight, Settings } from 'lucide-react';
+import { Terminal, Shield, Wifi, ToggleLeft, ToggleRight, Settings, Maximize2 } from 'lucide-react';
 import { useDashboard } from '../../state/DashboardContext';
 
 export const TuiHeader: React.FC = () => {
@@ -15,6 +15,7 @@ export const TuiHeader: React.FC = () => {
     now,
     colorMode,
     toggleColorMode,
+    toggleKioskMode,
   } = useDashboard();
 
   const timeFormatted = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
@@ -100,6 +101,16 @@ export const TuiHeader: React.FC = () => {
           style={{ borderColor: 'var(--color-accent)', color: 'var(--color-accent)' }}
         >
           [{colorMode === 'dark' ? 'DARK' : 'LIGHT'}]
+        </button>
+
+        {/* Kiosk Mode Toggle */}
+        <button
+          onClick={toggleKioskMode}
+          title="Enter Kiosk Mode (Press 'K')"
+          aria-label="Enter Kiosk Mode"
+          className="p-1 text-gray-400 hover:text-white transition-colors cursor-pointer"
+        >
+          <Maximize2 size={14} />
         </button>
 
         {/* Settings button */}

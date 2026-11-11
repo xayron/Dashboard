@@ -10,6 +10,7 @@ import {
   Layers,
   Newspaper,
   Smartphone,
+  Maximize2,
 } from 'lucide-react';
 import { useDashboard } from '../../state/DashboardContext';
 
@@ -25,6 +26,7 @@ export const StatusHeader: React.FC = () => {
     connectedRemotesCount,
     colorMode,
     toggleColorMode,
+    toggleKioskMode,
   } = useDashboard();
 
   const isLight = colorMode === 'light';
@@ -172,6 +174,20 @@ export const StatusHeader: React.FC = () => {
           }`}
         >
           <Newspaper size={16} />
+        </button>
+
+        {/* Kiosk Mode Toggle */}
+        <button
+          onClick={toggleKioskMode}
+          title="Enter Kiosk Mode (Press 'K')"
+          aria-label="Enter Kiosk Mode"
+          className={`p-2 rounded-xl glass-pill transition-all cursor-pointer ${
+            isLight
+              ? 'text-slate-700 hover:text-slate-900 hover:bg-black/5 hover:border-slate-300'
+              : 'text-gray-300 hover:text-white hover:border-white/30'
+          }`}
+        >
+          <Maximize2 size={16} className={isLight ? 'text-slate-700 hover:text-slate-900' : 'text-gray-300 hover:text-white'} />
         </button>
 
         {/* Settings Button */}

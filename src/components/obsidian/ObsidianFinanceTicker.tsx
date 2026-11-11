@@ -23,7 +23,7 @@ export const ObsidianFinanceTicker: React.FC = () => {
         </span>
       </div>
 
-      <div className="flex-1 flex items-center justify-around overflow-x-auto space-x-6 px-4">
+      <div className="flex-1 flex items-center justify-around overflow-x-auto no-scrollbar space-x-6 px-4">
         {finance.map((item) => {
           const isUp = item.change >= 0;
           return (

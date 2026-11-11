@@ -1,9 +1,9 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { ShieldCheck, Activity, Cpu, HardDrive, Radio, CheckCircle, Sun, Moon, Settings } from 'lucide-react';
+import { ShieldCheck, Activity, Cpu, HardDrive, Radio, CheckCircle, Sun, Moon, Settings, Maximize2 } from 'lucide-react';
 
 export const ObsidianHeader: React.FC = () => {
-  const { systemHealth, activeMode, weather, colorMode, toggleColorMode, setIsSettingsOpen } = useDashboard();
+  const { systemHealth, activeMode, weather, colorMode, toggleColorMode, setIsSettingsOpen, toggleKioskMode } = useDashboard();
   const isLight = colorMode === 'light';
 
   return (
@@ -72,6 +72,20 @@ export const ObsidianHeader: React.FC = () => {
         >
           {colorMode === 'dark' ? <Sun size={11} /> : <Moon size={11} />}
           <span>{colorMode.toUpperCase()}</span>
+        </button>
+
+        <button
+          onClick={toggleKioskMode}
+          title="Enter Kiosk Mode (Press 'K')"
+          aria-label="Enter Kiosk Mode"
+          className="p-1 border cursor-pointer transition-all hover:brightness-125"
+          style={{
+            borderColor: 'var(--color-accent)',
+            color: 'var(--color-accent)',
+            backgroundColor: 'var(--theme-accent-soft)',
+          }}
+        >
+          <Maximize2 size={12} />
         </button>
 
         <button

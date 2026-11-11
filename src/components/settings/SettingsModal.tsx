@@ -28,6 +28,12 @@ import {
   ChevronLeft,
   ChevronRight,
   Layers,
+  Maximize2,
+  Download,
+  Upload,
+  FileDown,
+  CheckCircle2,
+  AlertCircle,
 } from 'lucide-react';
 import { useDashboard, UI_STYLES } from '../../state/DashboardContext';
 import { haService, getSavedHAConfig, saveHAConfig } from '../../services/homeAssistant';
@@ -36,6 +42,14 @@ import { photoService } from '../../services/photoService';
 import { THEMES, type ThemeId } from '../../types/theme';
 import { F1_AVAILABLE_WIDGETS } from '../f1/F1WidgetsColumn';
 import type { DashboardMode, F1WidgetId, F1WidgetSize } from '../../types/dashboard';
+import {
+  downloadLayoutBackup,
+  readBackupFromFile,
+  saveQuickSnapshot,
+  restoreQuickSnapshot,
+  getQuickSnapshot,
+  resetLayoutsToDefault,
+} from '../../services/layoutBackupService';
 
 type SectionId = 'themes' | 'ha' | 'weather' | 'photos' | 'display' | 'f1';
 
@@ -72,6 +86,8 @@ export const SettingsModal: React.FC = () => {
     prevPhoto,
     nextPhoto,
     media,
+    isKioskMode,
+    toggleKioskMode,
   } = useDashboard();
 
   const isLight = colorMode === 'light';
@@ -179,6 +195,57 @@ export const SettingsModal: React.FC = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [photoSource, setPhotoSource] = useState(photoService.getSource());
   const [customPhotoUrl, setCustomPhotoUrl] = useState('');
+
+  // Grid Layout Backup & Restore states
+  const layoutFileInputRef = React.useRef<HTMLInputElement>(null);
+  const [layoutBackupFeedback, setLayoutBackupFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [snapshotTimestamp, setSnapshotTimestamp] = useState<string | null>(() => {
+    const snap = getQuickSnapshot();
+    return snap ? snap.timestamp : null;
+  });
+
+  const showLayoutFeedback = (type: 'success' | 'error', message: string) => {
+    setLayoutBackupFeedback({ type, message });
+    setTimeout(() => setLayoutBackupFeedback(null), 4500);
+  };
+
+  const handleSettingsFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const res = await readBackupFromFile(file);
+    if (res.success) {
+      showLayoutFeedback('success', `Restored ${res.restored?.join(' & ') || 'layout'} successfully!`);
+    } else {
+      showLayoutFeedback('error', res.error || 'Failed to restore layout from file.');
+    }
+    if (layoutFileInputRef.current) layoutFileInputRef.current.value = '';
+  };
+
+  const handleSettingsSnapshotSave = () => {
+    const res = saveQuickSnapshot();
+    if (res.success) {
+      setSnapshotTimestamp(res.timestamp);
+      showLayoutFeedback('success', 'Layout snapshot saved to browser storage.');
+    } else {
+      showLayoutFeedback('error', 'Failed to save snapshot.');
+    }
+  };
+
+  const handleSettingsSnapshotRestore = () => {
+    const res = restoreQuickSnapshot();
+    if (res.success) {
+      showLayoutFeedback('success', `Restored ${res.restored?.join(' & ') || 'snapshot'} successfully!`);
+    } else {
+      showLayoutFeedback('error', res.error || 'No saved snapshot found.');
+    }
+  };
+
+  const handleSettingsResetDefaults = () => {
+    const res = resetLayoutsToDefault('all');
+    if (res.success) {
+      showLayoutFeedback('success', 'Reset Morning & F1 grid layouts to factory defaults.');
+    }
+  };
 
   // Search & Expansion States
   const [searchQuery, setSearchQuery] = useState('');
@@ -2325,6 +2392,238 @@ export const SettingsModal: React.FC = () => {
                                 </button>
                               </div>
                             </div>
+
+                            {/* Fullscreen Kiosk Mode */}
+                            <div
+                              className={`p-4 border space-y-3 ${radiusMd} ${
+                                isTui
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#059669)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#10b981)]/40 bg-black/60'
+                                  : isHud
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#0891b2)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#06b6d4)]/40 bg-black/60'
+                                  : isBrutalist
+                                  ? isLight
+                                    ? 'border-2 border-black bg-white shadow-[2px_2px_0px_#000]'
+                                    : 'border-2 border-white bg-black shadow-[2px_2px_0px_#fff]'
+                                  : isLight
+                                  ? 'bg-white border-slate-200 shadow-xs'
+                                  : 'bg-white/5 border-white/10'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <h4 className={`text-sm mb-0.5 flex items-center space-x-1.5 ${typo.cardTitle}`}>
+                                    <Maximize2 size={15} style={{ color: 'var(--color-accent)' }} />
+                                    <span>Fullscreen Kiosk Mode</span>
+                                  </h4>
+                                  <p className={typo.subtitle}>
+                                    Expand dashboard to fill the entire screen, hiding the top header for wall displays. Press 'K' or 'Esc' to toggle.
+                                  </p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={toggleKioskMode}
+                                  className={`px-3 py-1.5 font-mono text-xs uppercase tracking-wider font-bold transition-all cursor-pointer ${radiusSm} ${
+                                    isKioskMode
+                                      ? 'bg-emerald-600 text-white shadow-sm'
+                                      : isLight
+                                      ? 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                                      : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                                  }`}
+                                >
+                                  {isKioskMode ? 'Kiosk ON' : 'Off'}
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Grid Layout Backup & Restore Panel */}
+                            <div
+                              className={`p-4 border space-y-3.5 ${radiusMd} ${
+                                isTui
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#059669)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#10b981)]/40 bg-black/60'
+                                  : isHud
+                                  ? isLight
+                                    ? 'border-[var(--color-accent,#0891b2)]/40 bg-white'
+                                    : 'border-[var(--color-accent,#06b6d4)]/40 bg-black/60'
+                                  : isBrutalist
+                                  ? isLight
+                                    ? 'border-2 border-black bg-white shadow-[2px_2px_0px_#000]'
+                                    : 'border-2 border-white bg-black shadow-[2px_2px_0px_#fff]'
+                                  : isLight
+                                  ? 'bg-white border-slate-200 shadow-xs'
+                                  : 'bg-white/5 border-white/10'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <h4 className={`text-sm mb-0.5 flex items-center space-x-1.5 ${typo.cardTitle}`}>
+                                    <FileDown size={15} style={{ color: 'var(--color-accent)' }} />
+                                    <span>Grid Layout Backup &amp; Restore</span>
+                                  </h4>
+                                  <p className={typo.subtitle}>
+                                    Export your custom 12-column widget positions, active items, and card sizes to JSON or restore from an existing backup.
+                                  </p>
+                                </div>
+                                <span className={getBadgeClass()}>JSON / Presets</span>
+                              </div>
+
+                              {/* Feedback Banner */}
+                              {layoutBackupFeedback && (
+                                <div
+                                  className={`p-2 rounded-xl text-xs flex items-center space-x-2 border animate-in fade-in duration-200 ${
+                                    layoutBackupFeedback.type === 'success'
+                                      ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-400 font-medium'
+                                      : 'bg-rose-500/15 border-rose-500/40 text-rose-400 font-medium'
+                                  }`}
+                                >
+                                  {layoutBackupFeedback.type === 'success' ? (
+                                    <CheckCircle2 size={14} className="shrink-0 text-emerald-400" />
+                                  ) : (
+                                    <AlertCircle size={14} className="shrink-0 text-rose-400" />
+                                  )}
+                                  <span>{layoutBackupFeedback.message}</span>
+                                </div>
+                              )}
+
+                              <input
+                                type="file"
+                                ref={layoutFileInputRef}
+                                onChange={handleSettingsFileImport}
+                                accept=".json,application/json"
+                                className="hidden"
+                              />
+
+                              {/* Action Row 1: File Export & Import */}
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                                <div className="space-y-1.5">
+                                  <span className="text-[11px] font-bold opacity-75 uppercase tracking-wider block">
+                                    Export Backups (.json)
+                                  </span>
+                                  <div className="flex flex-wrap gap-1.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        downloadLayoutBackup('all');
+                                        showLayoutFeedback('success', 'Full dashboard layout exported to JSON.');
+                                      }}
+                                      className={`px-3 py-1.5 border text-xs font-semibold flex items-center space-x-1.5 cursor-pointer transition-all ${radiusSm} ${
+                                        isLight
+                                          ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-800'
+                                          : 'bg-white/10 hover:bg-white/15 border-white/15 text-white'
+                                      }`}
+                                      title="Download complete layout backup (Morning + F1)"
+                                    >
+                                      <Download size={12} className="text-blue-400" />
+                                      <span>All Grids</span>
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        downloadLayoutBackup('morning');
+                                        showLayoutFeedback('success', 'Morning Briefing layout exported to JSON.');
+                                      }}
+                                      className={`px-3 py-1.5 border text-xs font-semibold flex items-center space-x-1.5 cursor-pointer transition-all ${radiusSm} ${
+                                        isLight
+                                          ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-800'
+                                          : 'bg-white/10 hover:bg-white/15 border-white/15 text-white'
+                                      }`}
+                                      title="Download Morning Briefing layout only"
+                                    >
+                                      <Download size={12} className="text-amber-400" />
+                                      <span>Morning Only</span>
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        downloadLayoutBackup('f1');
+                                        showLayoutFeedback('success', 'F1 Race Weekend layout exported to JSON.');
+                                      }}
+                                      className={`px-3 py-1.5 border text-xs font-semibold flex items-center space-x-1.5 cursor-pointer transition-all ${radiusSm} ${
+                                        isLight
+                                          ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-800'
+                                          : 'bg-white/10 hover:bg-white/15 border-white/15 text-white'
+                                      }`}
+                                      title="Download F1 layout only"
+                                    >
+                                      <Download size={12} className="text-red-400" />
+                                      <span>F1 Only</span>
+                                    </button>
+                                  </div>
+                                </div>
+
+                                <div className="space-y-1.5">
+                                  <span className="text-[11px] font-bold opacity-75 uppercase tracking-wider block">
+                                    Restore from Backup File
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => layoutFileInputRef.current?.click()}
+                                    className={`w-full p-2 border border-dashed text-xs font-semibold flex items-center justify-center space-x-2 cursor-pointer transition-all ${radiusSm} ${
+                                      isLight
+                                        ? 'bg-emerald-50 hover:bg-emerald-100 border-emerald-400 text-emerald-800'
+                                        : 'bg-emerald-950/20 hover:bg-emerald-950/40 border-emerald-500/40 text-emerald-300'
+                                    }`}
+                                  >
+                                    <Upload size={14} />
+                                    <span>Upload &amp; Restore .JSON</span>
+                                  </button>
+                                </div>
+                              </div>
+
+                              {/* Action Row 2: Browser Local Snapshot & Factory Reset */}
+                              <div className="pt-2 border-t border-white/10 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+                                <div className="flex items-center space-x-2">
+                                  <button
+                                    type="button"
+                                    onClick={handleSettingsSnapshotSave}
+                                    className={`px-2.5 py-1 rounded border flex items-center space-x-1 font-mono transition-colors cursor-pointer ${
+                                      isLight ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700' : 'bg-white/10 hover:bg-white/15 border-white/15 text-gray-200'
+                                    }`}
+                                    title="Save current layout to browser quick snapshot"
+                                  >
+                                    <Save size={11} />
+                                    <span>Save Quick Snapshot</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={handleSettingsSnapshotRestore}
+                                    disabled={!snapshotTimestamp}
+                                    className={`px-2.5 py-1 rounded border flex items-center space-x-1 font-mono transition-colors ${
+                                      snapshotTimestamp
+                                        ? isLight ? 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700 cursor-pointer' : 'bg-white/10 hover:bg-white/15 border-white/15 text-gray-200 cursor-pointer'
+                                        : 'opacity-40 cursor-not-allowed border-transparent text-gray-500'
+                                    }`}
+                                    title="Restore quick snapshot from local storage"
+                                  >
+                                    <RotateCcw size={11} />
+                                    <span>Restore Snapshot</span>
+                                    {snapshotTimestamp && (
+                                      <span className="text-[9px] opacity-60">
+                                        ({new Date(snapshotTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})
+                                      </span>
+                                    )}
+                                  </button>
+                                </div>
+
+                                <button
+                                  type="button"
+                                  onClick={handleSettingsResetDefaults}
+                                  className="text-[11px] underline text-gray-400 hover:text-white transition-colors cursor-pointer"
+                                  title="Reset all layouts to factory slot definitions"
+                                >
+                                  Reset All to Factory Defaults
+                                </button>
+                              </div>
+                            </div>
+
                             {/* Presentation Layout Option */}
                             <div
                               className={`p-4 border space-y-3 ${radiusMd} ${

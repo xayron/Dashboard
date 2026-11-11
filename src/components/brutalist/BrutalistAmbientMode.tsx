@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDashboard } from '../../state/DashboardContext';
-import { Camera, MapPin, Clock } from 'lucide-react';
+import { Clock } from 'lucide-react';
+import { PhotoStack } from '../ambient/PhotoStack';
 
 export const BrutalistAmbientMode: React.FC = () => {
   const { currentPhoto, photoProgress, now, weather, colorMode } = useDashboard();
@@ -24,26 +25,14 @@ export const BrutalistAmbientMode: React.FC = () => {
         <div className={`absolute inset-0 ${isLight ? 'bg-white/40' : 'bg-black/40'}`} />
       </div>
 
-      {/* Center Stage Neo-Brutalist Photo Frame (Correct Aspect Ratio) */}
-      <div className="absolute inset-0 z-0 flex items-center justify-center p-8">
-        <div className={`max-w-[90vw] max-h-[82vh] p-2 flex items-center justify-center transition-all duration-300 ${
-          isLight
-            ? 'bg-white border-4 border-black shadow-[8px_8px_0px_#000]'
-            : 'bg-black border-4 border-white shadow-[8px_8px_0px_var(--color-accent,#ffff00)]'
-        }`}>
-          <img
-            key={currentPhoto.url}
-            src={currentPhoto.url}
-            alt={currentPhoto.title}
-            className="max-w-full max-h-[78vh] object-contain filter contrast-110"
-            style={{ aspectRatio: currentPhoto.aspectRatio }}
-          />
-        </div>
+      {/* Center Stage Neo-Brutalist Photo Stack */}
+      <div className="absolute inset-0 z-10 flex items-center justify-center p-1 sm:p-2 md:p-3 pointer-events-auto">
+        <PhotoStack isLight={isLight} uiStyle="brutalist" />
       </div>
 
       {/* Top Bar: Floating Brutalist Clock & Weather Badge */}
-      <div className="relative z-10 flex items-center justify-between">
-        <div className={`px-5 py-2.5 border-4 flex items-center space-x-3 transition-all duration-300 ${
+      <div className="relative z-20 flex items-center justify-between pointer-events-none">
+        <div className={`px-5 py-2.5 border-4 flex items-center space-x-3 transition-all duration-300 pointer-events-auto ${
           isLight
             ? 'bg-white text-black border-black shadow-[6px_6px_0px_#000]'
             : 'bg-black text-white border-4 border-white shadow-[6px_6px_0px_var(--color-accent,#ffff00)]'
@@ -58,7 +47,7 @@ export const BrutalistAmbientMode: React.FC = () => {
         </div>
 
         <div
-          className={`px-4 py-2 border-4 font-black text-sm uppercase transition-all duration-300 ${
+          className={`px-4 py-2 border-4 font-black text-sm uppercase transition-all duration-300 pointer-events-auto ${
             isLight ? 'border-black shadow-[5px_5px_0px_#000]' : 'border-white shadow-[5px_5px_0px_#fff]'
           }`}
           style={{
@@ -70,28 +59,8 @@ export const BrutalistAmbientMode: React.FC = () => {
         </div>
       </div>
 
-      {/* Bottom Bar: Photo metadata card & 15s timer bar */}
-      <div className="relative z-10">
-        <div className={`p-4 border-4 max-w-lg mb-3 transition-all duration-300 ${
-          isLight
-            ? 'bg-white text-black border-black shadow-[6px_6px_0px_#000]'
-            : 'bg-black/95 text-white border-white shadow-[6px_6px_0px_#00f0ff]'
-        }`}>
-          <div className="flex items-center space-x-2 font-black text-xs uppercase mb-1" style={{ color: 'var(--color-accent)' }}>
-            <Camera size={14} />
-            <span>PHOTO SHOWCASE</span>
-          </div>
-          <h2 className="text-xl font-black uppercase tracking-tight truncate">{currentPhoto.title}</h2>
-          {currentPhoto.location && (
-            <p className={`text-xs font-bold mt-1 uppercase flex items-center ${
-              isLight ? 'text-neutral-600' : 'text-neutral-300'
-            }`}>
-              <MapPin size={12} className="mr-1" style={{ color: 'var(--color-accent)' }} /> {currentPhoto.location}
-            </p>
-          )}
-        </div>
-
-        {/* 15s Progress Bar */}
+      {/* Bottom Bar: 15s timer bar */}
+      <div className="relative z-20 pointer-events-none">
         <div className={`w-full h-3 border-2 p-0.5 ${
           isLight ? 'bg-neutral-200 border-black' : 'bg-black border-white'
         }`}>

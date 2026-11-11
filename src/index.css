@@ -732,6 +732,17 @@
   }
 }
 
+/* Utility to hide scrollbars while allowing touch/wheel scrolling */
+.no-scrollbar {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
 /* Glassmorphism utility classes powered by current theme variables */
 .glass-panel {
   background: var(--color-panel-bg);

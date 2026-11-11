@@ -23,7 +23,7 @@ export const BrutalistFinanceTicker: React.FC = () => {
         <span>MARKETS:</span>
       </div>
 
-      <div className="flex-1 flex items-center justify-around overflow-x-auto space-x-4 px-2">
+      <div className="flex-1 flex items-center justify-around overflow-x-auto no-scrollbar space-x-4 px-2">
         {finance.map((item) => {
           const isUp = item.change >= 0;
           return (

@@ -137,7 +137,16 @@ class SettingsErrorBoundary extends React.Component<
 }
 
 const DashboardContent: React.FC = () => {
-  const { activeMode, uiStyle, theme, colorMode, media, showMorningFinanceTicker } = useDashboard();
+  const {
+    activeMode,
+    uiStyle,
+    theme,
+    colorMode,
+    media,
+    showMorningFinanceTicker,
+    isKioskMode,
+    toggleKioskMode,
+  } = useDashboard();
   const isLight = colorMode === 'light';
   const isPlaying = media.state === 'playing';
   const effectiveMode = (activeMode === 'evening' && !isPlaying) ? 'ambient' : activeMode;
@@ -391,7 +400,7 @@ const DashboardContent: React.FC = () => {
       data-style={uiStyle}
       data-color-mode={colorMode}
       style={getBackgroundStyle()}
-      className={`relative w-screen h-screen overflow-hidden ${
+      className={`relative w-full h-full max-w-full overflow-hidden ${
         isLight ? 'text-slate-900' : 'text-white'
       } flex flex-col select-none transition-colors duration-500 ${getFontClass()}`}
     >
@@ -401,8 +410,8 @@ const DashboardContent: React.FC = () => {
         style={{ backgroundImage: 'var(--bg-radial)' }}
       />
 
-      {/* Top Status Header */}
-      {renderHeader()}
+      {/* Top Status Header - Hidden in Kiosk Mode */}
+      {!isKioskMode && renderHeader()}
 
       {/* Main Mode View Container */}
       <main className="relative flex-1 w-full min-h-0 overflow-hidden transition-all duration-500 ease-in-out">
@@ -413,7 +422,7 @@ const DashboardContent: React.FC = () => {
       {renderFinanceTicker()}
 
       {/* Bottom Page Carousel Indicator */}
-      <CarouselIndicator />
+      {!isKioskMode && <CarouselIndicator />}
 
       {/* Settings Modal with Error Boundary */}
       <SettingsErrorBoundary>

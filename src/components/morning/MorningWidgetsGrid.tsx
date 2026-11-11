@@ -296,6 +296,7 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
     reorderMorningWidgets,
     colorMode,
     uiStyle: contextUiStyle,
+    isKioskMode,
   } = useDashboard();
 
   const uiStyle = propUiStyle || contextUiStyle;
@@ -704,6 +705,7 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
 
   // Render header control items with Dimension Pill and Grip Handle at far right
   const renderCardControls = (widgetId: MorningWidgetId) => {
+    if (isKioskMode) return null;
     const layout = slotLayout[widgetId] || DEFAULT_MORNING_SLOT_LAYOUT[widgetId];
     const isActivelyMoved = movingState?.widgetId === widgetId;
     const isActivelyResized = resizingState?.widgetId === widgetId;
@@ -2578,80 +2580,82 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
   };
 
   return (
-    <div className={`h-full flex flex-col space-y-2.5 relative min-h-0 ${fontClass} ${className}`}>
+    <div className={`h-full flex flex-col ${isKioskMode ? 'space-y-0' : 'space-y-2.5'} relative min-h-0 ${fontClass} ${className}`}>
       {/* Top Bar with Widget Management & Slot Grid Controls */}
-      <div className="flex items-center justify-between px-1 shrink-0">
-        <div className="flex items-center space-x-2 text-[10px] font-mono uppercase tracking-wider opacity-75">
-          <span>Morning Grid ({visibleWidgets.length})</span>
-          <span className="opacity-40">|</span>
-          <span className="opacity-80">12-Col Resizable</span>
+      {!isKioskMode && (
+        <div className="flex items-center justify-between px-1 shrink-0">
+          <div className="flex items-center space-x-2 text-[10px] font-mono uppercase tracking-wider opacity-75">
+            <span>Morning Grid ({visibleWidgets.length})</span>
+            <span className="opacity-40">|</span>
+            <span className="opacity-80">12-Col Resizable</span>
+          </div>
+
+          <div className="flex items-center space-x-1.5">
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileImport}
+              accept=".json,application/json"
+              className="hidden"
+            />
+
+            <button
+              type="button"
+              onClick={handleExport}
+              className={`flex items-center space-x-1 px-2.5 py-1 rounded-xl text-[10px] font-mono border transition-all cursor-pointer ${
+                isLight
+                  ? 'bg-white hover:bg-slate-50 border-slate-300 text-slate-700 shadow-xs'
+                  : 'bg-white/5 hover:bg-white/10 border-white/10 text-gray-300 hover:text-white'
+              }`}
+              title="Download morning grid layout backup (.json)"
+            >
+              <Download size={11} />
+              <span>Backup</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className={`flex items-center space-x-1 px-2.5 py-1 rounded-xl text-[10px] font-mono border transition-all cursor-pointer ${
+                isLight
+                  ? 'bg-white hover:bg-slate-50 border-slate-300 text-slate-700 shadow-xs'
+                  : 'bg-white/5 hover:bg-white/10 border-white/10 text-gray-300 hover:text-white'
+              }`}
+              title="Restore morning grid layout from backup file (.json)"
+            >
+              <Upload size={11} />
+              <span>Restore</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={resetSlotLayout}
+              className={`flex items-center space-x-1 px-2.5 py-1 rounded-xl text-[10px] font-mono border transition-all cursor-pointer ${
+                isLight
+                  ? 'bg-white hover:bg-slate-50 border-slate-300 text-slate-700 shadow-xs'
+                  : 'bg-white/5 hover:bg-white/10 border-white/10 text-gray-300 hover:text-white'
+              }`}
+              title="Reset morning widgets to default slot coordinates"
+            >
+              <RotateCcw size={11} />
+              <span>Reset Grid</span>
+            </button>
+
+            <button
+              onClick={() => setIsPickerOpen(true)}
+              className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-xl text-[11px] font-medium border transition-all cursor-pointer ${
+                isLight
+                  ? 'bg-white hover:bg-slate-50 border-slate-300 text-slate-800 shadow-sm'
+                  : 'bg-white/10 hover:bg-white/15 border-white/10 text-white'
+              }`}
+              title="Configure Morning Widgets"
+            >
+              <Sliders size={12} />
+              <span>Widgets</span>
+            </button>
+          </div>
         </div>
-
-        <div className="flex items-center space-x-1.5">
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileImport}
-            accept=".json,application/json"
-            className="hidden"
-          />
-
-          <button
-            type="button"
-            onClick={handleExport}
-            className={`flex items-center space-x-1 px-2.5 py-1 rounded-xl text-[10px] font-mono border transition-all cursor-pointer ${
-              isLight
-                ? 'bg-white hover:bg-slate-50 border-slate-300 text-slate-700 shadow-xs'
-                : 'bg-white/5 hover:bg-white/10 border-white/10 text-gray-300 hover:text-white'
-            }`}
-            title="Download morning grid layout backup (.json)"
-          >
-            <Download size={11} />
-            <span>Backup</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className={`flex items-center space-x-1 px-2.5 py-1 rounded-xl text-[10px] font-mono border transition-all cursor-pointer ${
-              isLight
-                ? 'bg-white hover:bg-slate-50 border-slate-300 text-slate-700 shadow-xs'
-                : 'bg-white/5 hover:bg-white/10 border-white/10 text-gray-300 hover:text-white'
-            }`}
-            title="Restore morning grid layout from backup file (.json)"
-          >
-            <Upload size={11} />
-            <span>Restore</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={resetSlotLayout}
-            className={`flex items-center space-x-1 px-2.5 py-1 rounded-xl text-[10px] font-mono border transition-all cursor-pointer ${
-              isLight
-                ? 'bg-white hover:bg-slate-50 border-slate-300 text-slate-700 shadow-xs'
-                : 'bg-white/5 hover:bg-white/10 border-white/10 text-gray-300 hover:text-white'
-            }`}
-            title="Reset morning widgets to default slot coordinates"
-          >
-            <RotateCcw size={11} />
-            <span>Reset Grid</span>
-          </button>
-
-          <button
-            onClick={() => setIsPickerOpen(true)}
-            className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-xl text-[11px] font-medium border transition-all cursor-pointer ${
-              isLight
-                ? 'bg-white hover:bg-slate-50 border-slate-300 text-slate-800 shadow-sm'
-                : 'bg-white/10 hover:bg-white/15 border-white/10 text-white'
-            }`}
-            title="Configure Morning Widgets"
-          >
-            <Sliders size={12} />
-            <span>Widgets</span>
-          </button>
-        </div>
-      </div>
+      )}
 
       {/* Backup / Restore Feedback Banner */}
       {backupFeedback && (
@@ -2725,62 +2729,66 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
               {renderWidget(w.id)}
 
               {/* 8-Direction Interactive Resize Handles */}
-              {/* North */}
-              <div
-                onMouseDown={(e) => handleResizeStart(e, w.id, 'n')}
-                className="absolute -top-1 left-3 right-3 h-2.5 cursor-ns-resize z-20 group-hover:bg-amber-400/20 hover:!bg-amber-400/60 rounded-full transition-colors"
-                title="Drag to resize height (North)"
-              />
-              {/* South */}
-              <div
-                onMouseDown={(e) => handleResizeStart(e, w.id, 's')}
-                className="absolute -bottom-1 left-3 right-3 h-2.5 cursor-ns-resize z-20 group-hover:bg-amber-400/20 hover:!bg-amber-400/60 rounded-full transition-colors"
-                title="Drag to resize height (South)"
-              />
-              {/* West */}
-              <div
-                onMouseDown={(e) => handleResizeStart(e, w.id, 'w')}
-                className="absolute -left-1 top-3 bottom-3 w-2.5 cursor-ew-resize z-20 group-hover:bg-amber-400/20 hover:!bg-amber-400/60 rounded-full transition-colors"
-                title="Drag to resize width (West)"
-              />
-              {/* East */}
-              <div
-                onMouseDown={(e) => handleResizeStart(e, w.id, 'e')}
-                className="absolute -right-1 top-3 bottom-3 w-2.5 cursor-ew-resize z-20 group-hover:bg-amber-400/20 hover:!bg-amber-400/60 rounded-full transition-colors"
-                title="Drag to resize width (East)"
-              />
-              {/* North-West */}
-              <div
-                onMouseDown={(e) => handleResizeStart(e, w.id, 'nw')}
-                className="absolute -top-1.5 -left-1.5 w-4 h-4 cursor-nwse-resize z-30 flex items-center justify-center group-hover:opacity-100 opacity-0 transition-opacity"
-                title="Drag to resize corner (North-West)"
-              >
-                <div className="w-2 h-2 rounded-full bg-amber-400 border border-black/40 shadow-xs" />
-              </div>
-              {/* North-East */}
-              <div
-                onMouseDown={(e) => handleResizeStart(e, w.id, 'ne')}
-                className="absolute -top-1.5 -right-1.5 w-4 h-4 cursor-nesw-resize z-30 flex items-center justify-center group-hover:opacity-100 opacity-0 transition-opacity"
-                title="Drag to resize corner (North-East)"
-              >
-                <div className="w-2 h-2 rounded-full bg-amber-400 border border-black/40 shadow-xs" />
-              </div>
-              {/* South-West */}
-              <div
-                onMouseDown={(e) => handleResizeStart(e, w.id, 'sw')}
-                className="absolute -bottom-1.5 -left-1.5 w-4 h-4 cursor-nesw-resize z-30 flex items-center justify-center group-hover:opacity-100 opacity-0 transition-opacity"
-                title="Drag to resize corner (South-West)"
-              >
-                <div className="w-2 h-2 rounded-full bg-amber-400 border border-black/40 shadow-xs" />
-              </div>
-              {/* South-East (Corner Resize Handle) */}
-              <div
-                onMouseDown={(e) => handleResizeStart(e, w.id, 'se')}
-                className="absolute -bottom-1.5 -right-1.5 w-4 h-4 cursor-nwse-resize z-30 flex items-center justify-center group-hover:opacity-100 opacity-0 transition-opacity"
-                title="Drag to resize width and height (South-East)"
-              >
-                <div className="w-2 h-2 rounded-full bg-amber-400 border border-black/40 shadow-xs" />
-              </div>
+              {!isKioskMode && (
+                <>
+                  {/* North */}
+                  <div
+                    onMouseDown={(e) => handleResizeStart(e, w.id, 'n')}
+                    className="absolute -top-1 left-3 right-3 h-2.5 cursor-ns-resize z-20 group-hover:bg-amber-400/20 hover:!bg-amber-400/60 rounded-full transition-colors"
+                    title="Drag to resize height (North)"
+                  />
+                  {/* South */}
+                  <div
+                    onMouseDown={(e) => handleResizeStart(e, w.id, 's')}
+                    className="absolute -bottom-1 left-3 right-3 h-2.5 cursor-ns-resize z-20 group-hover:bg-amber-400/20 hover:!bg-amber-400/60 rounded-full transition-colors"
+                    title="Drag to resize height (South)"
+                  />
+                  {/* West */}
+                  <div
+                    onMouseDown={(e) => handleResizeStart(e, w.id, 'w')}
+                    className="absolute -left-1 top-3 bottom-3 w-2.5 cursor-ew-resize z-20 group-hover:bg-amber-400/20 hover:!bg-amber-400/60 rounded-full transition-colors"
+                    title="Drag to resize width (West)"
+                  />
+                  {/* East */}
+                  <div
+                    onMouseDown={(e) => handleResizeStart(e, w.id, 'e')}
+                    className="absolute -right-1 top-3 bottom-3 w-2.5 cursor-ew-resize z-20 group-hover:bg-amber-400/20 hover:!bg-amber-400/60 rounded-full transition-colors"
+                    title="Drag to resize width (East)"
+                  />
+                  {/* North-West */}
+                  <div
+                    onMouseDown={(e) => handleResizeStart(e, w.id, 'nw')}
+                    className="absolute -top-1.5 -left-1.5 w-4 h-4 cursor-nwse-resize z-30 flex items-center justify-center group-hover:opacity-100 opacity-0 transition-opacity"
+                    title="Drag to resize corner (North-West)"
+                  >
+                    <div className="w-2 h-2 rounded-full bg-amber-400 border border-black/40 shadow-xs" />
+                  </div>
+                  {/* North-East */}
+                  <div
+                    onMouseDown={(e) => handleResizeStart(e, w.id, 'ne')}
+                    className="absolute -top-1.5 -right-1.5 w-4 h-4 cursor-nesw-resize z-30 flex items-center justify-center group-hover:opacity-100 opacity-0 transition-opacity"
+                    title="Drag to resize corner (North-East)"
+                  >
+                    <div className="w-2 h-2 rounded-full bg-amber-400 border border-black/40 shadow-xs" />
+                  </div>
+                  {/* South-West */}
+                  <div
+                    onMouseDown={(e) => handleResizeStart(e, w.id, 'sw')}
+                    className="absolute -bottom-1.5 -left-1.5 w-4 h-4 cursor-nesw-resize z-30 flex items-center justify-center group-hover:opacity-100 opacity-0 transition-opacity"
+                    title="Drag to resize corner (South-West)"
+                  >
+                    <div className="w-2 h-2 rounded-full bg-amber-400 border border-black/40 shadow-xs" />
+                  </div>
+                  {/* South-East (Corner Resize Handle) */}
+                  <div
+                    onMouseDown={(e) => handleResizeStart(e, w.id, 'se')}
+                    className="absolute -bottom-1.5 -right-1.5 w-4 h-4 cursor-nwse-resize z-30 flex items-center justify-center group-hover:opacity-100 opacity-0 transition-opacity"
+                    title="Drag to resize width and height (South-East)"
+                  >
+                    <div className="w-2 h-2 rounded-full bg-amber-400 border border-black/40 shadow-xs" />
+                  </div>
+                </>
+              )}
             </div>
           );
         })}
