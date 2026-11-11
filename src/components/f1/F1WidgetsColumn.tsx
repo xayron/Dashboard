@@ -22,11 +22,23 @@ import {
   Newspaper,
   ExternalLink,
   RotateCcw,
+  Download,
+  Upload,
+  Save,
+  AlertCircle,
 } from 'lucide-react';
 import { BrutalistBox } from '../brutalist/BrutalistBox';
 import { HudBox } from '../hud/HudBox';
 import { TuiBox } from '../tui/TuiBox';
 import { WeatherWidget } from '../common/WeatherWidget';
+import {
+  downloadLayoutBackup,
+  readBackupFromFile,
+  saveQuickSnapshot,
+  restoreQuickSnapshot,
+  getQuickSnapshot,
+} from '../../services/layoutBackupService';
+import type { GridLayoutBackup } from '../../types/dashboard';
 
 export interface F1WidgetDef {
   id: F1WidgetId;
@@ -211,6 +223,11 @@ export function deoverlapAll(
   widgetIds: F1WidgetId[]
 ): Record<F1WidgetId, F1WidgetLayoutItem> {
   const result: Record<F1WidgetId, F1WidgetLayoutItem> = { ...layout };
+  for (const id of widgetIds) {
+    if (!result[id] && DEFAULT_F1_SLOT_LAYOUT[id]) {
+      result[id] = { ...DEFAULT_F1_SLOT_LAYOUT[id] };
+    }
+  }
 
   let changed = true;
   let iterations = 0;
@@ -341,11 +358,11 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
         const parsed = JSON.parse(saved);
         if (typeof parsed === 'object' && parsed !== null) {
           const merged = { ...DEFAULT_F1_SLOT_LAYOUT, ...parsed };
-          return deoverlapAll(merged, Object.keys(merged) as F1WidgetId[]);
+          return deoverlapAll(merged, f1ActiveWidgets);
         }
       }
     } catch (e) {}
-    return DEFAULT_F1_SLOT_LAYOUT;
+    return deoverlapAll(DEFAULT_F1_SLOT_LAYOUT, f1ActiveWidgets);
   });
 
   const latestSlotLayoutRef = useRef(slotLayout);
@@ -362,24 +379,92 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
         if (
           !prev[id] ||
           prev[id].row !== deoverlapped[id]?.row ||
-          prev[id].col !== deoverlapped[id]?.col
+          prev[id].col !== deoverlapped[id]?.col ||
+          prev[id].colSpan !== deoverlapped[id]?.colSpan ||
+          prev[id].rowSpan !== deoverlapped[id]?.rowSpan
         ) {
           changed = true;
           break;
         }
       }
-      return changed ? deoverlapped : prev;
+      if (changed) {
+        try {
+          localStorage.setItem('dashboard_f1_slot_layout', JSON.stringify(deoverlapped));
+        } catch (e) {}
+        return deoverlapped;
+      }
+      return prev;
     });
   }, [f1ActiveWidgets]);
 
   const [resizingState, setResizingState] = useState<ResizingState | null>(null);
   const [movingState, setMovingState] = useState<MovingState | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [backupFeedback, setBackupFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const showFeedback = (type: 'success' | 'error', message: string) => {
+    setBackupFeedback({ type, message });
+    setTimeout(() => setBackupFeedback(null), 4000);
+  };
+
+  // Listen for global layout restore event
+  useEffect(() => {
+    const handleRestore = (e: Event) => {
+      const customEvent = e as CustomEvent<GridLayoutBackup>;
+      if (customEvent.detail?.f1?.slotLayout) {
+        setSlotLayout(customEvent.detail.f1.slotLayout);
+      } else {
+        try {
+          const saved = localStorage.getItem('dashboard_f1_slot_layout');
+          if (saved) setSlotLayout(JSON.parse(saved));
+        } catch (err) {}
+      }
+    };
+    window.addEventListener('dashboard_layout_restored', handleRestore);
+    return () => window.removeEventListener('dashboard_layout_restored', handleRestore);
+  }, []);
+
+  const handleExport = () => {
+    downloadLayoutBackup('f1');
+    showFeedback('success', 'F1 grid layout exported as JSON.');
+  };
+
+  const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const res = await readBackupFromFile(file);
+    if (res.success) {
+      showFeedback('success', `Restored ${res.restored?.join(' & ') || 'layout'} successfully!`);
+    } else {
+      showFeedback('error', res.error || 'Failed to restore layout from file.');
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleQuickSnapshotSave = () => {
+    const res = saveQuickSnapshot();
+    if (res.success) {
+      showFeedback('success', 'Quick snapshot saved to browser storage.');
+    } else {
+      showFeedback('error', 'Failed to save snapshot.');
+    }
+  };
+
+  const handleQuickSnapshotRestore = () => {
+    const res = restoreQuickSnapshot();
+    if (res.success) {
+      showFeedback('success', 'Quick snapshot restored successfully.');
+    } else {
+      showFeedback('error', res.error || 'No saved snapshot found.');
+    }
+  };
 
   const resetSlotLayout = () => {
     setSlotLayout(DEFAULT_F1_SLOT_LAYOUT);
     try {
       localStorage.setItem('dashboard_f1_slot_layout', JSON.stringify(DEFAULT_F1_SLOT_LAYOUT));
+      showFeedback('success', 'Reset F1 grid to default slot layout.');
     } catch (e) {}
   };
 
@@ -2721,6 +2806,42 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
         </div>
 
         <div className="flex items-center space-x-1.5">
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileImport}
+            accept=".json,application/json"
+            className="hidden"
+          />
+
+          <button
+            type="button"
+            onClick={handleExport}
+            className={`flex items-center space-x-1 px-2.5 py-1 rounded-xl text-[10px] font-mono border transition-all cursor-pointer ${
+              isLight
+                ? 'bg-white hover:bg-slate-50 border-slate-300 text-slate-700 shadow-xs'
+                : 'bg-white/5 hover:bg-white/10 border-white/10 text-gray-300 hover:text-white'
+            }`}
+            title="Download F1 grid layout backup (.json)"
+          >
+            <Download size={11} />
+            <span>Backup</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className={`flex items-center space-x-1 px-2.5 py-1 rounded-xl text-[10px] font-mono border transition-all cursor-pointer ${
+              isLight
+                ? 'bg-white hover:bg-slate-50 border-slate-300 text-slate-700 shadow-xs'
+                : 'bg-white/5 hover:bg-white/10 border-white/10 text-gray-300 hover:text-white'
+            }`}
+            title="Restore F1 grid layout from backup file (.json)"
+          >
+            <Upload size={11} />
+            <span>Restore</span>
+          </button>
+
           <button
             type="button"
             onClick={resetSlotLayout}
@@ -2750,10 +2871,30 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
         </div>
       </div>
 
+      {/* Backup / Restore Feedback Banner */}
+      {backupFeedback && (
+        <div className="absolute top-9 right-1 z-50 animate-in fade-in slide-in-from-top-1 duration-200">
+          <div
+            className={`px-3 py-1 rounded-xl border shadow-xl text-xs font-mono font-medium flex items-center space-x-2 backdrop-blur-md ${
+              backupFeedback.type === 'success'
+                ? 'bg-emerald-950/90 border-emerald-500/50 text-emerald-200 shadow-emerald-950/50'
+                : 'bg-rose-950/90 border-rose-500/50 text-rose-200 shadow-rose-950/50'
+            }`}
+          >
+            {backupFeedback.type === 'success' ? (
+              <Check size={13} className="text-emerald-400 shrink-0" />
+            ) : (
+              <AlertCircle size={13} className="text-rose-400 shrink-0" />
+            )}
+            <span>{backupFeedback.message}</span>
+          </div>
+        </div>
+      )}
+
       {/* Slot-Based 12-Column Grid with 8-Direction Mouse-Drag Resizing & Positioning */}
       <div
         ref={gridRef}
-        className="grid grid-cols-12 gap-3 overflow-y-auto pr-1 flex-1 min-h-0 relative select-none"
+        className="grid grid-cols-12 gap-3 overflow-y-auto overflow-x-hidden pr-2 flex-1 min-h-0 relative select-none"
         style={{ gridAutoRows: '140px' }}
       >
         {/* Visual Blueprint Grid Matrix during Move or Resize */}
@@ -2779,6 +2920,7 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
           const layout = slotLayout[w.id] || DEFAULT_F1_SLOT_LAYOUT[w.id];
           const isActivelyMoved = movingState?.widgetId === w.id;
           const isActivelyResized = resizingState?.widgetId === w.id;
+          const isInteracting = Boolean(movingState || resizingState);
 
           return (
             <div
@@ -2792,7 +2934,9 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
                   ? 'opacity-85 shadow-2xl z-30 ring-2 ring-blue-500 rounded-2xl'
                   : isActivelyResized
                   ? 'shadow-2xl z-30 ring-2 ring-amber-400 rounded-2xl'
-                  : 'z-10 transition-all duration-150'
+                  : isInteracting
+                  ? 'z-10 transition-all duration-150'
+                  : 'z-10'
               }`}
             >
               {/* Widget Content Card */}
@@ -2877,20 +3021,66 @@ export const F1WidgetsColumn: React.FC<F1WidgetsColumnProps> = ({
               </button>
             </div>
 
-            {/* Reset Grid Layout Action */}
-            <div className="my-2.5 p-2 rounded-xl border border-white/10 bg-white/5 flex items-center justify-between">
-              <div>
-                <span className="text-xs font-bold block">Slot-Based Grid Layout</span>
-                <span className="text-[10px] text-gray-400">Drag headers to place anywhere, drag edges to resize</span>
+            {/* Layout Backup, Presets & Reset Controls */}
+            <div className="my-2.5 p-2.5 rounded-xl border border-white/10 bg-white/5 space-y-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold block">F1 Grid Layout Backup &amp; Presets</span>
+                  <span className="text-[10px] text-gray-400">Save custom slot positions to a file or quick snapshot</span>
+                </div>
+                <div className="flex items-center space-x-1.5">
+                  <button
+                    type="button"
+                    onClick={handleExport}
+                    className="flex items-center space-x-1 px-2.5 py-1 text-[10px] font-mono font-bold rounded-lg border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-300 transition-all cursor-pointer"
+                    title="Export F1 Grid layout to JSON file"
+                  >
+                    <Download size={11} />
+                    <span>Export JSON</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center space-x-1 px-2.5 py-1 text-[10px] font-mono font-bold rounded-lg border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 transition-all cursor-pointer"
+                    title="Import layout from JSON file"
+                  >
+                    <Upload size={11} />
+                    <span>Import JSON</span>
+                  </button>
+                </div>
               </div>
-              <button
-                type="button"
-                onClick={resetSlotLayout}
-                className="flex items-center space-x-1 px-2.5 py-1 text-[10px] font-mono font-bold rounded-lg border border-white/20 hover:bg-white/20 transition-all cursor-pointer"
-              >
-                <RotateCcw size={11} />
-                <span>Reset Grid</span>
-              </button>
+
+              <div className="flex items-center justify-between pt-1.5 border-t border-white/10 text-[10px] font-mono">
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={handleQuickSnapshotSave}
+                    className="flex items-center space-x-1 px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-gray-200 cursor-pointer transition-colors"
+                    title="Save current layout snapshot to browser storage"
+                  >
+                    <Save size={10} />
+                    <span>Save Snapshot</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleQuickSnapshotRestore}
+                    className="flex items-center space-x-1 px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-gray-200 cursor-pointer transition-colors"
+                    title="Restore quick snapshot from browser storage"
+                  >
+                    <RotateCcw size={10} />
+                    <span>Restore Snapshot</span>
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={resetSlotLayout}
+                  className="flex items-center space-x-1 text-gray-400 hover:text-white underline cursor-pointer"
+                  title="Reset to default factory layout"
+                >
+                  <RotateCcw size={10} />
+                  <span>Reset Defaults</span>
+                </button>
+              </div>
             </div>
 
             {/* Active & Arranged Widgets List with Drag & Up/Down Controls */}
