@@ -660,6 +660,12 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
     year: 'numeric',
   });
 
+  const dayName = now.toLocaleDateString('en-US', { weekday: 'long' });
+  const dayNumber = now.getDate();
+  const monthLong = now.toLocaleDateString('en-US', { month: 'long' });
+  const monthShort = now.toLocaleDateString('en-US', { month: 'short' });
+  const yearNumber = now.getFullYear();
+
   // 1. CLOCK WIDGET
   const renderClockWidget = (layout: MorningWidgetLayoutItem) => {
     const isCompact = layout.colSpan <= 3 && layout.rowSpan === 1;
@@ -675,9 +681,9 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
           className="h-full flex flex-col justify-between"
         >
           <div className="flex flex-col items-center justify-center py-2 flex-1">
-            <div className={`font-extrabold tracking-wider flex items-baseline font-mono ${isTall ? 'text-5xl' : 'text-3xl'}`}>
+            <div className={`font-extrabold tracking-wider flex items-baseline font-mono ${isTall ? 'text-6xl sm:text-7xl' : 'text-4xl sm:text-5xl'}`}>
               <span>{hours}:{minutes}</span>
-              <span className="text-xl ml-2 animate-pulse tabular-nums" style={{ color: 'var(--color-accent)' }}>:{seconds}</span>
+              <span className="text-2xl sm:text-3xl ml-2 animate-pulse tabular-nums" style={{ color: 'var(--color-accent)' }}>:{seconds}</span>
             </div>
             <div className="mt-1 text-xs font-bold tracking-widest text-center" style={{ color: 'var(--color-accent)' }}>
               {dateFormatted.toUpperCase()}
@@ -702,8 +708,8 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
         >
           <div className="flex flex-col justify-between flex-1 py-1">
             <div className="flex items-baseline space-x-2 font-mono">
-              <span className={`font-black tracking-tight ${isTall ? 'text-5xl' : 'text-3xl'}`}>{hours}:{minutes}</span>
-              <span className="text-xl font-bold text-red-500 animate-pulse tabular-nums">:{seconds}</span>
+              <span className={`font-black tracking-tight leading-none ${isTall ? 'text-6xl sm:text-7xl' : 'text-4xl sm:text-5xl'}`}>{hours}:{minutes}</span>
+              <span className="text-2xl sm:text-3xl font-black text-red-500 animate-pulse tabular-nums">:{seconds}</span>
             </div>
             <div className="font-mono text-xs font-bold uppercase mt-1 border-t-2 border-black pt-1">
               {dateFormatted}
@@ -728,9 +734,9 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
           className="h-full flex flex-col justify-between"
         >
           <div className="flex flex-col justify-between flex-1 py-1 font-mono">
-            <div className={`font-black tracking-widest text-cyan-400 flex items-baseline ${isTall ? 'text-5xl' : 'text-3xl'}`}>
+            <div className={`font-black tracking-widest text-cyan-400 flex items-baseline leading-none ${isTall ? 'text-6xl sm:text-7xl' : 'text-4xl sm:text-5xl'}`}>
               <span>{hours}:{minutes}</span>
-              <span className="text-xl ml-1 text-rose-500 animate-pulse tabular-nums">:{seconds}</span>
+              <span className="text-2xl sm:text-3xl ml-1 text-rose-500 animate-pulse tabular-nums">:{seconds}</span>
             </div>
             <div className="text-xs uppercase tracking-wider text-cyan-300 mt-1">
               {dateFormatted}
@@ -766,15 +772,15 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
         {isWide ? (
           <div className="flex-1 flex items-center justify-between min-h-0 py-0.5">
             <div className="flex items-baseline space-x-1.5 font-mono">
-              <span className="font-extrabold tracking-tight text-3xl xl:text-4xl">
+              <span className="font-black tracking-tight text-4xl sm:text-5xl xl:text-6xl leading-none">
                 {hours}:{minutes}
               </span>
-              <span className="text-lg xl:text-xl font-bold animate-pulse tabular-nums" style={{ color: 'var(--color-accent)' }}>
+              <span className="text-xl sm:text-2xl font-bold animate-pulse tabular-nums" style={{ color: 'var(--color-accent)' }}>
                 :{seconds}
               </span>
             </div>
             <div className="text-right">
-              <p className="text-xs font-semibold tracking-wide" style={{ color: 'var(--color-accent)' }}>
+              <p className="text-xs sm:text-sm font-semibold tracking-wide" style={{ color: 'var(--color-accent)' }}>
                 {dateFormatted}
               </p>
               <p className="text-[10px] opacity-70 mt-0.5 font-mono">
@@ -785,16 +791,16 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
         ) : (
           <div className="flex-1 flex flex-col justify-center min-h-0 py-0.5 space-y-1">
             <div className="flex items-baseline space-x-1.5 font-mono">
-              <span className={`font-extrabold tracking-tight ${isTall ? 'text-5xl xl:text-6xl' : 'text-3xl xl:text-4xl'}`}>
+              <span className={`font-black tracking-tight leading-none ${isTall ? 'text-6xl sm:text-7xl xl:text-8xl' : 'text-4xl sm:text-5xl xl:text-6xl'}`}>
                 {hours}:{minutes}
               </span>
-              <span className="text-lg xl:text-xl font-bold animate-pulse tabular-nums" style={{ color: 'var(--color-accent)' }}>
+              <span className={`font-bold animate-pulse tabular-nums ${isTall ? 'text-2xl sm:text-3xl' : 'text-xl sm:text-2xl'}`} style={{ color: 'var(--color-accent)' }}>
                 :{seconds}
               </span>
             </div>
 
-            <div>
-              <p className="text-xs font-medium tracking-wide truncate" style={{ color: 'var(--color-accent)' }}>
+            <div className="mt-0.5">
+              <p className="text-xs sm:text-sm font-semibold tracking-wide truncate" style={{ color: 'var(--color-accent)' }}>
                 {dateFormatted}
               </p>
               {isTall && (
@@ -1128,29 +1134,44 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
     );
   };
 
-  // 3. TODAY'S SCHEDULE (CALENDAR)
+  // 3. TODAY'S SCHEDULE (CALENDAR & MEETINGS)
   const renderCalendarWidget = (layout: MorningWidgetLayoutItem) => {
     const isCompact = layout.colSpan <= 3 && layout.rowSpan === 1;
     const isTall = layout.rowSpan >= 2;
-    const maxItems = layout.rowSpan === 1 ? (layout.colSpan >= 6 ? 4 : 2) : 5;
-    const displayEvents = events.slice(0, maxItems);
 
     if (uiStyle === 'tui') {
       return (
         <TuiBox
           title="CALENDAR_AGENDA"
-          badge={`${events.length} EVENTS`}
+          badge={`${monthShort.toUpperCase()}_${dayNumber}`}
           headerRight={renderCardControls('calendar')}
           className="h-full flex flex-col justify-between"
         >
-          <div className="flex-1 flex flex-col justify-start space-y-1.5 overflow-y-auto pr-0.5 min-h-0 font-mono text-xs">
-            {displayEvents.map((evt) => (
-              <div key={evt.id} className="p-1 border border-black/20 dark:border-white/20 flex items-center justify-between">
-                <span className="text-[10px] text-cyan-400 font-bold mr-2">&gt; {evt.startTime}</span>
-                <span className="truncate flex-1 font-bold">{evt.title}</span>
+          <div className="flex flex-col justify-between flex-1 py-1 font-mono text-xs min-h-0">
+            {/* Big Date Header */}
+            <div className="flex items-baseline justify-between border-b border-dashed border-emerald-500/30 pb-1.5 mb-1.5">
+              <div className="flex items-baseline space-x-2">
+                <span className="text-4xl font-extrabold text-cyan-400">{dayNumber}</span>
+                <div>
+                  <div className="font-bold">{dayName.toUpperCase()}</div>
+                  <div className="text-[9px] opacity-70">{monthShort.toUpperCase()} {yearNumber}</div>
+                </div>
               </div>
-            ))}
-            {events.length === 0 && <div className="text-[10px] opacity-60">NO_EVENTS_TODAY</div>}
+              <div className="text-right text-[10px] text-emerald-400">
+                [{events.length} EVENTS]
+              </div>
+            </div>
+
+            {/* Events at the Bottom */}
+            <div className="flex-1 flex flex-col space-y-1 overflow-y-auto pr-0.5 min-h-0">
+              {events.map((evt) => (
+                <div key={evt.id} className="p-1 border border-black/20 dark:border-white/20 flex items-center justify-between text-[11px]">
+                  <span className="text-[10px] text-cyan-400 font-bold mr-2">&gt; {evt.startTime}</span>
+                  <span className="truncate flex-1 font-bold">{evt.title}</span>
+                </div>
+              ))}
+              {events.length === 0 && <div className="text-[10px] opacity-60">NO_EVENTS_TODAY</div>}
+            </div>
           </div>
         </TuiBox>
       );
@@ -1159,19 +1180,36 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
     if (uiStyle === 'brutalist') {
       return (
         <BrutalistBox
-          title="TODAY'S SCHEDULE"
-          badge={`${events.length} EVENTS`}
+          title="SCHEDULE & AGENDA"
+          badge={`${dayNumber} ${monthShort.toUpperCase()}`}
           headerRight={renderCardControls('calendar')}
           className="h-full flex flex-col justify-between"
         >
-          <div className="flex-1 flex flex-col justify-start space-y-1.5 overflow-y-auto pr-0.5 min-h-0 font-mono text-xs">
-            {displayEvents.map((evt) => (
-              <div key={evt.id} className="p-1.5 border-2 border-black dark:border-white flex items-center justify-between">
-                <span className="text-[10px] font-black mr-2 bg-yellow-400 text-black px-1">{evt.startTime}</span>
-                <span className="truncate flex-1 font-black">{evt.title}</span>
+          <div className="flex flex-col justify-between flex-1 py-1 font-mono min-h-0">
+            {/* Big Date Header */}
+            <div className="flex items-baseline justify-between border-b-2 border-black pb-1 mb-1.5">
+              <div className="flex items-baseline space-x-2">
+                <span className="text-5xl font-black text-black dark:text-white leading-none">{dayNumber}</span>
+                <div>
+                  <div className="font-black text-sm uppercase leading-tight">{dayName}</div>
+                  <div className="text-[10px] font-bold opacity-75">{monthLong} {yearNumber}</div>
+                </div>
               </div>
-            ))}
-            {events.length === 0 && <div className="text-xs font-bold opacity-60">NO SCHEDULED EVENTS</div>}
+              <div className="bg-yellow-400 text-black px-1.5 py-0.5 text-[10px] font-black border border-black">
+                {events.length} EVTS
+              </div>
+            </div>
+
+            {/* Events at the Bottom */}
+            <div className="flex-1 flex flex-col space-y-1.5 overflow-y-auto pr-0.5 min-h-0">
+              {events.map((evt) => (
+                <div key={evt.id} className="p-1.5 border-2 border-black dark:border-white flex items-center justify-between text-xs">
+                  <span className="text-[10px] font-black mr-2 bg-yellow-400 text-black px-1">{evt.startTime}</span>
+                  <span className="truncate flex-1 font-black">{evt.title}</span>
+                </div>
+              ))}
+              {events.length === 0 && <div className="text-xs font-bold opacity-60">NO SCHEDULED EVENTS</div>}
+            </div>
           </div>
         </BrutalistBox>
       );
@@ -1181,24 +1219,42 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
       return (
         <HudBox
           title="SCHEDULE_LOG"
-          code={`${events.length}_EVTS`}
+          code={`DATE_${dayNumber}_${monthShort.toUpperCase()}`}
           glowColor="cyan"
           headerRight={renderCardControls('calendar')}
           className="h-full flex flex-col justify-between"
         >
-          <div className="flex-1 flex flex-col justify-start space-y-1.5 overflow-y-auto pr-0.5 min-h-0 font-mono text-xs text-cyan-200">
-            {displayEvents.map((evt) => (
-              <div key={evt.id} className="p-1.5 border border-cyan-500/30 bg-cyan-950/20 flex items-center justify-between">
-                <span className="text-[10px] text-cyan-400 font-bold mr-2">[{evt.startTime}]</span>
-                <span className="truncate flex-1 font-bold">{evt.title}</span>
+          <div className="flex flex-col justify-between flex-1 py-1 font-mono min-h-0 text-cyan-200">
+            {/* Big Date Header */}
+            <div className="flex items-baseline justify-between border-b border-cyan-500/30 pb-1.5 mb-1.5">
+              <div className="flex items-baseline space-x-2">
+                <span className="text-4xl sm:text-5xl font-black text-cyan-400 leading-none">{dayNumber}</span>
+                <div>
+                  <div className="font-bold text-xs uppercase text-cyan-300">{dayName}</div>
+                  <div className="text-[9px] text-teal-400/80">{monthLong} {yearNumber}</div>
+                </div>
               </div>
-            ))}
-            {events.length === 0 && <div className="text-[10px] opacity-60">ALL_CLEAR // NO_ENTRIES</div>}
+              <div className="text-[10px] text-rose-400 font-mono">
+                {events.length} SCHEDULED
+              </div>
+            </div>
+
+            {/* Events at the Bottom */}
+            <div className="flex-1 flex flex-col space-y-1.5 overflow-y-auto pr-0.5 min-h-0 text-xs">
+              {events.map((evt) => (
+                <div key={evt.id} className="p-1.5 border border-cyan-500/30 bg-cyan-950/20 flex items-center justify-between">
+                  <span className="text-[10px] text-cyan-400 font-bold mr-2">[{evt.startTime}]</span>
+                  <span className="truncate flex-1 font-bold">{evt.title}</span>
+                </div>
+              ))}
+              {events.length === 0 && <div className="text-[10px] opacity-60">ALL_CLEAR // NO_ENTRIES</div>}
+            </div>
           </div>
         </HudBox>
       );
     }
 
+    // Default Glass / Minimal / Civic / Neumorphic / Retrowave / Obsidian / Eink
     return (
       <div className={getCardClass(isCompact)}>
         <div className="flex items-center justify-between mb-1 shrink-0">
@@ -1216,27 +1272,96 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col justify-start space-y-1.5 overflow-y-auto pr-0.5 min-h-0 py-0.5">
-          {displayEvents.map((evt) => (
-            <div key={evt.id} className={`p-2 rounded-xl border flex items-center justify-between text-xs ${getInnerClass()}`}>
-              <div className="flex items-center space-x-2 truncate min-w-0">
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30 shrink-0">
-                  {evt.startTime}
-                </span>
-                <span className="font-semibold truncate">{evt.title}</span>
+        {/* 1-row layout (height 140px) */}
+        {!isTall ? (
+          <div className="flex-1 flex items-center justify-between min-h-0 py-0.5 space-x-3">
+            {/* Big Date Callout */}
+            <div className="flex items-baseline space-x-2 shrink-0">
+              <span className="text-4xl sm:text-5xl font-black tracking-tight font-mono-numbers text-purple-400">
+                {dayNumber}
+              </span>
+              <div className="flex flex-col">
+                <span className="text-xs font-bold leading-tight uppercase tracking-wider">{dayName.slice(0, 3)}</span>
+                <span className="text-[10px] opacity-70 font-mono">{monthShort} {yearNumber}</span>
               </div>
-              {evt.location && isTall && (
-                <span className="text-[10px] opacity-70 flex items-center shrink-0 ml-2">
-                  <MapPin size={10} className="mr-0.5 text-red-400" />
-                  {evt.location}
-                </span>
+            </div>
+
+            {/* Next upcoming event on the right */}
+            <div className="flex-1 min-w-0">
+              {events.length > 0 ? (
+                <div className={`p-1.5 rounded-xl border flex items-center space-x-2 text-xs truncate ${getInnerClass()}`}>
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30 shrink-0">
+                    {events[0].startTime}
+                  </span>
+                  <span className="font-semibold truncate">{events[0].title}</span>
+                </div>
+              ) : (
+                <div className="text-xs opacity-60 font-mono text-center">No events today</div>
               )}
             </div>
-          ))}
-          {events.length === 0 && (
-            <div className="py-4 text-center text-xs opacity-60 font-mono">No events scheduled for today.</div>
-          )}
-        </div>
+          </div>
+        ) : (
+          /* 2+ row layout */
+          <div className="flex-1 flex flex-col justify-between min-h-0 py-0.5">
+            {/* Big Date Header */}
+            <div className="flex items-center justify-between pb-2 border-b border-purple-500/20 shrink-0">
+              <div className="flex items-center space-x-3">
+                <span className="text-5xl sm:text-6xl font-black tracking-tight font-mono-numbers text-purple-400 leading-none">
+                  {dayNumber}
+                </span>
+                <div className="flex flex-col">
+                  <span className="text-base sm:text-lg font-bold leading-tight tracking-tight">
+                    {dayName}
+                  </span>
+                  <span className="text-xs opacity-70 font-mono">
+                    {monthLong} {yearNumber}
+                  </span>
+                </div>
+              </div>
+
+              <div className="text-right font-mono">
+                <span className="text-[10px] text-purple-400 font-semibold block">
+                  {events.length > 0 ? `Next: ${events[0].startTime}` : 'All Clear'}
+                </span>
+                <span className="text-[9px] opacity-60 block">
+                  {events.length} meeting{events.length === 1 ? '' : 's'} today
+                </span>
+              </div>
+            </div>
+
+            {/* Events at the Bottom */}
+            <div className="flex-1 flex flex-col justify-start min-h-0 mt-2">
+              <div className="text-[9px] uppercase font-bold tracking-wider opacity-60 mb-1.5 shrink-0 flex items-center justify-between">
+                <span>Upcoming Agenda</span>
+                <span className="font-mono text-[8px] opacity-70">Scroll for more</span>
+              </div>
+
+              <div className="flex-1 flex flex-col space-y-1.5 overflow-y-auto pr-0.5 min-h-0">
+                {events.map((evt) => (
+                  <div key={evt.id} className={`p-2 rounded-xl border flex items-center justify-between text-xs shrink-0 ${getInnerClass()}`}>
+                    <div className="flex items-center space-x-2 truncate min-w-0">
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30 shrink-0">
+                        {evt.startTime}
+                      </span>
+                      <span className="font-semibold truncate">{evt.title}</span>
+                    </div>
+                    {evt.location && (
+                      <span className="text-[10px] opacity-70 flex items-center shrink-0 ml-2">
+                        <MapPin size={10} className="mr-0.5 text-red-400" />
+                        {evt.location}
+                      </span>
+                    )}
+                  </div>
+                ))}
+                {events.length === 0 && (
+                  <div className="py-4 text-center text-xs opacity-60 font-mono">
+                    No scheduled meetings today. Enjoy your day!
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   };
@@ -2295,7 +2420,7 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
       {/* Slot-Based 12-Column Grid with 8-Direction Mouse-Drag Resizing & Positioning */}
       <div
         ref={gridRef}
-        className="grid grid-cols-12 gap-4 overflow-y-auto pr-1 flex-1 min-h-0 relative select-none"
+        className="grid grid-cols-12 gap-4 overflow-y-auto overflow-x-hidden pr-2 flex-1 min-h-0 relative select-none"
         style={{ gridAutoRows: '140px' }}
       >
         {/* Visual Blueprint Grid Matrix during Move or Resize */}
