@@ -1786,7 +1786,7 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
           headerRight={renderCardControls('timeProgress')}
           className="h-full flex flex-col justify-between"
         >
-          <div className="flex flex-col justify-between flex-1 py-1 font-mono text-xs min-h-0 space-y-1.5">
+          <div className="flex flex-col justify-between flex-1 py-0.5 font-mono text-xs min-h-0 space-y-1">
             <div>
               <div className="flex justify-between text-[10px] mb-0.5">
                 <span>YEAR_{year}</span>
@@ -1814,6 +1814,13 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
                 <div className="h-full bg-amber-400" style={{ width: `${monthPercent}%` }} />
               </div>
             </div>
+            {isTall && (
+              <div className="grid grid-cols-3 gap-1 pt-1.5 border-t border-dashed border-emerald-500/30 text-center text-[10px]">
+                <div>WEEK: {weekNum}/52</div>
+                <div>DAY: {dayOfYear}/{totalDaysInYear}</div>
+                <div>PACE: ON_TRACK</div>
+              </div>
+            )}
           </div>
         </TuiBox>
       );
@@ -1827,34 +1834,41 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
           headerRight={renderCardControls('timeProgress')}
           className="h-full flex flex-col justify-between"
         >
-          <div className="flex flex-col justify-between flex-1 py-1 font-mono min-h-0 space-y-1.5">
+          <div className="flex flex-col justify-between flex-1 py-0.5 font-mono min-h-0 space-y-1">
             <div>
-              <div className="flex justify-between text-[10px] font-black uppercase mb-0.5">
+              <div className="flex justify-between text-[9px] font-black uppercase mb-0.5">
                 <span>YEAR {year}</span>
                 <span>{yearPercent.toFixed(1)}% • {daysLeftInYear}D LEFT</span>
               </div>
-              <div className="h-2 w-full bg-neutral-200 border-2 border-black overflow-hidden">
-                <div className="h-full bg-yellow-400 border-r-2 border-black" style={{ width: `${yearPercent}%` }} />
+              <div className="h-1.5 w-full bg-neutral-200 border border-black overflow-hidden">
+                <div className="h-full bg-yellow-400" style={{ width: `${yearPercent}%` }} />
               </div>
             </div>
             <div>
-              <div className="flex justify-between text-[10px] font-black uppercase mb-0.5">
+              <div className="flex justify-between text-[9px] font-black uppercase mb-0.5">
                 <span>QUARTER Q{quarterNum}</span>
                 <span>{quarterPercent.toFixed(1)}% • {daysLeftInQuarter}D LEFT</span>
               </div>
-              <div className="h-2 w-full bg-neutral-200 border-2 border-black overflow-hidden">
-                <div className="h-full bg-lime-400 border-r-2 border-black" style={{ width: `${quarterPercent}%` }} />
+              <div className="h-1.5 w-full bg-neutral-200 border border-black overflow-hidden">
+                <div className="h-full bg-lime-400" style={{ width: `${quarterPercent}%` }} />
               </div>
             </div>
             <div>
-              <div className="flex justify-between text-[10px] font-black uppercase mb-0.5">
+              <div className="flex justify-between text-[9px] font-black uppercase mb-0.5">
                 <span>MONTH {monthName.toUpperCase()}</span>
                 <span>{monthPercent.toFixed(1)}% • {daysLeftInMonth}D LEFT</span>
               </div>
-              <div className="h-2 w-full bg-neutral-200 border-2 border-black overflow-hidden">
-                <div className="h-full bg-cyan-400 border-r-2 border-black" style={{ width: `${monthPercent}%` }} />
+              <div className="h-1.5 w-full bg-neutral-200 border border-black overflow-hidden">
+                <div className="h-full bg-cyan-400" style={{ width: `${monthPercent}%` }} />
               </div>
             </div>
+            {isTall && (
+              <div className="grid grid-cols-3 gap-1 pt-1.5 border-t-2 border-black text-center text-[10px] font-black">
+                <div className="border border-black bg-yellow-200 p-0.5">W{weekNum}/52</div>
+                <div className="border border-black bg-lime-200 p-0.5">D{dayOfYear}/{totalDaysInYear}</div>
+                <div className="border border-black bg-cyan-200 p-0.5">ON TRACK</div>
+              </div>
+            )}
           </div>
         </BrutalistBox>
       );
@@ -1869,7 +1883,7 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
           headerRight={renderCardControls('timeProgress')}
           className="h-full flex flex-col justify-between"
         >
-          <div className="flex flex-col justify-between flex-1 py-1 font-mono text-xs min-h-0 space-y-2">
+          <div className="flex flex-col justify-between flex-1 py-0.5 font-mono text-xs min-h-0 space-y-1.5">
             <div>
               <div className="flex justify-between text-[10px] text-cyan-300 mb-0.5">
                 <span>CYCLE_{year}</span>
@@ -1897,15 +1911,22 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
                 <div className="h-full bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.8)]" style={{ width: `${monthPercent}%` }} />
               </div>
             </div>
+            {isTall && (
+              <div className="grid grid-cols-3 gap-1 pt-1.5 border-t border-cyan-500/20 text-center text-[10px] text-cyan-300">
+                <div className="border border-cyan-500/30 p-0.5 rounded">W{weekNum}/52</div>
+                <div className="border border-cyan-500/30 p-0.5 rounded">D{dayOfYear}/{totalDaysInYear}</div>
+                <div className="border border-cyan-500/30 p-0.5 rounded text-emerald-400">ON_TRACK</div>
+              </div>
+            )}
           </div>
         </HudBox>
       );
     }
 
-    // Default Glass / Minimal / Civic
+    // Default Glass / Minimal / Civic / Neumorphic / Retrowave / Obsidian / Eink
     return (
       <div className={getCardClass(isCompact)}>
-        <div className="flex items-center justify-between mb-1.5 shrink-0">
+        <div className="flex items-center justify-between mb-1 shrink-0">
           <span className="text-[10px] uppercase font-bold tracking-wider flex items-center space-x-1.5 opacity-80 truncate">
             <Timer size={12} className="text-indigo-400 shrink-0" />
             <span className="truncate">{isCompact ? 'Progress' : 'Time & Year Progress'}</span>
@@ -1920,60 +1941,154 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col justify-around min-h-0 py-0.5 space-y-2">
-          {/* Year bar */}
-          <div>
-            <div className="flex items-center justify-between text-xs mb-1 font-mono">
-              <span className="font-semibold text-[11px] opacity-90">{year} Year</span>
-              <div className="space-x-1.5 text-[10px]">
-                <span className="font-bold text-indigo-400">{yearPercent.toFixed(1)}%</span>
-                <span className="opacity-50">({daysLeftInYear}d left)</span>
+        {/* 1-row layout (height 140px) */}
+        {!isTall ? (
+          layout.colSpan >= 6 ? (
+            /* Wide 1-row: 3-column side-by-side progress cards */
+            <div className="flex-1 grid grid-cols-3 gap-2 min-h-0 items-center py-0.5">
+              <div className={`p-2 rounded-xl border flex flex-col justify-between h-full ${getInnerClass()}`}>
+                <div className="flex justify-between items-baseline text-[10px] font-mono">
+                  <span className="font-semibold">{year} Year</span>
+                  <span className="font-bold text-indigo-400">{yearPercent.toFixed(1)}%</span>
+                </div>
+                <div className={`h-1.5 w-full rounded-full overflow-hidden my-1 ${isLight ? 'bg-slate-200' : 'bg-white/10'}`}>
+                  <div className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500" style={{ width: `${yearPercent}%` }} />
+                </div>
+                <span className="text-[9px] opacity-60 font-mono">{daysLeftInYear}d left</span>
+              </div>
+
+              <div className={`p-2 rounded-xl border flex flex-col justify-between h-full ${getInnerClass()}`}>
+                <div className="flex justify-between items-baseline text-[10px] font-mono">
+                  <span className="font-semibold">Q{quarterNum} Quarter</span>
+                  <span className="font-bold text-violet-400">{quarterPercent.toFixed(1)}%</span>
+                </div>
+                <div className={`h-1.5 w-full rounded-full overflow-hidden my-1 ${isLight ? 'bg-slate-200' : 'bg-white/10'}`}>
+                  <div className="h-full rounded-full bg-gradient-to-r from-violet-500 to-purple-500" style={{ width: `${quarterPercent}%` }} />
+                </div>
+                <span className="text-[9px] opacity-60 font-mono">{daysLeftInQuarter}d left</span>
+              </div>
+
+              <div className={`p-2 rounded-xl border flex flex-col justify-between h-full ${getInnerClass()}`}>
+                <div className="flex justify-between items-baseline text-[10px] font-mono">
+                  <span className="font-semibold">{monthName} Month</span>
+                  <span className="font-bold text-teal-400">{monthPercent.toFixed(1)}%</span>
+                </div>
+                <div className={`h-1.5 w-full rounded-full overflow-hidden my-1 ${isLight ? 'bg-slate-200' : 'bg-white/10'}`}>
+                  <div className="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-400" style={{ width: `${monthPercent}%` }} />
+                </div>
+                <span className="text-[9px] opacity-60 font-mono">{daysLeftInMonth}d left</span>
               </div>
             </div>
-            <div className={`h-2 w-full rounded-full overflow-hidden ${isLight ? 'bg-slate-200' : 'bg-white/10'}`}>
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-500"
-                style={{ width: `${yearPercent}%` }}
-              />
-            </div>
-          </div>
+          ) : (
+            /* Standard 1-row (e.g. 4 cols x 1 row) */
+            <div className="flex-1 flex flex-col justify-between min-h-0 py-0.5 space-y-1.5">
+              {/* Year bar */}
+              <div>
+                <div className="flex items-center justify-between text-[10px] mb-0.5 font-mono">
+                  <span className="font-semibold opacity-90">{year} Year</span>
+                  <div className="space-x-1.5 text-[9px]">
+                    <span className="font-bold text-indigo-400">{yearPercent.toFixed(1)}%</span>
+                    <span className="opacity-50">({daysLeftInYear}d left)</span>
+                  </div>
+                </div>
+                <div className={`h-1.5 w-full rounded-full overflow-hidden ${isLight ? 'bg-slate-200' : 'bg-white/10'}`}>
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-500"
+                    style={{ width: `${yearPercent}%` }}
+                  />
+                </div>
+              </div>
 
-          {/* Quarter bar */}
-          <div>
-            <div className="flex items-center justify-between text-xs mb-1 font-mono">
-              <span className="font-semibold text-[11px] opacity-90">Quarter {quarterNum}</span>
-              <div className="space-x-1.5 text-[10px]">
-                <span className="font-bold text-violet-400">{quarterPercent.toFixed(1)}%</span>
-                <span className="opacity-50">({daysLeftInQuarter}d left)</span>
+              {/* Quarter bar */}
+              <div>
+                <div className="flex items-center justify-between text-[10px] mb-0.5 font-mono">
+                  <span className="font-semibold opacity-90">Quarter {quarterNum}</span>
+                  <div className="space-x-1.5 text-[9px]">
+                    <span className="font-bold text-violet-400">{quarterPercent.toFixed(1)}%</span>
+                    <span className="opacity-50">({daysLeftInQuarter}d left)</span>
+                  </div>
+                </div>
+                <div className={`h-1.5 w-full rounded-full overflow-hidden ${isLight ? 'bg-slate-200' : 'bg-white/10'}`}>
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-violet-500 to-purple-500 transition-all duration-500"
+                    style={{ width: `${quarterPercent}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Month bar */}
+              <div>
+                <div className="flex items-center justify-between text-[10px] mb-0.5 font-mono">
+                  <span className="font-semibold opacity-90">{monthName} Month</span>
+                  <div className="space-x-1.5 text-[9px]">
+                    <span className="font-bold text-teal-400">{monthPercent.toFixed(1)}%</span>
+                    <span className="opacity-50">({daysLeftInMonth}d left)</span>
+                  </div>
+                </div>
+                <div className={`h-1.5 w-full rounded-full overflow-hidden ${isLight ? 'bg-slate-200' : 'bg-white/10'}`}>
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-400 transition-all duration-500"
+                    style={{ width: `${monthPercent}%` }}
+                  />
+                </div>
               </div>
             </div>
-            <div className={`h-2 w-full rounded-full overflow-hidden ${isLight ? 'bg-slate-200' : 'bg-white/10'}`}>
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-violet-500 to-purple-500 transition-all duration-500"
-                style={{ width: `${quarterPercent}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Month bar */}
-          <div>
-            <div className="flex items-center justify-between text-xs mb-1 font-mono">
-              <span className="font-semibold text-[11px] opacity-90">{monthName} Month</span>
-              <div className="space-x-1.5 text-[10px]">
-                <span className="font-bold text-teal-400">{monthPercent.toFixed(1)}%</span>
-                <span className="opacity-50">({daysLeftInMonth}d left)</span>
+          )
+        ) : (
+          /* 2+ row layout */
+          <div className="flex-1 flex flex-col justify-between min-h-0 py-1 space-y-2.5">
+            {/* Year bar */}
+            <div>
+              <div className="flex items-center justify-between text-xs mb-1 font-mono">
+                <span className="font-semibold text-xs opacity-90">{year} Full Year</span>
+                <div className="space-x-1.5 text-[10px]">
+                  <span className="font-bold text-indigo-400">{yearPercent.toFixed(1)}%</span>
+                  <span className="opacity-60">({daysLeftInYear} days remaining)</span>
+                </div>
+              </div>
+              <div className={`h-2.5 w-full rounded-full overflow-hidden ${isLight ? 'bg-slate-200' : 'bg-white/10'}`}>
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-500"
+                  style={{ width: `${yearPercent}%` }}
+                />
               </div>
             </div>
-            <div className={`h-2 w-full rounded-full overflow-hidden ${isLight ? 'bg-slate-200' : 'bg-white/10'}`}>
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-400 transition-all duration-500"
-                style={{ width: `${monthPercent}%` }}
-              />
-            </div>
-          </div>
 
-          {/* Extra metrics when tall */}
-          {isTall && (
+            {/* Quarter bar */}
+            <div>
+              <div className="flex items-center justify-between text-xs mb-1 font-mono">
+                <span className="font-semibold text-xs opacity-90">Quarter {quarterNum}</span>
+                <div className="space-x-1.5 text-[10px]">
+                  <span className="font-bold text-violet-400">{quarterPercent.toFixed(1)}%</span>
+                  <span className="opacity-60">({daysLeftInQuarter} days remaining)</span>
+                </div>
+              </div>
+              <div className={`h-2.5 w-full rounded-full overflow-hidden ${isLight ? 'bg-slate-200' : 'bg-white/10'}`}>
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-violet-500 to-purple-500 transition-all duration-500"
+                  style={{ width: `${quarterPercent}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Month bar */}
+            <div>
+              <div className="flex items-center justify-between text-xs mb-1 font-mono">
+                <span className="font-semibold text-xs opacity-90">{monthName} Month</span>
+                <div className="space-x-1.5 text-[10px]">
+                  <span className="font-bold text-teal-400">{monthPercent.toFixed(1)}%</span>
+                  <span className="opacity-60">({daysLeftInMonth} days remaining)</span>
+                </div>
+              </div>
+              <div className={`h-2.5 w-full rounded-full overflow-hidden ${isLight ? 'bg-slate-200' : 'bg-white/10'}`}>
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-400 transition-all duration-500"
+                  style={{ width: `${monthPercent}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Bottom 3-grid summary */}
             <div className={`grid grid-cols-3 gap-1.5 pt-2 border-t text-center font-mono text-xs ${isLight ? 'border-black/10' : 'border-white/10'}`}>
               <div className={`p-1.5 rounded-lg border ${getInnerClass()}`}>
                 <span className="block text-[8px] uppercase opacity-70">Week</span>
@@ -1988,8 +2103,8 @@ export const MorningWidgetsGrid: React.FC<MorningWidgetsGridProps> = ({
                 <span className="font-bold text-emerald-400">On Track</span>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     );
   };
